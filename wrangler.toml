@@ -1,0 +1,60 @@
+name = "jobs-in-istanbul"
+main = "src/index.ts"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# Cloudflare Workers settings
+workers_dev = true
+
+# D1 Database
+[[d1_databases]]
+binding = "DB"
+database_name = "jobs_db"
+database_id = "82b69dc1-0372-4460-9df9-2218235adc01"
+migrations_dir = "./node_modules/@sonicjs-cms/core/migrations"
+
+# R2 Bucket for media storage
+[[r2_buckets]]
+binding = "MEDIA_BUCKET"
+bucket_name = "jobs-media"
+
+# KV Namespace for caching and rate limiting
+[[kv_namespaces]]
+binding = "CACHE_KV"
+id = "523b280a22c341aaa83355381c4a2f30"
+
+# Environment variables
+[vars]
+ENVIRONMENT = "development"
+CORS_ORIGINS = "http://localhost:8787"
+JWT_SECRET = "change-me-in-production-secure-key"
+TURNSTILE_SITE_KEY = "1x00000000000000000000AA"
+TURNSTILE_SECRET_KEY = "1x0000000000000000000000000000000AA"
+
+# Production environment
+[env.production]
+name = "jobs-in-istanbul-production"
+routes = [
+  { pattern = "jobs-in-istanbul.com", custom_domain = true },
+  { pattern = "www.jobs-in-istanbul.com", custom_domain = true }
+]
+vars = { ENVIRONMENT = "production", CORS_ORIGINS = "https://jobs-in-istanbul.com", JWT_SECRET = "secure-jwt-secret-key-istanbul-jobs-2026!", TURNSTILE_SITE_KEY = "1x00000000000000000000AA", TURNSTILE_SECRET_KEY = "1x0000000000000000000000000000000AA" }
+
+
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "jobs_db"
+database_id = "82b69dc1-0372-4460-9df9-2218235adc01"
+
+[[env.production.kv_namespaces]]
+binding = "CACHE_KV"
+id = "523b280a22c341aaa83355381c4a2f30"
+
+[[env.production.r2_buckets]]
+binding = "MEDIA_BUCKET"
+bucket_name = "jobs-media"
+
+# Observability
+[observability]
+enabled = true
