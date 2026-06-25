@@ -20,7 +20,7 @@ publicRouter.get('/css/theme.css', (c) => {
 // Base layout helper
 export function renderLayout(c: any, title: string, contentHtml: string, locale: 'ar' | 'en', seoHtml: string = '') {
   const isRtl = locale === 'ar';
-  
+
   const translations = {
     ar: {
       siteName: 'فرص عمل في إسطنبول',
@@ -51,7 +51,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
   const t = translations[locale];
   const oppositeLocale = locale === 'ar' ? 'en' : 'ar';
   const requestPath = c.req.path;
-  
+
   // Calculate language switch URL
   let langSwitchUrl = `/${oppositeLocale}`;
   if (requestPath.includes('/jobs/')) {
@@ -62,6 +62,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
     langSwitchUrl = `/${oppositeLocale}/blog/${slug}`;
   } else if (requestPath.endsWith('/blog') || requestPath.endsWith('/blog/')) {
     langSwitchUrl = `/${oppositeLocale}/blog`;
+  } else if (requestPath.includes('/insights')) {
+    langSwitchUrl = `/${oppositeLocale}/insights`;
   }
 
   return `<!DOCTYPE html>
@@ -200,6 +202,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
             </div>
           </li>
           
+          <li><a href="/${locale}/insights" class="nav-link">${locale === 'ar' ? '📊 إحصائيات السوق' : '📊 Market Insights'}</a></li>
           <li><a href="/${locale}/blog" class="nav-link">${locale === 'ar' ? '📝 مدونة المهنة' : '📝 Career Blog'}</a></li>
           <li><a href="/${locale}/candidate/dashboard" class="nav-link" style="color: var(--primary);"><i class="fa-solid fa-graduation-cap"></i> ${locale === 'ar' ? 'بوابة الباحث' : 'Candidate Portal'}</a></li>
           <li><a href="/${locale}/employer/dashboard" class="nav-link nav-cta"><i class="fa-solid fa-user-tie"></i> ${locale === 'ar' ? 'بوابة الأعمال' : 'Employer Portal'}</a></li>
@@ -233,7 +236,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
 
   <!-- Mobile Nav Drawer -->
   <div id="mobile-nav" style="display:none; position:fixed; inset:0; z-index:300; background:rgba(0,0,0,0.5)" onclick="closeMobileNav(this,event)">
-    <div style="position:absolute; ${isRtl ? 'right:0' : 'left:0'}; top:0; bottom:0; width:min(300px,85vw); background:var(--bg-card); padding:24px; overflow-y:auto; box-shadow:var(--shadow-xl); animation: slideIn${isRtl?'Right':'Left'} 0.3s var(--ease-out);">
+    <div style="position:absolute; ${isRtl ? 'right:0' : 'left:0'}; top:0; bottom:0; width:min(300px,85vw); background:var(--bg-card); padding:24px; overflow-y:auto; box-shadow:var(--shadow-xl); animation: slideIn${isRtl ? 'Right' : 'Left'} 0.3s var(--ease-out);">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:28px;">
         <a href="/${locale}" class="logo" style="font-size:1.2rem">
           <div class="logo-icon"><i class="fa-solid fa-briefcase"></i></div>
@@ -243,6 +246,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       </div>
       <nav style="display:flex; flex-direction:column; gap:6px;">
         <a href="/${locale}" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">🏠 ${locale === 'ar' ? 'الرئيسية' : 'Home'}</a>
+        <a href="/${locale}/insights" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">📊 ${locale === 'ar' ? 'إحصائيات السوق' : 'Market Insights'}</a>
         <a href="/${locale}/blog" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">📝 ${locale === 'ar' ? 'مدونة المهنة' : 'Career Blog'}</a>
         
         <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-top:14px; margin-bottom:6px; padding-inline-start:16px; letter-spacing:0.05em;">🤖 ${locale === 'ar' ? 'أدوات الذكاء الاصطناعي' : 'AI Assistant Tools'}</div>
@@ -308,6 +312,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           <li class="footer-col-title">${locale === 'ar' ? 'الموقع' : 'Platform'}</li>
           <li><a href="/${locale}">${locale === 'ar' ? 'جميع الوظائف' : 'All Jobs'}</a></li>
           <li><a href="/${locale}/blog">${locale === 'ar' ? 'مدونة المهنة' : 'Career Blog'}</a></li>
+          <li><a href="/${locale}/insights">${locale === 'ar' ? 'إحصائيات السوق' : 'Market Insights'}</a></li>
           <li><a href="/${locale}/about">${locale === 'ar' ? 'من نحن' : 'About Us'}</a></li>
           <li><a href="/${locale}/contact">${locale === 'ar' ? 'اتصل بنا' : 'Contact Us'}</a></li>
           <li><a href="/${locale}/submit-job">${locale === 'ar' ? 'نشر وظيفة' : 'Post a Job'}</a></li>
@@ -597,30 +602,30 @@ publicRouter.get('/', (c) => {
 // Homepage for listing jobs
 const homeHandler = async (c: any, locale: 'ar' | 'en') => {
   const db = c.env.DB;
-  
+
   // Get query parameters
   const querySearch = c.req.query('search') || '';
   const queryCategory = c.req.query('category') || '';
   const queryJobType = c.req.query('type') || '';
   const queryDistrict = c.req.query('district') || '';
   const queryTransit = c.req.query('transit') || '';
-  
+
   // 1. Fetch Categories
   const catRows = await db.prepare(
     `SELECT id, slug, data FROM documents WHERE type_id = 'categories' AND status = 'published' AND is_published = 1`
   ).all();
-  
+
   const categories = (catRows.results || []).map((row: any) => ({
     id: row.id,
     slug: row.slug,
     ...JSON.parse(row.data)
   }));
-  
+
   // 2. Fetch Companies
   const compRows = await db.prepare(
     `SELECT id, slug, data FROM documents WHERE type_id = 'companies' AND status = 'published' AND is_published = 1`
   ).all();
-  
+
   const companiesMap = new Map();
   for (const row of compRows.results || []) {
     companiesMap.set(row.id, {
@@ -636,9 +641,9 @@ const homeHandler = async (c: any, locale: 'ar' | 'en') => {
     FROM documents j
     WHERE j.type_id = 'jobs' AND j.status = 'published' AND j.is_published = 1
   `;
-  
+
   const params: any[] = [];
-  
+
   // Filter by Category
   if (queryCategory) {
     sql += ` AND EXISTS (
@@ -647,29 +652,29 @@ const homeHandler = async (c: any, locale: 'ar' | 'en') => {
     )`;
     params.push(queryCategory);
   }
-  
+
   // Filter by Job Type
   if (queryJobType) {
     sql += ` AND json_extract(j.data, '$.jobType') = ?`;
     params.push(queryJobType);
   }
-  
+
   sql += ` ORDER BY j.published_at DESC`;
-  
+
   const jobRows = await db.prepare(sql).bind(...params).all();
-  
+
   let jobs = (jobRows.results || []).map((row: any) => ({
     id: row.id,
     slug: row.slug,
     publishedAt: row.published_at,
     ...JSON.parse(row.data)
   }));
-  
+
   // Filter by Keyword (search) client-side or parse company logos
   if (querySearch) {
     const kw = querySearch.toLowerCase();
-    jobs = jobs.filter((job: any) => 
-      job.title_ar.toLowerCase().includes(kw) || 
+    jobs = jobs.filter((job: any) =>
+      job.title_ar.toLowerCase().includes(kw) ||
       job.title_en.toLowerCase().includes(kw) ||
       job.description_ar.toLowerCase().includes(kw) ||
       job.description_en.toLowerCase().includes(kw) ||
@@ -681,8 +686,8 @@ const homeHandler = async (c: any, locale: 'ar' | 'en') => {
   // Filter by District client-side
   if (queryDistrict) {
     const kw = queryDistrict.toLowerCase();
-    jobs = jobs.filter((job: any) => 
-      job.location_ar.toLowerCase().includes(kw) || 
+    jobs = jobs.filter((job: any) =>
+      job.location_ar.toLowerCase().includes(kw) ||
       job.location_en.toLowerCase().includes(kw)
     );
   }
@@ -761,8 +766,8 @@ const homeHandler = async (c: any, locale: 'ar' | 'en') => {
     <div class="job-card ${job.featured ? 'featured' : ''}" data-job-id="${job.id}">
       <div class="co-logo">
         ${job.companyObj.logo
-          ? `<img src="${job.companyObj.logo}" alt="${job.companyObj.name}" loading="lazy" onerror="this.style.display='none'; this.parentElement.innerHTML='<span>${logoPlaceholder}</span>';">`
-          : `<span>${logoPlaceholder}</span>`}
+        ? `<img src="${job.companyObj.logo}" alt="${job.companyObj.name}" loading="lazy" onerror="this.style.display='none'; this.parentElement.innerHTML='<span>${logoPlaceholder}</span>';">`
+        : `<span>${logoPlaceholder}</span>`}
       </div>
       <div class="job-body">
         <div class="job-top">
@@ -809,9 +814,9 @@ const homeHandler = async (c: any, locale: 'ar' | 'en') => {
         </div>
         <h1 class="hero-title animate-fadeup animate-delay-1">
           ${locale === 'ar'
-            ? `اعثر على وظيفتك <span class="gradient-word">المثالية</span><br>في إسطنبول`
-            : `Find Your <span class="gradient-word">Dream Job</span><br>in Istanbul`
-          }
+      ? `اعثر على وظيفتك <span class="gradient-word">المثالية</span><br>في إسطنبول`
+      : `Find Your <span class="gradient-word">Dream Job</span><br>in Istanbul`
+    }
         </h1>
         <p class="hero-subtitle animate-fadeup animate-delay-2">${t.heroSubtitle}</p>
         <div class="hero-stats animate-fadeup animate-delay-3">
@@ -850,9 +855,9 @@ const homeHandler = async (c: any, locale: 'ar' | 'en') => {
         <div class="search-quick-tags">
           <span class="sq-label">${locale === 'ar' ? 'بحث سريع:' : 'Quick search:'}</span>
           ${locale === 'ar'
-            ? ['مطوّر', 'محاسب', 'ترجمة', 'فندقي', 'مبيعات'].map(k => `<span class="sq-tag">${k}</span>`).join('')
-            : ['Developer', 'Accountant', 'Sales', 'Hotel', 'Marketing'].map(k => `<span class="sq-tag">${k}</span>`).join('')
-          }
+      ? ['مطوّر', 'محاسب', 'ترجمة', 'فندقي', 'مبيعات'].map(k => `<span class="sq-tag">${k}</span>`).join('')
+      : ['Developer', 'Accountant', 'Sales', 'Hotel', 'Marketing'].map(k => `<span class="sq-tag">${k}</span>`).join('')
+    }
         </div>
       </div>
 
@@ -901,9 +906,9 @@ const homeHandler = async (c: any, locale: 'ar' | 'en') => {
             ${locale === 'ar' ? 'الكل' : 'All'}
           </a>
           ${['Fatih', 'Sisli', 'Basaksehir', 'Esenyurt', 'Kadikoy', 'Besiktas', 'Beylikduzu', 'Uskudar', 'Zeytinburnu'].map(dist => {
-            const name = locale === 'ar' ? ({'Fatih':'الفاتح','Sisli':'شيشلي','Basaksehir':'باشاك شهير','Esenyurt':'إسنيورت','Kadikoy':'كاديكوي','Besiktas':'بشيكتاش','Beylikduzu':'بيليك دوزو','Uskudar':'أوسكودار','Zeytinburnu':'زيتون بورنو'}[dist] || dist) : dist;
-            return `<a href="/${locale}?search=${querySearch}&category=${queryCategory}&type=${queryJobType}&district=${dist}" class="district-card ${queryDistrict.toLowerCase() === dist.toLowerCase() ? 'active' : ''}">${name}</a>`;
-          }).join('')}
+      const name = locale === 'ar' ? ({ 'Fatih': 'الفاتح', 'Sisli': 'شيشلي', 'Basaksehir': 'باشاك شهير', 'Esenyurt': 'إسنيورت', 'Kadikoy': 'كاديكوي', 'Besiktas': 'بشيكتاش', 'Beylikduzu': 'بيليك دوزو', 'Uskudar': 'أوسكودار', 'Zeytinburnu': 'زيتون بورنو' }[dist] || dist) : dist;
+      return `<a href="/${locale}?search=${querySearch}&category=${queryCategory}&type=${queryJobType}&district=${dist}" class="district-card ${queryDistrict.toLowerCase() === dist.toLowerCase() ? 'active' : ''}">${name}</a>`;
+    }).join('')}
         </div>
       </section>
 
@@ -964,9 +969,9 @@ const homeHandler = async (c: any, locale: 'ar' | 'en') => {
             </h3>
             <p style="font-size:0.82rem; line-height:1.4; opacity:0.95; margin:0 0 16px 0; color:rgba(255,255,255,0.9);">
               ${locale === 'ar'
-                ? 'انضم لأكثر من ٢٠ ألف مشترك واحصل على أحدث الوظائف الشاغرة في إسطنبول فوراً!'
-                : 'Join 20k+ subscribers and get the latest job postings in Istanbul instantly!'
-              }
+      ? 'انضم لأكثر من ٢٠ ألف مشترك واحصل على أحدث الوظائف الشاغرة في إسطنبول فوراً!'
+      : 'Join 20k+ subscribers and get the latest job postings in Istanbul instantly!'
+    }
             </p>
             <a href="https://t.me/jobsistanbul" target="_blank" rel="noopener" class="telegram-btn" style="display:flex; align-items:center; justify-content:center; gap:8px; background:white; color:#0088cc; padding:10px 16px; border-radius:var(--radius-md); font-weight:700; font-size:0.875rem; text-decoration:none; box-shadow:0 4px 12px rgba(0,0,0,0.1); transition:all 0.2s ease;">
               ${locale === 'ar' ? 'انضم الآن مجاناً' : 'Join Free Now'}
@@ -1019,85 +1024,85 @@ publicRouter.get(
   '/:locale/jobs/:slug',
   cache({ cacheName: 'istanbul-job-details', cacheControl: 'max-age=300' }),
   async (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en';
-  const slug = c.req.param('slug');
-  const db = (c.env as any).DB;
-  
-  if (locale !== 'ar' && locale !== 'en') {
-    return c.redirect('/ar');
-  }
+    const locale = c.req.param('locale') as 'ar' | 'en';
+    const slug = c.req.param('slug');
+    const db = (c.env as any).DB;
 
-  // Fetch job document matching the slug
-  const jobRow = await db.prepare(
-    `SELECT id, data, published_at FROM documents WHERE type_id = 'jobs' AND slug = ? AND status = 'published' AND is_published = 1`
-  ).bind(slug).first();
-
-  if (!jobRow) {
-    return c.text(locale === 'ar' ? 'الوظيفة غير موجودة أو انتهت صلاحيتها.' : 'Job not found or expired.', 404);
-  }
-
-  const job = {
-    id: jobRow.id,
-    publishedAt: jobRow.published_at,
-    ...JSON.parse(jobRow.data)
-  };
-
-  // Fetch Company
-  const compRow = await db.prepare(
-    `SELECT data FROM documents WHERE id = ?`
-  ).bind(job.company).first();
-  const company = compRow ? JSON.parse(compRow.data) : { name: job.company || 'Company', description: '' };
-
-  const title = locale === 'ar' ? job.title_ar : job.title_en;
-  const description = locale === 'ar' ? job.description_ar : job.description_en;
-  const location = locale === 'ar' ? job.location_ar : job.location_en;
-
-  let quizQuestionsRaw = [];
-  try {
-    if (job.screeningQuestionsJson) {
-      quizQuestionsRaw = JSON.parse(job.screeningQuestionsJson);
+    if (locale !== 'ar' && locale !== 'en') {
+      return c.redirect('/ar');
     }
-  } catch (err) {}
-  
-  const translations = {
-    ar: {
-      jobType: 'نوع العمل',
-      location: 'الموقع',
-      published: 'تاريخ النشر',
-      salary: 'الراتب المتوقع',
-      applyNow: 'تقدم للوظيفة الآن',
-      companyDetails: 'عن جهة العمل',
-      requirements: 'الوصف والمهام المطلوبة',
-      backToList: '← العودة لقائمة الوظائف',
-      fullTime: 'دوام كامل',
-      partTime: 'دوام جزئي',
-      remote: 'عمل عن بعد',
-      internship: 'تدريب عملي',
-      featured: 'وظيفة مميزة'
-    },
-    en: {
-      jobType: 'Job Type',
-      location: 'Location',
-      published: 'Published At',
-      salary: 'Offered Salary',
-      applyNow: 'Apply For Job',
-      companyDetails: 'About Company',
-      requirements: 'Description & Requirements',
-      backToList: '← Back to all jobs',
-      fullTime: 'Full Time',
-      partTime: 'Part Time',
-      remote: 'Remote',
-      internship: 'Internship',
-      featured: 'Featured Job'
+
+    // Fetch job document matching the slug
+    const jobRow = await db.prepare(
+      `SELECT id, data, published_at FROM documents WHERE type_id = 'jobs' AND slug = ? AND status = 'published' AND is_published = 1`
+    ).bind(slug).first();
+
+    if (!jobRow) {
+      return c.text(locale === 'ar' ? 'الوظيفة غير موجودة أو انتهت صلاحيتها.' : 'Job not found or expired.', 404);
     }
-  }[locale];
 
-  const typeLabel = translations[job.jobType === 'full-time' ? 'fullTime' : job.jobType === 'part-time' ? 'partTime' : job.jobType === 'remote' ? 'remote' : 'internship'];
-  const pubDate = new Date(job.publishedAt).toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-  // Format description paragraphs
-  const formattedDescription = description.split('\n').map((p: string) => p.trim() ? `<p style="margin-bottom: 16px;">${p}</p>` : '').join('');
+    const job = {
+      id: jobRow.id,
+      publishedAt: jobRow.published_at,
+      ...JSON.parse(jobRow.data)
+    };
 
-  const html = `
+    // Fetch Company
+    const compRow = await db.prepare(
+      `SELECT data FROM documents WHERE id = ?`
+    ).bind(job.company).first();
+    const company = compRow ? JSON.parse(compRow.data) : { name: job.company || 'Company', description: '' };
+
+    const title = locale === 'ar' ? job.title_ar : job.title_en;
+    const description = locale === 'ar' ? job.description_ar : job.description_en;
+    const location = locale === 'ar' ? job.location_ar : job.location_en;
+
+    let quizQuestionsRaw = [];
+    try {
+      if (job.screeningQuestionsJson) {
+        quizQuestionsRaw = JSON.parse(job.screeningQuestionsJson);
+      }
+    } catch (err) { }
+
+    const translations = {
+      ar: {
+        jobType: 'نوع العمل',
+        location: 'الموقع',
+        published: 'تاريخ النشر',
+        salary: 'الراتب المتوقع',
+        applyNow: 'تقدم للوظيفة الآن',
+        companyDetails: 'عن جهة العمل',
+        requirements: 'الوصف والمهام المطلوبة',
+        backToList: '← العودة لقائمة الوظائف',
+        fullTime: 'دوام كامل',
+        partTime: 'دوام جزئي',
+        remote: 'عمل عن بعد',
+        internship: 'تدريب عملي',
+        featured: 'وظيفة مميزة'
+      },
+      en: {
+        jobType: 'Job Type',
+        location: 'Location',
+        published: 'Published At',
+        salary: 'Offered Salary',
+        applyNow: 'Apply For Job',
+        companyDetails: 'About Company',
+        requirements: 'Description & Requirements',
+        backToList: '← Back to all jobs',
+        fullTime: 'Full Time',
+        partTime: 'Part Time',
+        remote: 'Remote',
+        internship: 'Internship',
+        featured: 'Featured Job'
+      }
+    }[locale];
+
+    const typeLabel = translations[job.jobType === 'full-time' ? 'fullTime' : job.jobType === 'part-time' ? 'partTime' : job.jobType === 'remote' ? 'remote' : 'internship'];
+    const pubDate = new Date(job.publishedAt).toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    // Format description paragraphs
+    const formattedDescription = description.split('\n').map((p: string) => p.trim() ? `<p style="margin-bottom: 16px;">${p}</p>` : '').join('');
+
+    const html = `
     <div class="container">
       <div style="margin: 30px 0 10px;">
         <a href="/${locale}" style="color: var(--primary); font-weight: 600;">${translations.backToList}</a>
@@ -1233,8 +1238,7 @@ publicRouter.get(
             </h4>
             
             <div id="quiz-questions-container" style="text-align: left;">
-              ${
-                quizQuestionsRaw.length > 0 ? quizQuestionsRaw.map((q: any, qIdx: number) => `
+              ${quizQuestionsRaw.length > 0 ? quizQuestionsRaw.map((q: any, qIdx: number) => `
                   <div style="margin-bottom: 16px; background: rgba(0,0,0,0.02); padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
                     <div style="font-weight: 700; color: var(--text-dark); margin-bottom: 8px;">Q${qIdx + 1}: ${q.question}</div>
                     ${q.options.map((opt: string) => `
@@ -1273,7 +1277,7 @@ publicRouter.get(
                     </label>
                   </div>
                 `
-              }
+      }
             </div>
 
             <div style="display: flex; gap: 12px; margin-top: 20px;">
@@ -1393,37 +1397,37 @@ publicRouter.get(
     </script>
   `;
 
-  const seoHtml = generateMetaTags(locale, 'job', {
-    title,
-    description: description,
-    slug: job.slug,
-    publishedAt: job.publishedAt,
-    companyName: company.name,
-    location,
-    jobType: job.jobType,
-    salary: job.salary,
-    seoKeywords: job.seoKeywords || [],
-    seoDescription: job.seoDescription || ''
-  }) + generateJsonLd(locale, 'job', {
-    title,
-    description: description,
-    slug: job.slug,
-    publishedAt: job.publishedAt,
-    companyName: company.name,
-    companyLogo: company.logo,
-    companyWebsite: company.website,
-    location,
-    jobType: job.jobType,
-    salary: job.salary
-  });
+    const seoHtml = generateMetaTags(locale, 'job', {
+      title,
+      description: description,
+      slug: job.slug,
+      publishedAt: job.publishedAt,
+      companyName: company.name,
+      location,
+      jobType: job.jobType,
+      salary: job.salary,
+      seoKeywords: job.seoKeywords || [],
+      seoDescription: job.seoDescription || ''
+    }) + generateJsonLd(locale, 'job', {
+      title,
+      description: description,
+      slug: job.slug,
+      publishedAt: job.publishedAt,
+      companyName: company.name,
+      companyLogo: company.logo,
+      companyWebsite: company.website,
+      location,
+      jobType: job.jobType,
+      salary: job.salary
+    });
 
-  return c.html(renderLayout(c, title, html, locale, seoHtml));
-})
+    return c.html(renderLayout(c, title, html, locale, seoHtml));
+  })
 
 // Submit Job Page
 publicRouter.get('/:locale/submit-job', async (c) => {
   const locale = c.req.param('locale') as 'ar' | 'en';
-  
+
   if (locale !== 'ar' && locale !== 'en') {
     return c.redirect('/ar/submit-job');
   }
@@ -1607,7 +1611,7 @@ publicRouter.post(
       const nowMs = Date.now();
       const id = `job-pending-${nowMs}-${Math.random().toString(36).substring(2, 7)}`;
       const slug = `${data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${nowMs}`;
-      
+
       let imageUrl = '';
       const bucket = (c.env as any).MEDIA_BUCKET;
       if (bucket) {
@@ -1693,7 +1697,7 @@ publicRouter.post(
         if (c.executionCtx && typeof c.executionCtx.waitUntil === 'function') {
           hasWaitUntil = true;
         }
-      } catch (e) {}
+      } catch (e) { }
 
       if (hasWaitUntil) {
         c.executionCtx.waitUntil(
@@ -1832,7 +1836,7 @@ publicRouter.post('/api/jobs/apply', rateLimiter(10, 5), async (c) => {
 
     return c.json({ success: true });
 
-  } catch(err: any) {
+  } catch (err: any) {
     console.error('Quick Apply Endpoint Error:', err);
     return c.json({ error: 'Application submission failed: ' + err.message }, 500);
   }
@@ -1865,7 +1869,7 @@ publicRouter.get('/api/jobs/image', async (c) => {
     headers.set('Cache-Control', 'public, max-age=86400');
 
     return c.body(object.body, 200, Object.fromEntries(headers.entries()));
-  } catch(err: any) {
+  } catch (err: any) {
     return c.text('Failed to load image: ' + err.message, 500);
   }
 });
