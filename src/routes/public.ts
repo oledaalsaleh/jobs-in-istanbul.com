@@ -64,6 +64,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
     langSwitchUrl = `/${oppositeLocale}/blog`;
   } else if (requestPath.includes('/insights')) {
     langSwitchUrl = `/${oppositeLocale}/insights`;
+  } else if (requestPath.includes('/ats-scanner')) {
+    langSwitchUrl = `/${oppositeLocale}/ats-scanner`;
   }
 
   return `<!DOCTYPE html>
@@ -168,6 +170,10 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
                 <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary);"></i>
                 <span>${locale === 'ar' ? 'تحسين السيرة بالذكاء الاصطناعي' : 'AI CV Optimizer'}</span>
               </a>
+              <a href="/${locale}/ats-scanner" class="dropdown-item">
+                <i class="fa-solid fa-barcode" style="color: #6366f1;"></i>
+                <span>${locale === 'ar' ? 'فاحص السيرة الذاتية (ATS Scanner)' : 'AI CV ATS Scanner'}</span>
+              </a>
               <a href="/${locale}/cover-letter-generator" class="dropdown-item">
                 <i class="fa-solid fa-pen-nib" style="color: var(--accent);"></i>
                 <span>${locale === 'ar' ? 'توليد رسائل التغطية بالذكاء الاصطناعي' : 'AI Cover Letter Generator'}</span>
@@ -251,6 +257,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         
         <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-top:14px; margin-bottom:6px; padding-inline-start:16px; letter-spacing:0.05em;">🤖 ${locale === 'ar' ? 'أدوات الذكاء الاصطناعي' : 'AI Assistant Tools'}</div>
         <a href="/${locale}/cv-optimizer" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary);"></i> ${locale === 'ar' ? 'تحسين السيرة الذاتية' : 'AI CV Optimizer'}</a>
+        <a href="/${locale}/ats-scanner" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-barcode" style="color: #6366f1;"></i> ${locale === 'ar' ? 'فاحص السيرة الذاتية (ATS)' : 'AI CV ATS Scanner'}</a>
         <a href="/${locale}/cover-letter-generator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-pen-nib" style="color: var(--accent);"></i> ${locale === 'ar' ? 'مولد رسائل التغطية' : 'Cover Letter Generator'}</a>
         <a href="/${locale}/interview-prep" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-microphone-lines" style="color: #10b981;"></i> ${locale === 'ar' ? 'محاكي المقابلات' : 'AI Interview Prep'}</a>
 
@@ -320,6 +327,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         <ul class="footer-links">
           <li class="footer-col-title">${locale === 'ar' ? 'أدوات ذكية' : 'Smart Tools'}</li>
           <li><a href="/${locale}/cv-optimizer">${locale === 'ar' ? 'تحسين السيرة بالذكاء الاصطناعي' : 'AI CV Optimizer'}</a></li>
+          <li><a href="/${locale}/ats-scanner">${locale === 'ar' ? 'فاحص السيرة الذاتية (ATS)' : 'AI CV ATS Scanner'}</a></li>
           <li><a href="/${locale}/resume-builder">${locale === 'ar' ? 'منشئ السيرة الذاتية' : 'Resume Builder'}</a></li>
           <li><a href="/${locale}/salary-calculator">${locale === 'ar' ? 'حاسبة ومؤشر الرواتب' : 'Salary Estimator'}</a></li>
         </ul>

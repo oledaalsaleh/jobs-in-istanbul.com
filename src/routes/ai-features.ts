@@ -1798,3 +1798,412 @@ Do NOT wrap the JSON in markdown code blocks, do not write comments, do not add 
 
   return c.json({ error: 'Invalid action' }, 400);
 });
+
+// ─── AI CV ATS Scanner API ───────────────────────────────────────────────
+aiFeaturesRouter.post('/api/candidate/ats-scan', rateLimiter(5, 10), async (c) => {
+  const env: any = c.env;
+  const db = env.DB;
+  const geminiApiKey = env.GEMINI_API_KEY;
+
+  if (!geminiApiKey) {
+    return c.json({ error: 'GEMINI_API_KEY is not configured on the server.' }, 500);
+  }
+
+  try {
+    const { jobId, cvText } = await c.req.json();
+    if (!jobId || !cvText) {
+      return c.json({ error: 'Missing jobId or cvText in request.' }, 400);
+    }
+
+    // Fetch the job document
+    const jobRow = await db.prepare(
+      `SELECT data FROM documents WHERE type_id = 'jobs' AND id = ? AND is_published = 1`
+    ).bind(jobId).first();
+
+    if (!jobRow) {
+      return c.json({ error: 'Job listing not found or inactive.' }, 404);
+    }
+
+    const jobData = JSON.parse(jobRow.data || '{}');
+    const jobTitle = jobData.title_en || jobData.title_ar || 'Job Title';
+    const jobDescription = jobData.description_en || jobData.description_ar || 'Job Description';
+    const jobKeywords = jobData.seoKeywords || [];
+
+    const prompt = `
+You are an expert ATS (Applicant Tracking System) recruiter and bilingual CV optimization specialist for the Middle East and Turkish job markets.
+Compare the following Candidate Resume/CV with the Job Posting details (Title, Description, and Keywords).
+Perform the following tasks:
+1. Calculate a compatibility match score from 0 to 100%. Be realistic and objective based on how well the candidate's skills and experience match the job description.
+2. Identify a list of "matchingKeywords": keywords present in both the CV and the job description/keywords.
+3. Identify a list of "missingKeywords": critical keywords, skills, or tools present in the job description/keywords but missing from the candidate's CV.
+4. Provide 3-4 highly actionable "recommendations" on how the candidate can optimize their CV specifically for this job.
+
+Job Title: "${jobTitle}"
+Job Description: "${jobDescription}"
+Job Keywords: "${Array.isArray(jobKeywords) ? jobKeywords.join(', ') : jobKeywords}"
+
+Candidate CV Text:
+"${cvText}"
+
+Return ONLY a valid JSON object matching the following structure. Do not wrap it in markdown code blocks, do not write comments, do not add intros or outros:
+{
+  "score": 85,
+  "matchingKeywords": ["Keyword1", "Keyword2", ...],
+  "missingKeywords": ["Keyword3", "Keyword4", ...],
+  "recommendations": [
+    "Recommendation 1...",
+    "Recommendation 2...",
+    "Recommendation 3..."
+  ]
+}
+`;
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: prompt
+          }]
+        }]
+      })
+    });
+
+    if (!res.ok) {
+      throw new Error(`Gemini API returned status ${res.status}`);
+    }
+
+    const data: any = await res.json();
+    let text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    
+    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    const startIdx = text.indexOf('{');
+    const endIdx = text.lastIndexOf('}');
+    if (startIdx !== -1 && endIdx !== -1) {
+      text = text.substring(startIdx, endIdx + 1);
+    }
+
+    const parsed = JSON.parse(text);
+    return c.json({
+      success: true,
+      score: parsed.score || 0,
+      matchingKeywords: parsed.matchingKeywords || [],
+      missingKeywords: parsed.missingKeywords || [],
+      recommendations: parsed.recommendations || []
+    });
+
+  } catch (err: any) {
+    console.error('ATS Scan API Error:', err);
+    return c.json({ 
+      success: false, 
+      error: 'An error occurred during CV ATS scanning: ' + err.message 
+    }, 500);
+  }
+});
+
+// ─── AI CV ATS Scanner UI Page ───────────────────────────────────────────
+aiFeaturesRouter.get('/:locale/ats-scanner', async (c) => {
+  const locale = c.req.param('locale') as 'ar' | 'en';
+  if (locale !== 'ar' && locale !== 'en') return c.redirect('/ar/ats-scanner');
+  const db = (c as any).env.DB;
+
+  const t = {
+    ar: {
+      title: '🤖 فاحص السيرة الذاتية بالذكاء الاصطناعي (ATS Scanner)',
+      subtitle: 'ارفع سيرتك الذاتية وافحص مدى توافقها مع نظام الفرز الآلي للوظيفة المطلوبة، واحصل على نصائح لتحسينها فوراً.',
+      selectJob: 'اختر الوظيفة المستهدفة للتحليل',
+      selectPlh: '-- اختر الوظيفة من القائمة --',
+      uploadTitle: 'ارفع سيرتك الذاتية (ملف PDF)',
+      uploadDesc: 'اسحب وأسقط ملف الـ PDF الخاص بسيرتك الذاتية هنا، أو انقر للاختيار من جهازك',
+      pasteLabel: 'أو الصق نص السيرة الذاتية مباشرة هنا',
+      pastePlh: 'الصق نص سيرتك الذاتية بالكامل هنا...',
+      submitBtn: 'ابدأ فحص السيرة الذاتية ⚡',
+      loading: 'جاري استخراج النص وتحليله بالذكاء الاصطناعي... ⏳',
+      resultsTitle: '📊 تقرير توافق السيرة الذاتية (ATS Report)',
+      scoreLabel: 'نسبة التوافق',
+      matchingTitle: '✅ كلمات مفتاحية متطابقة (في سيرتك الذاتية والوظيفة)',
+      missingTitle: '❌ كلمات مفتاحية مفقودة (نوصي بإضافتها)',
+      recTitle: '💡 نصائح الذكاء الاصطناعي لتحسين السيرة الذاتية',
+      noJobs: 'لا توجد وظائف متاحة حالياً للفحص.'
+    },
+    en: {
+      title: '🤖 AI CV ATS Scanner',
+      subtitle: 'Upload your CV and check its compatibility with the applicant tracking systems (ATS) for your target job, with instant optimization tips.',
+      selectJob: 'Select Target Job Vacancy',
+      selectPlh: '-- Choose a job from the list --',
+      uploadTitle: 'Upload Your CV (PDF File)',
+      uploadDesc: 'Drag & drop your PDF resume here, or click to browse files',
+      pasteLabel: 'Or paste your CV text directly below',
+      pastePlh: 'Paste your full CV text content here...',
+      submitBtn: 'Analyze Compatibility ⚡',
+      loading: 'Extracting text and analyzing with AI... ⏳',
+      resultsTitle: '📊 ATS Compatibility Report',
+      scoreLabel: 'Compatibility Score',
+      matchingTitle: '✅ Matching Keywords (Present in your CV)',
+      missingTitle: '❌ Missing Keywords (Recommended to add)',
+      recTitle: '💡 AI CV Optimization Tips & Recommendations',
+      noJobs: 'No job listings available for analysis.'
+    }
+  }[locale];
+
+  // Fetch all active jobs for the dropdown
+  let jobs: any[] = [];
+  try {
+    const jobRows = await db.prepare(
+      `SELECT id, slug, data FROM documents WHERE type_id = 'jobs' AND is_published = 1 AND deleted_at IS NULL ORDER BY created_at DESC`
+    ).all();
+    jobs = (jobRows.results || []).map((row: any) => {
+      const data = JSON.parse(row.data || '{}');
+      return {
+        id: row.id,
+        title: locale === 'ar' ? (data.title_ar || data.title_en) : (data.title_en || data.title_ar)
+      };
+    });
+  } catch (err) {
+    console.error('Error fetching jobs for ATS:', err);
+  }
+
+  const preselectedJobId = c.req.query('jobId') || '';
+
+  const html = `
+    <!-- PDF.js CDN for client-side parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+    <div class="container" style="max-width: 960px; padding: 60px 20px;">
+      <h1 class="hero-title-gradient" style="text-align: center; margin-bottom: 12px; font-size: 2.3rem; font-weight: 800;">${t.title}</h1>
+      <p style="color: var(--text-muted); text-align: center; margin-bottom: 40px; font-size: 1.1rem; max-width: 750px; margin-left: auto; margin-right: auto; line-height:1.6;">${t.subtitle}</p>
+
+      <div class="glass-card" style="padding: 35px; border-radius: var(--radius-lg); margin-bottom: 40px; border:1px solid var(--border)">
+        <form id="ats-form">
+          <!-- Job Selection -->
+          <div style="margin-bottom: 24px; text-align: left;">
+            <label style="display: block; font-weight: 700; color: var(--text-dark); margin-bottom: 8px;">${t.selectJob}</label>
+            ${jobs.length > 0 ? `
+              <select id="job-select" name="jobId" required style="width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-card); color: var(--text-dark); font-weight: 600; font-size: 0.95rem; cursor:pointer;">
+                <option value="">${t.selectPlh}</option>
+                ${jobs.map(j => `<option value="${j.id}" ${j.id === preselectedJobId ? 'selected' : ''}>${j.title}</option>`).join('')}
+              </select>
+            ` : `<p style="color:var(--danger)">${t.noJobs}</p>`}
+          </div>
+
+          <!-- Drag and Drop Box -->
+          <div style="margin-bottom: 24px; text-align: left;">
+            <label style="display: block; font-weight: 700; color: var(--text-dark); margin-bottom: 8px;">${t.uploadTitle}</label>
+            <div id="drop-zone" style="border: 2px dashed var(--primary); border-radius: var(--radius-md); padding: 30px; text-align: center; background: rgba(99,102,241,0.02); cursor: pointer; transition: all 0.2s ease;">
+              <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 12px;"></i>
+              <div style="font-weight: 700; color: var(--text-dark); margin-bottom: 6px;">${t.uploadDesc}</div>
+              <input type="file" id="file-input" accept=".pdf" style="display: none;">
+              <div id="file-status" style="font-size: 0.85rem; color: var(--primary); font-weight: 700; margin-top: 8px; display: none;"></div>
+            </div>
+          </div>
+
+          <!-- Textarea (Fallback) -->
+          <div style="margin-bottom: 30px; text-align: left;">
+            <label style="display: block; font-weight: 700; color: var(--text-dark); margin-bottom: 8px;">${t.pasteLabel}</label>
+            <textarea id="cv-text" name="cvText" placeholder="${t.pastePlh}" rows="8" style="width: 100%; padding: 16px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-card); color: var(--text-dark); resize: vertical; line-height: 1.6;"></textarea>
+          </div>
+
+          <button type="submit" id="atsSubmitBtn" class="btn-sidebar-apply" style="border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;" ${jobs.length === 0 ? 'disabled' : ''}>
+            ${t.submitBtn}
+          </button>
+        </form>
+      </div>
+
+      <!-- Results Container -->
+      <div id="ats-results" class="glass-card" style="display: none; padding: 35px; border-radius: var(--radius-lg); border:1px solid var(--border); animation: fadeIn 0.4s ease;">
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--text-dark); margin-bottom: 28px; border-bottom: 2px solid var(--border); padding-bottom: 12px; text-align: left;">${t.resultsTitle}</h2>
+        
+        <!-- Score and Gauge -->
+        <div style="display: flex; align-items: center; justify-content: center; gap: 40px; margin-bottom: 35px; flex-wrap: wrap;">
+          <div style="position: relative; width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
+            <svg style="transform: rotate(-90deg); width: 140px; height: 140px;">
+              <circle cx="70" cy="70" r="60" stroke="var(--border)" stroke-width="12" fill="transparent" />
+              <circle id="score-circle" cx="70" cy="70" r="60" stroke="var(--primary)" stroke-width="12" fill="transparent" 
+                stroke-dasharray="377" stroke-dashoffset="377" style="transition: stroke-dashoffset 1s ease-out;" />
+            </svg>
+            <div style="position: absolute; display: flex; flex-direction: column; align-items: center;">
+              <span id="score-text" style="font-size: 2.2rem; font-weight: 900; color: var(--text-dark); line-height: 1;">0%</span>
+              <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; margin-top: 4px;">${t.scoreLabel}</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 30px;">
+          <!-- Matching Keywords -->
+          <div style="background: rgba(16, 185, 129, 0.03); border: 1px solid rgba(16, 185, 129, 0.2); padding: 20px; border-radius: var(--radius-md); text-align: left;">
+            <h4 style="font-weight: 800; color: #10b981; margin-bottom: 14px; font-size: 0.95rem;">${t.matchingTitle}</h4>
+            <div id="matching-keywords-container" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+          </div>
+
+          <!-- Missing Keywords -->
+          <div style="background: rgba(239, 68, 68, 0.03); border: 1px solid rgba(239, 68, 68, 0.2); padding: 20px; border-radius: var(--radius-md); text-align: left;">
+            <h4 style="font-weight: 800; color: #ef4444; margin-bottom: 14px; font-size: 0.95rem;">${t.missingTitle}</h4>
+            <div id="missing-keywords-container" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+          </div>
+        </div>
+
+        <!-- AI Recommendations -->
+        <div style="background: rgba(99, 102, 241, 0.03); border: 1px solid rgba(99, 102, 241, 0.15); padding: 24px; border-radius: var(--radius-md); text-align: left;">
+          <h4 style="font-weight: 800; color: var(--primary); margin-bottom: 16px; font-size: 1rem; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-wand-magic-sparkles"></i> ${t.recTitle}</h4>
+          <ul id="recommendations-container" style="padding-inline-start: 20px; margin: 0; line-height: 1.8; color: var(--text-dark); display: flex; flex-direction: column; gap: 10px; font-size: 0.92rem;"></ul>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const dropZone = document.getElementById('drop-zone');
+      const fileInput = document.getElementById('file-input');
+      const fileStatus = document.getElementById('file-status');
+      const cvTextarea = document.getElementById('cv-text');
+      const form = document.getElementById('ats-form');
+      const btn = document.getElementById('atsSubmitBtn');
+      const resultsDiv = document.getElementById('ats-results');
+
+      // Click to choose file
+      dropZone.addEventListener('click', () => fileInput.click());
+
+      // File drag/drop
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.style.background = 'rgba(99,102,241,0.06)';
+        dropZone.style.borderColor = 'var(--primary-dark)';
+      });
+
+      dropZone.addEventListener('dragleave', () => {
+        dropZone.style.background = 'rgba(99,102,241,0.02)';
+        dropZone.style.borderColor = 'var(--primary)';
+      });
+
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.style.background = 'rgba(99,102,241,0.02)';
+        dropZone.style.borderColor = 'var(--primary)';
+        if (e.dataTransfer.files.length > 0) {
+          handleFile(e.dataTransfer.files[0]);
+        }
+      });
+
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+          handleFile(e.target.files[0]);
+        }
+      });
+
+      async function handleFile(file) {
+        if (file.type !== 'application/pdf') {
+          alert("${locale === 'ar' ? 'يرجى تحميل ملف PDF فقط' : 'Please upload a PDF file only'}");
+          return;
+        }
+
+        fileStatus.innerText = "📄 " + file.name + " (" + Math.round(file.size / 1024) + " KB)";
+        fileStatus.style.display = 'block';
+
+        // Extract PDF text
+        try {
+          const text = await extractTextFromPdf(file);
+          cvTextarea.value = text;
+        } catch (err) {
+          console.error(err);
+          alert("${locale === 'ar' ? 'حدث خطأ أثناء استخراج النص من الملف. يمكنك لصق السيرة الذاتية يدوياً.' : 'Failed to extract text from PDF. You can still paste it manually.'}");
+        }
+      }
+
+      async function extractTextFromPdf(file) {
+        const arrayBuffer = await file.arrayBuffer();
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        let text = '';
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          const pageText = content.items.map(item => item.str).join(' ');
+          text += pageText + '\\n';
+        }
+        return text;
+      }
+
+      // Submit form
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const jobId = document.getElementById('job-select').value;
+        const cvText = cvTextarea.value.trim();
+
+        if (!jobId || !cvText) {
+          alert("${locale === 'ar' ? 'الرجاء اختيار وظيفة وكتابة أو رفع سيرة ذاتية' : 'Please select a job and provide CV content'}");
+          return;
+        }
+
+        btn.innerText = "${t.loading}";
+        btn.disabled = true;
+
+        try {
+          const res = await fetch('/api/candidate/ats-scan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ jobId, cvText })
+          });
+
+          const data = await res.json();
+          if (res.ok && data.success) {
+            // Display score gauge
+            const circle = document.getElementById('score-circle');
+            const scoreText = document.getElementById('score-text');
+            const score = data.score || 0;
+            
+            // stroke-dasharray = 2 * PI * r = 2 * 3.14159 * 60 = 377
+            const offset = 377 - (377 * score) / 100;
+            circle.style.strokeDashoffset = offset;
+            
+            // Animate score number
+            let curr = 0;
+            const interval = setInterval(() => {
+              if (curr >= score) {
+                scoreText.innerText = score + '%';
+                clearInterval(interval);
+              } else {
+                curr++;
+                scoreText.innerText = curr + '%';
+              }
+            }, 10);
+
+            // Keywords matching
+            const matchContainer = document.getElementById('matching-keywords-container');
+            matchContainer.innerHTML = data.matchingKeywords.length > 0 
+              ? data.matchingKeywords.map(k => \`<span style="background: rgba(16,185,129,0.1); color: #10b981; padding: 4px 10px; border-radius: var(--radius-sm); font-size: 0.78rem; font-weight: 700; border: 1px solid rgba(16,185,129,0.15)">\${k}</span>\`).join('')
+              : '<span style="color:var(--text-muted);font-size:0.8rem">None</span>';
+
+            // Keywords missing
+            const missContainer = document.getElementById('missing-keywords-container');
+            missContainer.innerHTML = data.missingKeywords.length > 0 
+              ? data.missingKeywords.map(k => \`<span style="background: rgba(239,68,68,0.1); color: #ef4444; padding: 4px 10px; border-radius: var(--radius-sm); font-size: 0.78rem; font-weight: 700; border: 1px solid rgba(239,68,68,0.15)">\${k}</span>\`).join('')
+              : '<span style="color:var(--text-muted);font-size:0.8rem">None</span>';
+
+            // Recommendations
+            const recContainer = document.getElementById('recommendations-container');
+            recContainer.innerHTML = data.recommendations.map(r => \`<li>\${r}</li>\`).join('');
+
+            // Show results section
+            resultsDiv.style.display = 'block';
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+
+          } else {
+            alert(data.error || "${locale === 'ar' ? 'فشل فحص السيرة ذاتية.' : 'Analysis failed.'}");
+          }
+        } catch (err) {
+          console.error(err);
+          alert("${locale === 'ar' ? 'فشل الاتصال بالخادم.' : 'Connection error.'}");
+        } finally {
+          btn.innerText = "${t.submitBtn}";
+          btn.disabled = false;
+        }
+      });
+    </script>
+  `;
+
+  return c.html(renderLayout(c, t.title, html, locale));
+});
+

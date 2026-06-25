@@ -53,6 +53,7 @@ import { careerBlogRouter } from './routes/career-blog'
 import { insightsRouter } from './routes/insights'
 import { runScraper } from './services/scraper'
 import { runTelegramScraper } from './services/telegram-scraper'
+import { optimizeSeoWithGemini } from './services/gemini-seo'
 
 // Mount routes
 app.route('/', publicRouter)
@@ -97,6 +98,74 @@ export default {
           8
         );
         console.log(`[CRON SCRAPER] TG Scraper Success: Scraped ${tgResult.scraped}/${tgResult.processed} listings. Errors: ${tgResult.errors}`);
+
+        // 4. Run Auto SEO Optimizer for unoptimized jobs
+        if (env.GEMINI_API_KEY) {
+          console.log('[CRON SEO] Running Auto SEO Optimizer...');
+          try {
+            const db = env.DB;
+            const jobsResult = await db.prepare(
+              `SELECT id, slug, data FROM documents WHERE type_id = 'jobs' AND is_published = 1 AND deleted_at IS NULL`
+            ).all();
+            
+            const jobs = jobsResult.results || [];
+            let optimizedCount = 0;
+            
+            for (const row of jobs) {
+              if (optimizedCount >= 5) break; // limit to 5 per cron run to respect Gemini rate limits
+              
+              let jobData: any;
+              try {
+                jobData = JSON.parse(row.data);
+              } catch (e) {
+                continue;
+              }
+              
+              const hasKeywords = jobData.seoKeywords && (
+                (Array.isArray(jobData.seoKeywords) && jobData.seoKeywords.length > 0) ||
+                (typeof jobData.seoKeywords === 'string' && jobData.seoKeywords.trim().length > 0)
+              );
+              const hasDescription = jobData.seoDescription && jobData.seoDescription.trim().length > 0;
+              
+              if (hasKeywords && hasDescription) {
+                continue;
+              }
+              
+              const title = jobData.title_en || jobData.title_ar || 'Job Title';
+              const desc = jobData.description_en || jobData.description_ar || 'Job Description';
+              const locale = jobData.language === 'ar' ? 'ar' : 'en';
+              
+              // Call Gemini
+              const seoResult = await optimizeSeoWithGemini(
+                env.GEMINI_API_KEY,
+                title,
+                desc,
+                locale
+              );
+              
+              const updatedData = {
+                ...jobData,
+                title_ar: seoResult.title_ar || jobData.title_ar || title,
+                title_en: seoResult.title_en || jobData.title_en || title,
+                description_ar: seoResult.description_ar || jobData.description_ar || desc,
+                description_en: seoResult.description_en || jobData.description_en || desc,
+                seoKeywords: seoResult.keywords || [],
+                seoDescription: seoResult.seoDescription || ''
+              };
+              
+              await db.prepare(
+                `UPDATE documents SET data = ?, title = ?, updated_at = ? WHERE id = ?`
+              ).bind(JSON.stringify(updatedData), seoResult.title_en || jobData.title_en || title, Date.now(), row.id).run();
+              
+              optimizedCount++;
+              // Brief pause between Gemini API calls
+              await new Promise(r => setTimeout(r, 1000));
+            }
+            console.log(`[CRON SEO] Auto SEO Optimizer Success: Optimized ${optimizedCount} listings.`);
+          } catch (seoErr) {
+            console.error('[CRON SEO] Auto SEO Optimizer execution error:', seoErr);
+          }
+        }
 
       } catch (err) {
         console.error('[CRON SCRAPER] Sequential execution error:', err);

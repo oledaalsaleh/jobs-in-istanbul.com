@@ -212,15 +212,62 @@ insightsRouter.get('/:locale/insights', async (c) => {
     ).all()
     const monthlyData = (monthlyRows?.results || []).reverse()
 
-    // Salary insights (jobs with salary info)
+    // Salary insights (jobs with salary and category info)
     const salaryRows = await db.prepare(
-      `SELECT json_extract(data, '$.salary') as salary
+      `SELECT json_extract(data, '$.category') as category_ref, json_extract(data, '$.salary') as salary
        FROM documents 
        WHERE type_id = 'jobs' AND is_published = 1 AND deleted_at IS NULL 
        AND json_extract(data, '$.salary') IS NOT NULL 
        AND json_extract(data, '$.salary') != ''`
     ).all()
     const salaryCount = (salaryRows?.results || []).length
+
+    // Helper to parse numeric salary
+    function parseSalaryNum(salaryStr: string): number | null {
+      if (!salaryStr) return null;
+      const clean = salaryStr.replace(/,/g, '').trim();
+      const matches = clean.match(/\d+/g);
+      if (!matches) return null;
+      if (matches.length >= 2) {
+        return (parseFloat(matches[0]) + parseFloat(matches[1])) / 2;
+      } else if (matches.length === 1) {
+        return parseFloat(matches[0]);
+      }
+      return null;
+    }
+
+    // Default fallbacks for Turkey job market in 2026 (TL per month)
+    const salaryFallbacks: Record<string, { min: number; max: number; avg: number }> = {
+      'cat-it': { min: 40000, max: 120000, avg: 65000 },
+      'cat-tourism': { min: 22000, max: 45000, avg: 28000 },
+      'cat-realestate': { min: 20000, max: 50000, avg: 30000 },
+      'cat-education': { min: 25000, max: 55000, avg: 35000 },
+      'cat-customer': { min: 20000, max: 35000, avg: 25000 },
+      'cat-general': { min: 22000, max: 45000, avg: 27000 }
+    };
+
+    const salaryMap: Record<string, number[]> = {};
+    for (const r of (salaryRows?.results || [])) {
+      const catRef = (r as any).category_ref || 'cat-general';
+      const salStr = (r as any).salary;
+      const num = parseSalaryNum(salStr);
+      if (num) {
+        if (!salaryMap[catRef]) {
+          salaryMap[catRef] = [];
+        }
+        salaryMap[catRef].push(num);
+      }
+    }
+
+    const categorySalaries: Record<string, { min: number; max: number; avg: number }> = { ...salaryFallbacks };
+    for (const [catRef, list] of Object.entries(salaryMap)) {
+      if (list.length > 0) {
+        const min = Math.min(...list);
+        const max = Math.max(...list);
+        const avg = Math.round(list.reduce((sum, v) => sum + v, 0) / list.length);
+        categorySalaries[catRef] = { min, max, avg };
+      }
+    }
 
     // ── Render Charts Data ───────────────────────────────────────────────
     const maxTypeCount = Math.max(...jobTypes.map((j: any) => j.count), 1)
@@ -229,6 +276,61 @@ insightsRouter.get('/:locale/insights', async (c) => {
 
     const colors = ['#6366f1', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316', '#14b8a6', '#a855f7']
     const chartColors = ['#6366f1', '#f59e0b', '#10b981', '#ef4444']
+
+    // ── Dynamic Career Advice using Gemini and KV ──────────────────────────
+    const cacheKv = env.CACHE_KV;
+    const cacheKey = `dynamic_market_tip_${locale}`;
+    let dynamicTipText = '';
+    
+    if (cacheKv) {
+      try {
+        dynamicTipText = await cacheKv.get(cacheKey) || '';
+      } catch (kvErr) {
+        console.error('KV get error:', kvErr);
+      }
+    }
+    
+    if (!dynamicTipText && env.GEMINI_API_KEY) {
+      try {
+        const summaryPrompt = `
+You are an expert career coach and job market analyst in Turkey.
+Based on the following real-time statistics of the Istanbul Jobs portal, write a highly encouraging, actionable weekly career tip (under 3 sentences) for job seekers in Istanbul.
+Write the tip in ${locale === 'ar' ? 'Arabic' : 'English'}.
+Do not include any intro, outro, or markdown formatting. Print ONLY the tip text itself.
+
+Portal Statistics:
+- Total Active Job Openings: ${totalJobs}
+- Active Employers Recruiting: ${totalCompanies}
+- Sectors with Demand: ${categoryStats.slice(0, 3).map(c => `${c.name} (${c.count} jobs)`).join(', ')}
+- Language demands: ${langStats.map((l: any) => `${l.label} (${l.count})`).join(', ')}
+`;
+
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${env.GEMINI_API_KEY}`;
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ parts: [{ text: summaryPrompt }] }] })
+        });
+        if (res.ok) {
+          const geminiData: any = await res.json();
+          const rawText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          dynamicTipText = rawText.trim();
+          if (cacheKv && dynamicTipText) {
+            try {
+              await cacheKv.put(cacheKey, dynamicTipText, { expirationTtl: 86400 });
+            } catch (kvPutErr) {
+              console.error('KV put error:', kvPutErr);
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Failed to generate dynamic career tip:', e);
+      }
+    }
+    
+    if (!dynamicTipText) {
+      dynamicTipText = t.tipText;
+    }
 
     // ── Build HTML ───────────────────────────────────────────────────────
     const html = `
@@ -613,12 +715,66 @@ insightsRouter.get('/:locale/insights', async (c) => {
       </div>
       ` : ''}
 
+      <!-- Salary Estimator Card -->
+      <div class="chart-card" style="margin-bottom: 30px; border: 1px solid var(--border); text-align: left;">
+        <div class="chart-title"><i class="fa-solid fa-calculator"></i> ${locale === 'ar' ? '🧮 حاسبة ومخمن الرواتب التفاعلي' : '🧮 Interactive Salary Estimator'}</div>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5;">
+          ${locale === 'ar' 
+            ? 'اختر القطاع ونوع الدوام لمعرفة متوسط وهيكل الرواتب التقريبية المتوقعة في سوق العمل بإسطنبول حالياً:'
+            : 'Select a sector and job type to see the average and range of salaries expected in Istanbul job market currently:'}
+        </p>
+
+        <div style="display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 200px; text-align: left;">
+            <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-dark); margin-bottom: 6px;">${locale === 'ar' ? 'القطاع الوظيفي' : 'Job Sector'}</label>
+            <select id="calc-sector" style="width:100%; padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-card); color: var(--text-dark); font-weight: 600; cursor:pointer;">
+              <option value="cat-general">${locale === 'ar' ? 'عام / وظائف أخرى' : 'General / Other Jobs'}</option>
+              <option value="cat-it">${locale === 'ar' ? 'تكنولوجيا المعلومات والبرمجة' : 'IT & Software Development'}</option>
+              <option value="cat-tourism">${locale === 'ar' ? 'السياحة والفنادق' : 'Tourism & Hospitality'}</option>
+              <option value="cat-realestate">${locale === 'ar' ? 'العقارات والمبيعات' : 'Real Estate & Sales'}</option>
+              <option value="cat-education">${locale === 'ar' ? 'التعليم والتدريس' : 'Education & Teaching'}</option>
+              <option value="cat-customer">${locale === 'ar' ? 'خدمة العملاء والدعم' : 'Customer Service & Support'}</option>
+            </select>
+          </div>
+          <div style="flex: 1; min-width: 200px; text-align: left;">
+            <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-dark); margin-bottom: 6px;">${locale === 'ar' ? 'نوع الدوام' : 'Job Type'}</label>
+            <select id="calc-type" style="width:100%; padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-card); color: var(--text-dark); font-weight: 600; cursor:pointer;">
+              <option value="full-time">${t.fullTime}</option>
+              <option value="part-time">${t.partTime}</option>
+              <option value="remote">${t.remote}</option>
+              <option value="internship">${t.internship}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Slider Bar Visual -->
+        <div style="background: var(--bg-subtle); padding: 24px; border-radius: var(--radius-md); border: 1px solid var(--border);">
+          <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 8px;">
+            <span>${locale === 'ar' ? 'الحد الأدنى' : 'Minimum'}</span>
+            <span>${locale === 'ar' ? 'المتوسط المعروض' : 'Average'}</span>
+            <span>${locale === 'ar' ? 'الحد الأعلى' : 'Maximum'}</span>
+          </div>
+
+          <!-- Bar Visualizer -->
+          <div style="height: 12px; background: var(--border); border-radius: var(--r-full); position: relative; margin: 15px 0;">
+            <div id="calc-range-bar" style="position: absolute; left: 10%; right: 10%; height: 100%; background: linear-gradient(to right, var(--primary), var(--accent)); border-radius: var(--r-full);"></div>
+            <div id="calc-avg-indicator" style="position: absolute; left: 50%; transform: translateX(-50%); top: -4px; width: 20px; height: 20px; background: white; border: 4px solid var(--primary); border-radius: 50%; box-shadow: var(--shadow-sm);"></div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: 800; color: var(--text-dark); margin-top: 8px;">
+            <span id="calc-min-val">20,000 TL</span>
+            <span id="calc-avg-val" style="color: var(--primary); font-size: 1.3rem;">35,000 TL</span>
+            <span id="calc-max-val">60,000 TL</span>
+          </div>
+        </div>
+      </div>
+
       <!-- Tip Box -->
-      <div class="tip-box">
+      <div class="tip-box" style="text-align: left;">
         <i class="fa-solid fa-lightbulb"></i>
         <div>
           <h4>${t.tip}</h4>
-          <p>${t.tipText}</p>
+          <p>${dynamicTipText}</p>
         </div>
       </div>
 
@@ -633,6 +789,52 @@ insightsRouter.get('/:locale/insights', async (c) => {
       <p style="text-align:center; font-size:0.8rem; color:var(--text-muted); margin-top:20px;">
         ${t.lastUpdated}: ${new Date().toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
       </p>
+
+      <script>
+        const salaryData = ${JSON.stringify(categorySalaries)};
+        
+        const sectorSelect = document.getElementById('calc-sector');
+        const typeSelect = document.getElementById('calc-type');
+        
+        const minEl = document.getElementById('calc-min-val');
+        const avgEl = document.getElementById('calc-avg-val');
+        const maxEl = document.getElementById('calc-max-val');
+        
+        const rangeBar = document.getElementById('calc-range-bar');
+        const avgIndicator = document.getElementById('calc-avg-indicator');
+
+        function updateEstimator() {
+          const sector = sectorSelect.value;
+          const type = typeSelect.value;
+          
+          let stats = salaryData[sector] || salaryData['cat-general'];
+          
+          // Apply scaling factor based on job type
+          let scale = 1.0;
+          if (type === 'part-time') scale = 0.5;
+          else if (type === 'internship') scale = 0.25;
+          else if (type === 'remote') scale = 0.95; // remote is similar to full-time
+
+          const min = Math.round(stats.min * scale);
+          const max = Math.round(stats.max * scale);
+          const avg = Math.round(stats.avg * scale);
+          
+          minEl.innerText = min.toLocaleString() + ' TL';
+          avgEl.innerText = avg.toLocaleString() + ' TL';
+          maxEl.innerText = max.toLocaleString() + ' TL';
+
+          // Adjust bar visual position relative to default size
+          rangeBar.style.left = '10%';
+          rangeBar.style.right = '10%';
+          avgIndicator.style.left = '50%';
+        }
+
+        sectorSelect.addEventListener('change', updateEstimator);
+        typeSelect.addEventListener('change', updateEstimator);
+        
+        // Init
+        updateEstimator();
+      </script>
     </div>
     `
 
