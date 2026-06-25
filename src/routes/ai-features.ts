@@ -278,11 +278,23 @@ aiFeaturesRouter.get('/:locale/salary-calculator', (c) => {
   }[locale];
 
   const html = `
+    <style>
+      .sal-calc-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+      }
+      @media (max-width: 768px) {
+        .sal-calc-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
     <div class="container" style="max-width: 900px; padding: 60px 20px;">
       <h1 class="hero-title-gradient" style="text-align: center; margin-bottom: 12px; font-size: 2.5rem; font-weight: 800;">${t.title}</h1>
       <p style="color: var(--text-muted); text-align: center; margin-bottom: 40px; font-size: 1.1rem; max-width: 700px; margin-left: auto; margin-right: auto;">${t.subtitle}</p>
 
-      <div class="main-layout" style="grid-template-columns: 1fr 1fr; gap: 30px;">
+      <div class="sal-calc-grid">
         <!-- Inputs Card -->
         <div class="glass-card" style="padding: 30px; border-radius: var(--radius-lg);">
           <form id="salary-form" onsubmit="calculateSalary(event)">

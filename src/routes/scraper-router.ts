@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { runScraper } from '../services/scraper';
+import { runTelegramScraper } from '../services/telegram-scraper';
 
 export const scraperRouter = new Hono();
 
@@ -18,10 +19,12 @@ scraperRouter.post('/api/admin/trigger-scrape', async (c) => {
   const limit = limitQuery ? parseInt(limitQuery, 10) : 5;
 
   try {
-    const result = await runScraper({ DB: env.DB, AI: env.AI }, limit);
+    const webResult = await runScraper({ DB: env.DB, AI: env.AI, MEDIA_BUCKET: env.MEDIA_BUCKET, GEMINI_API_KEY: env.GEMINI_API_KEY }, limit);
+    const tgResult = await runTelegramScraper({ DB: env.DB, AI: env.AI, MEDIA_BUCKET: env.MEDIA_BUCKET, GEMINI_API_KEY: env.GEMINI_API_KEY }, limit);
     return c.json({
       success: true,
-      ...result
+      websiteScraper: webResult,
+      telegramScraper: tgResult
     });
   } catch (error: any) {
     console.error("Scraper Endpoint Error:", error);

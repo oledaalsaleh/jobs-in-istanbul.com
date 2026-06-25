@@ -50,6 +50,7 @@ import { employerPortalRouter } from './routes/employer-portal'
 import { candidatePortalRouter } from './routes/candidate-portal'
 import { aiFeaturesRouter } from './routes/ai-features'
 import { runScraper } from './services/scraper'
+import { runTelegramScraper } from './services/telegram-scraper'
 
 // Mount routes
 app.route('/', publicRouter)
@@ -65,13 +66,18 @@ export default {
   fetch: app.fetch,
   async scheduled(_event: any, env: any, ctx: any) {
     ctx.waitUntil(
-      runScraper({ DB: env.DB, AI: env.AI, GEMINI_API_KEY: env.GEMINI_API_KEY }, 3)
-        .then((result) => {
-          console.log(`[CRON SCRAPER] Success: Scraped ${result.scraped}/${result.processed} listings. Errors: ${result.errors}`);
-        })
-        .catch((err) => {
-          console.error('[CRON SCRAPER] Execution error:', err);
-        })
+      Promise.all([
+        runScraper({ DB: env.DB, AI: env.AI, MEDIA_BUCKET: env.MEDIA_BUCKET, GEMINI_API_KEY: env.GEMINI_API_KEY }, 3)
+          .then((result) => {
+            console.log(`[CRON SCRAPER] Web Scraper Success: Scraped ${result.scraped}/${result.processed} listings. Errors: ${result.errors}`);
+          }),
+        runTelegramScraper({ DB: env.DB, AI: env.AI, MEDIA_BUCKET: env.MEDIA_BUCKET, GEMINI_API_KEY: env.GEMINI_API_KEY }, 3)
+          .then((result) => {
+            console.log(`[CRON SCRAPER] TG Scraper Success: Scraped ${result.scraped}/${result.processed} listings. Errors: ${result.errors}`);
+          })
+      ]).catch((err) => {
+        console.error('[CRON SCRAPER] Concurrency execution error:', err);
+      })
     );
   }
 }

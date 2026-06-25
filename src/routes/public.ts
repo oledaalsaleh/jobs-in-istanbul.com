@@ -219,50 +219,50 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       </div>
 
     </div>
-
-    <!-- Mobile Nav Drawer -->
-    <div id="mobile-nav" style="display:none; position:fixed; inset:0; z-index:300; background:rgba(0,0,0,0.5)" onclick="closeMobileNav(this,event)">
-      <div style="position:absolute; ${isRtl ? 'right:0' : 'left:0'}; top:0; bottom:0; width:min(300px,85vw); background:var(--bg-card); padding:24px; overflow-y:auto; box-shadow:var(--shadow-xl); animation: slideIn${isRtl?'Right':'Left'} 0.3s var(--ease-out);">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:28px;">
-          <a href="/${locale}" class="logo" style="font-size:1.2rem">
-            <div class="logo-icon"><i class="fa-solid fa-briefcase"></i></div>
-            <div class="logo-text"><strong>${locale === 'ar' ? 'فرص عمل في إسطنبول' : 'Jobs in Istanbul'}</strong></div>
-          </a>
-          <button onclick="document.getElementById('mobile-nav').style.display='none'" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <nav style="display:flex; flex-direction:column; gap:6px;">
-          <a href="/${locale}" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">🏠 ${locale === 'ar' ? 'الرئيسية' : 'Home'}</a>
-          
-          <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-top:14px; margin-bottom:6px; padding-inline-start:16px; letter-spacing:0.05em;">🤖 ${locale === 'ar' ? 'أدوات الذكاء الاصطناعي' : 'AI Assistant Tools'}</div>
-          <a href="/${locale}/cv-optimizer" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary);"></i> ${locale === 'ar' ? 'تحسين السيرة الذاتية' : 'AI CV Optimizer'}</a>
-          <a href="/${locale}/cover-letter-generator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-pen-nib" style="color: var(--accent);"></i> ${locale === 'ar' ? 'مولد رسائل التغطية' : 'Cover Letter Generator'}</a>
-          <a href="/${locale}/interview-prep" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-microphone-lines" style="color: #10b981;"></i> ${locale === 'ar' ? 'محاكي المقابلات' : 'AI Interview Prep'}</a>
-
-          <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-top:14px; margin-bottom:6px; padding-inline-start:16px; letter-spacing:0.05em;">🛠 ${locale === 'ar' ? 'التقييمات والحسابات' : 'Calculators & Tests'}</div>
-          <a href="/${locale}/resume-builder" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-file-invoice" style="color: #eab308;"></i> ${locale === 'ar' ? 'منشئ السيرة التفاعلي' : 'CV Builder'}</a>
-          <a href="/${locale}/work-permit-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-passport" style="color: #a855f7;"></i> ${locale === 'ar' ? 'حاسبة إذن العمل' : 'Work Permit Eligibility'}</a>
-          <a href="/${locale}/turkish-test" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-graduation-cap" style="color: #14b8a6;"></i> ${locale === 'ar' ? 'اختبار اللغة التركية للعمل' : 'Turkish Competency Test'}</a>
-          <a href="/${locale}/salary-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-scale-balanced" style="color: #ec4899;"></i> ${locale === 'ar' ? 'مؤشر الرواتب' : 'Salary Estimator'}</a>
-
-          <div style="margin-top:14px; border-top:1px solid var(--border); padding-top:10px; display:flex; flex-direction:column; gap:6px;">
-            <a href="/${locale}/submit-job" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">📢 ${locale === 'ar' ? 'نشر وظيفة' : 'Post a Job'}</a>
-            <a href="/${locale}/candidate/dashboard" style="padding:12px 16px; border-radius:var(--r-md); color:var(--primary); font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-graduation-cap"></i> ${locale === 'ar' ? 'بوابة الباحث عن عمل' : 'Candidate Portal'}</a>
-            <a href="/${locale}/employer/dashboard" style="margin-top:6px; padding:14px 16px; border-radius:var(--r-md); background:var(--primary); color:white; font-weight:700; display:flex; align-items:center; gap:10px; justify-content:center;"><i class="fa-solid fa-user-tie"></i> ${locale === 'ar' ? 'بوابة الأعمال' : 'Employer Portal'}</a>
-          </div>
-          
-          <!-- Mobile Actions inside Drawer -->
-          <div style="margin-top:24px; padding-top:20px; border-top:1px solid var(--border); display:flex; gap:10px; justify-content:space-between; align-items:center;">
-            <a href="${langSwitchUrl}" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px 14px; border-radius:var(--r-full); border:1.5px solid var(--border); font-size:0.82rem; font-weight:700; color:var(--text-body); transition:var(--t-base);">
-              <i class="fa-solid fa-globe"></i> ${t.langLabel}
-            </a>
-            <button id="dark-mode-toggle-mobile" style="width:40px; height:40px; border-radius:var(--r-md); border:1.5px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--text-body); cursor:pointer; transition:var(--t-base);" title="${locale === 'ar' ? 'الوضع الداكن' : 'Dark Mode'}">
-              <i class="fa-solid fa-moon"></i>
-            </button>
-          </div>
-        </nav>
-      </div>
-    </div>
   </header>
+
+  <!-- Mobile Nav Drawer -->
+  <div id="mobile-nav" style="display:none; position:fixed; inset:0; z-index:300; background:rgba(0,0,0,0.5)" onclick="closeMobileNav(this,event)">
+    <div style="position:absolute; ${isRtl ? 'right:0' : 'left:0'}; top:0; bottom:0; width:min(300px,85vw); background:var(--bg-card); padding:24px; overflow-y:auto; box-shadow:var(--shadow-xl); animation: slideIn${isRtl?'Right':'Left'} 0.3s var(--ease-out);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:28px;">
+        <a href="/${locale}" class="logo" style="font-size:1.2rem">
+          <div class="logo-icon"><i class="fa-solid fa-briefcase"></i></div>
+          <div class="logo-text"><strong>${locale === 'ar' ? 'فرص عمل في إسطنبول' : 'Jobs in Istanbul'}</strong></div>
+        </a>
+        <button onclick="document.getElementById('mobile-nav').style.display='none'" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <nav style="display:flex; flex-direction:column; gap:6px;">
+        <a href="/${locale}" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">🏠 ${locale === 'ar' ? 'الرئيسية' : 'Home'}</a>
+        
+        <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-top:14px; margin-bottom:6px; padding-inline-start:16px; letter-spacing:0.05em;">🤖 ${locale === 'ar' ? 'أدوات الذكاء الاصطناعي' : 'AI Assistant Tools'}</div>
+        <a href="/${locale}/cv-optimizer" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary);"></i> ${locale === 'ar' ? 'تحسين السيرة الذاتية' : 'AI CV Optimizer'}</a>
+        <a href="/${locale}/cover-letter-generator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-pen-nib" style="color: var(--accent);"></i> ${locale === 'ar' ? 'مولد رسائل التغطية' : 'Cover Letter Generator'}</a>
+        <a href="/${locale}/interview-prep" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-microphone-lines" style="color: #10b981;"></i> ${locale === 'ar' ? 'محاكي المقابلات' : 'AI Interview Prep'}</a>
+
+        <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-top:14px; margin-bottom:6px; padding-inline-start:16px; letter-spacing:0.05em;">🛠 ${locale === 'ar' ? 'التقييمات والحسابات' : 'Calculators & Tests'}</div>
+        <a href="/${locale}/resume-builder" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-file-invoice" style="color: #eab308;"></i> ${locale === 'ar' ? 'منشئ السيرة التفاعلي' : 'CV Builder'}</a>
+        <a href="/${locale}/work-permit-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-passport" style="color: #a855f7;"></i> ${locale === 'ar' ? 'حاسبة إذن العمل' : 'Work Permit Eligibility'}</a>
+        <a href="/${locale}/turkish-test" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-graduation-cap" style="color: #14b8a6;"></i> ${locale === 'ar' ? 'اختبار اللغة التركية للعمل' : 'Turkish Competency Test'}</a>
+        <a href="/${locale}/salary-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-scale-balanced" style="color: #ec4899;"></i> ${locale === 'ar' ? 'مؤشر الرواتب' : 'Salary Estimator'}</a>
+
+        <div style="margin-top:14px; border-top:1px solid var(--border); padding-top:10px; display:flex; flex-direction:column; gap:6px;">
+          <a href="/${locale}/submit-job" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">📢 ${locale === 'ar' ? 'نشر وظيفة' : 'Post a Job'}</a>
+          <a href="/${locale}/candidate/dashboard" style="padding:12px 16px; border-radius:var(--r-md); color:var(--primary); font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-graduation-cap"></i> ${locale === 'ar' ? 'بوابة الباحث عن عمل' : 'Candidate Portal'}</a>
+          <a href="/${locale}/employer/dashboard" style="margin-top:6px; padding:14px 16px; border-radius:var(--r-md); background:var(--primary); color:white; font-weight:700; display:flex; align-items:center; gap:10px; justify-content:center;"><i class="fa-solid fa-user-tie"></i> ${locale === 'ar' ? 'بوابة الأعمال' : 'Employer Portal'}</a>
+        </div>
+        
+        <!-- Mobile Actions inside Drawer -->
+        <div style="margin-top:24px; padding-top:20px; border-top:1px solid var(--border); display:flex; gap:10px; justify-content:space-between; align-items:center;">
+          <a href="${langSwitchUrl}" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px 14px; border-radius:var(--r-full); border:1.5px solid var(--border); font-size:0.82rem; font-weight:700; color:var(--text-body); transition:var(--t-base);">
+            <i class="fa-solid fa-globe"></i> ${t.langLabel}
+          </a>
+          <button id="dark-mode-toggle-mobile" style="width:40px; height:40px; border-radius:var(--r-md); border:1.5px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--text-body); cursor:pointer; transition:var(--t-base);" title="${locale === 'ar' ? 'الوضع الداكن' : 'Dark Mode'}">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+        </div>
+      </nav>
+    </div>
+  </div>
 
   <main>
     ${contentHtml}
@@ -291,8 +291,9 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         <ul class="footer-links">
           <li class="footer-col-title">${locale === 'ar' ? 'الموقع' : 'Platform'}</li>
           <li><a href="/${locale}">${locale === 'ar' ? 'جميع الوظائف' : 'All Jobs'}</a></li>
+          <li><a href="/${locale}/about">${locale === 'ar' ? 'من نحن' : 'About Us'}</a></li>
+          <li><a href="/${locale}/contact">${locale === 'ar' ? 'اتصل بنا' : 'Contact Us'}</a></li>
           <li><a href="/${locale}/submit-job">${locale === 'ar' ? 'نشر وظيفة' : 'Post a Job'}</a></li>
-          <li><a href="/${locale}/employer/dashboard">${locale === 'ar' ? 'بوابة الأعمال' : 'Employer Portal'}</a></li>
         </ul>
         <ul class="footer-links">
           <li class="footer-col-title">${locale === 'ar' ? 'أدوات ذكية' : 'Smart Tools'}</li>
@@ -301,10 +302,10 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           <li><a href="/${locale}/salary-calculator">${locale === 'ar' ? 'حاسبة ومؤشر الرواتب' : 'Salary Estimator'}</a></li>
         </ul>
         <ul class="footer-links">
-          <li class="footer-col-title">${locale === 'ar' ? 'تواصل معنا' : 'Contact'}</li>
+          <li class="footer-col-title">${locale === 'ar' ? 'شروط وخصوصية' : 'Legal'}</li>
+          <li><a href="/${locale}/privacy">${locale === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy'}</a></li>
+          <li><a href="/${locale}/terms">${locale === 'ar' ? 'الشروط والأحكام' : 'Terms & Conditions'}</a></li>
           <li><a href="mailto:info@jobs-in-istanbul.com"><i class="fa-solid fa-envelope" style="margin-inline-end:6px;opacity:.6"></i>info@jobs-in-istanbul.com</a></li>
-          <li><span><i class="fa-brands fa-whatsapp" style="margin-inline-end:6px;color:#25D366"></i>+90 555 555 55 55</span></li>
-          <li><a href="/${locale}/sitemap.xml" style="opacity:.6">Sitemap</a></li>
         </ul>
       </div>
     </div>
@@ -644,7 +645,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en') => {
 
   // Map company & category relations to job
   for (const job of jobs) {
-    job.companyObj = companiesMap.get(job.company) || { name: 'Company', logo: '' };
+    job.companyObj = companiesMap.get(job.company) || { name: job.company || 'Company', logo: '' };
     job.categoryObj = categories.find((c: any) => c.id === job.category) || { name_ar: '', name_en: '' };
   }
 
@@ -965,7 +966,7 @@ publicRouter.get(
   const compRow = await db.prepare(
     `SELECT data FROM documents WHERE id = ?`
   ).bind(job.company).first();
-  const company = compRow ? JSON.parse(compRow.data) : { name: 'Company', description: '' };
+  const company = compRow ? JSON.parse(compRow.data) : { name: job.company || 'Company', description: '' };
 
   const title = locale === 'ar' ? job.title_ar : job.title_en;
   const description = locale === 'ar' ? job.description_ar : job.description_en;
@@ -1325,11 +1326,26 @@ publicRouter.get(
 })
 
 // Submit Job Page
-publicRouter.get('/:locale/submit-job', (c) => {
+publicRouter.get('/:locale/submit-job', async (c) => {
   const locale = c.req.param('locale') as 'ar' | 'en';
   
   if (locale !== 'ar' && locale !== 'en') {
     return c.redirect('/ar/submit-job');
+  }
+
+  const db = (c.env as any).DB;
+  let categories: any[] = [];
+  try {
+    const catRows = await db.prepare(
+      `SELECT id, slug, data FROM documents WHERE type_id = 'categories' AND status = 'published' AND is_published = 1`
+    ).all();
+    categories = (catRows.results || []).map((row: any) => ({
+      id: row.id,
+      slug: row.slug,
+      ...JSON.parse(row.data)
+    }));
+  } catch (err) {
+    console.error('Error fetching categories in submit job page:', err);
   }
 
   const t = {
@@ -1344,8 +1360,8 @@ publicRouter.get('/:locale/submit-job', (c) => {
       salary: 'الراتب المتوقع (اختياري)',
       applyEmail: 'بريد التقديم الإلكتروني',
       desc: 'الوصف الوظيفي والمتطلبات التفصيلية',
-      submit: 'إرسال طلب التوظيف للمراجعة',
-      successMsg: 'تم إرسال الوظيفة للمراجعة بنجاح! ستظهر على الموقع فور الموافقة عليها.'
+      submit: 'نشر الوظيفة فوراً',
+      successMsg: 'تم نشر الوظيفة بنجاح وظهرت فوراً على الموقع!'
     },
     en: {
       title: 'Post a Job Vacancy',
@@ -1358,8 +1374,8 @@ publicRouter.get('/:locale/submit-job', (c) => {
       salary: 'Offered Salary (Optional)',
       applyEmail: 'Application Email',
       desc: 'Job Description & Requirements',
-      submit: 'Submit Job for Review',
-      successMsg: 'Job submitted successfully! It will appear on the site as soon as it is approved.'
+      submit: 'Publish Job Instantly',
+      successMsg: 'Job published successfully! It is now live on the site.'
     }
   }[locale];
 
@@ -1382,6 +1398,16 @@ publicRouter.get('/:locale/submit-job', (c) => {
         <div style="margin-bottom: 20px;">
           <label style="display: block; font-weight: 700; color: var(--text-dark); margin-bottom: 8px;">${t.compName}</label>
           <input type="text" name="company" required style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); outline: none;">
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; font-weight: 700; color: var(--text-dark); margin-bottom: 8px;">${t.category}</label>
+          <select name="category" required style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); outline: none; background: white;">
+            <option value="">${locale === 'ar' ? '-- اختر القسم --' : '-- Select Category --'}</option>
+            ${categories.map((cat: any) => `
+              <option value="${cat.id}">${locale === 'ar' ? (cat.name_ar || cat.name) : (cat.name_en || cat.name)}</option>
+            `).join('')}
+          </select>
         </div>
 
         <div style="margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
@@ -1507,19 +1533,27 @@ publicRouter.post(
         language: data.language || 'both',
         featured: false,
         publishedAt: nowMs,
-        status: 'draft',
+        status: 'published',
         screeningQuestionsJson: data.screeningQuestionsJson || '',
         transitLine: data.transitLine || 'none',
         imageUrl: imageUrl
       });
 
       await db.prepare(
-        `INSERT INTO documents (id, root_id, type_id, status, is_published, is_current_draft, slug, title, data, created_at, updated_at)
-         VALUES (?, ?, 'jobs', 'draft', 0, 1, ?, ?, ?, ?, ?)`
-      ).bind(id, id, slug, data.title, docData, nowMs, nowMs).run();
+        `INSERT INTO documents (id, root_id, type_id, status, is_published, is_current_draft, slug, title, data, published_at, created_at, updated_at)
+         VALUES (?, ?, 'jobs', 'published', 1, 1, ?, ?, ?, ?, ?, ?)`
+      ).bind(id, id, slug, data.title, docData, nowMs, nowMs, nowMs).run();
+
+      // Insert category reference in document_references so filtering works
+      if (data.category) {
+        await db.prepare(
+          `INSERT INTO document_references (id, tenant_id, from_root_id, from_document_id, field_name, ordinal, to_root_id, ref_strength)
+           VALUES (?, 'default', ?, ?, 'category', 0, ?, 'weak')`
+        ).bind(`ref-${id}-category`, id, id, data.category).run();
+      }
 
       // Log security event for auditing
-      await logSecurityEvent(db, 'JOB_SUBMITTED', data.applyEmail, ip, `Public job submitted: ${data.title}`);
+      await logSecurityEvent(db, 'JOB_PUBLISHED_GUEST', data.applyEmail, ip, `Public job published instantly: ${data.title}`);
 
       // Dispatch Telegram notifications in the background
       if (c.executionCtx && typeof c.executionCtx.waitUntil === 'function') {
@@ -1817,5 +1851,391 @@ publicRouter.get('/admin-api/backfill-images', async (c) => {
   } catch (err: any) {
     return c.json({ success: false, error: err.message }, 500);
   }
+});
+
+// About Us Page
+publicRouter.get('/:locale/about', (c) => {
+  const locale = c.req.param('locale') as 'ar' | 'en';
+  if (locale !== 'ar' && locale !== 'en') return c.redirect('/ar/about');
+
+  const t = {
+    ar: {
+      title: 'من نحن - فرص عمل في إسطنبول',
+      heading: 'من نحن',
+      subtitle: 'المنصة المهنية الرائدة لفرص العمل والحلول الذكية في إسطنبول',
+      missionTitle: 'رسالتنا وهدفنا',
+      missionText: 'نعمل على سد الفجوة بين الباحثين عن عمل المتميزين وأصحاب الأعمال الرائدين في إسطنبول. هدفنا هو تسهيل العثور على وظائف وتوظيف المواهب عبر توفير حلول مبتكرة وموثوقة بنسبة ١٠٠٪.',
+      featureTitle: 'لماذا تختار منصتنا؟',
+      feat1Title: 'أدوات الذكاء الاصطناعي 🤖',
+      feat1Desc: 'نقدم فاحصاً ذكياً ومحسناً للسير الذاتية ومولداً مخصصاً لرسائل التغطية بالإضافة إلى محاكٍ واقعي لمقابلات العمل.',
+      feat2Title: 'التوظيف الفوري ⚡',
+      feat2Desc: 'نمكن الشركات والأفراد من نشر إعلانات وظيفية تظهر فوراً على الموقع والوصول لآلاف المهتمين في دقائق.',
+      feat3Title: 'شفافية وموثوقية 🤝',
+      feat3Desc: 'يتم فحص الوظائف وتحديث الرواتب ومراجعة الطلبات لضمان تجربة آمنة وجدية لجميع المستخدمين.',
+      statsTitle: 'أرقام تتحدث عنا',
+      stat1Val: '+٥٠٠',
+      stat1Lbl: 'وظيفة شاغرة نشطة',
+      stat2Val: '+١٠ آلاف',
+      stat2Lbl: 'متقدم للوظائف شهرياً',
+      stat3Val: '١٠٠٪',
+      stat3Lbl: 'وظائف موثوقة'
+    },
+    en: {
+      title: 'About Us - Istanbul Jobs',
+      heading: 'About Us',
+      subtitle: 'The leading career platform and smart employment solution in Istanbul',
+      missionTitle: 'Our Mission & Goal',
+      missionText: 'We strive to bridge the gap between outstanding job seekers and leading employers in Istanbul. Our goal is to make career matching easy, accessible, and 100% verified through cutting-edge technology and AI integrations.',
+      featureTitle: 'Why Choose Our Platform?',
+      feat1Title: 'AI-Powered Tools 🤖',
+      feat1Desc: 'Optimize your CV, generate professional cover letters, and practice with our realistic AI Interview Simulator.',
+      feat2Title: 'Instant Job Posting ⚡',
+      feat2Desc: 'Empower companies and individuals to post job listings that go live immediately to reach thousands of candidates.',
+      feat3Title: 'Transparency & Trust 🤝',
+      feat3Desc: 'We verify job postings, support salary transparency, and ensure a reliable hiring experience for all.',
+      statsTitle: 'Our Impact in Numbers',
+      stat1Val: '500+',
+      stat1Lbl: 'Active Vacancies',
+      stat2Val: '10K+',
+      stat2Lbl: 'Monthly Job Seekers',
+      stat3Val: '100%',
+      stat3Lbl: 'Verified Listings'
+    }
+  }[locale];
+
+  const html = `
+    <div class="container" style="max-width: 900px; padding: 60px 20px;">
+      <div class="glass-card" style="padding: 40px; border-radius: var(--radius-lg); text-align: center; margin-bottom: 40px;">
+        <h1 class="hero-title-gradient" style="font-size: 2.5rem; font-weight: 800; margin-bottom: 12px;">${t.heading}</h1>
+        <p style="color: var(--text-muted); font-size: 1.15rem; max-width: 700px; margin: 0 auto 30px;">${t.subtitle}</p>
+        
+        <div style="text-align: ${locale === 'ar' ? 'right' : 'left'}; border-top: 1px solid var(--border); padding-top: 30px; margin-top: 30px;">
+          <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--text-dark); margin-bottom: 12px;">🎯 ${t.missionTitle}</h2>
+          <p style="color: var(--text-body); line-height: 1.7; font-size: 1.05rem;">${t.missionText}</p>
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 40px;">
+        <div class="glass-card" style="padding: 24px; border-radius: var(--radius-md); text-align: center;">
+          <div style="font-size: 2.2rem; font-weight: 900; color: var(--primary); margin-bottom: 6px;">${t.stat1Val}</div>
+          <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-muted);">${t.stat1Lbl}</div>
+        </div>
+        <div class="glass-card" style="padding: 24px; border-radius: var(--radius-md); text-align: center;">
+          <div style="font-size: 2.2rem; font-weight: 900; color: var(--accent); margin-bottom: 6px;">${t.stat2Val}</div>
+          <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-muted);">${t.stat2Lbl}</div>
+        </div>
+        <div class="glass-card" style="padding: 24px; border-radius: var(--radius-md); text-align: center;">
+          <div style="font-size: 2.2rem; font-weight: 900; color: #10b981; margin-bottom: 6px;">${t.stat3Val}</div>
+          <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-muted);">${t.stat3Lbl}</div>
+        </div>
+      </div>
+
+      <!-- Features -->
+      <div class="glass-card" style="padding: 40px; border-radius: var(--radius-lg);">
+        <h2 style="font-size: 1.6rem; font-weight: 800; color: var(--text-dark); margin-bottom: 24px; text-align: center;">${t.featureTitle}</h2>
+        <div style="display: flex; flex-direction: column; gap: 24px; text-align: ${locale === 'ar' ? 'right' : 'left'};">
+          <div style="border-bottom: 1px solid var(--border); padding-bottom: 20px;">
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--primary); margin-bottom: 8px;">${t.feat1Title}</h3>
+            <p style="color: var(--text-body); line-height: 1.6; margin: 0;">${t.feat1Desc}</p>
+          </div>
+          <div style="border-bottom: 1px solid var(--border); padding-bottom: 20px;">
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--accent); margin-bottom: 8px;">${t.feat2Title}</h3>
+            <p style="color: var(--text-body); line-height: 1.6; margin: 0;">${t.feat2Desc}</p>
+          </div>
+          <div>
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: #10b981; margin-bottom: 8px;">${t.feat3Title}</h3>
+            <p style="color: var(--text-body); line-height: 1.6; margin: 0;">${t.feat3Desc}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  return c.html(renderLayout(c, t.title, html, locale));
+});
+
+// Contact Us Page
+publicRouter.get('/:locale/contact', (c) => {
+  const locale = c.req.param('locale') as 'ar' | 'en';
+  if (locale !== 'ar' && locale !== 'en') return c.redirect('/ar/contact');
+
+  const t = {
+    ar: {
+      title: 'اتصل بنا - إسطنبول للوظائف',
+      heading: 'اتصل بنا',
+      subtitle: 'نحن هنا للإجابة على استفساراتكم ومساعدتكم. تواصلوا معنا عبر القنوات المتاحة.',
+      formTitle: 'أرسل لنا رسالة مباشرة',
+      name: 'الاسم الكامل',
+      email: 'البريد الإلكتروني',
+      subject: 'الموضوع',
+      message: 'نص الرسالة',
+      sendBtn: 'إرسال الرسالة ✉️',
+      successMsg: 'تم إرسال رسالتك بنجاح! سنتواصل معك في أقرب وقت ممكن.',
+      cardEmail: 'البريد الإلكتروني',
+      cardPhone: 'واتساب والدعم المباشر',
+      cardLoc: 'العنوان والمقر'
+    },
+    en: {
+      title: 'Contact Us - Istanbul Jobs',
+      heading: 'Contact Us',
+      subtitle: 'We are here to answer your questions and help you. Get in touch with us through our active channels.',
+      formTitle: 'Send Us a Message',
+      name: 'Full Name',
+      email: 'Email Address',
+      subject: 'Subject',
+      message: 'Message Content',
+      sendBtn: 'Send Message ✉️',
+      successMsg: 'Your message has been sent successfully! We will get back to you shortly.',
+      cardEmail: 'Email Us',
+      cardPhone: 'WhatsApp & Support',
+      cardLoc: 'Office Address'
+    }
+  }[locale];
+
+  const html = `
+    <style>
+      .contact-grid {
+        display: grid;
+        grid-template-columns: 1fr 1.5fr;
+        gap: 30px;
+        align-items: start;
+      }
+      .contact-card-box {
+        padding: 24px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        text-align: ${locale === 'ar' ? 'right' : 'left'};
+      }
+      .contact-form-box {
+        padding: 40px;
+        border-radius: var(--radius-lg);
+      }
+      @media (max-width: 768px) {
+        .contact-grid {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+        .contact-card-box {
+          padding: 16px;
+        }
+        .contact-form-box {
+          padding: 24px 16px;
+        }
+      }
+    </style>
+
+    <div class="container" style="max-width: 1000px; padding: 60px 20px;">
+      <h1 class="hero-title-gradient" style="text-align: center; margin-bottom: 12px; font-size: 2.5rem; font-weight: 800;">${t.heading}</h1>
+      <p style="color: var(--text-muted); text-align: center; margin-bottom: 40px; font-size: 1.1rem; max-width: 600px; margin-left: auto; margin-right: auto;">${t.subtitle}</p>
+
+      <div class="contact-grid">
+        <!-- Contact Cards -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+          <div class="glass-card contact-card-box">
+            <div style="width: 46px; height: 46px; border-radius: var(--r-full); background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0;"><i class="fa-solid fa-envelope"></i></div>
+            <div>
+              <div style="font-weight: 800; color: var(--text-dark); margin-bottom: 2px;">${t.cardEmail}</div>
+              <a href="mailto:info@jobs-in-istanbul.com" style="color: var(--primary); font-weight: 600; font-size: 0.92rem;">info@jobs-in-istanbul.com</a>
+            </div>
+          </div>
+          <div class="glass-card contact-card-box">
+            <div style="width: 46px; height: 46px; border-radius: var(--r-full); background: #f0fdf4; color: #166534; display: flex; align-items: center; justify-content: center; font-size: 1.35rem; flex-shrink: 0;"><i class="fa-brands fa-whatsapp"></i></div>
+            <div>
+              <div style="font-weight: 800; color: var(--text-dark); margin-bottom: 2px;">${t.cardPhone}</div>
+              <span style="color: #166534; font-weight: 600; font-size: 0.92rem; direction: ltr; display: inline-block;">+90 555 555 55 55</span>
+            </div>
+          </div>
+          <div class="glass-card contact-card-box">
+            <div style="width: 46px; height: 46px; border-radius: var(--r-full); background: var(--accent-light); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0;"><i class="fa-solid fa-location-dot"></i></div>
+            <div>
+              <div style="font-weight: 800; color: var(--text-dark); margin-bottom: 2px;">${t.cardLoc}</div>
+              <span style="color: var(--text-muted); font-size: 0.9rem;">Şişli, Istanbul, Turkey</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact Form -->
+        <div class="glass-card contact-form-box">
+          <h2 style="font-size: 1.3rem; font-weight: 800; color: var(--text-dark); margin-bottom: 24px; text-align: ${locale === 'ar' ? 'right' : 'left'};">${t.formTitle}</h2>
+          
+          <form id="contact-form" onsubmit="handleContactSubmit(event)">
+            <div style="margin-bottom: 16px; text-align: ${locale === 'ar' ? 'right' : 'left'};">
+              <label style="display: block; font-weight: 700; color: var(--text-dark); margin-bottom: 6px;">${t.name}</label>
+              <input type="text" required style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-site); outline: none;">
+            </div>
+            <div style="margin-bottom: 16px; text-align: ${locale === 'ar' ? 'right' : 'left'};">
+              <label style="display: block; font-weight: 700; color: var(--text-dark); margin-bottom: 6px;">${t.email}</label>
+              <input type="email" required style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-site); outline: none;">
+            </div>
+            <div style="margin-bottom: 16px; text-align: ${locale === 'ar' ? 'right' : 'left'};">
+              <label style="display: block; font-weight: 700; color: var(--text-dark); margin-bottom: 6px;">${t.subject}</label>
+              <input type="text" required style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-site); outline: none;">
+            </div>
+            <div style="margin-bottom: 24px; text-align: ${locale === 'ar' ? 'right' : 'left'};">
+              <label style="display: block; font-weight: 700; color: var(--text-dark); margin-bottom: 6px;">${t.message}</label>
+              <textarea required rows="5" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-site); outline: none; resize: vertical;"></textarea>
+            </div>
+            <button type="submit" class="btn-sidebar-apply" style="border: none; cursor: pointer; width: 100%;">${t.sendBtn}</button>
+          </form>
+
+          <div id="contact-success" style="display: none; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 20px; border-radius: var(--radius-md); color: #166534; font-weight: 600; text-align: center; margin-top: 20px;">
+            <i class="fa-solid fa-circle-check" style="font-size: 1.5rem; margin-bottom: 8px; display: block;"></i>
+            ${t.successMsg}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function handleContactSubmit(e) {
+        e.preventDefault();
+        document.getElementById('contact-form').style.display = 'none';
+        document.getElementById('contact-success').style.display = 'block';
+      }
+    </script>
+  `;
+
+  return c.html(renderLayout(c, t.title, html, locale));
+});
+
+// Privacy Policy Page
+publicRouter.get('/:locale/privacy', (c) => {
+  const locale = c.req.param('locale') as 'ar' | 'en';
+  if (locale !== 'ar' && locale !== 'en') return c.redirect('/ar/privacy');
+
+  const t = {
+    ar: {
+      title: 'سياسة الخصوصية - إسطنبول للوظائف',
+      heading: 'سياسة الخصوصية',
+      lastUpdated: 'آخر تحديث: يونيو ٢٠٢٦',
+      intro: 'نحن ملتزمون بحماية خصوصيتك وبياناتك الشخصية. توضح هذه السياسة كيف نقوم بجمع معلوماتك واستخدامها وحمايتها عند زيارتك لمنصتنا.',
+      sec1Title: '١. المعلومات التي نجمعها',
+      sec1Text: 'نقوم بجمع البيانات الشخصية التي تقدمها لنا طواعية (مثل الاسم، البريد الإلكتروني، السيرة الذاتية، ورسالة التغطية عند التقدم لوظيفة أو نشر وظيفة). كما نجمع بعض البيانات التقنية تلقائياً مثل عنوان IP والملفات المؤقتة (Cookies).',
+      sec2Title: '٢. كيف نستخدم معلوماتك',
+      sec2Text: 'نستخدم معلوماتك لتشغيل وتسهيل خدمات التوظيف على الموقع، وللتواصل معك بخصوص طلباتك، ولتحسين أدوات الذكاء الاصطناعي، وضمان أمن المنصة ومكافحة الانتهاكات.',
+      sec3Title: '٣. حماية البيانات (KVKK / GDPR)',
+      sec3Text: 'نتخذ التدابير الفنية والإدارية المناسبة لحماية بياناتك الشخصية وفقاً لقانون حماية البيانات الشخصية التركي (KVKK) والقانون العام لحماية البيانات الأوروبي (GDPR). لا نبيع بياناتك لأطراف ثالثة أبداً.',
+      sec4Title: '٤. حقوق المستخدمين',
+      sec4Text: 'لديك الحق الكامل في طلب مراجعة بياناتك، تعديلها، أو حذفها نهائياً من أنظمتنا في أي وقت عبر مراسلتنا بالبريد الإلكتروني.'
+    },
+    en: {
+      title: 'Privacy Policy - Istanbul Jobs',
+      heading: 'Privacy Policy',
+      lastUpdated: 'Last Updated: June 2026',
+      intro: 'We are committed to protecting your privacy and personal data. This Privacy Policy explains how we collect, use, and protect your information when you visit our platform.',
+      sec1Title: '1. Information We Collect',
+      sec1Text: 'We collect personal information you voluntarily provide (e.g., name, email address, CV/resume, and cover letter when submitting applications or posting jobs). We also collect automated technical data such as IP address and cookie data.',
+      sec2Title: '2. How We Use Your Information',
+      sec2Text: 'We use your information to operate and facilitate recruitment services, communicate with you regarding your applications, optimize our AI-powered features, and ensure platform security.',
+      sec3Title: '3. Data Security (KVKK / GDPR)',
+      sec3Text: 'We implement strong technical and organizational measures to safeguard your personal data in compliance with Turkish Data Protection Law (KVKK) and EU General Data Protection Regulation (GDPR). We never sell your data.',
+      sec4Title: '4. Your Data Rights',
+      sec4Text: 'You have the right to access, edit, update, or request permanent deletion of your personal data from our systems at any time by contacting our data support team.'
+    }
+  }[locale];
+
+  const html = `
+    <div class="container" style="max-width: 800px; padding: 60px 20px;">
+      <div class="glass-card" style="padding: 40px; border-radius: var(--radius-lg); text-align: ${locale === 'ar' ? 'right' : 'left'};">
+        <h1 class="hero-title-gradient" style="font-size: 2.3rem; font-weight: 800; margin-bottom: 8px; text-align: center;">${t.heading}</h1>
+        <div style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-bottom: 30px;">${t.lastUpdated}</div>
+        
+        <p style="font-size: 1.05rem; line-height: 1.7; color: var(--text-dark); margin-bottom: 30px; font-weight: 500;">${t.intro}</p>
+
+        <div style="display: flex; flex-direction: column; gap: 28px;">
+          <div>
+            <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 10px;">${t.sec1Title}</h2>
+            <p style="color: var(--text-body); line-height: 1.7; font-size: 0.98rem; margin: 0;">${t.sec1Text}</p>
+          </div>
+          <div>
+            <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 10px;">${t.sec2Title}</h2>
+            <p style="color: var(--text-body); line-height: 1.7; font-size: 0.98rem; margin: 0;">${t.sec2Text}</p>
+          </div>
+          <div>
+            <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 10px;">${t.sec3Title}</h2>
+            <p style="color: var(--text-body); line-height: 1.7; font-size: 0.98rem; margin: 0;">${t.sec3Text}</p>
+          </div>
+          <div>
+            <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 10px;">${t.sec4Title}</h2>
+            <p style="color: var(--text-body); line-height: 1.7; font-size: 0.98rem; margin: 0;">${t.sec4Text}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  return c.html(renderLayout(c, t.title, html, locale));
+});
+
+// Terms & Conditions Page
+publicRouter.get('/:locale/terms', (c) => {
+  const locale = c.req.param('locale') as 'ar' | 'en';
+  if (locale !== 'ar' && locale !== 'en') return c.redirect('/ar/terms');
+
+  const t = {
+    ar: {
+      title: 'الشروط والأحكام - إسطنبول للوظائف',
+      heading: 'الشروط والأحكام',
+      lastUpdated: 'آخر تحديث: يونيو ٢٠٢٦',
+      intro: 'يرجى قراءة شروط الخدمة هذه بعناية قبل استخدام منصتنا. استخدامك للموقع يعني موافقتك الكاملة على هذه الشروط والأحكام.',
+      sec1Title: '١. شروط الاستخدام وقبول الخدمة',
+      sec1Text: 'تُقدم المنصة خدمات إعلانات التوظيف وتسهيل التواصل بين الباحثين عن عمل والشركات. يجب أن يكون استخدامك متوافقاً مع الآداب العامة والقوانين التركية المعمول بها.',
+      sec2Title: '٢. سياسة نشر إعلانات الوظائف',
+      sec2Text: 'يتحمل معلنو الوظائف المسؤولية الكاملة عن صحة ودقة البيانات وتفاصيل الوظيفة المنشورة. يُمنع منعاً باتاً نشر إعلانات وظيفية وهمية، احتيالية، مضللة، أو تطلب مبالغ مالية مقابل التقديم.',
+      sec3Title: '٣. إخلاء المسؤولية',
+      sec3Text: 'منصتنا هي وسيط توظيف وإعلانات فقط. لا نتدخل في اتفاقيات العمل ولا نضمن الحصول على وظائف أو مرشحين، ولا نتحمل أي مسؤولية عن أي نزاعات تنشأ بين أصحاب الأعمال والموظفين.',
+      sec4Title: '٤. تعديل الشروط',
+      sec4Text: 'نحتفظ بالحق في تحديث أو تعديل هذه الشروط في أي وقت لتناسب التغيرات القانونية أو الفنية. تُصبح التعديلات سارية بمجرد نشرها على هذه الصفحة.'
+    },
+    en: {
+      title: 'Terms & Conditions - Istanbul Jobs',
+      heading: 'Terms & Conditions',
+      lastUpdated: 'Last Updated: June 2026',
+      intro: 'Please read these Terms of Service carefully before using our platform. By accessing or using the site, you agree to be bound by these terms.',
+      sec1Title: '1. Acceptance of Terms',
+      sec1Text: 'Our platform provides recruitment advertising and career tools. Your usage must comply with moral guidelines, international standards, and applicable Turkish laws.',
+      sec2Title: '2. Job Posting Policy',
+      sec2Text: 'Employers and individuals posting jobs assume full responsibility for the accuracy and legality of the listing details. Spam, fraud, illegal vacancies, or listings asking candidates for payment are strictly prohibited.',
+      sec3Title: '3. Disclaimer of Liability',
+      sec3Text: 'We act as an advertising venue only. We do not participate in employment agreements or guarantee hiring outcomes, and we are not liable for any disputes arising between employers and candidates.',
+      sec4Title: '4. Modifications of Terms',
+      sec4Text: 'We reserve the right to modify these terms and conditions at any time. Updates become effective immediately upon posting on this page.'
+    }
+  }[locale];
+
+  const html = `
+    <div class="container" style="max-width: 800px; padding: 60px 20px;">
+      <div class="glass-card" style="padding: 40px; border-radius: var(--radius-lg); text-align: ${locale === 'ar' ? 'right' : 'left'};">
+        <h1 class="hero-title-gradient" style="font-size: 2.3rem; font-weight: 800; margin-bottom: 8px; text-align: center;">${t.heading}</h1>
+        <div style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-bottom: 30px;">${t.lastUpdated}</div>
+        
+        <p style="font-size: 1.05rem; line-height: 1.7; color: var(--text-dark); margin-bottom: 30px; font-weight: 500;">${t.intro}</p>
+
+        <div style="display: flex; flex-direction: column; gap: 28px;">
+          <div>
+            <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 10px;">${t.sec1Title}</h2>
+            <p style="color: var(--text-body); line-height: 1.7; font-size: 0.98rem; margin: 0;">${t.sec1Text}</p>
+          </div>
+          <div>
+            <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 10px;">${t.sec2Title}</h2>
+            <p style="color: var(--text-body); line-height: 1.7; font-size: 0.98rem; margin: 0;">${t.sec2Text}</p>
+          </div>
+          <div>
+            <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 10px;">${t.sec3Title}</h2>
+            <p style="color: var(--text-body); line-height: 1.7; font-size: 0.98rem; margin: 0;">${t.sec3Text}</p>
+          </div>
+          <div>
+            <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 10px;">${t.sec4Title}</h2>
+            <p style="color: var(--text-body); line-height: 1.7; font-size: 0.98rem; margin: 0;">${t.sec4Text}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  return c.html(renderLayout(c, t.title, html, locale));
 });
 
