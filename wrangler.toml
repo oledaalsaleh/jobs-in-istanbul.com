@@ -30,6 +30,7 @@ CORS_ORIGINS = "http://localhost:8787"
 JWT_SECRET = "change-me-in-production-secure-key"
 TURNSTILE_SITE_KEY = "1x00000000000000000000AA"
 TURNSTILE_SECRET_KEY = "1x0000000000000000000000000000000AA"
+GEMINI_API_KEY = "AQ.Ab8RN6JHfL09eLgtayoUqbslfeDfT9x1GR1IjdnLt9O-dSJQ5g"
 
 # Production environment
 [env.production]
@@ -38,7 +39,7 @@ routes = [
   { pattern = "jobs-in-istanbul.com", custom_domain = true },
   { pattern = "www.jobs-in-istanbul.com", custom_domain = true }
 ]
-vars = { ENVIRONMENT = "production", CORS_ORIGINS = "https://jobs-in-istanbul.com", JWT_SECRET = "secure-jwt-secret-key-istanbul-jobs-2026!", TURNSTILE_SITE_KEY = "1x00000000000000000000AA", TURNSTILE_SECRET_KEY = "1x0000000000000000000000000000000AA" }
+vars = { ENVIRONMENT = "production", CORS_ORIGINS = "https://jobs-in-istanbul.com", JWT_SECRET = "secure-jwt-secret-key-istanbul-jobs-2026!", TURNSTILE_SITE_KEY = "1x00000000000000000000AA", TURNSTILE_SECRET_KEY = "1x0000000000000000000000000000000AA", BETTER_AUTH_URL = "https://jobs-in-istanbul.com", GEMINI_API_KEY = "AQ.Ab8RN6JHfL09eLgtayoUqbslfeDfT9x1GR1IjdnLt9O-dSJQ5g" }
 
 
 
@@ -55,6 +56,16 @@ id = "523b280a22c341aaa83355381c4a2f30"
 binding = "MEDIA_BUCKET"
 bucket_name = "jobs-media"
 
+[env.production.ai]
+binding = "AI"
+
 # Observability
 [observability]
 enabled = true
+
+[ai]
+binding = "AI"
+
+[triggers]
+crons = ["*/15 * * * *"]
+

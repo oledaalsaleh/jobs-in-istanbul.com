@@ -96,6 +96,11 @@ export default {
         title: 'Featured Post?',
         default: false,
       },
+      guestEmail: {
+        type: 'email',
+        title: 'Guest Submitter Email (Internal)',
+        required: false,
+      },
       publishedAt: {
         type: 'datetime',
         title: 'Publish Date',
@@ -108,6 +113,24 @@ export default {
         enum: ['draft', 'published', 'archived'],
         enumLabels: ['Draft', 'Published', 'Archived'],
         default: 'draft',
+      },
+      screeningQuestionsJson: {
+        type: 'textarea',
+        title: 'Screening Questions (JSON Array)',
+        required: false,
+      },
+      transitLine: {
+        type: 'select',
+        title: 'Transit Line Near Workspace',
+        required: false,
+        enum: ['none', 'm2', 'metrobus', 'm4', 'm11'],
+        enumLabels: ['None', 'M2 Metro Line', 'Metrobus Line', 'M4 Metro Line', 'M11 Airport Metro'],
+        default: 'none',
+      },
+      imageUrl: {
+        type: 'string',
+        title: 'Job Header Image URL',
+        required: false,
       },
     },
     required: [

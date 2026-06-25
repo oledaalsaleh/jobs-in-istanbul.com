@@ -15,6 +15,7 @@ interface MetaDataInput {
   salary?: string;
   location?: string;
   jobType?: string;
+  seoKeywords?: string[];
 }
 
 export function generateMetaTags(locale: 'ar' | 'en', pageType: 'home' | 'job' | 'submit', data: MetaDataInput = {}) {
@@ -50,13 +51,23 @@ export function generateMetaTags(locale: 'ar' | 'en', pageType: 'home' | 'job' |
   const oppositeLocale = locale === 'ar' ? 'en' : 'ar';
   const alternateUrl = `${siteUrl}/${oppositeLocale}${data.slug ? `/jobs/${data.slug}` : ''}`;
 
+  let keywordsStr = locale === 'ar'
+    ? 'وظائف في إسطنبول, فرص عمل في تركيا, شغل في تركيا للعرب, وظائف شاغرة, توظيف, jobsintr, تركيا'
+    : 'jobs in istanbul, working in turkey, employment, vacancies, istanbul jobs';
+
+  if (data.seoKeywords && Array.isArray(data.seoKeywords) && data.seoKeywords.length > 0) {
+    keywordsStr = data.seoKeywords.join(', ') + ', ' + keywordsStr;
+  }
+
   return `
   <!-- Primary Meta Tags -->
   <title>${title}</title>
   <meta name="title" content="${title}">
   <meta name="description" content="${desc}">
+  <meta name="keywords" content="${keywordsStr}">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="${canonicalUrl}">
+  <link rel="icon" type="image/png" href="${siteUrl}/public/images/logo.png">
   
   <!-- i18n Multilingual Links -->
   <link rel="alternate" hreflang="${locale}" href="${canonicalUrl}">
@@ -87,7 +98,7 @@ export function generateJsonLd(locale: 'ar' | 'en', pageType: 'home' | 'job', da
     const orgSchema = {
       "@context": "https://schema.org",
       "@type": "Organization",
-      "name": locale === 'ar' ? 'عمل إسطنبول' : 'Istanbul Jobs',
+      "name": locale === 'ar' ? 'فرص عمل في إسطنبول' : 'Istanbul Jobs',
       "url": `${siteUrl}/${locale}`,
       "logo": `${siteUrl}/public/images/logo.png`,
       "sameAs": [
@@ -100,7 +111,7 @@ export function generateJsonLd(locale: 'ar' | 'en', pageType: 'home' | 'job', da
     const websiteSchema = {
       "@context": "https://schema.org",
       "@type": "WebSite",
-      "name": locale === 'ar' ? 'عمل إسطنبول' : 'Istanbul Jobs',
+      "name": locale === 'ar' ? 'فرص عمل في إسطنبول' : 'Istanbul Jobs',
       "url": `${siteUrl}/${locale}`,
       "potentialAction": {
         "@type": "SearchAction",

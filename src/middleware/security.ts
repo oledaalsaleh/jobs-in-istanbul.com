@@ -4,12 +4,22 @@ import { z } from 'zod'
 // Zod Schema for Job Submission Validation
 export const JobSubmissionSchema = z.object({
   title: z.string().min(3).max(100),
+  title_en: z.string().max(200).optional().nullable(),
+  title_ar: z.string().max(200).optional().nullable(),
   company: z.string().min(2).max(100),
   jobType: z.enum(['full-time', 'part-time', 'remote', 'internship']),
   location: z.string().min(2).max(100),
+  location_en: z.string().max(100).optional().nullable(),
+  location_ar: z.string().max(100).optional().nullable(),
   applyEmail: z.string().email(),
   salary: z.string().max(50).optional().nullable(),
   description: z.string().min(10).max(5000),
+  description_en: z.string().max(5000).optional().nullable(),
+  description_ar: z.string().max(5000).optional().nullable(),
+  category: z.string().max(100).optional().nullable(),
+  language: z.enum(['ar', 'en', 'both']).optional().nullable(),
+  transitLine: z.enum(['none', 'm2', 'metrobus', 'm4', 'm11']).optional().nullable(),
+  screeningQuestionsJson: z.string().max(10000).optional().nullable(),
   'cf-turnstile-response': z.string().min(1, 'Turnstile captcha response is required')
 });
 
