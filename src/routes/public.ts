@@ -1065,6 +1065,11 @@ publicRouter.get(
     const description = locale === 'ar' ? job.description_ar : job.description_en;
     const location = locale === 'ar' ? job.location_ar : job.location_en;
 
+    const shareUrl = `https://jobs-in-istanbul.com/${locale}/jobs/${job.slug}`;
+    const shareText = locale === 'ar'
+      ? `🔥 فرصة عمل مميزة في إسطنبول!\n\n📌 المسمى الوظيفي: ${title}\n🏢 الشركة: ${company.name}\n\nالتفاصيل والتقديم عبر الرابط المباشر:\n📍 ${shareUrl}\n\n#وظائف_إسطنبول #عمل_في_تركيا`
+      : `🔥 Hot Job Opening in Istanbul!\n\n📌 Role: ${title}\n🏢 Company: ${company.name}\n\nCheck details and apply here:\n📍 ${shareUrl}\n\n#IstanbulJobs #TurkeyJobs`;
+
     let quizQuestionsRaw = [];
     try {
       if (job.screeningQuestionsJson) {
@@ -1181,12 +1186,41 @@ publicRouter.get(
             
             <!-- Social Share Widget -->
             <div class="share-widget" style="border-top: 1px solid var(--border); padding-top: 20px;">
-              <div class="share-widget-title">${locale === 'ar' ? 'مشاركة هذه الوظيفة:' : 'Share this Job:'}</div>
-              <div class="share-buttons">
-                <a href="https://api.whatsapp.com/send?text=${encodeURIComponent(title + ' - ' + 'https://jobs-in-istanbul.com/' + locale + '/jobs/' + job.slug)}" target="_blank" class="btn-share share-wa" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
-                <a href="https://t.me/share/url?url=${encodeURIComponent('https://jobs-in-istanbul.com/' + locale + '/jobs/' + job.slug)}&text=${encodeURIComponent(title)}" target="_blank" class="btn-share share-tg" title="Telegram"><i class="fa-brands fa-telegram"></i></a>
-                <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent('https://jobs-in-istanbul.com/' + locale + '/jobs/' + job.slug)}" target="_blank" class="btn-share share-tw" title="Twitter"><i class="fa-brands fa-twitter"></i></a>
-                <button onclick="copyToClipboard(window.location.href)" class="btn-share share-link" title="Copy Link" style="border:none;"><i class="fa-solid fa-link"></i></button>
+              <div class="share-widget-title" style="font-weight: 700; color: var(--text-dark); margin-bottom: 12px; font-size: 0.95rem;">
+                ${locale === 'ar' ? 'مشاركة هذه الوظيفة:' : 'Share this Job:'}
+              </div>
+              <div class="share-buttons" style="display: flex; flex-direction: column; gap: 8px;">
+                <a href="https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}" target="_blank" 
+                   style="display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; border-radius: var(--r-sm); background: #25D366; color: white; font-weight: 700; font-size: 0.95rem; text-decoration: none; transition: var(--t-base); box-shadow: var(--shadow-xs);"
+                   onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-sm)'"
+                   onmouseout="this.style.transform='none'; this.style.boxShadow='var(--shadow-xs)'">
+                  <i class="fa-brands fa-whatsapp" style="font-size: 1.25rem;"></i>
+                  <span>${locale === 'ar' ? 'مشاركة عبر واتساب' : 'Share on WhatsApp'}</span>
+                </a>
+                
+                <a href="https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}" target="_blank" 
+                   style="display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; border-radius: var(--r-sm); background: #0088cc; color: white; font-weight: 700; font-size: 0.95rem; text-decoration: none; transition: var(--t-base); box-shadow: var(--shadow-xs);"
+                   onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-sm)'"
+                   onmouseout="this.style.transform='none'; this.style.boxShadow='var(--shadow-xs)'">
+                  <i class="fa-brands fa-telegram" style="font-size: 1.25rem;"></i>
+                  <span>${locale === 'ar' ? 'مشاركة عبر تلغرام' : 'Share on Telegram'}</span>
+                </a>
+                
+                <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}" target="_blank" 
+                   style="display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; border-radius: var(--r-sm); background: #000000; color: white; font-weight: 700; font-size: 0.95rem; text-decoration: none; transition: var(--t-base); box-shadow: var(--shadow-xs);"
+                   onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-sm)'"
+                   onmouseout="this.style.transform='none'; this.style.boxShadow='var(--shadow-xs)'">
+                  <i class="fa-brands fa-x-twitter" style="font-size: 1.15rem;"></i>
+                  <span>${locale === 'ar' ? 'مشاركة عبر إكس (تويتر)' : 'Share on X (Twitter)'}</span>
+                </a>
+                
+                <button onclick="copyToClipboard('${shareUrl}')" 
+                        style="display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; border-radius: var(--r-sm); background: var(--bg-subtle); color: var(--text-dark); font-weight: 700; font-size: 0.95rem; border: 1px solid var(--border); cursor: pointer; transition: var(--t-base); width: 100%; box-shadow: var(--shadow-xs);"
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-sm)'"
+                        onmouseout="this.style.transform='none'; this.style.boxShadow='var(--shadow-xs)'">
+                  <i class="fa-solid fa-link" style="font-size: 1.1rem;"></i>
+                  <span>${locale === 'ar' ? 'نسخ رابط الوظيفة' : 'Copy Job Link'}</span>
+                </button>
               </div>
             </div>
           </div>
