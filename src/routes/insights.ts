@@ -203,7 +203,7 @@ insightsRouter.get('/:locale/insights', async (c) => {
     // Monthly trend (last 6 months)
     const monthlyRows = await db.prepare(
       `SELECT 
-        strftime('%Y-%m', datetime(created_at, 'unixepoch')) as month_key,
+        strftime('%Y-%m', datetime(CASE WHEN created_at > 9999999999 THEN created_at / 1000 ELSE created_at END, 'unixepoch')) as month_key,
         COUNT(*) as count
        FROM documents 
        WHERE type_id = 'jobs' AND is_published = 1 AND deleted_at IS NULL
@@ -570,7 +570,9 @@ insightsRouter.get('/:locale/insights', async (c) => {
         return `
               <div class="trend-chart">
                 ${monthlyData.map((m: any) => {
+          if (!m.month_key) return '';
           const parts = m.month_key.split('-')
+          if (parts.length < 2) return '';
           const monthNum = parts[1]
           const monthLabel = monthNames[monthNum] ? monthNames[monthNum][locale] : monthNum
           const heightPct = (m.count / maxMonthly) * 100
