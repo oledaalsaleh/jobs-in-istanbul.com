@@ -1072,6 +1072,18 @@ publicRouter.get(
               <span style="font-weight: 700; color: var(--text-dark); display: block; font-size: 0.9rem;">${translations.published}</span>
               <span style="color: var(--text-main); font-size: 1rem;">${pubDate}</span>
             </div>
+            ${job.phone ? `<div style="margin-bottom: 20px; border-top: 1px solid var(--border); padding-top: 16px;">
+              <span style="font-weight: 700; color: var(--text-dark); display: block; font-size: 0.9rem; margin-bottom: 4px;">
+                ${locale === 'ar' ? '📞 هاتف التواصل:' : '📞 Contact Phone:'}
+              </span>
+              <a href="tel:${job.phone}" style="color: var(--primary); font-weight: 600; font-size: 1.05rem; text-decoration: none; display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-phone"></i> ${job.phone}
+              </a>
+              ${job.phone.replace(/[^0-9]/g, '').length >= 10 ? `
+              <a href="https://wa.me/${job.phone.replace(/[^0-9]/g, '')}" target="_blank" rel="noopener" style="color: #25d366; font-weight: 600; font-size: 0.9rem; text-decoration: none; display: flex; align-items: center; gap: 6px; margin-top: 8px;">
+                <i class="fa-brands fa-whatsapp" style="font-size: 1.15rem;"></i> ${locale === 'ar' ? 'تواصل عبر واتساب' : 'Chat on WhatsApp'}
+              </a>` : ''}
+            </div>` : ''}
             <button onclick="openApplyModal()" class="btn-sidebar-apply" style="margin-bottom: 20px; border: none; cursor: pointer; display: block; width: 100%;">${translations.applyNow}</button>
             
             <!-- Social Share Widget -->
@@ -1303,7 +1315,7 @@ publicRouter.get(
 
   const seoHtml = generateMetaTags(locale, 'job', {
     title,
-    description: job.description_ar,
+    description: description,
     slug: job.slug,
     publishedAt: job.publishedAt,
     companyName: company.name,
@@ -1313,10 +1325,12 @@ publicRouter.get(
     seoKeywords: job.seoKeywords || []
   }) + generateJsonLd(locale, 'job', {
     title,
-    description: job.description_ar,
+    description: description,
     slug: job.slug,
     publishedAt: job.publishedAt,
     companyName: company.name,
+    companyLogo: company.logo,
+    companyWebsite: company.website,
     location,
     jobType: job.jobType,
     salary: job.salary
@@ -1359,6 +1373,7 @@ publicRouter.get('/:locale/submit-job', async (c) => {
       location: 'المنطقة في إسطنبول',
       salary: 'الراتب المتوقع (اختياري)',
       applyEmail: 'بريد التقديم الإلكتروني',
+      phone: 'رقم الهاتف (اختياري)',
       desc: 'الوصف الوظيفي والمتطلبات التفصيلية',
       submit: 'نشر الوظيفة فوراً',
       successMsg: 'تم نشر الوظيفة بنجاح وظهرت فوراً على الموقع!'
@@ -1373,6 +1388,7 @@ publicRouter.get('/:locale/submit-job', async (c) => {
       location: 'District in Istanbul',
       salary: 'Offered Salary (Optional)',
       applyEmail: 'Application Email',
+      phone: 'Phone Number (Optional)',
       desc: 'Job Description & Requirements',
       submit: 'Publish Job Instantly',
       successMsg: 'Job published successfully! It is now live on the site.'
@@ -1432,9 +1448,14 @@ publicRouter.get('/:locale/submit-job', async (c) => {
             <input type="email" name="applyEmail" required placeholder="jobs@company.com" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); outline: none;">
           </div>
           <div>
-            <label style="display: block; font-weight: 700; color: var(--text-dark); margin-bottom: 8px;">${t.salary}</label>
-            <input type="text" name="salary" placeholder="e.g. 20,000 - 30,000 TL" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); outline: none;">
+            <label style="display: block; font-weight: 700; color: var(--text-dark); margin-bottom: 8px;">${t.phone}</label>
+            <input type="tel" name="phone" placeholder="e.g. +90 555 123 4567" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); outline: none;">
           </div>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; font-weight: 700; color: var(--text-dark); margin-bottom: 8px;">${t.salary}</label>
+          <input type="text" name="salary" placeholder="e.g. 20,000 - 30,000 TL" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); outline: none;">
         </div>
 
         <div style="margin-bottom: 30px;">
@@ -1516,18 +1537,46 @@ publicRouter.post(
         }
       }
 
+      let titleAr = data.title;
+      let titleEn = data.title;
+      let descAr = data.description;
+      let descEn = data.description;
+      let seoKeywords: string[] = [];
+      let seoDescription = '';
+
+      const geminiApiKey = env.GEMINI_API_KEY;
+      if (geminiApiKey) {
+        try {
+          const seoResult = await optimizeSeoWithGemini(
+            geminiApiKey,
+            data.title,
+            data.description,
+            locale
+          );
+          titleAr = seoResult.title_ar || data.title;
+          titleEn = seoResult.title_en || data.title;
+          descAr = seoResult.description_ar || data.description;
+          descEn = seoResult.description_en || data.description;
+          seoKeywords = seoResult.keywords || [];
+          seoDescription = seoResult.seoDescription || '';
+        } catch (e) {
+          console.error('Gemini SEO call failed on guest submission:', e);
+        }
+      }
+
       const docData = JSON.stringify({
-        title_ar: data.title_ar || data.title,
-        title_en: data.title_en || data.title,
+        title_ar: titleAr,
+        title_en: titleEn,
         slug: slug,
-        description_ar: data.description_ar || data.description,
-        description_en: data.description_en || data.description,
+        description_ar: descAr,
+        description_en: descEn,
         company: data.company, // Capturing guest input
         category: data.category || 'cat-general',
         location_ar: data.location_ar || data.location,
         location_en: data.location_en || data.location,
         jobType: data.jobType || 'full-time',
         salary: data.salary || '',
+        phone: data.phone || '',
         applyEmail: data.applyEmail,
         guestEmail: data.applyEmail, // Track who submitted it
         language: data.language || 'both',
@@ -1536,13 +1585,15 @@ publicRouter.post(
         status: 'published',
         screeningQuestionsJson: data.screeningQuestionsJson || '',
         transitLine: data.transitLine || 'none',
-        imageUrl: imageUrl
+        imageUrl: imageUrl,
+        seoKeywords,
+        seoDescription
       });
 
       await db.prepare(
         `INSERT INTO documents (id, root_id, type_id, status, is_published, is_current_draft, slug, title, data, published_at, created_at, updated_at)
          VALUES (?, ?, 'jobs', 'published', 1, 1, ?, ?, ?, ?, ?, ?)`
-      ).bind(id, id, slug, data.title, docData, nowMs, nowMs, nowMs).run();
+      ).bind(id, id, slug, titleEn, docData, nowMs, nowMs, nowMs).run();
 
       // Insert category reference in document_references so filtering works
       if (data.category) {

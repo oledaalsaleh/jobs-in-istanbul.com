@@ -30,11 +30,34 @@ const mockDb = {
           first: async () => {
             if (sql.includes("jobs")) {
               return {
+                id: 'job-123',
+                published_at: 1719324000000,
                 data: JSON.stringify({
+                  title_ar: 'مهندس برمجيات',
                   title_en: 'Software Engineer',
+                  description_ar: 'وصف الوظيفة بالعربية\nتفاصيل إضافية.',
+                  description_en: 'Job description in English\nAdditional details.',
+                  company: 'comp-ist-tech',
+                  category: 'cat-it',
+                  jobType: 'remote',
+                  salary: '20,000 - 30,000 TL',
+                  phone: '+90 555 123 4567',
+                  location_ar: 'إسطنبول',
+                  location_en: 'Istanbul',
+                  slug: 'software-engineer',
                   screeningQuestionsJson: JSON.stringify([
                     { question: 'Do you know TypeScript?', options: ['Yes', 'No'], correct: 'Yes' }
                   ])
+                })
+              };
+            }
+            if (sql.includes("documents WHERE id = ?")) {
+              return {
+                data: JSON.stringify({
+                  name: 'Istanbul Tech',
+                  logo: '/uploads/logo.png',
+                  website: 'https://istanbultech.com',
+                  description: 'A great tech company.'
                 })
               };
             }
@@ -64,6 +87,8 @@ const mockDb = {
       first: async () => {
         if (sql.includes("jobs")) {
           return {
+            id: 'job-123',
+            published_at: 1719324000000,
             data: JSON.stringify({
               title_en: 'Software Engineer',
               screeningQuestionsJson: JSON.stringify([
@@ -168,5 +193,49 @@ describe('Istanbul Jobs Portal Smoke Tests', () => {
     expect(res.status).toBe(200)
     const json = await res.json()
     expect(json.success).toBe(true)
+  })
+
+  test('GET /ar/jobs/software-engineer renders JobPosting schema and localized detail content', async () => {
+    const res = await app.request('/ar/jobs/software-engineer', {}, mockEnv)
+    expect(res.status).toBe(200)
+    const text = await res.text()
+
+    // 1. Verify general content is localized in Arabic
+    expect(text).toContain('مهندس برمجيات')
+    expect(text).toContain('شغل في تركيا للعرب') // from seo-helper meta keywords default
+
+    // 2. Verify JobPosting schema is present and matches Arabic localized details
+    expect(text).toContain('"@type":"JobPosting"')
+    expect(text).toContain('"title":"مهندس برمجيات"')
+    expect(text).toContain('"description":"<p>وصف الوظيفة بالعربية</p><p>تفاصيل إضافية.</p>"')
+    
+    // 3. Verify company logo and website are correctly included
+    expect(text).toContain('"logo":"https://jobs-in-istanbul.com/uploads/logo.png"')
+    expect(text).toContain('"sameAs":"https://istanbultech.com"')
+
+    // 4. Verify remote job properties are set
+    expect(text).toContain('"jobLocationType":"TELECOMMUTE"')
+    expect(text).toContain('"applicantLocationRequirements":{"@type":"Area","name":"Turkey"}')
+
+    // 5. Verify baseSalary parsing
+    expect(text).toContain('"baseSalary":{"@type":"MonetaryAmount","currency":"TRY","value":{"@type":"QuantitativeValue","minValue":20000,"maxValue":30000,"unitText":"MONTH"}}')
+
+    // 6. Verify phone number and WhatsApp contact link rendering
+    expect(text).toContain('href="tel:+90 555 123 4567"')
+    expect(text).toContain('href="https://wa.me/905551234567"')
+  })
+
+  test('GET /en/jobs/software-engineer renders JobPosting schema with English localization', async () => {
+    const res = await app.request('/en/jobs/software-engineer', {}, mockEnv)
+    expect(res.status).toBe(200)
+    const text = await res.text()
+
+    // 1. Verify general content is localized in English
+    expect(text).toContain('Software Engineer')
+    expect(text).not.toContain('وصف الوظيفة بالعربية') // English page must not have Arabic description in schema/meta
+
+    // 2. Verify JobPosting schema matches English localized details
+    expect(text).toContain('"title":"Software Engineer"')
+    expect(text).toContain('"description":"<p>Job description in English</p><p>Additional details.</p>"')
   })
 })

@@ -104,7 +104,13 @@ export default {
       publishedAt: {
         type: 'datetime',
         title: 'Publish Date',
-        required: true,
+        required: false,
+      },
+      phone: {
+        type: 'string',
+        title: 'Employer Phone / Contact Number',
+        required: false,
+        maxLength: 50,
       },
       status: {
         type: 'select',
@@ -145,7 +151,6 @@ export default {
       'location_en',
       'jobType',
       'language',
-      'publishedAt',
       'status',
     ],
   },

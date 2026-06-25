@@ -63,22 +63,41 @@ app.route('/', aiFeaturesRouter)
 
 // Export the application for both HTTP requests (fetch) and Cron triggers (scheduled)
 export default {
-  fetch: app.fetch,
+  async fetch(request: Request, env: any, ctx: any) {
+    const url = new URL(request.url);
+    if (url.pathname === '/' || url.pathname === '') {
+      const acceptLang = request.headers.get('Accept-Language') || '';
+      const lang = acceptLang.toLowerCase().includes('en') ? 'en' : 'ar';
+      return Response.redirect(`${url.origin}/${lang}`, 302);
+    }
+    return app.fetch(request, env, ctx);
+  },
   async scheduled(_event: any, env: any, ctx: any) {
-    ctx.waitUntil(
-      Promise.all([
-        runScraper({ DB: env.DB, AI: env.AI, MEDIA_BUCKET: env.MEDIA_BUCKET, GEMINI_API_KEY: env.GEMINI_API_KEY }, 3)
-          .then((result) => {
-            console.log(`[CRON SCRAPER] Web Scraper Success: Scraped ${result.scraped}/${result.processed} listings. Errors: ${result.errors}`);
-          }),
-        runTelegramScraper({ DB: env.DB, AI: env.AI, MEDIA_BUCKET: env.MEDIA_BUCKET, GEMINI_API_KEY: env.GEMINI_API_KEY }, 3)
-          .then((result) => {
-            console.log(`[CRON SCRAPER] TG Scraper Success: Scraped ${result.scraped}/${result.processed} listings. Errors: ${result.errors}`);
-          })
-      ]).catch((err) => {
-        console.error('[CRON SCRAPER] Concurrency execution error:', err);
-      })
-    );
+    ctx.waitUntil((async () => {
+      try {
+        console.log('[CRON SCRAPER] Starting sequential execution...');
+        
+        // 1. Run Web Scraper
+        const webResult = await runScraper(
+          { DB: env.DB, AI: env.AI, MEDIA_BUCKET: env.MEDIA_BUCKET, GEMINI_API_KEY: env.GEMINI_API_KEY },
+          8
+        );
+        console.log(`[CRON SCRAPER] Web Scraper Success: Scraped ${webResult.scraped}/${webResult.processed} listings. Errors: ${webResult.errors}`);
+        
+        // 2. Brief pause to avoid API overlap
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        
+        // 3. Run Telegram Scraper
+        const tgResult = await runTelegramScraper(
+          { DB: env.DB, AI: env.AI, MEDIA_BUCKET: env.MEDIA_BUCKET, GEMINI_API_KEY: env.GEMINI_API_KEY },
+          8
+        );
+        console.log(`[CRON SCRAPER] TG Scraper Success: Scraped ${tgResult.scraped}/${tgResult.processed} listings. Errors: ${tgResult.errors}`);
+        
+      } catch (err) {
+        console.error('[CRON SCRAPER] Sequential execution error:', err);
+      }
+    })());
   }
 }
 

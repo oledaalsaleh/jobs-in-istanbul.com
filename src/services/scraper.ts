@@ -507,8 +507,22 @@ export async function runScraper(env: { DB: D1Database; AI: any; MEDIA_BUCKET?: 
     const urls = await getJobsList();
     details.push(`Found ${urls.length} candidate URLs.`);
 
-    // Keep it limited to avoid rate limits or execution timeout on worker (especially in cron)
-    const targetUrls = urls.slice(0, limit);
+    // 1. Fetch all existing job sourceUrls in a single query
+    const scrapedRows = await env.DB.prepare(
+      `SELECT json_extract(data, '$.sourceUrl') as sourceUrl FROM documents WHERE type_id = 'jobs'`
+    ).all();
+    const scrapedUrls = new Set(
+      scrapedRows.results
+        .map((r: any) => r.sourceUrl)
+        .filter(Boolean)
+    );
+
+    // 2. Filter out already scraped URLs
+    const unscrapedUrls = urls.filter(url => !scrapedUrls.has(url));
+    details.push(`Filtered out ${urls.length - unscrapedUrls.length} already scraped URLs. ${unscrapedUrls.length} unscraped URLs remain.`);
+
+    // 3. Keep it limited to avoid rate limits or execution timeout on worker (especially in cron)
+    const targetUrls = unscrapedUrls.slice(0, limit);
     details.push(`Processing up to ${targetUrls.length} new URLs in this run...`);
 
     const headers = {
@@ -518,13 +532,7 @@ export async function runScraper(env: { DB: D1Database; AI: any; MEDIA_BUCKET?: 
 
     for (const url of targetUrls) {
       try {
-        const isExists = await isJobAlreadyScraped(env.DB, url);
-        if (isExists) {
-          details.push(`[SKIP] Already scraped: ${url}`);
-          processedCount++;
-          continue;
-        }
-
+        processedCount++;
         details.push(`[FETCH] Crawling job details from: ${url}`);
         const response = await fetch(url, { headers, signal: AbortSignal.timeout(10000) });
         if (!response.ok) {
@@ -551,13 +559,14 @@ export async function runScraper(env: { DB: D1Database; AI: any; MEDIA_BUCKET?: 
         
         details.push(`[SUCCESS] Inserted job ID ${jobId} successfully.`);
         scrapedCount++;
-        processedCount++;
+
+        // Wait 3 seconds between jobs to avoid Gemini API rate limit (429)
+        await new Promise(resolve => setTimeout(resolve, 3000));
 
       } catch (err: any) {
         console.error(`Error processing job URL ${url}:`, err);
         details.push(`[ERROR] Failed processing ${url}: ${err.message}`);
         errorCount++;
-        processedCount++;
       }
     }
 

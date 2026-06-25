@@ -5,8 +5,12 @@
 export interface OptimizedSeoData {
   keywords: string[];
   seoDescription: string;
-  correctedTitle: string;
-  correctedDesc: string;
+  correctedTitle: string; // Fallback for backward compatibility
+  correctedDesc: string; // Fallback for backward compatibility
+  title_ar: string;
+  title_en: string;
+  description_ar: string;
+  description_en: string;
 }
 
 export async function optimizeSeoWithGemini(
@@ -16,22 +20,32 @@ export async function optimizeSeoWithGemini(
   locale: 'ar' | 'en'
 ): Promise<OptimizedSeoData> {
   const prompt = `
-You are an expert SEO specialist and professional editor for the Middle East and Turkish job markets.
-Analyze the following webpage job posting title and description, and optimize them:
+You are an expert bilingual recruiter, professional translator, and SEO specialist for the Middle East and Turkish job markets.
+Analyze the following webpage job posting title and description, and perform the following tasks:
 1. Extract exactly 5 high-ranking, highly searched SEO keywords for Istanbul job search engines.
 2. Draft an optimized meta description under 160 characters designed for high click-through rates.
-3. Automatically identify and correct any grammatical, translation, layout formatting, or spelling errors in BOTH the title and description to auto-fix the text content.
+3. Polishing and Translation: Polishing the text for grammar, layout formatting, and spelling errors, and translating it to provide high-quality localized output in BOTH Arabic and English:
+   - "title_ar": Corrected and polished title in Arabic. If the input is in English, translate it to Arabic.
+   - "title_en": Corrected and polished title in English. If the input is in Arabic, translate it to English.
+   - "description_ar": Corrected, clean HTML-formatted description in Arabic (paragraphs separated by <p> tags). If the input is in English, translate it to Arabic.
+   - "description_en": Corrected, clean HTML-formatted description in English (paragraphs separated by <p> tags). If the input is in Arabic, translate it to English.
+   - "correctedTitle": Polished title in the input language (matching the Locale).
+   - "correctedDesc": Polished description in the input language (matching the Locale).
 
 Job Title: "${pageTitle}"
 Job Description: "${pageDescription}"
-Locale: "${locale}"
+Locale: "${locale}" (represents the language of the input job posting)
 
 Return ONLY a valid JSON object matching the following structure. Do not wrap it in markdown code blocks, do not write comments, do not add intros or outros:
 {
   "keywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"],
   "seoDescription": "SEO-friendly meta description...",
-  "correctedTitle": "Auto-fixed and polished title",
-  "correctedDesc": "Auto-fixed and polished description with formatting errors corrected"
+  "title_ar": "Arabic title...",
+  "title_en": "English title...",
+  "description_ar": "<p>Arabic description paragraph 1</p><p>...</p>",
+  "description_en": "<p>English description paragraph 1</p><p>...</p>",
+  "correctedTitle": "Polished input title",
+  "correctedDesc": "Polished input description"
 }
 `;
 
@@ -67,17 +81,32 @@ Return ONLY a valid JSON object matching the following structure. Do not wrap it
       text = text.substring(startIdx, endIdx + 1);
     }
 
-    return JSON.parse(text) as OptimizedSeoData;
+    const parsed = JSON.parse(text);
+    return {
+      keywords: parsed.keywords || [],
+      seoDescription: parsed.seoDescription || '',
+      correctedTitle: parsed.correctedTitle || parsed.title_en || pageTitle,
+      correctedDesc: parsed.correctedDesc || parsed.description_en || pageDescription,
+      title_ar: parsed.title_ar || pageTitle,
+      title_en: parsed.title_en || pageTitle,
+      description_ar: parsed.description_ar || pageDescription,
+      description_en: parsed.description_en || pageDescription
+    };
   } catch (err: any) {
     console.error('Gemini SEO optimization error:', err);
     // Return safe fallback values on API failure
+    const fallbackDescHtml = pageDescription.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('');
     return {
       keywords: locale === 'ar' 
         ? ['فرص عمل في اسطنبول', 'وظائف تركيا', 'شغل في تركيا', 'توظيف إسطنبول', 'عمل للعرب في تركيا']
         : ['jobs in istanbul', 'istanbul vacancies', 'work in turkey', 'employment istanbul', 'turkey job listings'],
       seoDescription: pageDescription.substring(0, 150).replace(/<[^>]*>/g, '').trim(),
       correctedTitle: pageTitle,
-      correctedDesc: pageDescription
+      correctedDesc: pageDescription,
+      title_ar: pageTitle,
+      title_en: pageTitle,
+      description_ar: fallbackDescHtml,
+      description_en: fallbackDescHtml
     };
   }
 }

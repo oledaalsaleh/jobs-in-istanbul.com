@@ -69,3 +69,6 @@ binding = "AI"
 [triggers]
 crons = ["*/15 * * * *"]
 
+[env.production.triggers]
+crons = ["*/15 * * * *"]
+

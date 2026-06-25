@@ -11,6 +11,8 @@ interface MetaDataInput {
   image?: string;
   publishedAt?: number;
   companyName?: string;
+  companyLogo?: string;
+  companyWebsite?: string;
   industry?: string;
   salary?: string;
   location?: string;
@@ -91,6 +93,28 @@ export function generateMetaTags(locale: 'ar' | 'en', pageType: 'home' | 'job' |
   `;
 }
 
+function parseSalary(salaryStr: string) {
+  if (!salaryStr) return null;
+  // Remove commas, TL, TRY, and spaces
+  const clean = salaryStr.replace(/,/g, '').trim();
+  const matches = clean.match(/\d+/g);
+  if (!matches) return null;
+  
+  if (matches.length >= 2) {
+    const val1 = parseFloat(matches[0]);
+    const val2 = parseFloat(matches[1]);
+    return {
+      "minValue": Math.min(val1, val2),
+      "maxValue": Math.max(val1, val2)
+    };
+  } else if (matches.length === 1) {
+    return {
+      "value": parseFloat(matches[0])
+    };
+  }
+  return null;
+}
+
 export function generateJsonLd(locale: 'ar' | 'en', pageType: 'home' | 'job', data: MetaDataInput = {}) {
   const siteUrl = 'https://jobs-in-istanbul.com';
   
@@ -127,43 +151,89 @@ export function generateJsonLd(locale: 'ar' | 'en', pageType: 'home' | 'job', da
   }
 
   if (pageType === 'job') {
-    // Standardize JobPosting structured data for Google Job Search
-    const typeLabel = data.jobType === 'full-time' ? 'FULL_TIME' : data.jobType === 'part-time' ? 'PART_TIME' : data.jobType === 'remote' ? 'TELECOMMUTE' : 'INTERN';
+    // Map jobType to standard Google Schema JobPosting values
+    const typeLabel = data.jobType === 'full-time' ? 'FULL_TIME' : data.jobType === 'part-time' ? 'PART_TIME' : data.jobType === 'internship' ? 'INTERN' : 'FULL_TIME';
     
-    const jobSchema = {
+    let publishedTime = Date.now();
+    if (data.publishedAt) {
+      const parsed = new Date(data.publishedAt).getTime();
+      if (!isNaN(parsed)) {
+        publishedTime = parsed;
+      }
+    }
+    
+    // HTML-formatted description is highly recommended by Google
+    let formattedDescription = data.description || '';
+    if (formattedDescription && !formattedDescription.includes('<p>') && !formattedDescription.includes('<br>')) {
+      formattedDescription = formattedDescription.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('');
+    }
+
+    const hiringOrg: Record<string, any> = {
+      "@type": "Organization",
+      "name": data.companyName || 'Confidential Company',
+      "sameAs": data.companyWebsite || siteUrl
+    };
+
+    if (data.companyLogo) {
+      let logoUrl = data.companyLogo;
+      if (!logoUrl.startsWith('http')) {
+        logoUrl = `${siteUrl}${logoUrl.startsWith('/') ? '' : '/'}${logoUrl}`;
+      }
+      hiringOrg.logo = logoUrl;
+    }
+
+    const jobLocationSchema: Record<string, any> = {
+      "@type": "Place",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": data.location || 'Istanbul',
+        "addressRegion": 'Istanbul',
+        "addressCountry": 'TR'
+      }
+    };
+
+    const jobSchema: Record<string, any> = {
       "@context": "https://schema.org",
       "@type": "JobPosting",
       "title": data.title,
-      "description": data.description,
-      "datePosted": data.publishedAt ? new Date(data.publishedAt).toISOString() : new Date().toISOString(),
-      "validThrough": data.publishedAt ? new Date(data.publishedAt + 30 * 24 * 60 * 60 * 1000).toISOString() : new Date().toISOString(),
+      "description": formattedDescription,
+      "datePosted": new Date(publishedTime).toISOString(),
+      "validThrough": new Date(publishedTime + 180 * 24 * 60 * 60 * 1000).toISOString(),
       "employmentType": typeLabel,
-      "hiringOrganization": {
-        "@type": "Organization",
-        "name": data.companyName || 'Confidential Company',
-        "sameAs": siteUrl
-      },
-      "jobLocation": {
-        "@type": "Place",
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": data.location || 'Istanbul',
-          "addressRegion": 'Istanbul',
-          "addressCountry": 'TR'
+      "hiringOrganization": hiringOrg,
+      "jobLocation": jobLocationSchema
+    };
+
+    if (data.jobType === 'remote') {
+      jobSchema.jobLocationType = "TELECOMMUTE";
+      jobSchema.applicantLocationRequirements = {
+        "@type": "Area",
+        "name": "Turkey"
+      };
+    }
+
+    if (data.salary) {
+      const parsedSalary = parseSalary(data.salary);
+      if (parsedSalary) {
+        let currency = "TRY";
+        const upperSalary = data.salary.toUpperCase();
+        if (upperSalary.includes('$') || upperSalary.includes('USD')) {
+          currency = "USD";
+        } else if (upperSalary.includes('€') || upperSalary.includes('EUR')) {
+          currency = "EUR";
         }
-      },
-      ...(data.salary ? {
-        "baseSalary": {
+
+        jobSchema.baseSalary = {
           "@type": "MonetaryAmount",
-          "currency": "TRY",
+          "currency": currency,
           "value": {
             "@type": "QuantitativeValue",
-            "value": data.salary,
+            ...parsedSalary,
             "unitText": "MONTH"
           }
-        }
-      } : {})
-    };
+        };
+      }
+    }
 
     const breadcrumbSchema = {
       "@context": "https://schema.org",

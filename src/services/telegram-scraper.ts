@@ -50,8 +50,47 @@ export async function runTelegramScraper(
       return { scraped: 0, processed: 0, errors: 0, details };
     }
 
+    // 1. Fetch all existing job sourceUrls
+    const scrapedJobsResult = await env.DB.prepare(
+      `SELECT json_extract(data, '$.sourceUrl') as sourceUrl FROM documents WHERE type_id = 'jobs'`
+    ).all();
+    const scrapedUrls = new Set(scrapedJobsResult.results.map((r: any) => r.sourceUrl).filter(Boolean));
+
+    // 2. Fetch all processed telegram post IDs
+    const processedTgResult = await env.DB.prepare(
+      `SELECT id FROM documents WHERE type_id = 'scraped_telegram_posts'`
+    ).all();
+    const processedTgIds = new Set(processedTgResult.results.map((r: any) => r.id));
+
+    // 3. Filter candidates in-memory first
+    const unscrapedCandidates = candidates.filter(item => {
+      const telegramPostUrl = `https://t.me/jobsintr/${item.postId}`;
+      const tgId = `tg-${item.postId}`;
+
+      if (scrapedUrls.has(telegramPostUrl) || processedTgIds.has(tgId)) {
+        return false;
+      }
+
+      // Check embedded link
+      const linkRegex = /href=["'](https:\/\/jobsintr\.net\/jobs\/[a-zA-Z0-9_-]+(?:\/)?|https:\/\/jobsintr\.net\/job\/[a-zA-Z0-9_-]+(?:\/)?)/i;
+      const linkMatch = item.rawHtmlMessage.match(linkRegex);
+      if (linkMatch) {
+        let websiteJobUrl = linkMatch[1];
+        if (websiteJobUrl.endsWith('/')) {
+          websiteJobUrl = websiteJobUrl.slice(0, -1);
+        }
+        if (scrapedUrls.has(websiteJobUrl)) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
+    details.push(`Filtered out ${candidates.length - unscrapedCandidates.length} already processed/scraped Telegram posts. ${unscrapedCandidates.length} unscraped remain.`);
+
     // Process the latest 'limit' messages
-    const targetCandidates = candidates.slice(-limit);
+    const targetCandidates = unscrapedCandidates.slice(-limit);
     details.push(`Processing up to ${targetCandidates.length} target candidates...`);
 
     for (const item of targetCandidates) {
@@ -59,21 +98,6 @@ export async function runTelegramScraper(
       processedCount++;
 
       try {
-        // 1. Check if the Telegram post itself is already scraped in D1
-        const isTelegramScraped = await isJobAlreadyScraped(env.DB, telegramPostUrl);
-        
-        // 2. Check if already processed as an embedded link in the past (using special document type placeholder)
-        const isPostProcessedBefore = await env.DB.prepare(
-          `SELECT id FROM documents WHERE type_id = 'scraped_telegram_posts' AND id = ?`
-        ).bind(`tg-${item.postId}`).first();
-
-        if (isTelegramScraped || isPostProcessedBefore) {
-          details.push(`[SKIP] Telegram post ${item.postId} already scraped or processed before.`);
-          continue;
-        }
-
-        // 3. Check if there is a jobsintr.net link in the message text
-        // e.g. href="https://jobsintr.net/jobs/some-slug" or href="https://jobsintr.net/job/some-slug"
         const linkRegex = /href=["'](https:\/\/jobsintr\.net\/jobs\/[a-zA-Z0-9_-]+(?:\/)?|https:\/\/jobsintr\.net\/job\/[a-zA-Z0-9_-]+(?:\/)?)/i;
         const linkMatch = item.rawHtmlMessage.match(linkRegex);
 
@@ -82,28 +106,6 @@ export async function runTelegramScraper(
           // Normalize trailing slash
           if (websiteJobUrl.endsWith('/')) {
             websiteJobUrl = websiteJobUrl.slice(0, -1);
-          }
-
-          // Check if this website job URL is already scraped
-          const isWebsiteJobScraped = await isJobAlreadyScraped(env.DB, websiteJobUrl);
-          if (isWebsiteJobScraped) {
-            details.push(`[SKIP] Embedded website job URL already scraped: ${websiteJobUrl}`);
-            
-            // Mark the Telegram post as processed so we don't fetch its website URL again
-            await env.DB.prepare(
-              `INSERT INTO documents (id, root_id, type_id, status, is_published, slug, title, data, created_at, updated_at)
-               VALUES (?, ?, 'scraped_telegram_posts', 'published', 1, ?, ?, ?, ?, ?)`
-            ).bind(
-              `tg-${item.postId}`,
-              `tg-${item.postId}`,
-              `tg-${item.postId}`,
-              `Telegram Post ${item.postId}`,
-              JSON.stringify({ telegramPostUrl, websiteJobUrl }),
-              Date.now(),
-              Date.now()
-            ).run().catch(() => {});
-            
-            continue;
           }
 
           // Fetch and parse the website job
@@ -171,9 +173,26 @@ export async function runTelegramScraper(
             telegramPostUrl
           );
 
+          // Mark Telegram post as processed
+          await env.DB.prepare(
+            `INSERT INTO documents (id, root_id, type_id, status, is_published, slug, title, data, created_at, updated_at)
+             VALUES (?, ?, 'scraped_telegram_posts', 'published', 1, ?, ?, ?, ?, ?)`
+          ).bind(
+            `tg-${item.postId}`,
+            `tg-${item.postId}`,
+            `tg-${item.postId}`,
+            `Telegram Post ${item.postId}`,
+            JSON.stringify({ telegramPostUrl, jobId }),
+            Date.now(),
+            Date.now()
+          ).run().catch(() => {});
+
           details.push(`[SUCCESS] Saved job ID ${jobId} from standalone Telegram post.`);
           scrapedCount++;
         }
+
+        // Wait 3 seconds between jobs to avoid Gemini API rate limit (429)
+        await new Promise(resolve => setTimeout(resolve, 3000));
 
       } catch (err: any) {
         console.error(`Error processing Telegram post ${item.postId}:`, err);
