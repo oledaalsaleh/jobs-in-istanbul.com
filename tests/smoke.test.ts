@@ -1,5 +1,7 @@
 import { expect, test, describe } from 'vitest'
 import { app } from '../src/index'
+import { sign } from 'hono/jwt'
+
 
 // Mock Cloudflare D1 Database binding
 const mockDb = {
@@ -195,6 +197,54 @@ describe('Istanbul Jobs Portal Smoke Tests', () => {
     expect(json.success).toBe(true)
   })
 
+  test('POST /submit-job-api from employer portal with local-authorized bypass', async () => {
+    const payload = {
+      title: 'Software Engineer',
+      title_en: 'Software Engineer',
+      title_ar: 'مهندس برمجيات',
+      company: 'Test Company',
+      jobType: 'full-time',
+      location: 'Sisli',
+      location_en: 'Sisli',
+      location_ar: 'شيشلي',
+      applyEmail: 'employer@example.com',
+      description: 'Job description text that is long enough.',
+      description_en: 'Job description text that is long enough.',
+      description_ar: 'وصف وظيفة طويل بما فيه الكفاية.',
+      category: 'cat-it',
+      language: 'both',
+      transitLine: 'none',
+      screeningQuestionsJson: '',
+      'cf-turnstile-response': 'local-authorized'
+    };
+
+    const jwtSecret = 'change-me-in-production-secure-key';
+    const cookieToken = await sign({
+      email: 'employer@example.com',
+      exp: Math.floor(Date.now() / 1000) + 3600
+    }, jwtSecret, 'HS256');
+
+    const envWithTurnstile = {
+      ...mockEnv,
+      TURNSTILE_SECRET_KEY: 'some-secret-key',
+      JWT_SECRET: jwtSecret
+    };
+
+    const res = await app.request('/submit-job-api', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Cookie': `employer_jwt=${cookieToken}`
+      },
+      body: JSON.stringify(payload)
+    }, envWithTurnstile);
+
+    const json = await res.json();
+    console.log('SUBMIT JOB RESPONSE:', json);
+    expect(res.status).toBe(200);
+    expect(json.success).toBe(true);
+  })
+
   test('GET /ar/jobs/software-engineer renders JobPosting schema and localized detail content', async () => {
     const res = await app.request('/ar/jobs/software-engineer', {}, mockEnv)
     expect(res.status).toBe(200)
@@ -237,5 +287,72 @@ describe('Istanbul Jobs Portal Smoke Tests', () => {
     // 2. Verify JobPosting schema matches English localized details
     expect(text).toContain('"title":"Software Engineer"')
     expect(text).toContain('"description":"<p>Job description in English</p><p>Additional details.</p>"')
+  })
+
+  describe('Career Blog SEO Smoke Tests', () => {
+    test('GET /ar/blog loads successfully with SEO metadata', async () => {
+      const res = await app.request('/ar/blog', {}, mockEnv)
+      expect(res.status).toBe(200)
+      const text = await res.text()
+
+      expect(text).toContain('مدونة المهنة - إسطنبول')
+      expect(text).toContain('<title>مدونة المهنة - إسطنبول | نصائح التوظيف وإقامة العمل في تركيا</title>')
+      expect(text).toContain('name="description" content="دليلك المهني الشامل ونواصح التوظيف في إسطنبول')
+      expect(text).toContain('href="https://jobs-in-istanbul.com/ar/blog"')
+      expect(text).toContain('hreflang="en" href="https://jobs-in-istanbul.com/en/blog"')
+      expect(text).toContain('"@type":"BreadcrumbList"')
+    })
+
+    test('GET /en/blog loads successfully with English SEO metadata', async () => {
+      const res = await app.request('/en/blog', {}, mockEnv)
+      expect(res.status).toBe(200)
+      const text = await res.text()
+
+      expect(text).toContain('Career Blog - Istanbul')
+      expect(text).toContain('<title>Career Blog - Istanbul | Work Permits & Commuting Tips</title>')
+      expect(text).toContain('name="description" content="Your ultimate guide to working in Istanbul')
+    })
+
+    test('GET /ar/blog/turkey-work-permit-residency-laws renders BlogPosting schema and canonical links', async () => {
+      const res = await app.request('/ar/blog/turkey-work-permit-residency-laws', {}, mockEnv)
+      expect(res.status).toBe(200)
+      const text = await res.text()
+
+      // Content verification
+      expect(text).toContain('قوانين إقامة العمل في تركيا للأجانب والبريطانيين')
+      
+      // SEO tags verification
+      expect(text).toContain('<title>قوانين إقامة العمل في تركيا للأجانب والبريطانيين ٢٠٢٦ | مدونة المهنة إسطنبول</title>')
+      expect(text).toContain('href="https://jobs-in-istanbul.com/ar/blog/turkey-work-permit-residency-laws"')
+      expect(text).toContain('hreflang="en" href="https://jobs-in-istanbul.com/en/blog/turkey-work-permit-residency-laws"')
+      expect(text).toContain('hreflang="x-default" href="https://jobs-in-istanbul.com/ar/blog/turkey-work-permit-residency-laws"')
+
+      // Structured data verification
+      expect(text).toContain('"@type":"BlogPosting"')
+      expect(text).toContain('"headline":"قوانين إقامة العمل في تركيا للأجانب والبريطانيين ٢٠٢٦"')
+      expect(text).toContain('"@type":"BreadcrumbList"')
+      expect(text).toContain('"position":2,"name":"المدونة"')
+    })
+
+    test('GET /en/blog/turkey-work-permit-residency-laws renders English blog post metadata', async () => {
+      const res = await app.request('/en/blog/turkey-work-permit-residency-laws', {}, mockEnv)
+      expect(res.status).toBe(200)
+      const text = await res.text()
+
+      expect(text).toContain('Work Residency & Permit Regulations in Turkey for Foreigners')
+      expect(text).toContain('<title>Work Residency & Permit Regulations in Turkey for Foreigners (2026) | Istanbul Career Blog</title>')
+      expect(text).toContain('href="https://jobs-in-istanbul.com/en/blog/turkey-work-permit-residency-laws"')
+    })
+
+    test('GET /sitemap.xml includes blog lists and blog posts', async () => {
+      const res = await app.request('/sitemap.xml', {}, mockEnv)
+      expect(res.status).toBe(200)
+      const text = await res.text()
+
+      expect(text).toContain('<loc>https://jobs-in-istanbul.com/ar/blog</loc>')
+      expect(text).toContain('<loc>https://jobs-in-istanbul.com/en/blog</loc>')
+      expect(text).toContain('<loc>https://jobs-in-istanbul.com/ar/blog/turkey-work-permit-residency-laws</loc>')
+      expect(text).toContain('<loc>https://jobs-in-istanbul.com/en/blog/turkey-work-permit-residency-laws</loc>')
+    })
   })
 })

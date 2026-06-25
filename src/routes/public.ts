@@ -57,6 +57,11 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
   if (requestPath.includes('/jobs/')) {
     const slug = requestPath.split('/jobs/')[1];
     langSwitchUrl = `/${oppositeLocale}/jobs/${slug}`;
+  } else if (requestPath.includes('/blog/')) {
+    const slug = requestPath.split('/blog/')[1];
+    langSwitchUrl = `/${oppositeLocale}/blog/${slug}`;
+  } else if (requestPath.endsWith('/blog') || requestPath.endsWith('/blog/')) {
+    langSwitchUrl = `/${oppositeLocale}/blog`;
   }
 
   return `<!DOCTYPE html>
@@ -195,6 +200,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
             </div>
           </li>
           
+          <li><a href="/${locale}/blog" class="nav-link">${locale === 'ar' ? '📝 مدونة المهنة' : '📝 Career Blog'}</a></li>
           <li><a href="/${locale}/candidate/dashboard" class="nav-link" style="color: var(--primary);"><i class="fa-solid fa-graduation-cap"></i> ${locale === 'ar' ? 'بوابة الباحث' : 'Candidate Portal'}</a></li>
           <li><a href="/${locale}/employer/dashboard" class="nav-link nav-cta"><i class="fa-solid fa-user-tie"></i> ${locale === 'ar' ? 'بوابة الأعمال' : 'Employer Portal'}</a></li>
         </ul>
@@ -209,6 +215,10 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         <button id="dark-mode-toggle" class="icon-btn" title="${locale === 'ar' ? 'الوضع الداكن' : 'Dark Mode'}">
           <i class="fa-solid fa-moon"></i>
         </button>
+        <a href="https://t.me/jobsistanbul" target="_blank" rel="noopener" class="header-telegram-btn" title="${locale === 'ar' ? 'انضم لقناة التلغرام' : 'Join Telegram Channel'}">
+          <i class="fa-brands fa-telegram"></i>
+          <span>${locale === 'ar' ? 'تلغرام' : 'Telegram'}</span>
+        </a>
         <a href="${langSwitchUrl}" class="lang-btn">
           <i class="fa-solid fa-globe"></i> ${t.langLabel}
         </a>
@@ -233,6 +243,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       </div>
       <nav style="display:flex; flex-direction:column; gap:6px;">
         <a href="/${locale}" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">🏠 ${locale === 'ar' ? 'الرئيسية' : 'Home'}</a>
+        <a href="/${locale}/blog" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">📝 ${locale === 'ar' ? 'مدونة المهنة' : 'Career Blog'}</a>
         
         <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-top:14px; margin-bottom:6px; padding-inline-start:16px; letter-spacing:0.05em;">🤖 ${locale === 'ar' ? 'أدوات الذكاء الاصطناعي' : 'AI Assistant Tools'}</div>
         <a href="/${locale}/cv-optimizer" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary);"></i> ${locale === 'ar' ? 'تحسين السيرة الذاتية' : 'AI CV Optimizer'}</a>
@@ -251,6 +262,11 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           <a href="/${locale}/employer/dashboard" style="margin-top:6px; padding:14px 16px; border-radius:var(--r-md); background:var(--primary); color:white; font-weight:700; display:flex; align-items:center; gap:10px; justify-content:center;"><i class="fa-solid fa-user-tie"></i> ${locale === 'ar' ? 'بوابة الأعمال' : 'Employer Portal'}</a>
         </div>
         
+        <a href="https://t.me/jobsistanbul" target="_blank" rel="noopener" style="margin-top:12px; display:flex; align-items:center; justify-content:center; gap:8px; background:#0088cc; color:white; padding:12px; border-radius:var(--r-md); font-weight:700; font-size:0.875rem; text-decoration:none; box-shadow:0 4px 12px rgba(0, 136, 204, 0.15);">
+          <i class="fa-brands fa-telegram" style="font-size:1.2rem;"></i>
+          ${locale === 'ar' ? 'انضم لقناتنا على تلغرام' : 'Join Our Telegram'}
+        </a>
+
         <!-- Mobile Actions inside Drawer -->
         <div style="margin-top:24px; padding-top:20px; border-top:1px solid var(--border); display:flex; gap:10px; justify-content:space-between; align-items:center;">
           <a href="${langSwitchUrl}" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px 14px; border-radius:var(--r-full); border:1.5px solid var(--border); font-size:0.82rem; font-weight:700; color:var(--text-body); transition:var(--t-base);">
@@ -281,7 +297,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         </div>
         <p>${locale === 'ar' ? 'المنصة الرائدة في توصيل المواهب العربية والدولية بأفضل فرص العمل في إسطنبول.' : 'The leading platform connecting Arab & international talents with the best job opportunities in Istanbul.'}</p>
         <div class="footer-social">
-          <a href="#" class="social-btn" title="Telegram"><i class="fa-brands fa-telegram"></i></a>
+          <a href="https://t.me/jobsistanbul" target="_blank" rel="noopener" class="social-btn" title="Telegram"><i class="fa-brands fa-telegram"></i></a>
           <a href="#" class="social-btn" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
           <a href="#" class="social-btn" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
           <a href="#" class="social-btn" title="X / Twitter"><i class="fa-brands fa-x-twitter"></i></a>
@@ -291,6 +307,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         <ul class="footer-links">
           <li class="footer-col-title">${locale === 'ar' ? 'الموقع' : 'Platform'}</li>
           <li><a href="/${locale}">${locale === 'ar' ? 'جميع الوظائف' : 'All Jobs'}</a></li>
+          <li><a href="/${locale}/blog">${locale === 'ar' ? 'مدونة المهنة' : 'Career Blog'}</a></li>
           <li><a href="/${locale}/about">${locale === 'ar' ? 'من نحن' : 'About Us'}</a></li>
           <li><a href="/${locale}/contact">${locale === 'ar' ? 'اتصل بنا' : 'Contact Us'}</a></li>
           <li><a href="/${locale}/submit-job">${locale === 'ar' ? 'نشر وظيفة' : 'Post a Job'}</a></li>
@@ -320,6 +337,38 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
   <style>
     @keyframes slideInLeft  { from { transform: translateX(-100%); } to { transform: translateX(0); } }
     @keyframes slideInRight { from { transform: translateX(100%); }  to { transform: translateX(0); } }
+    
+    .header-telegram-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #0088cc;
+      color: white !important;
+      padding: 8px 14px;
+      border-radius: var(--r-full);
+      font-size: 0.82rem;
+      font-weight: 700;
+      transition: var(--t-base);
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(0, 136, 204, 0.15);
+    }
+    .header-telegram-btn:hover {
+      background: #1d90f3;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(0, 136, 204, 0.25);
+    }
+    @media (max-width: 768px) {
+      .header-telegram-btn span {
+        display: none;
+      }
+      .header-telegram-btn {
+        padding: 8px;
+        width: 36px;
+        height: 36px;
+        justify-content: center;
+        border-radius: 50%;
+      }
+    }
   </style>
 
   <script>
@@ -903,6 +952,37 @@ const homeHandler = async (c: any, locale: 'ar' | 'en') => {
               <i class="fa-solid fa-plus"></i> ${locale === 'ar' ? 'نشر وظيفة' : 'Post a Job'}
             </a>
           </div>
+
+          <!-- Telegram Promo Card -->
+          <div class="telegram-cta" style="margin-top:20px; padding:20px; border-radius:var(--radius-lg); background:linear-gradient(135deg, #1d90f3 0%, #0088cc 100%); color:white; position:relative; overflow:hidden; box-shadow:0 8px 24px rgba(0, 136, 204, 0.2); transition:all 0.3s ease;">
+            <div style="position:absolute; right:-20px; bottom:-20px; font-size:120px; opacity:0.1; transform:rotate(-15deg); color:white; pointer-events:none;">
+              <i class="fa-brands fa-telegram"></i>
+            </div>
+            <h3 style="font-size:1.1rem; font-weight:800; margin:0 0 8px 0; color:white; display:flex; align-items:center; gap:8px;">
+              <i class="fa-brands fa-telegram" style="font-size:1.3rem;"></i>
+              ${locale === 'ar' ? 'قناتنا على تلغرام' : 'Telegram Channel'}
+            </h3>
+            <p style="font-size:0.82rem; line-height:1.4; opacity:0.95; margin:0 0 16px 0; color:rgba(255,255,255,0.9);">
+              ${locale === 'ar'
+                ? 'انضم لأكثر من ٢٠ ألف مشترك واحصل على أحدث الوظائف الشاغرة في إسطنبول فوراً!'
+                : 'Join 20k+ subscribers and get the latest job postings in Istanbul instantly!'
+              }
+            </p>
+            <a href="https://t.me/jobsistanbul" target="_blank" rel="noopener" class="telegram-btn" style="display:flex; align-items:center; justify-content:center; gap:8px; background:white; color:#0088cc; padding:10px 16px; border-radius:var(--radius-md); font-weight:700; font-size:0.875rem; text-decoration:none; box-shadow:0 4px 12px rgba(0,0,0,0.1); transition:all 0.2s ease;">
+              ${locale === 'ar' ? 'انضم الآن مجاناً' : 'Join Free Now'}
+              <i class="fa-solid fa-paper-plane"></i>
+            </a>
+          </div>
+          
+          <style>
+            .telegram-cta:hover {
+              transform: translateY(-4px);
+              box-shadow: 0 12px 30px rgba(0, 136, 204, 0.35) !important;
+            }
+            .telegram-cta:hover .telegram-btn {
+              background: #f0f9ff !important;
+            }
+          </style>
         </aside>
 
         <section>
@@ -1322,7 +1402,8 @@ publicRouter.get(
     location,
     jobType: job.jobType,
     salary: job.salary,
-    seoKeywords: job.seoKeywords || []
+    seoKeywords: job.seoKeywords || [],
+    seoDescription: job.seoDescription || ''
   }) + generateJsonLd(locale, 'job', {
     title,
     description: description,
@@ -1544,14 +1625,14 @@ publicRouter.post(
       let seoKeywords: string[] = [];
       let seoDescription = '';
 
-      const geminiApiKey = env.GEMINI_API_KEY;
+      const geminiApiKey = (c.env as any).GEMINI_API_KEY;
       if (geminiApiKey) {
         try {
           const seoResult = await optimizeSeoWithGemini(
             geminiApiKey,
             data.title,
             data.description,
-            locale
+            data.locale || 'ar'
           );
           titleAr = seoResult.title_ar || data.title;
           titleEn = seoResult.title_en || data.title;
@@ -1607,7 +1688,14 @@ publicRouter.post(
       await logSecurityEvent(db, 'JOB_PUBLISHED_GUEST', data.applyEmail, ip, `Public job published instantly: ${data.title}`);
 
       // Dispatch Telegram notifications in the background
-      if (c.executionCtx && typeof c.executionCtx.waitUntil === 'function') {
+      let hasWaitUntil = false;
+      try {
+        if (c.executionCtx && typeof c.executionCtx.waitUntil === 'function') {
+          hasWaitUntil = true;
+        }
+      } catch (e) {}
+
+      if (hasWaitUntil) {
         c.executionCtx.waitUntil(
           sendTelegramAlert(c.env, data.title, data.company, data.location, slug).catch((err) =>
             console.error('Telegram alert async dispatch error:', err)

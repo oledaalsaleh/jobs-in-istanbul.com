@@ -138,6 +138,16 @@ export default {
         title: 'Job Header Image URL',
         required: false,
       },
+      seoKeywords: {
+        type: 'textarea',
+        title: 'SEO Keywords (JSON Array or Comma Separated)',
+        required: false,
+      },
+      seoDescription: {
+        type: 'textarea',
+        title: 'SEO Meta Description',
+        required: false,
+      },
     },
     required: [
       'title_ar',

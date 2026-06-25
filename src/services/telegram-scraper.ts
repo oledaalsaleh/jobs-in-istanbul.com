@@ -1,5 +1,5 @@
 import type { D1Database } from '@cloudflare/workers-types';
-import { analyzeJobWithAI, saveJobToDb, isJobAlreadyScraped, cleanHtml } from './scraper';
+import { analyzeJobWithAI, saveJobToDb, cleanHtml } from './scraper';
 
 /**
  * Scrapes job postings from the public Telegram channel preview https://t.me/s/jobsintr

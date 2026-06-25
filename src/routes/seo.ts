@@ -31,13 +31,25 @@ seoRouter.get('/sitemap.xml', async (c) => {
   const catRows = await db.prepare(
     `SELECT slug FROM documents WHERE type_id = 'categories' AND status = 'published' AND is_published = 1`
   ).all();
-  
+
   const categories = catRows.results || [];
+
+  // Fetch all blog posts
+  let blogs: any[] = [];
+  try {
+    const blogRows = await db.prepare(
+      `SELECT slug, updated_at FROM documents WHERE type_id = 'blog_post' AND status = 'published' AND is_published = 1`
+    ).all();
+    blogs = blogRows.results || [];
+  } catch (err) {
+    console.error('Sitemap: Failed to query blog posts:', err);
+  }
 
   // Static routes
   const staticRoutes = [
     { ar: '/ar', en: '/en' },
-    { ar: '/ar/submit-job', en: '/en/submit-job' }
+    { ar: '/ar/submit-job', en: '/en/submit-job' },
+    { ar: '/ar/blog', en: '/en/blog' }
   ];
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -108,6 +120,46 @@ seoRouter.get('/sitemap.xml', async (c) => {
   </url>`;
   }
 
+  // 4. Blog Posts
+  const staticBlogSlugs = [
+    'turkey-work-permit-residency-laws',
+    'optimize-resume-to-pass-ats-systems',
+    'avoid-istanbul-traffic-and-transportation-tips',
+    'turkey-minimum-wage-employer-cost-2026'
+  ];
+  const allBlogSlugs = Array.from(new Set([
+    ...staticBlogSlugs,
+    ...blogs.map(b => b.slug)
+  ]));
+
+  for (const slug of allBlogSlugs) {
+    const dbBlog = blogs.find(b => b.slug === slug);
+    const blogDate = dbBlog && dbBlog.updated_at
+      ? new Date(dbBlog.updated_at).toISOString().split('T')[0]
+      : now;
+    const arUrl = `${siteUrl}/ar/blog/${slug}`;
+    const enUrl = `${siteUrl}/en/blog/${slug}`;
+    xml += `
+  <url>
+    <loc>${arUrl}</loc>
+    <lastmod>${blogDate}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="${arUrl}" />
+    <xhtml:link rel="alternate" hreflang="en" href="${enUrl}" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${arUrl}" />
+  </url>
+  <url>
+    <loc>${enUrl}</loc>
+    <lastmod>${blogDate}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="${arUrl}" />
+    <xhtml:link rel="alternate" hreflang="en" href="${enUrl}" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${arUrl}" />
+  </url>`;
+  }
+
   xml += `
 </urlset>`;
 
@@ -142,7 +194,7 @@ seoRouter.get('/rss.xml', async (c) => {
   for (const row of jobRows.results || []) {
     const job = JSON.parse(row.data);
     const pubDate = new Date(row.published_at).toUTCString();
-    
+
     rss += `
   <item>
     <title><![CDATA[${job.title_ar} | ${job.title_en}]]></title>

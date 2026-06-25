@@ -1,5 +1,7 @@
 import { Context, Next } from 'hono'
 import { z } from 'zod'
+import { getCookie } from 'hono/cookie'
+import { verify } from 'hono/jwt'
 
 // Zod Schema for Job Submission Validation
 export const JobSubmissionSchema = z.object({
@@ -61,6 +63,21 @@ export function validateTurnstile() {
 
       if (!token) {
         return c.json({ success: false, error: 'Turnstile verification token is missing' }, 400);
+      }
+
+      // Allow local-authorized bypass if the user has a valid employer session JWT cookie
+      if (token === 'local-authorized') {
+        const cookieVal = getCookie(c, 'employer_jwt');
+        if (cookieVal) {
+          const jwtSecret = c.env.JWT_SECRET || 'change-me-in-production-secure-key';
+          try {
+            await verify(cookieVal, jwtSecret, 'HS256');
+            return await next();
+          } catch (jwtErr) {
+            console.error('Bypass attempt with invalid employer JWT cookie:', jwtErr);
+          }
+        }
+        return c.json({ success: false, error: 'Bypass authorization failed. Valid employer session is required.' }, 403);
       }
 
       // Verify Turnstile token with Cloudflare

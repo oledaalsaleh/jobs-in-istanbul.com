@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { renderLayout } from './public'
+import { generateMetaTags, generateJsonLd } from '../utils/seo-helper'
 
 export const careerBlogRouter = new Hono()
 
@@ -70,6 +71,112 @@ const seededArticles = {
         <h3>٣. نصيحة ذهبية:</h3>
         <p>عند التفاوض على العمل، اسأل دائماً عما إذا كانت الشركة تقدم <strong>بدل مواصلات (Yol Ücreti)</strong> أو كرت مواصلات إسطنبول كارت (İstanbulkart)، وحاول تصفية خياراتك في مناطق مترابطة بخطوط حديدية لتضمن توازناً صحياً بين حياتك المهنية والشخصية.</p>
       `
+    },
+    {
+      title: 'الحد الأدنى للأجور وتكلفة صاحب العمل في تركيا 2026: حسابات تفصيلية ودليل شامل',
+      slug: 'turkey-minimum-wage-employer-cost-2026',
+      summary: 'تعرف بالتفصيل على الحد الأدنى للأجور في تركيا لعام 2026 للعمال وأصحاب العمل. تحليل شامل للحسابات الصافية والإجمالية، والخصومات، والتكاليف الفعلية المترتبة على الشركات مع الحوافز.',
+      publishedAt: '2026-06-25',
+      content: `
+        <div class="article-rich-text">
+          <img src="https://images.unsplash.com/photo-1625225230517-7426c1be750c?q=80&w=1200" alt="الحد الأدنى للأجور في تركيا 2026" style="width: 100%; height: auto; border-radius: 12px; margin-bottom: 24px; box-shadow: var(--shadow-md);">
+          
+          <p>يعد الإعلان عن <strong>الحد الأدنى للأجور في تركيا لعام 2026</strong> حدثاً اقتصادياً محورياً يترقبه ملايين العمال والموظفين، لاسيما الكفاءات العربية والأجنبية المقيمة في إسطنبول، كما يمثل ركيزة أساسية لأرباب العمل والشركات الصغيرة والمتوسطة (SMEs) عند تخطيط الميزانيات السنوية وحساب تكاليف التشغيل. يهدف هذا الدليل الشامل والمهني إلى تفصيل هيكلة الرواتب الجديدة، والخصومات القانونية المترتبة على العامل، وحساب التكلفة الفعلية الشاملة على صاحب العمل مع استعراض الحوافز الحكومية المتوفرة.</p>
+
+          <h2>أولاً: أرقام الحد الأدنى للأجور في تركيا 2026 بالتفصيل</h2>
+          <p>مع بداية عام 2026، حددت السلطات التركية المعايير الرسمية للأجور على النحو التالي:</p>
+          <ul>
+            <li><strong>الحد الأدنى للأجر الإجمالي (Brüt Asgari Ücret):</strong> 33,030.00 ليرة تركية.</li>
+            <li><strong>الحد الأدنى للأجر الصافي (Net Asgari Ücret):</strong> 28,075.50 ليرة تركية.</li>
+          </ul>
+          <p>يمثل الأجر الصافي المبلغ الفعلي الذي يدخل الحساب المصرفي للموظف في نهاية كل شهر بعد اقتطاع حصته من التأمينات والضرائب، وهو ما يعتمد عليه الفرد لتغطية نفقات المعيشة والإيجار والمواصلات في مدن كبرى مثل إسطنبول.</p>
+
+          <img src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=1200" alt="حساب تكلفة الموظفين والضرائب في تركيا" style="width: 100%; height: auto; border-radius: 12px; margin: 24px 0; box-shadow: var(--shadow-md);">
+
+          <h2>ثانياً: جدول الخصومات والاقتطاعات القانونية من راتب الموظف</h2>
+          <p>لفهم كيفية تحول الراتب من الإجمالي (33,030.00 ليرة) إلى الصافي (28,075.50 ليرة)، يجب الاطلاع على الخصومات الرسمية التي يتم اقتطاعها مباشرة من راتب العامل لصالح مؤسسة الضمان الاجتماعي التركية (SGK):</p>
+          
+          <table class="table-custom" style="width: 100%; border-collapse: collapse; margin-bottom: 24px; text-align: start; font-size: 0.95rem;">
+            <thead>
+              <tr style="background: var(--bg-subtle); border-bottom: 2px solid var(--border);">
+                <th style="padding: 12px; font-weight: 700;">بند الخصم القانوني</th>
+                <th style="padding: 12px; font-weight: 700;">النسبة المئوية</th>
+                <th style="padding: 12px; font-weight: 700;">القيمة بالليرة التركية (TRY)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 12px;">قسط الضمان الاجتماعي للعامل (SGK İşçi Payı)</td>
+                <td style="padding: 12px;">14%</td>
+                <td style="padding: 12px;">4,624.20 ليرة تركية</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 12px;">قسط تأمين البطالة للعامل (İşsizlik Sigortası İşçi Payı)</td>
+                <td style="padding: 12px;">1%</td>
+                <td style="padding: 12px;">330.30 ليرة تركية</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border); font-weight: 700; background: var(--bg-card);">
+                <td style="padding: 12px;">إجمالي الاقتطاعات من راتب الموظف</td>
+                <td style="padding: 12px;">15%</td>
+                <td style="padding: 12px;">4,954.50 ليرة تركية</td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <p>يتم تحويل هذه المبالغ المقتطعة شهرياً إلى الدولة لضمان الرعاية الصحية وحقوق التقاعد وتأمين البطالة للموظف المسجل قانونياً.</p>
+
+          <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1200" alt="اجتماع تخطيط تكاليف الموارد البشرية والرواتب" style="width: 100%; height: auto; border-radius: 12px; margin: 24px 0; box-shadow: var(--shadow-md);">
+
+          <h2>ثالثاً: تكلفة الحد الأدنى للأجور الفعلية على صاحب العمل (المشغل)</h2>
+          <p>بالنسبة لأرباب العمل والمستثمرين في تركيا، لا تقتصر التكلفة على الراتب الصافي أو الإجمالي فقط. تفرض القوانين التركية على صاحب العمل دفع مساهمات إضافية في التأمينات والبطالة تضاف فوق الراتب الإجمالي للموظف. وهنا يظهر الفارق الفعلي للتكلفة بناءً على مدى التزام الشركة وخصم الحوافز:</p>
+
+          <h3>1. التكلفة القياسية (بدون حوافز أو تخفيضات):</h3>
+          <ul>
+            <li><strong>الأجر الإجمالي للموظف:</strong> 33,030.00 ليرة تركية.</li>
+            <li><strong>حصة صاحب العمل في الضمان الاجتماعي (20.5%):</strong> 6,771.15 ليرة تركية.</li>
+            <li><strong>حصة صاحب العمل في تأمين البطالة (2%):</strong> 660.60 ليرة تركية.</li>
+            <li><strong>إجمالي التكلفة القياسية لصاحب العمل:</strong> 40,461.75 ليرة تركية.</li>
+          </ul>
+
+          <h3>2. التكلفة المخفضة (مع الاستفادة من خصم الـ 5% التشجيعي):</h3>
+          <p>تمنح مؤسسة الضمان الاجتماعي التركية خصماً قدره 5% من حصة صاحب العمل للشركات التي تقوم بدفع أقساط التأمين بانتظام ولا تملك ديوناً سابقة للدولة. تصبح الحسبة كالتالي:</p>
+          <ul>
+            <li><strong>الأجر الإجمالي للموظف:</strong> 33,030.00 ليرة تركية.</li>
+            <li><strong>حصة صاحب العمل في الضمان الاجتماعي بعد الخصم (15.5%):</strong> 5,119.65 ليرة تركية.</li>
+            <li><strong>حصة صاحب العمل في تأمين البطالة (2%):</strong> 660.60 ليرة تركية.</li>
+            <li><strong>إجمالي التكلفة مع الحافز لصاحب العمل:</strong> 38,810.25 ليرة تركية.</li>
+          </ul>
+
+          <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1200" alt="تأثير تكلفة الأجور على قطاعات التصنيع والنسيج في تركيا" style="width: 100%; height: auto; border-radius: 12px; margin: 24px 0; box-shadow: var(--shadow-md);">
+
+          <h2>خامساً: إقامة العمل للأجانب في تركيا وعلاقتها بالحد الأدنى للأجور</h2>
+          <p>أحد أكثر الجوانب أهمية للشركات التي توظف كفاءات عربية وأجنبية في إسطنبول هو قانون <strong>وزارة العمل التركية</strong> بشأن الحد الأدنى للأجور اللازم لمنح أو تجديد إقامة العمل (Çalışma İzni). لا تسمح القوانين بدفع الحد الأدنى للأجور الأساسي لجميع التخصصات الأجنبية، بل تفرض مضاعفات محددة بناءً على المسمى الوظيفي المسجل كالتالي:</p>
+          <ul>
+            <li><strong>المدراء التنفيذيون وأصحاب الشركات:</strong> يجب ألا يقل راتبهم عن 6.5 أضعاف الحد الأدنى للأجور الإجمالي (حوالي 214,695 ليرة تركية).</li>
+            <li><strong>مدراء الأقسام، المهندسون، والأطباء:</strong> يجب ألا يقل راتبهم عن 4 أضعاف الحد الأدنى للأجور الإجمالي (حوالي 132,120 ليرة تركية).</li>
+            <li><strong>الموظفون التقنيون والمترجمون وخبراء التسويق والمبيعات:</strong> يجب ألا يقل راتبهم عن 1.5 ضعف الحد الأدنى للأجور الإجمالي (حوالي 49,545 ليرة تركية).</li>
+            <li><strong>العمالة العادية (الخدمات المنزلي والنسيج والعمالة اليدوية):</strong> الحد الأدنى للأجور الأساسي (33,030.00 ليرة إجمالي).</li>
+          </ul>
+
+          <img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?q=80&w=1200" alt="العملات والتدفقات النقدية في تركيا" style="width: 100%; height: auto; border-radius: 12px; margin: 24px 0; box-shadow: var(--shadow-md);">
+
+          <h2>سادساً: أسئلة شائعة حول الرواتب وتكاليف العمل في تركيا 2026</h2>
+          
+          <div class="faq-section" style="background: var(--bg-card); padding: 20px; border-radius: 8px; border: 1px solid var(--border); margin-top: 30px;">
+            <h4 style="margin-top: 0; color: var(--primary);">1. ما هو صافي الحد الأدنى للأجور الذي يستلمه العامل شهرياً في تركيا 2026؟</h4>
+            <p>يستلم العامل صافي راتب قدره 28,075.50 ليرة تركية بعد خصم حصته في التأمين والبطالة.</p>
+            
+            <h4 style="color: var(--primary);">2. كم تبلغ التكلفة الإجمالية لتوظيف عامل بالحد الأدنى للأجور على صاحب العمل؟</h4>
+            <p>تبلغ التكلفة 38,810.25 ليرة تركية شهرياً للشركات الملتزمة التي تستحق خصم الضمان الاجتماعي الـ 5%، وتصل إلى 40,461.75 ليرة تركية للشركات غير المستوفية للشروط.</p>
+            
+            <h4 style="color: var(--primary);">3. هل هناك إعفاءات ضريبية على الحد الأدنى للأجور في تركيا؟</h4>
+            <p>نعم، تواصل القوانين التركية إعفاء رواتب الحد الأدنى للأجور من ضريبة الدخل وضريبة الدمغة (Stamp Tax)، لتقليل العبء المالي الإجمالي على العمال وأرباب العمل.</p>
+            
+            <h4 style="color: var(--primary);">4. كيف يمكن للشركات تخفيض تكاليف الموظفين بطرق قانونية؟</h4>
+            <p>عن طريق الاستفادة من برامج دعم التوظيف وحوافز الضمان الاجتماعي المتنوعة (مثل دعم توظيف الشباب والنساء الجدد)، ودفع الأقساط بانتظام لتجنب الغرامات المالية والاستفادة من خصم الـ 5%.</p>
+          </div>
+        </div>
+      `
     }
   ],
   en: [
@@ -120,13 +227,88 @@ const seededArticles = {
         <p>Istanbul is beautiful, but its traffic can be notorious. Taking a job located far from transport links can easily result in spending 3 to 4 hours daily inside buses or cars.</p>
         
         <h3>1. The Metrobüs Backbone:</h3>
-        <p>The Metrobüs transit lane operates on a dedicated lane along the E-5 highway from Beylikdüzü on the European side to Söğütlüçeşme on the Asian side. It bypasses all general traffic and runs 24/7.</p>
+        <p>The Metrobüs transit lane operates on a dedicated lane along the E-5 highway from Beylikdüzü on the European side to Söğütlüçeشme on the Asian side. It bypasses all general traffic and runs 24/7.</p>
 
         <h3>2. Primary Metro Lines:</h3>
         <ul>
           <li><strong>M2 Line:</strong> Connects Yenikapı to Hacıosman, passing through business districts: Şişli (Mecidiyeköy), Levent, and Maslak.</li>
           <li><strong>M4 Line:</strong> Traverses the Asian side connecting Kadıköy to Kartal/Sabiha Gökçen.</li>
         </ul>
+      `
+    },
+    {
+      title: 'Turkey Minimum Wage & Employer Cost 2026: Complete Guide',
+      slug: 'turkey-minimum-wage-employer-cost-2026',
+      summary: 'A detailed breakdown of Turkey\'s gross and net minimum wage for 2026, real employer cost calculations with SGK incentives, and business budgeting implications.',
+      publishedAt: '2026-06-25',
+      content: `
+        <div class="article-rich-text">
+          <img src="https://images.unsplash.com/photo-1625225230517-7426c1be750c?q=80&w=1200" alt="Turkey Minimum Wage 2026" style="width: 100%; height: auto; border-radius: 12px; margin-bottom: 24px; box-shadow: var(--shadow-md);">
+          
+          <p>The declaration of the <strong>minimum wage in Turkey for 2026</strong> is a key economic factor for both local businesses and foreign professionals. It forms the benchmark for corporate operational budgeting and salary structures. This guide outlines the exact gross and net minimum wages, mandatory SGK payroll deductions, real employer cost calculations, and available government incentives.</p>
+
+          <h2>1. Gross vs Net Minimum Wage in Turkey (2026)</h2>
+          <p>For the calendar year 2026, the official minimum wage parameters in Turkey are established as:</p>
+          <ul>
+            <li><strong>Gross Minimum Wage (Brüt Ücret):</strong> 33,030.00 TRY per month.</li>
+            <li><strong>Net Minimum Wage (Net Ücret):</strong> 28,075.50 TRY per month.</li>
+          </ul>
+
+          <img src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=1200" alt="Accounting & Calculations" style="width: 100%; height: auto; border-radius: 12px; margin: 24px 0; box-shadow: var(--shadow-md);">
+
+          <h2>2. Employee Payroll Deductions Breakdown</h2>
+          <p>The delta between the gross and net wage consists of mandatory social security and unemployment insurance deductions withheld directly from the employee\'s salary:</p>
+          <ul>
+            <li><strong>Employee SGK Premium Share (14%):</strong> 4,624.20 TRY.</li>
+            <li><strong>Employee Unemployment Insurance Share (1%):</strong> 330.30 TRY.</li>
+            <li><strong>Total Employee Deductions (15%):</strong> 4,954.50 TRY.</li>
+          </ul>
+
+          <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1200" alt="Budget Planning Meeting" style="width: 100%; height: auto; border-radius: 12px; margin: 24px 0; box-shadow: var(--shadow-md);">
+
+          <h2>3. Real Cost of Minimum Wage for the Employer</h2>
+          <p>For businesses in Istanbul, the total financial cost of a minimum wage worker exceeds the gross wage. Employers must contribute additional premiums, which vary based on compliance and incentives:</p>
+          
+          <h3>Scenario A: Standard Cost (Without incentives/discounts)</h3>
+          <ul>
+            <li><strong>Gross Salary:</strong> 33,030.00 TRY.</li>
+            <li><strong>Employer SGK Contribution (20.5%):</strong> 6,771.15 TRY.</li>
+            <li><strong>Employer Unemployment Contribution (2%):</strong> 660.60 TRY.</li>
+            <li><strong>Total Standard Cost:</strong> 40,461.75 TRY.</li>
+          </ul>
+
+          <h3>Scenario B: Discounted Cost (With the 5% SGK compliance incentive)</h3>
+          <p>Compliant employers with no outstanding debts to SGK receive a 5% discount on the employer share, lowering it to 15.5%:</p>
+          <ul>
+            <li><strong>Gross Salary:</strong> 33,030.00 TRY.</li>
+            <li><strong>Employer SGK Contribution after discount (15.5%):</strong> 5,119.65 TRY.</li>
+            <li><strong>Employer Unemployment Contribution (2%):</strong> 660.60 TRY.</li>
+            <li><strong>Total Discounted Cost:</strong> 38,810.25 TRY.</li>
+          </ul>
+
+          <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1200" alt="Industrial Manufacturing in Turkey" style="width: 100%; height: auto; border-radius: 12px; margin: 24px 0; box-shadow: var(--shadow-md);">
+
+          <h2>4. Work Permit Multipliers for Foreign Employees</h2>
+          <p>For international recruits in Istanbul, the Turkish Ministry of Labor mandates multiples of the gross minimum wage depending on the job function to qualify for a work permit (Çalışma İzni):</p>
+          <ul>
+            <li><strong>Executives & C-Level:</strong> 6.5x gross minimum wage (approx. 214,695 TRY).</li>
+            <li><strong>Department Managers & Engineers:</strong> 4x gross minimum wage (approx. 132,120 TRY).</li>
+            <li><strong>Technical Staff, Sales, & Translators:</strong> 1.5x gross minimum wage (approx. 49,545 TRY).</li>
+            <li><strong>Standard Labor:</strong> 1x gross minimum wage (33,030 TRY).</li>
+          </ul>
+
+          <img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?q=80&w=1200" alt="Financial Charts and Turkey Currency" style="width: 100%; height: auto; border-radius: 12px; margin: 24px 0; box-shadow: var(--shadow-md);">
+
+          <h2>5. Frequently Asked Questions (FAQ)</h2>
+          <h3>What is the net minimum wage in Turkey for 2026?</h3>
+          <p>The net salary received by the employee is 28,075.50 TRY per month.</p>
+          
+          <h3>Are minimum wage earnings subject to income tax?</h3>
+          <p>No, Turkey continues to exempt minimum wage earnings from both income tax and stamp duty to ease the tax burden on labor.</p>
+          
+          <h3>How does the 5% SGK incentive benefit employers?</h3>
+          <p>It reduces the total monthly cost per worker from 40,461.75 TRY to 38,810.25 TRY, saving 1,651.50 TRY per employee for compliant businesses.</p>
+        </div>
       `
     }
   ]
@@ -202,7 +384,8 @@ careerBlogRouter.get('/:locale/blog', async (c) => {
     </div>
   `;
 
-  return c.html(renderLayout(c, t.title, html, locale));
+  const seoHtml = generateMetaTags(locale, 'blog') + generateJsonLd(locale, 'blog');
+  return c.html(renderLayout(c, t.title, html, locale, seoHtml));
 })
 
 // Blog Detail View
@@ -256,5 +439,18 @@ careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
     </div>
   `;
 
-  return c.html(renderLayout(c, article.title, html, locale));
+  const cleanSummary = article.summary || article.content.substring(0, 160).replace(/<[^>]*>/g, '');
+  const seoHtml = generateMetaTags(locale, 'blog_post', {
+    title: article.title,
+    description: cleanSummary,
+    slug: article.slug,
+    publishedAt: new Date(article.publishedAt).getTime(),
+  }) + generateJsonLd(locale, 'blog_post', {
+    title: article.title,
+    description: cleanSummary,
+    slug: article.slug,
+    publishedAt: new Date(article.publishedAt).getTime(),
+  });
+
+  return c.html(renderLayout(c, article.title, html, locale, seoHtml));
 })

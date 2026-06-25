@@ -95,6 +95,7 @@ export async function getJobsList(): Promise<string[]> {
 
   const allUrls: string[] = [];
 
+  // 1. Crawl jobsintr.net
   for (const source of sources) {
     try {
       const response = await fetch(source, { headers, signal: AbortSignal.timeout(10000) });
@@ -105,6 +106,47 @@ export async function getJobsList(): Promise<string[]> {
     } catch (e) {
       console.error(`Failed to crawl list source ${source}:`, e);
     }
+  }
+
+  // 2. Crawl findjoobs.com
+  try {
+    const source = 'https://findjoobs.com/job-locations/istanbul/';
+    const response = await fetch(source, { headers, signal: AbortSignal.timeout(10000) });
+    if (response.ok) {
+      const html = await response.text();
+      const regex = /href=["'](https:\/\/findjoobs\.com\/jobs\/[a-zA-Z0-9_-]+\/?)/g;
+      let match;
+      while ((match = regex.exec(html)) !== null) {
+        let matchedUrl = match[1];
+        if (matchedUrl.endsWith('/')) {
+          matchedUrl = matchedUrl.slice(0, -1);
+        }
+        allUrls.push(matchedUrl);
+      }
+    }
+  } catch (e) {
+    console.error('Failed to crawl findjoobs.com:', e);
+  }
+
+  // 3. Crawl adwhit.com
+  try {
+    const source = 'https://www.adwhit.com/ar/jobs';
+    const response = await fetch(source, { headers, signal: AbortSignal.timeout(10000) });
+    if (response.ok) {
+      const html = await response.text();
+      const nextDataMatch = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
+      if (nextDataMatch) {
+        const nextData = JSON.parse(nextDataMatch[1]);
+        const jobs = nextData?.props?.pageProps?.data?.jobs || [];
+        for (const job of jobs) {
+          if (job.url) {
+            allUrls.push(`https://www.adwhit.com/ar/jobs/${job.url}`);
+          }
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Failed to crawl adwhit.com:', e);
   }
 
   return [...new Set(allUrls)];

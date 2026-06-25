@@ -49,6 +49,7 @@ import { scraperRouter } from './routes/scraper-router'
 import { employerPortalRouter } from './routes/employer-portal'
 import { candidatePortalRouter } from './routes/candidate-portal'
 import { aiFeaturesRouter } from './routes/ai-features'
+import { careerBlogRouter } from './routes/career-blog'
 import { runScraper } from './services/scraper'
 import { runTelegramScraper } from './services/telegram-scraper'
 
@@ -60,6 +61,7 @@ app.route('/', scraperRouter)
 app.route('/', employerPortalRouter)
 app.route('/', candidatePortalRouter)
 app.route('/', aiFeaturesRouter)
+app.route('/', careerBlogRouter)
 
 // Export the application for both HTTP requests (fetch) and Cron triggers (scheduled)
 export default {
