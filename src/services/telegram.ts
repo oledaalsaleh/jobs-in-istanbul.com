@@ -1,3 +1,10 @@
+function escapeHtml(text: string): string {
+  return (text || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 export async function sendTelegramAlert(
   env: any,
   jobTitle: string,
@@ -14,11 +21,11 @@ export async function sendTelegramAlert(
   }
 
   const jobUrl = `https://jobs-in-istanbul.com/ar/jobs/${slug}`;
-  const message = `📢 *وظيفة شاغرة جديدة في إسطنبول!*\n\n` +
-                  `💼 *المسمى الوظيفي:* ${jobTitle}\n` +
-                  `🏢 *الشركة:* ${companyName}\n` +
-                  `📍 *الموقع:* ${location}\n\n` +
-                  `🔗 *رابط التفاصيل والتقديم:* [اضغط هنا للتقديم](${jobUrl})`;
+  const message = `📢 <b>وظيفة شاغرة جديدة في إسطنبول!</b>\n\n` +
+                  `💼 <b>المسمى الوظيفي:</b> ${escapeHtml(jobTitle)}\n` +
+                  `🏢 <b>الشركة:</b> ${escapeHtml(companyName)}\n` +
+                  `📍 <b>الموقع:</b> ${escapeHtml(location)}\n\n` +
+                  `🔗 <b>رابط التفاصيل والتقديم:</b> <a href="${jobUrl}">اضغط هنا للتقديم</a>`;
 
   try {
     const url = `https://api.telegram.org/bot${token}/sendMessage`;
@@ -28,9 +35,10 @@ export async function sendTelegramAlert(
       body: JSON.stringify({
         chat_id: chatId,
         text: message,
-        parse_mode: 'Markdown',
+        parse_mode: 'HTML',
         disable_web_page_preview: false,
       }),
+      signal: AbortSignal.timeout(8000)
     });
 
     if (!res.ok) {
@@ -43,3 +51,4 @@ export async function sendTelegramAlert(
     console.error('[TELEGRAM ALERT] Error sending Telegram message:', err);
   }
 }
+

@@ -151,8 +151,9 @@ describe('Scraper Service Utilities', () => {
       language: 'both' as const
     };
 
-    const jobId = await saveJobToDb(mockDb, dummyJob, 'https://jobsintr.net/jobs/programmer');
+    const { jobId, slug } = await saveJobToDb(mockDb, dummyJob, 'https://jobsintr.net/jobs/programmer');
     expect(jobId).toContain('job-scraped-');
+    expect(slug).toContain('programmer-');
     // Expect 3 SQL operations: 1 insert into documents (job), 2 inserts into document_references (company & category)
     expect(insertCalls.length).toBe(3);
     expect(insertCalls[0]).toContain('INSERT INTO documents');

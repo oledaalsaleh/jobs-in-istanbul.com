@@ -214,3 +214,12 @@ seoRouter.get('/rss.xml', async (c) => {
     'Cache-Control': 'public, max-age=3600'
   })
 })
+
+// Google Search Console HTML Verification File handler
+seoRouter.get('/google:code.html', (c) => {
+  const code = c.req.param('code');
+  return c.text(`google-site-verification: google${code}.html`, 200, {
+    'Content-Type': 'text/html; charset=utf-8'
+  });
+})
+

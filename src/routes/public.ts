@@ -73,6 +73,9 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  ${c.env?.GOOGLE_SITE_VERIFICATION ? `<meta name="google-site-verification" content="${c.env.GOOGLE_SITE_VERIFICATION}" />` : ''}
+  ${c.env?.BING_SITE_VERIFICATION ? `<meta name="msvalidate.01" content="${c.env.BING_SITE_VERIFICATION}" />` : ''}
+  ${c.env?.YANDEX_SITE_VERIFICATION ? `<meta name="yandex-verification" content="${c.env.YANDEX_SITE_VERIFICATION}" />` : ''}
   ${seoHtml ? seoHtml : `<title>${title} | ${t.tagline}</title>`}
   
   <!-- Preconnect for performance -->
@@ -602,9 +605,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
 
 // Redirect root to default language (ar)
 publicRouter.get('/', (c) => {
-  const acceptLang = c.req.header('Accept-Language') || '';
-  const lang = acceptLang.toLowerCase().includes('en') ? 'en' : 'ar';
-  return c.redirect(`/${lang}`);
+  return c.redirect('/ar');
 })
 
 // Homepage for listing jobs

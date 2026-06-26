@@ -18,7 +18,8 @@
     "update:beta": "npm install @sonicjs-cms/core@beta --save",
     "seed": "tsx scripts/seed-admin.ts",
     "seed:jobs": "tsx scripts/seed-jobs.ts",
-    "db:export": "tsx scripts/export-db.ts"
+    "db:export": "tsx scripts/export-db.ts",
+    "scrape:custom": "tsx scripts/scrape-jobsintr.ts"
   },
   "dependencies": {
     "@sonicjs-cms/core": "^3.0.0-beta.11"

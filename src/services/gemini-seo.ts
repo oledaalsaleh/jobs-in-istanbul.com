@@ -17,7 +17,9 @@ export async function optimizeSeoWithGemini(
   apiKey: string,
   pageTitle: string,
   pageDescription: string,
-  locale: 'ar' | 'en'
+  locale: 'ar' | 'en',
+  retries: number = 3,
+  delayMs: number = 3500
 ): Promise<OptimizedSeoData> {
   const prompt = `
 You are an expert bilingual recruiter, professional translator, and SEO specialist for the Middle East and Turkish job markets.
@@ -34,7 +36,7 @@ Analyze the following webpage job posting title and description, and perform the
 
 Job Title: "${pageTitle}"
 Job Description: "${pageDescription}"
-Locale: "${locale}" (represents the language of the input job posting)
+Locale: "${locale}" (represents the language of the job posting)
 
 Return ONLY a valid JSON object matching the following structure. Do not wrap it in markdown code blocks, do not write comments, do not add intros or outros:
 {
@@ -49,64 +51,81 @@ Return ONLY a valid JSON object matching the following structure. Do not wrap it
 }
 `;
 
-  try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
+  let currentDelay = delayMs;
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: prompt
+            }]
           }]
-        }]
-      })
-    });
+        }),
+        signal: AbortSignal.timeout(10000)
+      });
 
-    if (!res.ok) {
-      throw new Error(`Gemini API returned status ${res.status}`);
+      if (!res.ok) {
+        if (res.status === 429 && attempt < retries) {
+          console.warn(`[GEMINI SEO] 429 rate limit hit. Retrying in ${currentDelay}ms (Attempt ${attempt}/${retries})...`);
+          await new Promise(resolve => setTimeout(resolve, currentDelay));
+          currentDelay *= 2;
+          continue;
+        }
+        throw new Error(`Gemini API returned status ${res.status}`);
+      }
+
+      const data: any = await res.json();
+      let text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      
+      // Strip markdown code block markers if returned by Gemini
+      text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+      
+      const startIdx = text.indexOf('{');
+      const endIdx = text.lastIndexOf('}');
+      if (startIdx !== -1 && endIdx !== -1) {
+        text = text.substring(startIdx, endIdx + 1);
+      }
+
+      const parsed = JSON.parse(text);
+      return {
+        keywords: parsed.keywords || [],
+        seoDescription: parsed.seoDescription || '',
+        correctedTitle: parsed.correctedTitle || parsed.title_en || pageTitle,
+        correctedDesc: parsed.correctedDesc || parsed.description_en || pageDescription,
+        title_ar: parsed.title_ar || pageTitle,
+        title_en: parsed.title_en || pageTitle,
+        description_ar: parsed.description_ar || pageDescription,
+        description_en: parsed.description_en || pageDescription
+      };
+    } catch (err: any) {
+      if (attempt === retries) {
+        console.error('Gemini SEO optimization error after retries:', err);
+      } else {
+        console.warn(`[GEMINI SEO] Attempt ${attempt} failed: ${err.message}. Retrying in ${currentDelay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, currentDelay));
+        currentDelay *= 2;
+      }
     }
-
-    const data: any = await res.json();
-    let text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    
-    // Strip markdown code block markers if returned by Gemini
-    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
-    
-    const startIdx = text.indexOf('{');
-    const endIdx = text.lastIndexOf('}');
-    if (startIdx !== -1 && endIdx !== -1) {
-      text = text.substring(startIdx, endIdx + 1);
-    }
-
-    const parsed = JSON.parse(text);
-    return {
-      keywords: parsed.keywords || [],
-      seoDescription: parsed.seoDescription || '',
-      correctedTitle: parsed.correctedTitle || parsed.title_en || pageTitle,
-      correctedDesc: parsed.correctedDesc || parsed.description_en || pageDescription,
-      title_ar: parsed.title_ar || pageTitle,
-      title_en: parsed.title_en || pageTitle,
-      description_ar: parsed.description_ar || pageDescription,
-      description_en: parsed.description_en || pageDescription
-    };
-  } catch (err: any) {
-    console.error('Gemini SEO optimization error:', err);
-    // Return safe fallback values on API failure
-    const fallbackDescHtml = pageDescription.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('');
-    return {
-      keywords: locale === 'ar' 
-        ? ['فرص عمل في اسطنبول', 'وظائف تركيا', 'شغل في تركيا', 'توظيف إسطنبول', 'عمل للعرب في تركيا']
-        : ['jobs in istanbul', 'istanbul vacancies', 'work in turkey', 'employment istanbul', 'turkey job listings'],
-      seoDescription: pageDescription.substring(0, 150).replace(/<[^>]*>/g, '').trim(),
-      correctedTitle: pageTitle,
-      correctedDesc: pageDescription,
-      title_ar: pageTitle,
-      title_en: pageTitle,
-      description_ar: fallbackDescHtml,
-      description_en: fallbackDescHtml
-    };
   }
+
+  // Fallback values on API failure
+  const fallbackDescHtml = pageDescription.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('');
+  return {
+    keywords: locale === 'ar' 
+      ? ['فرص عمل في اسطنبول', 'وظائف تركيا', 'شغل في تركيا', 'توظيف إسطنبول', 'عمل للعرب في تركيا']
+      : ['jobs in istanbul', 'istanbul vacancies', 'work in turkey', 'employment istanbul', 'turkey job listings'],
+    seoDescription: pageDescription.substring(0, 150).replace(/<[^>]*>/g, '').trim(),
+    correctedTitle: pageTitle,
+    correctedDesc: pageDescription,
+    title_ar: pageTitle,
+    title_en: pageTitle,
+    description_ar: fallbackDescHtml,
+    description_en: fallbackDescHtml
+  };
 }

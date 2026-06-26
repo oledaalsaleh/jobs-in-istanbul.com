@@ -71,9 +71,7 @@ export default {
   async fetch(request: Request, env: any, ctx: any) {
     const url = new URL(request.url);
     if (url.pathname === '/' || url.pathname === '') {
-      const acceptLang = request.headers.get('Accept-Language') || '';
-      const lang = acceptLang.toLowerCase().includes('en') ? 'en' : 'ar';
-      return Response.redirect(`${url.origin}/${lang}`, 302);
+      return Response.redirect(`${url.origin}/ar`, 302);
     }
     return app.fetch(request, env, ctx);
   },
@@ -84,7 +82,14 @@ export default {
 
         // 1. Run Web Scraper
         const webResult = await runScraper(
-          { DB: env.DB, AI: env.AI, MEDIA_BUCKET: env.MEDIA_BUCKET, GEMINI_API_KEY: env.GEMINI_API_KEY },
+          { 
+            DB: env.DB, 
+            AI: env.AI, 
+            MEDIA_BUCKET: env.MEDIA_BUCKET, 
+            GEMINI_API_KEY: env.GEMINI_API_KEY,
+            TELEGRAM_BOT_TOKEN: env.TELEGRAM_BOT_TOKEN,
+            TELEGRAM_CHANNEL_ID: env.TELEGRAM_CHANNEL_ID
+          },
           8
         );
         console.log(`[CRON SCRAPER] Web Scraper Success: Scraped ${webResult.scraped}/${webResult.processed} listings. Errors: ${webResult.errors}`);
@@ -94,7 +99,14 @@ export default {
 
         // 3. Run Telegram Scraper
         const tgResult = await runTelegramScraper(
-          { DB: env.DB, AI: env.AI, MEDIA_BUCKET: env.MEDIA_BUCKET, GEMINI_API_KEY: env.GEMINI_API_KEY },
+          { 
+            DB: env.DB, 
+            AI: env.AI, 
+            MEDIA_BUCKET: env.MEDIA_BUCKET, 
+            GEMINI_API_KEY: env.GEMINI_API_KEY,
+            TELEGRAM_BOT_TOKEN: env.TELEGRAM_BOT_TOKEN,
+            TELEGRAM_CHANNEL_ID: env.TELEGRAM_CHANNEL_ID
+          },
           8
         );
         console.log(`[CRON SCRAPER] TG Scraper Success: Scraped ${tgResult.scraped}/${tgResult.processed} listings. Errors: ${tgResult.errors}`);

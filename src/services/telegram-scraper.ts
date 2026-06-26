@@ -1,11 +1,19 @@
 import type { D1Database } from '@cloudflare/workers-types';
 import { analyzeJobWithAI, saveJobToDb, cleanHtml } from './scraper';
+import { sendTelegramAlert } from './telegram';
 
 /**
  * Scrapes job postings from the public Telegram channel preview https://t.me/s/jobsintr
  */
 export async function runTelegramScraper(
-  env: { DB: D1Database; AI: any; MEDIA_BUCKET?: any; GEMINI_API_KEY?: string },
+  env: { 
+    DB: D1Database; 
+    AI: any; 
+    MEDIA_BUCKET?: any; 
+    GEMINI_API_KEY?: string;
+    TELEGRAM_BOT_TOKEN?: string;
+    TELEGRAM_CHANNEL_ID?: string;
+  },
   limit: number = 5
 ): Promise<{ scraped: number; processed: number; errors: number; details: string[] }> {
   const details: string[] = [];
@@ -125,12 +133,30 @@ export async function runTelegramScraper(
           const jobJson = await analyzeJobWithAI(env.AI, cleanedWebText);
 
           // Save the job using website job URL as sourceUrl
-          const jobId = await saveJobToDb(
+          const { jobId, slug } = await saveJobToDb(
             env.DB,
             { bucket: env.MEDIA_BUCKET, geminiApiKey: env.GEMINI_API_KEY },
             jobJson,
             websiteJobUrl
           );
+
+          // Auto-publish to Telegram if configured
+          if (env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHANNEL_ID) {
+            try {
+              console.log(`[TELEGRAM] Publishing scraped website job to Telegram channel: ${env.TELEGRAM_CHANNEL_ID}`);
+              await sendTelegramAlert(
+                env,
+                jobJson.title_ar || jobJson.title_en,
+                jobJson.company_name,
+                jobJson.location_ar || jobJson.location_en,
+                slug
+              );
+              details.push(`[TELEGRAM] Successfully published job "${jobJson.title_en}" to Telegram.`);
+            } catch (tgErr: any) {
+              console.error('[TELEGRAM ERROR] Failed to send Telegram alert for scraped website job:', tgErr);
+              details.push(`[TELEGRAM ERROR] Failed to publish "${jobJson.title_en}" to Telegram: ${tgErr.message}`);
+            }
+          }
 
           // Mark Telegram post as processed
           await env.DB.prepare(
@@ -166,12 +192,30 @@ export async function runTelegramScraper(
           const jobJson = await analyzeJobWithAI(env.AI, cleanMessageText);
 
           // Save using Telegram post URL as sourceUrl
-          const jobId = await saveJobToDb(
+          const { jobId, slug } = await saveJobToDb(
             env.DB,
             { bucket: env.MEDIA_BUCKET, geminiApiKey: env.GEMINI_API_KEY },
             jobJson,
             telegramPostUrl
           );
+
+          // Auto-publish to Telegram if configured
+          if (env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHANNEL_ID) {
+            try {
+              console.log(`[TELEGRAM] Publishing scraped standalone job to Telegram channel: ${env.TELEGRAM_CHANNEL_ID}`);
+              await sendTelegramAlert(
+                env,
+                jobJson.title_ar || jobJson.title_en,
+                jobJson.company_name,
+                jobJson.location_ar || jobJson.location_en,
+                slug
+              );
+              details.push(`[TELEGRAM] Successfully published job "${jobJson.title_en}" to Telegram.`);
+            } catch (tgErr: any) {
+              console.error('[TELEGRAM ERROR] Failed to send Telegram alert for scraped standalone job:', tgErr);
+              details.push(`[TELEGRAM ERROR] Failed to publish "${jobJson.title_en}" to Telegram: ${tgErr.message}`);
+            }
+          }
 
           // Mark Telegram post as processed
           await env.DB.prepare(

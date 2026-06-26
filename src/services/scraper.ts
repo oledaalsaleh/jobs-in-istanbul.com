@@ -1,5 +1,6 @@
 import type { D1Database } from '@cloudflare/workers-types';
 import { optimizeSeoWithGemini } from './gemini-seo';
+import { sendTelegramAlert } from './telegram';
 
 export interface ScrapedJobData {
   title_ar: string;
@@ -376,7 +377,8 @@ export async function assignJobImage(bucket: any, jobId: string, categorySlug: s
   const selectedUrl = urls[Math.floor(Math.random() * urls.length)];
 
   try {
-    const res = await fetch(selectedUrl);
+    console.log(`[IMAGE FETCH] Fetching stock image from: ${selectedUrl}`);
+    const res = await fetch(selectedUrl, { signal: AbortSignal.timeout(8000) });
     if (!res.ok) {
       throw new Error(`Failed to fetch image: ${res.status}`);
     }
@@ -404,7 +406,7 @@ export async function saveJobToDb(
   bucketOrJobData: any,
   jobDataOrSourceUrl: any,
   sourceUrlOrUndefined?: string
-): Promise<string> {
+): Promise<{ jobId: string; slug: string }> {
   let bucket: any = null;
   let geminiApiKey: string = '';
   let jobData: ScrapedJobData;
@@ -425,9 +427,14 @@ export async function saveJobToDb(
   }
 
   const rawData = jobData as any;
+  const title_en = ((rawData.title_en || rawData.titleEn || rawData.title || 'Job Listing') as string).trim();
+
+  console.log(`[SAVE JOB] Starting saveJobToDb for title: "${title_en}"`);
 
   const companyName = ((rawData.company_name || rawData.companyName || rawData.company || '') as string).trim() || 'Unspecified Company';
+  console.log(`[SAVE JOB] Resolving company: "${companyName}"`);
   const companyId = await getOrCreateCompany(db, companyName);
+  console.log(`[SAVE JOB] Company resolved to ID: ${companyId}`);
 
   const categorySlug = ((rawData.category_slug || rawData.categorySlug || rawData.category || 'general') as string).trim();
   const categoryId = resolveCategory(categorySlug);
@@ -435,7 +442,7 @@ export async function saveJobToDb(
   const nowMs = Date.now();
   const jobId = `job-scraped-${nowMs}-${Math.random().toString(36).substring(2, 7)}`;
   
-  const title_en = ((rawData.title_en || rawData.titleEn || rawData.title || 'Job Listing') as string).trim();
+  // Reused title_en from above
   const title_ar = ((rawData.title_ar || rawData.titleAr || title_en || 'وظيفة شاغرة') as string).trim();
 
   // Create job slug from title_en
@@ -447,7 +454,9 @@ export async function saveJobToDb(
 
   let imageUrl = '';
   if (bucket) {
+    console.log(`[SAVE JOB] Bucket exists, assigning job image for category: ${categorySlug}`);
     imageUrl = await assignJobImage(bucket, jobId, categorySlug);
+    console.log(`[SAVE JOB] Assigned image URL/key: ${imageUrl}`);
   }
 
   const description_en = rawData.description_en || rawData.descriptionEn || rawData.description || '';
@@ -470,12 +479,14 @@ export async function saveJobToDb(
 
   if (geminiApiKey) {
     try {
+      console.log(`[SAVE JOB] Requesting Gemini SEO optimization (locale: ${language === 'ar' ? 'ar' : 'en'})...`);
       const seoResult = await optimizeSeoWithGemini(
         geminiApiKey,
         title_en,
         description_en,
         language === 'ar' ? 'ar' : 'en'
       );
+      console.log('[SAVE JOB] Gemini SEO optimization returned successfully!');
       seoKeywords = seoResult.keywords || [];
       seoDescription = seoResult.seoDescription || '';
       if (seoResult.correctedTitle) {
@@ -514,6 +525,7 @@ export async function saveJobToDb(
   });
 
   // 1. Insert job document
+  console.log('[SAVE JOB] Inserting job document into DB...');
   await db.prepare(
     `INSERT INTO documents (id, root_id, type_id, status, is_published, is_current_draft, slug, title, data, published_at, created_at, updated_at)
      VALUES (?, ?, 'jobs', 'published', 1, 1, ?, ?, ?, ?, ?, ?)`
@@ -521,24 +533,37 @@ export async function saveJobToDb(
 
   // 2. Insert relations to document_references table
   // Link to company
+  console.log('[SAVE JOB] Inserting company reference into DB...');
   await db.prepare(
     `INSERT INTO document_references (id, tenant_id, from_root_id, from_document_id, field_name, ordinal, to_root_id, ref_strength)
      VALUES (?, 'default', ?, ?, 'company', 0, ?, 'weak')`
   ).bind(`ref-${jobId}-company`, jobId, jobId, companyId).run();
 
   // Link to category
+  console.log('[SAVE JOB] Inserting category reference into DB...');
   await db.prepare(
     `INSERT INTO document_references (id, tenant_id, from_root_id, from_document_id, field_name, ordinal, to_root_id, ref_strength)
      VALUES (?, 'default', ?, ?, 'category', 0, ?, 'weak')`
   ).bind(`ref-${jobId}-category`, jobId, jobId, categoryId).run();
 
-  return jobId;
+  console.log('[SAVE JOB] Job saved successfully to DB!');
+  return { jobId, slug };
 }
 
 /**
  * Scraper coordinator function
  */
-export async function runScraper(env: { DB: D1Database; AI: any; MEDIA_BUCKET?: any; GEMINI_API_KEY?: string }, limit: number = 5): Promise<{ scraped: number; processed: number; errors: number; details: string[] }> {
+export async function runScraper(
+  env: { 
+    DB: D1Database; 
+    AI: any; 
+    MEDIA_BUCKET?: any; 
+    GEMINI_API_KEY?: string; 
+    TELEGRAM_BOT_TOKEN?: string; 
+    TELEGRAM_CHANNEL_ID?: string;
+  }, 
+  limit: number = 5
+): Promise<{ scraped: number; processed: number; errors: number; details: string[] }> {
   const details: string[] = [];
   let scrapedCount = 0;
   let errorCount = 0;
@@ -592,7 +617,7 @@ export async function runScraper(env: { DB: D1Database; AI: any; MEDIA_BUCKET?: 
         const jobJson = await analyzeJobWithAI(env.AI, cleanedText);
 
         details.push(`[SAVE] Saving job: "${jobJson.title_en}" (Company: ${jobJson.company_name})`);
-        const jobId = await saveJobToDb(
+        const { jobId, slug } = await saveJobToDb(
           env.DB,
           { bucket: env.MEDIA_BUCKET, geminiApiKey: env.GEMINI_API_KEY },
           jobJson,
@@ -601,6 +626,24 @@ export async function runScraper(env: { DB: D1Database; AI: any; MEDIA_BUCKET?: 
         
         details.push(`[SUCCESS] Inserted job ID ${jobId} successfully.`);
         scrapedCount++;
+
+        // Auto-publish to Telegram if configured
+        if (env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHANNEL_ID) {
+          try {
+            console.log(`[TELEGRAM] Publishing scraped job to Telegram channel: ${env.TELEGRAM_CHANNEL_ID}`);
+            await sendTelegramAlert(
+              env,
+              jobJson.title_ar || jobJson.title_en,
+              jobJson.company_name,
+              jobJson.location_ar || jobJson.location_en,
+              slug
+            );
+            details.push(`[TELEGRAM] Successfully published job "${jobJson.title_en}" to Telegram.`);
+          } catch (tgErr: any) {
+            console.error('[TELEGRAM ERROR] Failed to send Telegram alert for scraped job:', tgErr);
+            details.push(`[TELEGRAM ERROR] Failed to publish "${jobJson.title_en}" to Telegram: ${tgErr.message}`);
+          }
+        }
 
         // Wait 3 seconds between jobs to avoid Gemini API rate limit (429)
         await new Promise(resolve => setTimeout(resolve, 3000));

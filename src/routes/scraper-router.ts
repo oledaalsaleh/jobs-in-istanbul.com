@@ -20,8 +20,28 @@ scraperRouter.post('/api/admin/trigger-scrape', async (c) => {
   const limit = limitQuery ? parseInt(limitQuery, 10) : 5;
 
   try {
-    const webResult = await runScraper({ DB: env.DB, AI: env.AI, MEDIA_BUCKET: env.MEDIA_BUCKET, GEMINI_API_KEY: env.GEMINI_API_KEY }, limit);
-    const tgResult = await runTelegramScraper({ DB: env.DB, AI: env.AI, MEDIA_BUCKET: env.MEDIA_BUCKET, GEMINI_API_KEY: env.GEMINI_API_KEY }, limit);
+    const webResult = await runScraper(
+      { 
+        DB: env.DB, 
+        AI: env.AI, 
+        MEDIA_BUCKET: env.MEDIA_BUCKET, 
+        GEMINI_API_KEY: env.GEMINI_API_KEY,
+        TELEGRAM_BOT_TOKEN: env.TELEGRAM_BOT_TOKEN,
+        TELEGRAM_CHANNEL_ID: env.TELEGRAM_CHANNEL_ID
+      }, 
+      limit
+    );
+    const tgResult = await runTelegramScraper(
+      { 
+        DB: env.DB, 
+        AI: env.AI, 
+        MEDIA_BUCKET: env.MEDIA_BUCKET, 
+        GEMINI_API_KEY: env.GEMINI_API_KEY,
+        TELEGRAM_BOT_TOKEN: env.TELEGRAM_BOT_TOKEN,
+        TELEGRAM_CHANNEL_ID: env.TELEGRAM_CHANNEL_ID
+      }, 
+      limit
+    );
     return c.json({
       success: true,
       websiteScraper: webResult,
