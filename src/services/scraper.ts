@@ -221,6 +221,7 @@ JSON structure:
   "salary": "Salary range if specified (e.g. 20,000 - 30,000 TL), otherwise leave empty string",
   "applyLink": "URL link to apply, or empty string",
   "applyEmail": "Email address to apply, or empty string",
+  "phone": "Phone number or WhatsApp contact if specified in the text (e.g. +90 555 123 4567), otherwise empty string",
   "language": "Required language: 'ar' (only Arabic), 'en' (only English), or 'both' (bilingual/both)"
 }
 `;
@@ -469,6 +470,7 @@ export async function saveJobToDb(
   const salary = ((rawData.salary || '') as string).trim();
   const applyLink = ((rawData.applyLink || rawData.apply_link || sourceUrl || '') as string).trim();
   const applyEmail = ((rawData.applyEmail || rawData.apply_email || '') as string).trim();
+  const phone = ((rawData.phone || rawData.phone_number || rawData.whatsapp || '') as string).trim();
   const language = ((rawData.language || 'both') as string).trim();
 
   // Gemini SEO optimization & auto-fixing
@@ -512,6 +514,7 @@ export async function saveJobToDb(
     location_en,
     jobType,
     salary,
+    phone,
     applyLink,
     applyEmail,
     language,
