@@ -1546,6 +1546,7 @@ publicRouter.get('/:locale/submit-job', async (c) => {
       salary: 'الراتب المتوقع (اختياري)',
       applyEmail: 'بريد التقديم الإلكتروني',
       phone: 'رقم الهاتف (اختياري)',
+      seoKeywords: 'الكلمات المفتاحية للسيو (اختياري - مفصولة بفواصل، مثل: وظائف، عمل في إسطنبول)',
       desc: 'الوصف الوظيفي والمتطلبات التفصيلية',
       submit: 'نشر الوظيفة فوراً',
       successMsg: 'تم نشر الوظيفة بنجاح وظهرت فوراً على الموقع!'
@@ -1561,6 +1562,7 @@ publicRouter.get('/:locale/submit-job', async (c) => {
       salary: 'Offered Salary (Optional)',
       applyEmail: 'Application Email',
       phone: 'Phone Number (Optional)',
+      seoKeywords: 'SEO Keywords (Optional - comma separated, e.g. jobs, work in Istanbul)',
       desc: 'Job Description & Requirements',
       submit: 'Publish Job Instantly',
       successMsg: 'Job published successfully! It is now live on the site.'
@@ -1628,6 +1630,11 @@ publicRouter.get('/:locale/submit-job', async (c) => {
         <div style="margin-bottom: 20px;">
           <label style="display: block; font-weight: 700; color: var(--text-dark); margin-bottom: 8px;">${t.salary}</label>
           <input type="text" name="salary" placeholder="e.g. 20,000 - 30,000 TL" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); outline: none;">
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; font-weight: 700; color: var(--text-dark); margin-bottom: 8px;">${t.seoKeywords}</label>
+          <input type="text" name="seoKeywords" placeholder="${locale === 'ar' ? 'مثل: وظائف، عمل في إسطنبول، مترجم' : 'e.g. jobs, work in Istanbul, translator'}" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); outline: none;">
         </div>
 
         <div style="margin-bottom: 30px;">
@@ -1714,6 +1721,9 @@ publicRouter.post(
       let descAr = data.description;
       let descEn = data.description;
       let seoKeywords: string[] = [];
+      if (data.seoKeywords) {
+        seoKeywords = data.seoKeywords.split(',').map((s: string) => s.trim()).filter(Boolean);
+      }
       let seoDescription = '';
 
       const geminiApiKey = (c.env as any).GEMINI_API_KEY;
@@ -1729,7 +1739,8 @@ publicRouter.post(
           titleEn = seoResult.title_en || data.title;
           descAr = seoResult.description_ar || data.description;
           descEn = seoResult.description_en || data.description;
-          seoKeywords = seoResult.keywords || [];
+          const geminiKeywords = seoResult.keywords || [];
+          seoKeywords = Array.from(new Set([...seoKeywords, ...geminiKeywords]));
           seoDescription = seoResult.seoDescription || '';
         } catch (e) {
           console.error('Gemini SEO call failed on guest submission:', e);

@@ -23,6 +23,7 @@ export const JobSubmissionSchema = z.object({
   transitLine: z.enum(['none', 'm2', 'metrobus', 'm4', 'm11']).optional().nullable(),
   screeningQuestionsJson: z.string().max(10000).optional().nullable(),
   phone: z.string().max(50).optional().nullable(),
+  seoKeywords: z.string().max(500).optional().nullable(),
   'cf-turnstile-response': z.string().min(1, 'Turnstile captcha response is required')
 });
 
