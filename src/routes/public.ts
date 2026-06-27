@@ -6,8 +6,52 @@ import { themeCss } from '../public/css/theme'
 import { sendTelegramAlert } from '../services/telegram'
 import { assignJobImage } from '../services/scraper'
 import { optimizeSeoWithGemini } from '../services/gemini-seo'
+import { FAVICON_BASE64 } from '../utils/logo-base64'
+import { notifyGoogleIndexing } from '../services/google-indexing'
 
 export const publicRouter = new Hono()
+
+export const ISTANBUL_DISTRICTS = [
+  { en: 'Adalar', ar: 'الأمراء' },
+  { en: 'Arnavutkoy', ar: 'أرناؤوط كوي' },
+  { en: 'Atasehir', ar: 'أتاشهير' },
+  { en: 'Avcilar', ar: 'أفجلار' },
+  { en: 'Bagcilar', ar: 'باغجيلار' },
+  { en: 'Bahcelievler', ar: 'باهتشلي إيفلر' },
+  { en: 'Bakirkoy', ar: 'باكركوي' },
+  { en: 'Basaksehir', ar: 'باشاك شهير' },
+  { en: 'Bayrampase', ar: 'بايرام باشا' },
+  { en: 'Besiktas', ar: 'بشيكتاش' },
+  { en: 'Beykoz', ar: 'بيكوز' },
+  { en: 'Beylikduzu', ar: 'بيليك دوزو' },
+  { en: 'Beyoglu', ar: 'بي أوغلو' },
+  { en: 'Buyukcekmece', ar: 'بويوك تشكمجة' },
+  { en: 'Catalca', ar: 'تشاتالجا' },
+  { en: 'Cekmekoy', ar: 'تشيكمه كوي' },
+  { en: 'Esenler', ar: 'إيسنلر' },
+  { en: 'Esenyurt', ar: 'إسنيورت' },
+  { en: 'Eyupsultan', ar: 'أيوب سلطان' },
+  { en: 'Fatih', ar: 'الفاتح' },
+  { en: 'Gaziosmanpasa', ar: 'غازي عثمان باشا' },
+  { en: 'Gungoren', ar: 'غونغورين' },
+  { en: 'Kadikoy', ar: 'كاديكوي' },
+  { en: 'Kagithane', ar: 'كاغد خانة' },
+  { en: 'Kartal', ar: 'كارتال' },
+  { en: 'Kucukcekmece', ar: 'كوتشوك تشكمجة' },
+  { en: 'Maltepe', ar: 'مالتبة' },
+  { en: 'Pendik', ar: 'بينديك' },
+  { en: 'Sancaktepe', ar: 'سانجاك تبه' },
+  { en: 'Sariyer', ar: 'ساريير' },
+  { en: 'Silivri', ar: 'سيليفري' },
+  { en: 'Sultanbeyli', ar: 'سلطان بيلي' },
+  { en: 'Sultangazi', ar: 'سلطان غازي' },
+  { en: 'Sile', ar: 'شيله' },
+  { en: 'Sisli', ar: 'شيشلي' },
+  { en: 'Tuzla', ar: 'توزلا' },
+  { en: 'Umraniye', ar: 'عمرانية' },
+  { en: 'Uskudar', ar: 'أوسكودار' },
+  { en: 'Zeytinburnu', ar: 'زيتون بورنو' }
+];
 
 // Serve our CSS file directly from the bundled memory
 publicRouter.get('/css/theme.css', (c) => {
@@ -914,9 +958,9 @@ const homeHandler = async (c: any, locale: 'ar' | 'en') => {
           <a href="/${locale}?search=${querySearch}&category=${queryCategory}&type=${queryJobType}" class="district-card ${!queryDistrict ? 'active' : ''}">
             ${locale === 'ar' ? 'الكل' : 'All'}
           </a>
-          ${['Fatih', 'Sisli', 'Basaksehir', 'Esenyurt', 'Kadikoy', 'Besiktas', 'Beylikduzu', 'Uskudar', 'Zeytinburnu'].map(dist => {
-      const name = locale === 'ar' ? ({ 'Fatih': 'الفاتح', 'Sisli': 'شيشلي', 'Basaksehir': 'باشاك شهير', 'Esenyurt': 'إسنيورت', 'Kadikoy': 'كاديكوي', 'Besiktas': 'بشيكتاش', 'Beylikduzu': 'بيليك دوزو', 'Uskudar': 'أوسكودار', 'Zeytinburnu': 'زيتون بورنو' }[dist] || dist) : dist;
-      return `<a href="/${locale}?search=${querySearch}&category=${queryCategory}&type=${queryJobType}&district=${dist}" class="district-card ${queryDistrict.toLowerCase() === dist.toLowerCase() ? 'active' : ''}">${name}</a>`;
+          ${ISTANBUL_DISTRICTS.map(dist => {
+      const name = locale === 'ar' ? dist.ar : dist.en;
+      return `<a href="/${locale}?search=${querySearch}&category=${queryCategory}&type=${queryJobType}&district=${dist.en}" class="district-card ${queryDistrict.toLowerCase() === dist.en.toLowerCase() ? 'active' : ''}">${name}</a>`;
     }).join('')}
         </div>
       </section>
@@ -1748,9 +1792,17 @@ publicRouter.post(
             console.error('Telegram alert async dispatch error:', err)
           )
         );
+        c.executionCtx.waitUntil(
+          notifyGoogleIndexing(c.env, slug).catch((err) =>
+            console.error('Google Indexing async dispatch error:', err)
+          )
+        );
       } else {
         sendTelegramAlert(c.env, data.title, data.company, data.location, slug).catch((err) =>
           console.error('Telegram alert fallback error:', err)
+        );
+        notifyGoogleIndexing(c.env, slug).catch((err) =>
+          console.error('Google Indexing fallback error:', err)
         );
       }
 
@@ -1917,24 +1969,41 @@ publicRouter.get('/api/jobs/image', async (c) => {
   }
 });
 
-// Serve logo.png from R2 bucket
+// Serve logo.png from R2 bucket with fallback to built-in logo
 publicRouter.get('/public/images/logo.png', async (c) => {
   const env: any = c.env;
   try {
     const bucket = env.MEDIA_BUCKET;
-    if (!bucket) return c.text('R2 Media Bucket binding missing.', 500);
-    const object = await bucket.get('public/images/logo.png');
-    if (!object) return c.text('Logo not found.', 404);
-
-    const headers = new Headers();
-    object.writeHttpMetadata(headers);
-    headers.set('etag', object.httpEtag);
-    headers.set('Content-Type', 'image/png');
-    headers.set('Cache-Control', 'public, max-age=86400');
-    return c.body(object.body, 200, Object.fromEntries(headers.entries()));
+    if (bucket) {
+      const object = await bucket.get('public/images/logo.png');
+      if (object) {
+        const headers = new Headers();
+        object.writeHttpMetadata(headers);
+        headers.set('etag', object.httpEtag);
+        headers.set('Content-Type', 'image/png');
+        headers.set('Cache-Control', 'public, max-age=86400');
+        return c.body(object.body, 200, Object.fromEntries(headers.entries()));
+      }
+    }
   } catch (err: any) {
-    return c.text('Failed to load logo: ' + err.message, 500);
+    console.error('Failed to load logo from R2, using fallback:', err);
   }
+
+  // Fallback to built-in logo
+  const logoBuffer = Buffer.from(FAVICON_BASE64, 'base64');
+  return c.body(logoBuffer, 200, {
+    'Content-Type': 'image/png',
+    'Cache-Control': 'public, max-age=86400'
+  });
+});
+
+// Serve favicon.ico directly using the same built-in logo
+publicRouter.get('/favicon.ico', (c) => {
+  const logoBuffer = Buffer.from(FAVICON_BASE64, 'base64');
+  return c.body(logoBuffer, 200, {
+    'Content-Type': 'image/png',
+    'Cache-Control': 'public, max-age=86400'
+  });
 });
 
 // Serve og-share.png from R2 bucket

@@ -59,7 +59,16 @@ async function seed() {
       { id: 'cat-tourism', name_ar: 'السياحة والفنادق', name_en: 'Tourism & Hospitality', slug: 'tourism-hospitality', icon: '✈️' },
       { id: 'cat-realestate', name_ar: 'العقارات والمبيعات', name_en: 'Real Estate & Sales', slug: 'real-estate-sales', icon: '🏢' },
       { id: 'cat-education', name_ar: 'التعليم والتدريس', name_en: 'Education & Teaching', slug: 'education-teaching', icon: '🎓' },
-      { id: 'cat-customer', name_ar: 'خدمة العملاء والترجمة', name_en: 'Customer Service & Translation', slug: 'customer-service-translation', icon: '📞' }
+      { id: 'cat-customer', name_ar: 'خدمة العملاء والترجمة', name_en: 'Customer Service & Translation', slug: 'customer-service-translation', icon: '📞' },
+      { id: 'cat-marketing', name_ar: 'التسويق والإعلان', name_en: 'Marketing & Advertising', slug: 'marketing-advertising', icon: '📣' },
+      { id: 'cat-finance', name_ar: 'المحاسبة والمالية', name_en: 'Accounting & Finance', slug: 'accounting-finance', icon: '💰' },
+      { id: 'cat-healthcare', name_ar: 'الرعاية الصحية والطب', name_en: 'Healthcare & Medical', slug: 'healthcare-medical', icon: '🏥' },
+      { id: 'cat-engineering', name_ar: 'الهندسة والبناء', name_en: 'Engineering & Construction', slug: 'engineering-construction', icon: '🏗️' },
+      { id: 'cat-design', name_ar: 'التصميم والفنون الإبداعية', name_en: 'Design & Creative Arts', slug: 'design-creative-arts', icon: '🎨' },
+      { id: 'cat-admin', name_ar: 'الإدارة والموارد البشرية', name_en: 'Admin & Human Resources', slug: 'admin-human-resources', icon: '💼' },
+      { id: 'cat-logistics', name_ar: 'الخدمات اللوجستية والشحن', name_en: 'Logistics & Transportation', slug: 'logistics-transportation', icon: '📦' },
+      { id: 'cat-salon', name_ar: 'التجميل والصالونات', name_en: 'Beauty & Salon', slug: 'beauty-salon', icon: '💇' },
+      { id: 'cat-general', name_ar: 'وظائف أخرى متنوعة', name_en: 'General & Others', slug: 'general-others', icon: '📁' }
     ];
 
     for (const cat of categories) {

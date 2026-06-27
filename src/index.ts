@@ -27,17 +27,38 @@ registerCollections([
 
 // Application configuration
 const config: SonicJSConfig = {
+  name: 'Jobs in Istanbul',
   collections: {
     autoSync: true
   },
   plugins: {
     directory: './src/plugins',
     autoLoad: false  // Set to true to auto-load custom plugins
+  },
+  auth: {
+    extendBetterAuth: (opts) => {
+      opts.appName = 'Jobs in Istanbul';
+      return opts;
+    }
+  },
+  middleware: {
+    beforeAuth: [
+      async (c, next) => {
+        if (c.req.path.startsWith('/auth/')) {
+          c.header('X-Robots-Tag', 'noindex, nofollow, noarchive');
+        }
+        await next();
+        if (c.req.path.startsWith('/auth/') && c.res) {
+          c.res.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
+        }
+      }
+    ]
   }
 }
 
 // Create the application
 const app = createSonicJSApp(config)
+
 export { app }
 
 

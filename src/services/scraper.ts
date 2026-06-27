@@ -214,7 +214,7 @@ JSON structure:
   "description_ar": "تفاصيل ومسؤوليات وشروط الوظيفة بالتفصيل واللغة العربية (استخدم علامات اقتباس مفردة '' بدلا من علامات اقتباس مزدوجة \"\")",
   "description_en": "Detailed description, responsibilities, and requirements in English (use single quotes '' instead of double quotes \"\")",
   "company_name": "Name of the hiring company (e.g. Acme Corp)",
-  "category_slug": "Map to one of these EXACT categories based on content: 'it-software', 'tourism-hospitality', 'real-estate-sales', 'education-teaching', 'customer-service-translation', 'general'",
+  "category_slug": "Map to one of these EXACT categories based on content: 'it-software', 'tourism-hospitality', 'real-estate-sales', 'education-teaching', 'customer-service-translation', 'marketing-advertising', 'accounting-finance', 'healthcare-medical', 'engineering-construction', 'design-creative-arts', 'admin-human-resources', 'logistics-transportation', 'beauty-salon', 'general-others'",
   "location_ar": "المنطقة أو الحي في إسطنبول باللغة العربية (مثل: الفاتح, شيشلي, اسنيورت, باشاك شهير)",
   "location_en": "District/neighborhood in Istanbul in English (e.g. Fatih, Sisli, Esenyurt, Basaksehir)",
   "jobType": "Map to one of: 'full-time', 'part-time', 'remote', 'internship'",

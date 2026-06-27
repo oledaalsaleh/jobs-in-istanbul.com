@@ -26,12 +26,12 @@ export function generateMetaTags(locale: 'ar' | 'en', pageType: 'home' | 'job' |
   
   const defaults = {
     ar: {
-      title: 'فرص عمل في إسطنبول | وظائف شاغرة في تركيا للعرب',
-      desc: 'ابحث عن أحدث فرص العمل والوظائف الشاغرة في إسطنبول وتركيا. منصتنا توفر شغل في تركيا للعرب بمختلف القطاعات: مبيعات، تسويق، برمجة، سياحة، وخدمة عملاء.',
+      title: 'وظائف في إسطنبول | وظائف لمتحدثي الإنجليزية في تركيا',
+      desc: 'ابحث عن أحدث فرص العمل للوافدين والمحترفين المتحدثين باللغة الإنجليزية في إسطنبول. تقدّم للوظائف التقنية، المبيعات، والتعليم اليوم.',
     },
     en: {
-      title: 'Istanbul Jobs | Vacancies & Employment',
-      desc: 'Find the latest job opportunities and vacancies in Istanbul. The leading job portal for locals and internationals in Turkey. Full-time, part-time, and remote jobs.',
+      title: 'Jobs in Istanbul | English Speaking Jobs in Turkey',
+      desc: 'Find the latest job opportunities for expats and English-speaking professionals in Istanbul. Apply to tech, sales, and education roles today.',
     }
   }[locale];
 

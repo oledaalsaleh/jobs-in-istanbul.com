@@ -8,6 +8,9 @@ seoRouter.get('/robots.txt', (c) => {
 Allow: /
 Disallow: /admin/
 Disallow: /api/
+Disallow: /auth/
+Disallow: /login
+Disallow: /register
 
 Sitemap: https://jobs-in-istanbul.com/sitemap.xml
 `;
