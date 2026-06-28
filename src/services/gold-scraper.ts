@@ -1,41 +1,94 @@
 export async function runGoldScraper(env: any) {
   console.log('⏳ Running gold scraper...');
-  const res = await fetch('https://www.adwhit.com/ar/goldPrices/TL', {
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+  let goldItems: any[] = [];
+  try {
+    const res = await fetch('https://www.adwhit.com/ar/goldPrices/TL', {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      }
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch adwhit gold prices: ${res.statusText}`);
     }
-  });
 
-  if (!res.ok) {
-    throw new Error(`Failed to fetch adwhit gold prices: ${res.statusText}`);
+    const html = await res.text();
+    const nextDataMatch = html.match(/<script id="__NEXT_DATA__" type="application\/json">([\s\S]*?)<\/script>/);
+
+    if (!nextDataMatch) {
+      throw new Error('Could not find __NEXT_DATA__ script block in adwhit HTML');
+    }
+
+    const data = JSON.parse(nextDataMatch[1]);
+    const metals = data.props?.pageProps?.data?.metals;
+
+    if (!metals || !Array.isArray(metals)) {
+      throw new Error('metals data not found in next.js state object');
+    }
+
+    goldItems = metals.map((m: any) => ({
+      id: m.id,
+      name: m.name,
+      unit: m.unit || 'جرام',
+      buy: parseFloat(m.last_b),
+      sell: parseFloat(m.last_s),
+      karat: m.density || null,
+      lastUpdate: m.last_update
+    }));
+    console.log(`✓ Parsed ${goldItems.length} gold items from Adwhit.`);
+  } catch (adwhitErr: any) {
+    console.warn('⚠️ Adwhit gold fetch failed, falling back to spot calculations...', adwhitErr.message);
+    
+    // Fetch rates from fallback API
+    const openRes = await fetch('https://open.er-api.com/v6/latest/USD');
+    if (!openRes.ok) {
+      throw new Error(`Fallback gold rates failed: ${openRes.statusText}`);
+    }
+    const openData: any = await openRes.json();
+    const usdToTry = openData.rates.TRY;
+    const usdToXau = openData.rates.XAU; // 1 USD in Ounce of Gold
+
+    if (!usdToTry || !usdToXau) {
+      throw new Error('Could not retrieve TRY or XAU rates from fallback API');
+    }
+
+    const goldOunceInUsd = 1 / usdToXau;
+    const goldOunceInTry = goldOunceInUsd * usdToTry;
+    
+    const gram24K = goldOunceInTry / 31.1035;
+    const gram22K = gram24K * 22 / 24;
+    const gram21K = gram24K * 21 / 24;
+    const gram18K = gram24K * 18 / 24;
+    const gram14K = gram24K * 14 / 24;
+    // Standard Gold Lira weighs ~7.02 grams of 22K gold
+    const goldLira = gram22K * 7.02;
+
+    const fallbackMetals = [
+      { id: '1', name: 'جرام الذهب عيار 24', unit: 'جرام', base: gram24K, karat: '24' },
+      { id: '12', name: 'جرام الذهب عيار 22', unit: 'جرام', base: gram22K, karat: '22' },
+      { id: '11', name: 'جرام الذهب عيار 21', unit: 'جرام', base: gram21K, karat: '21' },
+      { id: '2', name: 'جرام الذهب عيار 18', unit: 'جرام', base: gram18K, karat: '18' },
+      { id: '3', name: 'جرام الذهب عيار 14', unit: 'جرام', base: gram14K, karat: '14' },
+      { id: '4', name: 'أونصة الذهب', unit: 'اونصة', base: goldOunceInTry, karat: null },
+      { id: '5', name: 'الليرة الذهب', unit: 'ليرة', base: goldLira, karat: null }
+    ];
+
+    goldItems = fallbackMetals.map(m => {
+      const basePrice = m.base;
+      const buy = basePrice * 0.998;
+      const sell = basePrice * 1.002;
+      return {
+        id: m.id,
+        name: m.name,
+        unit: m.unit,
+        buy,
+        sell,
+        karat: m.karat,
+        lastUpdate: String(Math.floor(Date.now() / 1000))
+      };
+    });
+    console.log(`✓ Calculated ${goldItems.length} gold prices from fallback spot API.`);
   }
-
-  const html = await res.text();
-  const nextDataMatch = html.match(/<script id="__NEXT_DATA__" type="application\/json">([\s\S]*?)<\/script>/);
-
-  if (!nextDataMatch) {
-    throw new Error('Could not find __NEXT_DATA__ script block in adwhit HTML');
-  }
-
-  const data = JSON.parse(nextDataMatch[1]);
-  const metals = data.props?.pageProps?.data?.metals;
-
-  if (!metals || !Array.isArray(metals)) {
-    throw new Error('metals data not found in next.js state object');
-  }
-
-  console.log(`✓ Parsed ${metals.length} gold items from Adwhit.`);
-
-  // Prepare gold prices array
-  const goldItems = metals.map((m: any) => ({
-    id: m.id,
-    name: m.name,
-    unit: m.unit || 'جرام',
-    buy: parseFloat(m.last_b),
-    sell: parseFloat(m.last_s),
-    karat: m.density || null,
-    lastUpdate: m.last_update
-  }));
 
   // Generate Gemini AI Advice if API key is present
   let adviceAr = 'أسواق الذهب في تركيا تشهد تذبذبات متأثرة بأسعار الأونصة العالمية وحركة سعر صرف الليرة التركية. للمدخرين على المدى الطويل، يُعتبر الذهب ملاذاً آمناً ويُنصح بالشراء التدريجي عند التراجعات وتفادي المضاربة السريعة.';

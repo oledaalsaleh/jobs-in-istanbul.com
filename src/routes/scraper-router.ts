@@ -2,6 +2,8 @@ import { Hono } from 'hono';
 import { runScraper } from '../services/scraper';
 import { runTelegramScraper } from '../services/telegram-scraper';
 import { optimizeSeoWithGemini } from '../services/gemini-seo';
+import { runCurrencyScraper } from '../services/currency-scraper';
+import { runGoldScraper } from '../services/gold-scraper';
 
 export const scraperRouter = new Hono();
 
@@ -52,6 +54,60 @@ scraperRouter.post('/api/admin/trigger-scrape', async (c) => {
     return c.json({
       success: false,
       error: 'An error occurred during scraping execution.',
+      details: error.message
+    }, 500);
+  }
+});
+
+// Secure admin endpoint to manually trigger a currency scrape cycle
+scraperRouter.post('/api/admin/trigger-currency-scrape', async (c) => {
+  const env: any = c.env;
+  
+  const authHeader = c.req.header('Authorization');
+  if (authHeader !== `Bearer ${env.JWT_SECRET}`) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+
+  try {
+    console.log('[API] Triggering manual currency scraper...');
+    const prices = await runCurrencyScraper({ DB: env.DB, GEMINI_API_KEY: env.GEMINI_API_KEY });
+    return c.json({
+      success: true,
+      message: 'Currency rates scraped and cached successfully.',
+      count: prices.length
+    });
+  } catch (error: any) {
+    console.error("Currency Scraper Endpoint Error:", error);
+    return c.json({
+      success: false,
+      error: 'An error occurred during currency scraping execution.',
+      details: error.message
+    }, 500);
+  }
+});
+
+// Secure admin endpoint to manually trigger a gold scrape cycle
+scraperRouter.post('/api/admin/trigger-gold-scrape', async (c) => {
+  const env: any = c.env;
+  
+  const authHeader = c.req.header('Authorization');
+  if (authHeader !== `Bearer ${env.JWT_SECRET}`) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+
+  try {
+    console.log('[API] Triggering manual gold scraper...');
+    const metals = await runGoldScraper({ DB: env.DB, GEMINI_API_KEY: env.GEMINI_API_KEY });
+    return c.json({
+      success: true,
+      message: 'Gold prices scraped and cached successfully.',
+      count: metals.length
+    });
+  } catch (error: any) {
+    console.error("Gold Scraper Endpoint Error:", error);
+    return c.json({
+      success: false,
+      error: 'An error occurred during gold scraping execution.',
       details: error.message
     }, 500);
   }

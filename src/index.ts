@@ -216,7 +216,7 @@ export default {
         // 5. Run Currency Scraper
         try {
           console.log('[CRON CURRENCY] Running currency scraper...');
-          await runCurrencyScraper({ DB: env.DB });
+          await runCurrencyScraper({ DB: env.DB, GEMINI_API_KEY: env.GEMINI_API_KEY });
           console.log('[CRON CURRENCY] Currency scraper finished successfully.');
         } catch (currErr) {
           console.error('[CRON CURRENCY] Currency scraper execution error:', currErr);
