@@ -121,14 +121,87 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
   const trCurrencyNames: Record<string, string> = { USD: 'ABD Doları', EUR: 'Euro', SAR: 'Suudi Arabistan Riyali', AED: 'Birleşik Arap Emirlikleri Dirhemi', GBP: 'İngiliz Sterlini', EGP: 'Mısır Lirası' };
   
 
+  // Extract popular currencies for highlights (USD, EUR, SAR)
+  const popularCurrencies = prices.filter(p => ['USD', 'EUR', 'SAR'].includes(p.code));
+  const highlightsHtml = popularCurrencies.map(p => {
+    const buyPrice = p.buy.toFixed(4);
+    const sellPrice = p.sell.toFixed(4);
+    const changeVal = parseFloat(p.change?.['1d'] || '0');
+    const changeClass = changeVal > 0 ? 'change-up' : (changeVal < 0 ? 'change-down' : '');
+    const changeSymbol = changeVal > 0 ? '▲' : (changeVal < 0 ? '▼' : '');
+    const titleText = locale === 'ar' ? p.name : (locale === 'tr' ? (trCurrencyNames[p.code] || p.code) : p.code);
+    
+    return `
+      <div class="highlight-card">
+        <div class="highlight-glow-bar"></div>
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <img src="${t.flagUrl(p.code)}" alt="${p.code}" style="width: 24px; height: 18px; border-radius: 2px; box-shadow: var(--shadow-sm); border: 1px solid var(--border);">
+            <span style="font-weight: 800; color: var(--text-dark); font-size: 1.05rem;">${p.code}</span>
+            <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">(${titleText})</span>
+          </div>
+          <div style="margin-top: 8px; display: flex; gap: 16px;">
+            <div>
+              <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; display: block;">${locale === 'ar' ? 'شراء' : (locale === 'tr' ? 'Alış' : 'Buy')}</span>
+              <span style="font-size: 1.25rem; font-weight: 800; color: var(--text-dark);">${buyPrice} ₺</span>
+            </div>
+            <div style="border-left: 1px solid var(--border); padding-left: 16px; padding-right: 16px;">
+              <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; display: block;">${locale === 'ar' ? 'بيع' : (locale === 'tr' ? 'Satış' : 'Sell')}</span>
+              <span style="font-size: 1.25rem; font-weight: 800; color: var(--primary);">${sellPrice} ₺</span>
+            </div>
+          </div>
+        </div>
+        <div class="${changeClass}" style="font-size: 0.85rem; font-weight: 800; display: flex; flex-direction: column; align-items: flex-end; gap: 2px;">
+          <span>${changeSymbol} ${Math.abs(changeVal).toFixed(2)}%</span>
+          <span style="font-size: 0.68rem; color: var(--text-muted); font-weight: 600;">1D Change</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+
   const html = `
     <style>
+      .currency-highlights {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        max-width: 1200px;
+        margin: 30px auto 10px;
+        padding: 0 20px;
+      }
+      .highlight-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 24px;
+        box-shadow: var(--shadow-md);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+        transition: var(--transition);
+      }
+      .highlight-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg), 0 10px 30px -10px rgba(37, 99, 235, 0.15);
+        border-color: var(--primary);
+      }
+      .highlight-glow-bar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary), #3b82f6);
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      }
       .currency-grid {
         display: grid;
         grid-template-columns: 1.8fr 1.2fr;
         gap: 30px;
         max-width: 1200px;
-        margin: 40px auto 100px;
+        margin: 20px auto 100px;
         padding: 0 20px;
       }
       @media (max-width: 900px) {
@@ -136,27 +209,153 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
           grid-template-columns: 1fr;
         }
       }
+      .currency-table-container {
+        display: block;
+      }
+      @media (max-width: 600px) {
+        .currency-table-container {
+          display: none;
+        }
+      }
       .cur-table {
         width: 100%;
-        border-collapse: collapse;
+        border-collapse: separate;
+        border-spacing: 0;
         text-align: right;
       }
       .cur-table th {
-        padding: 14px 16px;
+        padding: 16px 20px;
         font-weight: 800;
         color: var(--text-dark);
         border-bottom: 2px solid var(--border);
-        font-size: 0.95rem;
+        font-size: 0.9rem;
+        background: #f8fafc;
+      }
+      .cur-table th:first-child {
+        border-top-left-radius: 12px;
+      }
+      .cur-table th:last-child {
+        border-top-right-radius: 12px;
       }
       .cur-table td {
-        padding: 14px 16px;
+        padding: 16px 20px;
         border-bottom: 1px solid var(--border);
-        font-size: 0.92rem;
-        color: var(--text-main);
-        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--text-dark);
+        font-weight: 700;
+        transition: var(--transition);
       }
-      .cur-row:hover {
-        background: var(--bg-subtle);
+      .cur-row:hover td {
+        background: var(--primary-light);
+      }
+      .currency-mobile-cards {
+        display: none;
+        flex-direction: column;
+        gap: 16px;
+      }
+      @media (max-width: 600px) {
+        .currency-mobile-cards {
+          display: flex;
+        }
+      }
+      .mobile-currency-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 18px;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+      }
+      .mobile-currency-card:hover {
+        border-color: var(--primary);
+      }
+      .mobile-currency-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 8px;
+      }
+      .mobile-currency-price-box {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .price-slot {
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        padding: 10px;
+        border-radius: var(--radius-sm);
+        text-align: center;
+      }
+      .price-slot.sell {
+        background: var(--primary-light);
+        border-color: var(--border);
+      }
+      .price-slot-title {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        font-weight: 600;
+        margin-bottom: 4px;
+        display: block;
+      }
+      .price-slot-value {
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: var(--text-dark);
+      }
+      .calc-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 30px;
+        box-shadow: var(--shadow-md);
+        border-top: 4px solid var(--primary);
+      }
+      .calc-input {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        background: var(--bg-site);
+        color: var(--text-dark);
+        font-weight: 700;
+        font-size: 1rem;
+        transition: var(--transition);
+      }
+      .calc-input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        outline: none;
+      }
+      .calc-presets {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .preset-btn {
+        background: var(--bg-site);
+        border: 1px solid var(--border);
+        color: var(--text-dark);
+        font-size: 0.78rem;
+        font-weight: 700;
+        padding: 6px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: var(--transition);
+      }
+      .preset-btn:hover {
+        background: var(--primary-light);
+        border-color: var(--primary);
+      }
+      .calc-result-box {
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(30, 58, 138, 0.05) 100%);
+        border: 1px solid rgba(37, 99, 235, 0.20);
+        padding: 20px;
+        border-radius: var(--radius-md);
+        text-align: center;
       }
       .change-up {
         color: #10b981 !important;
@@ -166,33 +365,30 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
         color: #ef4444 !important;
         font-weight: 700;
       }
-      .calc-input {
-        width: 100%;
-        padding: 12px;
-        border: 1px solid var(--border);
-        border-radius: var(--radius-md);
-        background: var(--bg-site);
-        color: var(--text-dark);
-        font-weight: 700;
-      }
       .ai-advice-box {
         background: linear-gradient(135deg, rgba(20, 184, 166, 0.07) 0%, rgba(99, 102, 241, 0.07) 100%);
         border: 1px solid rgba(20, 184, 166, 0.15);
         padding: 24px;
         border-radius: var(--radius-lg);
-        margin-bottom: 30px;
+        margin-bottom: 20px;
       }
     </style>
 
     <div class="container" style="padding: 40px 20px 0;">
       <h1 class="hero-title-gradient" style="text-align: center; margin-bottom: 12px; font-size: 2.3rem; font-weight: 800;">${t.title}</h1>
       <p style="color: var(--text-muted); text-align: center; margin-bottom: 16px; font-size: 1.05rem; max-width: 700px; margin-left: auto; margin-right: auto; line-height: 1.6;">${t.subtitle}</p>
-      <div style="text-align: center; font-size: 0.85rem; color: var(--text-muted); font-weight: 600; margin-bottom: 30px;">
+      
+      <div style="text-align: center; font-size: 0.85rem; color: var(--text-muted); font-weight: 600; margin-bottom: 20px;">
         <i class="fa-regular fa-clock"></i> ${t.lastUpdate} ${lastUpdateStr}
       </div>
 
+      <!-- Key Highlight Rates -->
+      <div class="currency-highlights">
+        ${highlightsHtml}
+      </div>
+
       <!-- AI Advice Widget -->
-      <div class="ai-advice-box" style="max-width: 1160px; margin-left: auto; margin-right: auto;">
+      <div class="ai-advice-box" style="max-width: 1160px; margin-left: auto; margin-right: auto; margin-top: 20px;">
         <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-dark); margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
           <i class="fa-solid fa-robot" style="color: #0d9488;"></i> ${t.aiTitle}
         </h3>
@@ -202,73 +398,117 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
       <div class="currency-grid">
         
         <!-- Table Column -->
-        <div class="glass-card" style="padding: 24px; border-radius: var(--radius-lg); overflow-x: auto;">
-          <table class="cur-table" style="direction: ${locale === 'ar' ? 'rtl' : 'ltr'}; text-align: ${locale === 'ar' ? 'right' : 'left'};">
-            <thead>
-              <tr>
-                <th style="text-align: ${locale === 'ar' ? 'right' : 'left'};">${t.colCurrency}</th>
-                <th style="text-align: ${locale === 'ar' ? 'right' : 'left'};">${t.colBuy}</th>
-                <th style="text-align: ${locale === 'ar' ? 'right' : 'left'};">${t.colSell}</th>
-                <th style="text-align: ${locale === 'ar' ? 'right' : 'left'};">${t.colChange}</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${prices.map(p => {
-                const changeVal = parseFloat(p.change?.['1d'] || '0');
-                const changeClass = changeVal > 0 ? 'change-up' : (changeVal < 0 ? 'change-down' : '');
-                const changeSymbol = changeVal > 0 ? '▲' : (changeVal < 0 ? '▼' : '');
-                
-                return `
-                  <tr class="cur-row">
-                    <td style="display: flex; align-items: center; gap: 10px; text-align: ${locale === 'ar' ? 'right' : 'left'};">
-                      <img src="${t.flagUrl(p.code)}" alt="${p.code}" style="width: 24px; height: 18px; border-radius: 2px; box-shadow: var(--shadow-sm); border: 1px solid var(--border);">
-                      <div>
-                        <div style="font-weight: 800; color: var(--text-dark);">${p.code}</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted);">${locale === 'ar' ? p.name : (locale === 'tr' ? (trCurrencyNames[p.code] || p.code) : p.code)}</div>
-                      </div>
-                    </td>
-                    <td>${p.buy.toFixed(4)}</td>
-                    <td>${p.sell.toFixed(4)}</td>
-                    <td class="${changeClass}">${changeSymbol} ${Math.abs(changeVal).toFixed(2)}%</td>
-                  </tr>
-                `;
-              }).join('')}
-            </tbody>
-          </table>
-          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 20px; line-height: 1.5; text-align: center;">${t.textDescription}</p>
+        <div class="glass-card" style="padding: 24px; border-radius: var(--radius-lg);">
+          
+          <!-- Desktop View Table -->
+          <div class="currency-table-container">
+            <table class="cur-table" style="direction: ${locale === 'ar' ? 'rtl' : 'ltr'}; text-align: ${locale === 'ar' ? 'right' : 'left'};">
+              <thead>
+                <tr>
+                  <th style="text-align: ${locale === 'ar' ? 'right' : 'left'};">${t.colCurrency}</th>
+                  <th style="text-align: ${locale === 'ar' ? 'right' : 'left'};">${t.colBuy}</th>
+                  <th style="text-align: ${locale === 'ar' ? 'right' : 'left'};">${t.colSell}</th>
+                  <th style="text-align: ${locale === 'ar' ? 'right' : 'left'};">${t.colChange}</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${prices.map(p => {
+                  const changeVal = parseFloat(p.change?.['1d'] || '0');
+                  const changeClass = changeVal > 0 ? 'change-up' : (changeVal < 0 ? 'change-down' : '');
+                  const changeSymbol = changeVal > 0 ? '▲' : (changeVal < 0 ? '▼' : '');
+                  
+                  return `
+                    <tr class="cur-row">
+                      <td style="display: flex; align-items: center; gap: 12px; text-align: ${locale === 'ar' ? 'right' : 'left'};">
+                        <img src="${t.flagUrl(p.code)}" alt="${p.code}" style="width: 24px; height: 18px; border-radius: 2px; box-shadow: var(--shadow-sm); border: 1px solid var(--border);">
+                        <div>
+                          <div style="font-weight: 800; color: var(--text-dark);">${p.code}</div>
+                          <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">${locale === 'ar' ? p.name : (locale === 'tr' ? (trCurrencyNames[p.code] || p.code) : p.code)}</div>
+                        </div>
+                      </td>
+                      <td style="font-size: 1.05rem; font-weight: 800; color: var(--text-dark);">${p.buy.toFixed(4)} ₺</td>
+                      <td style="font-size: 1.05rem; font-weight: 800; color: var(--text-dark);">${p.sell.toFixed(4)} ₺</td>
+                      <td class="${changeClass}" style="font-size: 1.02rem;">${changeSymbol} ${Math.abs(changeVal).toFixed(2)}%</td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Mobile View Cards -->
+          <div class="currency-mobile-cards">
+            ${prices.map(p => {
+              const changeVal = parseFloat(p.change?.['1d'] || '0');
+              const changeClass = changeVal > 0 ? 'change-up' : (changeVal < 0 ? 'change-down' : '');
+              const changeSymbol = changeVal > 0 ? '▲' : (changeVal < 0 ? '▼' : '');
+              return `
+                <div class="mobile-currency-card">
+                  <div class="mobile-currency-card-header" style="direction: ${locale === 'ar' ? 'rtl' : 'ltr'};">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <img src="${t.flagUrl(p.code)}" alt="${p.code}" style="width: 22px; height: 16px; border-radius: 2px; border: 1px solid var(--border);">
+                      <span style="font-weight: 800; color: var(--text-dark); font-size: 0.95rem;">${p.code}</span>
+                      <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">(${locale === 'ar' ? p.name : (locale === 'tr' ? (trCurrencyNames[p.code] || p.code) : p.code)})</span>
+                    </div>
+                    <span class="${changeClass}" style="font-size: 0.78rem; font-weight: 800;">${changeSymbol} ${Math.abs(changeVal).toFixed(2)}%</span>
+                  </div>
+                  <div class="mobile-currency-price-box" style="direction: ${locale === 'ar' ? 'rtl' : 'ltr'};">
+                    <div class="price-slot">
+                      <span class="price-slot-title">${locale === 'ar' ? 'شراء' : (locale === 'tr' ? 'Alış' : 'Buy')}</span>
+                      <span class="price-slot-value">${p.buy.toFixed(4)} ₺</span>
+                    </div>
+                    <div class="price-slot sell">
+                      <span class="price-slot-title">${locale === 'ar' ? 'بيع' : (locale === 'tr' ? 'Satış' : 'Sell')}</span>
+                      <span class="price-slot-value">${p.sell.toFixed(4)} ₺</span>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 25px; line-height: 1.6; text-align: center;">${t.textDescription}</p>
         </div>
 
         <!-- Calculator Column -->
         <div style="display: flex; flex-direction: column; gap: 30px;">
-          <div class="glass-card" style="padding: 30px; border-radius: var(--radius-lg);">
-            <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--text-dark); margin: 0 0 24px 0; border-bottom: 1px solid var(--border); padding-bottom: 15px; text-align: center;">${t.converterTitle}</h3>
+          <div class="calc-card">
+            <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-dark); margin: 0 0 24px 0; border-bottom: 1px solid var(--border); padding-bottom: 15px; text-align: center;">${t.converterTitle}</h3>
             
-            <form id="converter-form" onsubmit="event.preventDefault(); convert();">
+            <form id="converter-form" onsubmit="event.preventDefault(); convert();" style="direction: ${locale === 'ar' ? 'rtl' : 'ltr'}; text-align: ${locale === 'ar' ? 'right' : 'left'};">
               <div style="margin-bottom: 20px;">
                 <label style="display: block; font-weight: 700; color: var(--text-dark); margin-bottom: 8px;">${t.amountLabel}</label>
                 <input type="number" id="conv-amount" value="100" min="0.01" step="any" class="calc-input" oninput="convert()">
+                
+                <!-- Quick Preset Amount Buttons -->
+                <div class="calc-presets">
+                  <button type="button" class="preset-btn" onclick="setAmount(100)">100</button>
+                  <button type="button" class="preset-btn" onclick="setAmount(500)">500</button>
+                  <button type="button" class="preset-btn" onclick="setAmount(1000)">1,000</button>
+                  <button type="button" class="preset-btn" onclick="setAmount(5000)">5,000</button>
+                </div>
               </div>
 
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 24px; direction: ltr; text-align: left;">
                 <div>
                   <label style="display: block; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; text-align: left;">${t.fromLabel}</label>
                   <select id="conv-from" class="calc-input" onchange="convert()" style="text-align: left; direction: ltr;">
-                    ${prices.map(p => `<option value="${p.code}" ${p.code === 'USD' ? 'selected' : ''}>${p.code} - ${locale === 'ar' ? p.name : (locale === 'tr' ? (trCurrencyNames[p.code] || p.code) : p.code)}</option>`).join('')}
-                    <option value="TRY">TRY - ${locale === 'ar' ? 'الليرة التركية' : (locale === 'tr' ? 'Türk Lirası' : 'Turkish Lira')}</option>
+                    ${prices.map(p => `<option value="${p.code}" ${p.code === 'USD' ? 'selected' : ''}>${p.code}</option>`).join('')}
+                    <option value="TRY">TRY</option>
                   </select>
                 </div>
                 <div>
                   <label style="display: block; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; text-align: left;">${t.toLabel}</label>
                   <select id="conv-to" class="calc-input" onchange="convert()" style="text-align: left; direction: ltr;">
-                    ${prices.map(p => `<option value="${p.code}">${p.code} - ${locale === 'ar' ? p.name : (locale === 'tr' ? (trCurrencyNames[p.code] || p.code) : p.code)}</option>`).join('')}
-                    <option value="TRY" selected>TRY - ${locale === 'ar' ? 'الليرة التركية' : 'Turkish Lira'}</option>
+                    ${prices.map(p => `<option value="${p.code}">${p.code}</option>`).join('')}
+                    <option value="TRY" selected>TRY</option>
                   </select>
                 </div>
               </div>
 
-              <div style="background: rgba(0,0,0,0.02); border: 1px solid var(--border); padding: 20px; border-radius: var(--radius-md); text-align: center;">
+              <div class="calc-result-box">
                 <div style="font-size: 0.88rem; color: var(--text-muted); font-weight: 600; margin-bottom: 6px;">${t.resultLabel}</div>
-                <div id="conv-result" style="font-size: 2rem; font-weight: 900; color: var(--primary); word-break: break-all;">--</div>
+                <div id="conv-result" style="font-size: 2.1rem; font-weight: 900; color: var(--primary); word-break: break-all;">--</div>
               </div>
             </form>
           </div>
@@ -283,6 +523,11 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
         return acc;
       }, {}))};
 
+      function setAmount(val) {
+        document.getElementById('conv-amount').value = val;
+        convert();
+      }
+
       function convert() {
         const amount = parseFloat(document.getElementById('conv-amount').value) || 0;
         const from = document.getElementById('conv-from').value;
@@ -293,12 +538,10 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
           return;
         }
 
-        // Base rate calculations (converted via TRY as base)
         let amountInTry = 0;
         if (from === 'TRY') {
           amountInTry = amount;
         } else if (rates[from]) {
-          // buying rates when converting foreign to local
           amountInTry = amount * rates[from].buy;
         }
 
@@ -306,7 +549,6 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
         if (to === 'TRY') {
           finalAmount = amountInTry;
         } else if (rates[to]) {
-          // selling rates when converting local to foreign
           finalAmount = amountInTry / rates[to].sell;
         }
 
