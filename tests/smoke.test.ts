@@ -133,6 +133,13 @@ describe('Istanbul Jobs Portal Smoke Tests', () => {
     expect(text).toContain('Istanbul')
   })
 
+  test('GET /tr loads successfully with Turkish text', async () => {
+    const res = await app.request('/tr', {}, mockEnv)
+    expect(res.status).toBe(200)
+    const text = await res.text()
+    expect(text).toContain('İstanbul')
+  })
+
   test('GET /robots.txt serves indexing instructions', async () => {
     const res = await app.request('/robots.txt', {}, mockEnv)
     expect(res.status).toBe(200)
@@ -175,6 +182,36 @@ describe('Istanbul Jobs Portal Smoke Tests', () => {
     expect(res.status).toBe(200)
     const text = await res.text()
     expect(text).toContain('اختبار لغة العمل التركية')
+  })
+
+  test('GET /ar/currency-prices loads currency prices page', async () => {
+    const res = await app.request('/ar/currency-prices', {}, mockEnv)
+    expect(res.status).toBe(200)
+    const text = await res.text()
+    expect(text).toContain('أسعار العملات في تركيا اليوم')
+  })
+
+  test('GET /currency-prices redirects based on accept-language', async () => {
+    const res = await app.request('/currency-prices', {
+      headers: { 'Accept-Language': 'en-US,en;q=0.9' }
+    }, mockEnv)
+    expect(res.status).toBe(302)
+    expect(res.headers.get('Location')).toBe('/en/currency-prices')
+  })
+
+  test('GET /ar/gold-prices loads gold prices page', async () => {
+    const res = await app.request('/ar/gold-prices', {}, mockEnv)
+    expect(res.status).toBe(200)
+    const text = await res.text()
+    expect(text).toContain('أسعار الذهب في تركيا اليوم')
+  })
+
+  test('GET /gold-prices redirects based on accept-language', async () => {
+    const res = await app.request('/gold-prices', {
+      headers: { 'Accept-Language': 'tr-TR,tr;q=0.9' }
+    }, mockEnv)
+    expect(res.status).toBe(302)
+    expect(res.headers.get('Location')).toBe('/tr/gold-prices')
   })
 
   test('GET /ar/employer/login loads employer login page', async () => {

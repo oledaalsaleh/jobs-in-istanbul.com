@@ -2453,15 +2453,141 @@ aiFeaturesRouter.get('/:locale/workplace-quiz', (c) => {
         </div>
 
         <div style="margin-bottom: 40px; background: rgba(0,0,0,0.02); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border);">
-          <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 6px;">\${t.rankLabel}</span>
+          <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 6px;">\\${t.rankLabel}</span>
           <div id="final-rank" style="font-size: 1.3rem; font-weight: 800; color: var(--text-dark);">--</div>
         </div>
 
         <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
-          <button onclick="restartQuiz()" class="btn-sidebar-apply" style="border: none; background: var(--bg-subtle); color: var(--text-dark); max-width: 200px; margin: 0;">\${t.restartBtn}</button>
-          <a href="/\${locale}" class="btn-sidebar-apply" style="border: none; max-width: 200px; margin: 0; text-decoration: none; display: flex; align-items: center; justify-content: center;">
-            \${locale === 'ar' ? 'تصفح الوظائف 💼' : 'Browse Jobs 💼'}
+          <button onclick="restartQuiz()" class="btn-sidebar-apply" style="border: none; background: var(--bg-subtle); color: var(--text-dark); max-width: 200px; margin: 0;">\\${t.restartBtn}</button>
+          <a href="/\\${locale}" class="btn-sidebar-apply" style="border: none; max-width: 200px; margin: 0; text-decoration: none; display: flex; align-items: center; justify-content: center;">
+            \\${locale === 'ar' ? 'تصفح الوظائف 💼' : 'Browse Jobs 💼'}
           </a>
+        </div>
+      </div>
+
+      <!-- Turkish Workplace Vocabulary Cheat Sheet -->
+      <div class="glass-card" style="margin-top: 40px; padding: 40px; border-radius: var(--radius-lg); text-align: \\${locale === 'ar' ? 'right' : 'left'};">
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--primary); margin-bottom: 8px; display: flex; align-items: center; gap: 10px;">
+          📖 \\${locale === 'ar' ? 'قاموس مصطلحات العمل التركية اليومية' : 'Essential Turkish Workplace Vocabulary'}
+        </h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px; line-height: 1.5;">
+          \\${locale === 'ar' 
+            ? 'إليك قائمة بأهم المفردات والعبارات الأكثر استخداماً في المكاتب والشركات التركية مع معانيها باللغتين العربية والإنجليزية لتبدأ يومك بثقة:' 
+            : 'Here is a curated list of the most common terms and phrases used in Turkish office environments with their English and Arabic translations to help you get started:'}
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border); padding-bottom: 10px; gap: 16px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="background: var(--primary-light); color: var(--primary); font-weight: 800; padding: 4px 10px; border-radius: var(--r-sm); font-size: 0.9rem; font-family: sans-serif;">Kolay gelsin</span>
+            </div>
+            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: \\${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: \\${locale === 'ar' ? 'right' : 'left'};">
+              <span style="font-weight: 600;">العربية: سهل الله عملك / طاب يومك (تقال لشخص يعمل)</span>
+              <span style="color: var(--text-muted); font-size: 0.8rem;">English: May it come easy (said to someone working)</span>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border); padding-bottom: 10px; gap: 16px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="background: var(--primary-light); color: var(--primary); font-weight: 800; padding: 4px 10px; border-radius: var(--r-sm); font-size: 0.9rem; font-family: sans-serif;">İyi çalışmalar</span>
+            </div>
+            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: \\${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: \\${locale === 'ar' ? 'right' : 'left'};">
+              <span style="font-weight: 600;">العربية: أتمنى لك عملاً موفقاً (تحية رسمية للزملاء)</span>
+              <span style="color: var(--text-muted); font-size: 0.8rem;">English: Have a good work / Good day at work</span>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border); padding-bottom: 10px; gap: 16px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="background: var(--primary-light); color: var(--primary); font-weight: 800; padding: 4px 10px; border-radius: var(--r-sm); font-size: 0.9rem; font-family: sans-serif;">Eline sağlık</span>
+            </div>
+            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: \\${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: \\${locale === 'ar' ? 'right' : 'left'};">
+              <span style="font-weight: 600;">العربية: تسلم يداك (تقال لمن صنع أو أنجز شيئاً يدوياً)</span>
+              <span style="color: var(--text-muted); font-size: 0.8rem;">English: Health to your hands (said in appreciation of labor)</span>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border); padding-bottom: 10px; gap: 16px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="background: var(--primary-light); color: var(--primary); font-weight: 800; padding: 4px 10px; border-radius: var(--r-sm); font-size: 0.9rem; font-family: sans-serif;">Afiyet olsun</span>
+            </div>
+            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: \\${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: \\${locale === 'ar' ? 'right' : 'left'};">
+              <span style="font-weight: 600;">العربية: بالهناء والشفاء / بالعافية (تمني وجبة هنيئة)</span>
+              <span style="color: var(--text-muted); font-size: 0.8rem;">English: Enjoy your meal / Bon appetit</span>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border); padding-bottom: 10px; gap: 16px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="background: var(--primary-light); color: var(--primary); font-weight: 800; padding: 4px 10px; border-radius: var(--r-sm); font-size: 0.9rem; font-family: sans-serif;">Geçmiş olsun</span>
+            </div>
+            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: \\${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: \\${locale === 'ar' ? 'right' : 'left'};">
+              <span style="font-weight: 600;">العربية: سلامتك / أتمنى لك الشفاء العاجل (للمريض أو المصاب)</span>
+              <span style="color: var(--text-muted); font-size: 0.8rem;">English: Get well soon / May it pass</span>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border); padding-bottom: 10px; gap: 16px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="background: var(--primary-light); color: var(--primary); font-weight: 800; padding: 4px 10px; border-radius: var(--r-sm); font-size: 0.9rem; font-family: sans-serif;">Görüşmek üzere</span>
+            </div>
+            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: \\${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: \\${locale === 'ar' ? 'right' : 'left'};">
+              <span style="font-weight: 600;">العربية: إلى اللقاء / أراك لاحقاً</span>
+              <span style="color: var(--text-muted); font-size: 0.8rem;">English: See you soon / Goodbye</span>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border); padding-bottom: 10px; gap: 16px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="background: var(--primary-light); color: var(--primary); font-weight: 800; padding: 4px 10px; border-radius: var(--r-sm); font-size: 0.9rem; font-family: sans-serif;">Rica ederim</span>
+            </div>
+            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: \\${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: \\${locale === 'ar' ? 'right' : 'left'};">
+              <span style="font-weight: 600;">العربية: على الرحب والسعة / العفو (رد على الشكر)</span>
+              <span style="color: var(--text-muted); font-size: 0.8rem;">English: You are welcome / Not at all</span>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border); padding-bottom: 10px; gap: 16px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="background: var(--primary-light); color: var(--primary); font-weight: 800; padding: 4px 10px; border-radius: var(--r-sm); font-size: 0.9rem; font-family: sans-serif;">Toplantı</span>
+            </div>
+            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: \\${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: \\${locale === 'ar' ? 'right' : 'left'};">
+              <span style="font-weight: 600;">العربية: اجتماع عمل</span>
+              <span style="color: var(--text-muted); font-size: 0.8rem;">English: Business Meeting</span>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border); padding-bottom: 10px; gap: 16px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="background: var(--primary-light); color: var(--primary); font-weight: 800; padding: 4px 10px; border-radius: var(--r-sm); font-size: 0.9rem; font-family: sans-serif;">Müşteri</span>
+            </div>
+            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: \\${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: \\${locale === 'ar' ? 'right' : 'left'};">
+              <span style="font-weight: 600;">العربية: عميل / زبون</span>
+              <span style="color: var(--text-muted); font-size: 0.8rem;">English: Client / Customer</span>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border); padding-bottom: 10px; gap: 16px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="background: var(--primary-light); color: var(--primary); font-weight: 800; padding: 4px 10px; border-radius: var(--r-sm); font-size: 0.9rem; font-family: sans-serif;">Maaş</span>
+            </div>
+            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: \\${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: \\${locale === 'ar' ? 'right' : 'left'};">
+              <span style="font-weight: 600;">العربية: راتب شهري</span>
+              <span style="color: var(--text-muted); font-size: 0.8rem;">English: Salary</span>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border); padding-bottom: 10px; gap: 16px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="background: var(--primary-light); color: var(--primary); font-weight: 800; padding: 4px 10px; border-radius: var(--r-sm); font-size: 0.9rem; font-family: sans-serif;">İzin</span>
+            </div>
+            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: \\${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: \\${locale === 'ar' ? 'right' : 'left'};">
+              <span style="font-weight: 600;">العربية: إجازة / إذن غياب</span>
+              <span style="color: var(--text-muted); font-size: 0.8rem;">English: Leave / Permit</span>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>

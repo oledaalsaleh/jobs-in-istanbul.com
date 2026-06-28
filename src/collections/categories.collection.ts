@@ -22,6 +22,12 @@ export default {
         required: true,
         maxLength: 100,
       },
+      name_tr: {
+        type: 'string',
+        title: 'Name (Turkish)',
+        required: true,
+        maxLength: 100,
+      },
       slug: {
         type: 'slug',
         title: 'URL Slug',
@@ -35,11 +41,11 @@ export default {
         maxLength: 50,
       },
     },
-    required: ['name_ar', 'name_en', 'slug'],
+    required: ['name_ar', 'name_en', 'name_tr', 'slug'],
   },
 
-  listFields: ['name_en', 'name_ar', 'slug', 'icon'],
-  searchFields: ['name_en', 'name_ar'],
+  listFields: ['name_en', 'name_ar', 'name_tr', 'slug', 'icon'],
+  searchFields: ['name_en', 'name_ar', 'name_tr'],
   defaultSort: 'name_en',
   defaultSortOrder: 'asc',
 

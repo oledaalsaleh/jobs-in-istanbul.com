@@ -9,15 +9,17 @@ export interface OptimizedSeoData {
   correctedDesc: string; // Fallback for backward compatibility
   title_ar: string;
   title_en: string;
+  title_tr: string;
   description_ar: string;
   description_en: string;
+  description_tr: string;
 }
 
 export async function optimizeSeoWithGemini(
   apiKey: string,
   pageTitle: string,
   pageDescription: string,
-  locale: 'ar' | 'en',
+  locale: 'ar' | 'en' | 'tr',
   retries: number = 3,
   delayMs: number = 3500
 ): Promise<OptimizedSeoData> {
@@ -26,11 +28,13 @@ You are an expert bilingual recruiter, professional translator, and SEO speciali
 Analyze the following webpage job posting title and description, and perform the following tasks:
 1. Extract exactly 5 high-ranking, highly searched SEO keywords for Istanbul job search engines.
 2. Draft an optimized meta description under 160 characters designed for high click-through rates.
-3. Polishing and Translation: Polishing the text for grammar, layout formatting, and spelling errors, and translating it to provide high-quality localized output in BOTH Arabic and English:
-   - "title_ar": Corrected and polished title in Arabic. If the input is in English, translate it to Arabic.
-   - "title_en": Corrected and polished title in English. If the input is in Arabic, translate it to English.
-   - "description_ar": Corrected, clean HTML-formatted description in Arabic (paragraphs separated by <p> tags). If the input is in English, translate it to Arabic.
-   - "description_en": Corrected, clean HTML-formatted description in English (paragraphs separated by <p> tags). If the input is in Arabic, translate it to English.
+3. Polishing and Translation: Polishing the text for grammar, layout formatting, and spelling errors, and translating it to provide high-quality localized output in Arabic, English, and Turkish:
+   - "title_ar": Corrected and polished title in Arabic. If the input is in English or Turkish, translate it to Arabic.
+   - "title_en": Corrected and polished title in English. If the input is in Arabic or Turkish, translate it to English.
+   - "title_tr": Corrected and polished title in Turkish. If the input is in Arabic or English, translate it to Turkish.
+   - "description_ar": Corrected, clean HTML-formatted description in Arabic (paragraphs separated by <p> tags). If the input is in English or Turkish, translate it to Arabic.
+   - "description_en": Corrected, clean HTML-formatted description in English (paragraphs separated by <p> tags). If the input is in Arabic or Turkish, translate it to English.
+   - "description_tr": Corrected, clean HTML-formatted description in Turkish (paragraphs separated by <p> tags). If the input is in Arabic or English, translate it to Turkish.
    - "correctedTitle": Polished title in the input language (matching the Locale).
    - "correctedDesc": Polished description in the input language (matching the Locale).
 
@@ -44,8 +48,10 @@ Return ONLY a valid JSON object matching the following structure. Do not wrap it
   "seoDescription": "SEO-friendly meta description...",
   "title_ar": "Arabic title...",
   "title_en": "English title...",
+  "title_tr": "Turkish title...",
   "description_ar": "<p>Arabic description paragraph 1</p><p>...</p>",
   "description_en": "<p>English description paragraph 1</p><p>...</p>",
+  "description_tr": "<p>Turkish description paragraph 1</p><p>...</p>",
   "correctedTitle": "Polished input title",
   "correctedDesc": "Polished input description"
 }
@@ -100,8 +106,10 @@ Return ONLY a valid JSON object matching the following structure. Do not wrap it
         correctedDesc: parsed.correctedDesc || parsed.description_en || pageDescription,
         title_ar: parsed.title_ar || pageTitle,
         title_en: parsed.title_en || pageTitle,
+        title_tr: parsed.title_tr || pageTitle,
         description_ar: parsed.description_ar || pageDescription,
-        description_en: parsed.description_en || pageDescription
+        description_en: parsed.description_en || pageDescription,
+        description_tr: parsed.description_tr || pageDescription
       };
     } catch (err: any) {
       if (attempt === retries) {
@@ -119,13 +127,17 @@ Return ONLY a valid JSON object matching the following structure. Do not wrap it
   return {
     keywords: locale === 'ar' 
       ? ['فرص عمل في اسطنبول', 'وظائف تركيا', 'شغل في تركيا', 'توظيف إسطنبول', 'عمل للعرب في تركيا']
-      : ['jobs in istanbul', 'istanbul vacancies', 'work in turkey', 'employment istanbul', 'turkey job listings'],
+      : (locale === 'tr'
+        ? ['istanbul iş ilanları', 'istanbul iş fırsatları', 'türkiyede çalışmak', 'istanbulda iş bulmak', 'gurbetçi iş ilanları']
+        : ['jobs in istanbul', 'istanbul vacancies', 'work in turkey', 'employment istanbul', 'turkey job listings']),
     seoDescription: pageDescription.substring(0, 150).replace(/<[^>]*>/g, '').trim(),
     correctedTitle: pageTitle,
     correctedDesc: pageDescription,
     title_ar: pageTitle,
     title_en: pageTitle,
+    title_tr: pageTitle,
     description_ar: fallbackDescHtml,
-    description_en: fallbackDescHtml
+    description_en: fallbackDescHtml,
+    description_tr: fallbackDescHtml
   };
 }

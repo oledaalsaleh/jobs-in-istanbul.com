@@ -62,7 +62,7 @@ publicRouter.get('/css/theme.css', (c) => {
 })
 
 // Base layout helper
-export function renderLayout(c: any, title: string, contentHtml: string, locale: 'ar' | 'en', seoHtml: string = '') {
+export function renderLayout(c: any, title: string, contentHtml: string, locale: 'ar' | 'en' | 'tr', seoHtml: string = '') {
   const isRtl = locale === 'ar';
 
   const translations = {
@@ -75,8 +75,37 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       about: 'من نحن',
       contact: 'اتصل بنا',
       copyright: '© ٢٠٢٦ فرص عمل في إسطنبول. جميع الحقوق محفوظة.',
-      langLabel: 'English',
-      langCode: 'en'
+      langLabel: 'العربية',
+      home: 'الرئيسية',
+      aiTools: 'أدوات AI الذكية',
+      cvOptimizer: 'تحسين السيرة بالذكاء الاصطناعي',
+      atsScanner: 'فاحص السيرة الذاتية (ATS Scanner)',
+      coverLetter: 'توليد رسائل التغطية بالذكاء الاصطناعي',
+      interviewPrep: 'محاكي مقابلات التوظيف بالذكاء الاصطناعي',
+      toolsAndTests: 'الأدوات والتقييمات',
+      cvBuilder: 'منشئ السيرة الذاتية التفاعلي',
+      workPermit: 'حاسبة إذن العمل والجنسية',
+      salaryCalc: 'مؤشر رواتب إسطنبول ٢٠٢٦',
+      turkishTest: 'اختبار اللغة التركية للعمل',
+      workplaceQuiz: 'اختبار ملاءمة بيئة العمل التركية',
+      currencyPrices: 'أسعار العملات في تركيا',
+      goldPrices: 'أسعار الذهب في تركيا',
+      insights: 'إحصائيات السوق',
+      blog: 'مدونة المهنة',
+      candidatePortal: 'بوابة الباحث',
+      employerPortal: 'بوابة الأعمال',
+      savedJobs: 'المفضلة',
+      darkMode: 'الوضع الداكن',
+      telegram: 'تلغرام',
+      platform: 'المنصة',
+      smartTools: 'الأدوات الذكية',
+      legal: 'العقود والمسؤوليات',
+      privacy: 'سياسة الخصوصية',
+      terms: 'الشروط والأحكام',
+      realOpportunities: 'فرص حقيقية',
+      footerTagline: 'المنصة الرائدة لربط الكفاءات العربية والأجنبية بأفضل فرص العمل في إسطنبول.',
+      joinTelegram: 'انضم لقناة التلغرام',
+      mobileJoinTelegram: 'انضم لقناتنا على التلغرام'
     },
     en: {
       siteName: 'Istanbul Jobs',
@@ -87,14 +116,97 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       about: 'About Us',
       contact: 'Contact Us',
       copyright: '© 2026 Istanbul Jobs. All rights reserved.',
-      langLabel: 'العربية',
-      langCode: 'ar'
+      langLabel: 'English',
+      home: 'Home',
+      aiTools: 'AI Tools',
+      cvOptimizer: 'AI CV Optimizer',
+      atsScanner: 'AI CV ATS Scanner',
+      coverLetter: 'AI Cover Letter Generator',
+      interviewPrep: 'AI Interview Simulator',
+      toolsAndTests: 'Tools & Tests',
+      cvBuilder: 'Interactive CV Builder',
+      workPermit: 'Work Permit & Citizenship Calculator',
+      salaryCalc: 'Istanbul Salary Estimator',
+      turkishTest: 'Business Turkish Level Test',
+      workplaceQuiz: 'Turkish Workplace Fit Quiz',
+      currencyPrices: 'TRY Currency Prices',
+      goldPrices: 'Gold Prices in Turkey',
+      insights: 'Market Insights',
+      blog: 'Career Blog',
+      candidatePortal: 'Candidate Portal',
+      employerPortal: 'Employer Portal',
+      savedJobs: 'Saved Jobs',
+      darkMode: 'Dark Mode',
+      telegram: 'Telegram',
+      platform: 'Platform',
+      smartTools: 'Smart Tools',
+      legal: 'Legal',
+      privacy: 'Privacy Policy',
+      terms: 'Terms & Conditions',
+      realOpportunities: 'Real Opportunities',
+      footerTagline: 'The leading platform connecting Arab & international talents with the best job opportunities in Istanbul.',
+      joinTelegram: 'Join Telegram Channel',
+      mobileJoinTelegram: 'Join Our Telegram'
+    },
+    tr: {
+      siteName: 'İstanbul İş İlanları',
+      tagline: 'İstanbul\'daki En İyi İş Fırsatları',
+      findJob: 'İş Bul',
+      postJob: 'İş İlanı Ver',
+      allJobs: 'Tüm İşler',
+      about: 'Hakkımızda',
+      contact: 'İletişim',
+      copyright: '© 2026 İstanbul İş İlanları. Tüm hakları saklıdır.',
+      langLabel: 'Türkçe',
+      home: 'Ana Sayfa',
+      aiTools: 'AI Araçları',
+      cvOptimizer: 'AI CV Geliştirici',
+      atsScanner: 'AI CV ATS Tarayıcı',
+      coverLetter: 'AI Ön Yazı Hazırlayıcı',
+      interviewPrep: 'AI Mülakat Simülatörü',
+      toolsAndTests: 'Araçlar ve Testler',
+      cvBuilder: 'İnteraktif CV Oluşturucu',
+      workPermit: 'Çalışma İzni ve Vatandaşlık Hesaplama',
+      salaryCalc: 'İstanbul Maaş Hesaplayıcı',
+      turkishTest: 'İş İçin Türkçe Dil Testi',
+      workplaceQuiz: 'İş Yeri Kültür Testi',
+      currencyPrices: 'Türkiye Döviz Fiyatları',
+      goldPrices: 'Türkiye Altın Fiyatları',
+      insights: 'Piyasa Analizleri',
+      blog: 'Kariyer Blogu',
+      candidatePortal: 'Aday Portalı',
+      employerPortal: 'İşveren Portalı',
+      savedJobs: 'Kaydedilen İşler',
+      darkMode: 'Karanlık Tema',
+      telegram: 'Telegram',
+      platform: 'Platform',
+      smartTools: 'Akıllı Araçlar',
+      legal: 'Yasal',
+      privacy: 'Gizlilik Politikası',
+      terms: 'Kullanım Şartları',
+      realOpportunities: 'Gerçek Fırsatlar',
+      footerTagline: 'Arap ve uluslararası yetenekleri İstanbul\'daki en iyi iş fırsatlarıyla buluşturan lider platform.',
+      joinTelegram: 'Telegram Kanalımıza Katılın',
+      mobileJoinTelegram: 'Telegram\'a Katılın'
     }
   };
 
   const t = translations[locale];
   const oppositeLocale = locale === 'ar' ? 'en' : 'ar';
   const requestPath = c.req.path;
+
+  const getLangUrl = (path: string, targetLocale: string) => {
+    let cleanPath = path;
+    if (path.startsWith('/ar/') || path.startsWith('/en/') || path.startsWith('/tr/')) {
+      cleanPath = path.substring(3);
+    } else if (path === '/ar' || path === '/en' || path === '/tr') {
+      cleanPath = '';
+    }
+    if (cleanPath && !cleanPath.startsWith('/')) {
+      cleanPath = '/' + cleanPath;
+    }
+    return `/${targetLocale}${cleanPath}`;
+  };
 
   // Calculate language switch URL
   let langSwitchUrl = `/${oppositeLocale}`;
@@ -110,6 +222,10 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
     langSwitchUrl = `/${oppositeLocale}/insights`;
   } else if (requestPath.includes('/ats-scanner')) {
     langSwitchUrl = `/${oppositeLocale}/ats-scanner`;
+  } else if (requestPath.includes('/currency-prices')) {
+    langSwitchUrl = `/${oppositeLocale}/currency-prices`;
+  } else if (requestPath.includes('/gold-prices')) {
+    langSwitchUrl = `/${oppositeLocale}/gold-prices`;
   }
 
   return `<!DOCTYPE html>
@@ -151,7 +267,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           <i class="fa-solid fa-briefcase"></i>
         </div>
         <div class="logo-text">
-          <strong>${locale === 'ar' ? 'فرص عمل في إسطنبول' : 'Jobs in Istanbul'}</strong>
+          <strong>${t.siteName}</strong>
           <span>${locale === 'ar' ? 'أفضل الوظائف الشاغرة' : 'Premium Job Board'}</span>
         </div>
       </a>
@@ -207,77 +323,104 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           }
         </style>
         <ul class="nav-links">
-          <li><a href="/${locale}" class="nav-link">${locale === 'ar' ? '🏠 الرئيسية' : '🏠 Home'}</a></li>
+          <li><a href="/${locale}" class="nav-link">🏠 ${t.home}</a></li>
           
           <!-- Dropdown: AI Tools -->
           <li class="nav-dropdown">
-            <a href="#" class="nav-link" onclick="event.preventDefault()">${locale === 'ar' ? '🤖 أدوات AI ▾' : '🤖 AI Tools ▾'}</a>
+            <a href="#" class="nav-link" onclick="event.preventDefault()">🤖 ${t.aiTools} ▾</a>
             <div class="nav-dropdown-menu">
               <a href="/${locale}/cv-optimizer" class="dropdown-item">
                 <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary);"></i>
-                <span>${locale === 'ar' ? 'تحسين السيرة بالذكاء الاصطناعي' : 'AI CV Optimizer'}</span>
+                <span>${t.cvOptimizer}</span>
               </a>
               <a href="/${locale}/ats-scanner" class="dropdown-item">
                 <i class="fa-solid fa-barcode" style="color: #6366f1;"></i>
-                <span>${locale === 'ar' ? 'فاحص السيرة الذاتية (ATS Scanner)' : 'AI CV ATS Scanner'}</span>
+                <span>${t.atsScanner}</span>
               </a>
               <a href="/${locale}/cover-letter-generator" class="dropdown-item">
                 <i class="fa-solid fa-pen-nib" style="color: var(--accent);"></i>
-                <span>${locale === 'ar' ? 'توليد رسائل التغطية بالذكاء الاصطناعي' : 'AI Cover Letter Generator'}</span>
+                <span>${t.coverLetter}</span>
               </a>
               <a href="/${locale}/interview-prep" class="dropdown-item">
                 <i class="fa-solid fa-microphone-lines" style="color: #10b981;"></i>
-                <span>${locale === 'ar' ? 'محاكي مقابلات التوظيف بالذكاء الاصطناعي' : 'AI Interview Simulator'}</span>
+                <span>${t.interviewPrep}</span>
               </a>
             </div>
           </li>
 
           <!-- Dropdown: Career & Rules -->
           <li class="nav-dropdown">
-            <a href="#" class="nav-link" onclick="event.preventDefault()">${locale === 'ar' ? '🛠 الأدوات والتقييمات ▾' : '🛠 Tools & Tests ▾'}</a>
+            <a href="#" class="nav-link" onclick="event.preventDefault()">🛠 ${t.toolsAndTests} ▾</a>
             <div class="nav-dropdown-menu">
               <a href="/${locale}/resume-builder" class="dropdown-item">
                 <i class="fa-solid fa-file-invoice" style="color: #eab308;"></i>
-                <span>${locale === 'ar' ? 'منشئ السيرة الذاتية التفاعلي' : 'Interactive CV Builder'}</span>
+                <span>${t.cvBuilder}</span>
               </a>
               <a href="/${locale}/work-permit-calculator" class="dropdown-item">
                 <i class="fa-solid fa-passport" style="color: #a855f7;"></i>
-                <span>${locale === 'ar' ? 'حاسبة إذن العمل والجنسية' : 'Work Permit & Citizenship Calculator'}</span>
+                <span>${t.workPermit}</span>
               </a>
               <a href="/${locale}/turkish-test" class="dropdown-item">
                 <i class="fa-solid fa-graduation-cap" style="color: #14b8a6;"></i>
-                <span>${locale === 'ar' ? 'اختبار اللغة التركية للعمل' : 'Business Turkish Level Test'}</span>
+                <span>${t.turkishTest}</span>
               </a>
               <a href="/${locale}/salary-calculator" class="dropdown-item">
                 <i class="fa-solid fa-scale-balanced" style="color: #ec4899;"></i>
-                <span>${locale === 'ar' ? 'مؤشر رواتب إسطنبول ٢٠٢٦' : 'Istanbul Salary Estimator'}</span>
+                <span>${t.salaryCalc}</span>
+              </a>
+              <a href="/${locale}/currency-prices" class="dropdown-item">
+                <i class="fa-solid fa-coins" style="color: #0ea5e9;"></i>
+                <span>${t.currencyPrices}</span>
+              </a>
+              <a href="/${locale}/gold-prices" class="dropdown-item">
+                <i class="fa-solid fa-gem" style="color: #f59e0b;"></i>
+                <span>${t.goldPrices}</span>
               </a>
             </div>
           </li>
           
-          <li><a href="/${locale}/insights" class="nav-link">${locale === 'ar' ? '📊 إحصائيات السوق' : '📊 Market Insights'}</a></li>
-          <li><a href="/${locale}/blog" class="nav-link">${locale === 'ar' ? '📝 مدونة المهنة' : '📝 Career Blog'}</a></li>
-          <li><a href="/${locale}/candidate/dashboard" class="nav-link" style="color: var(--primary);"><i class="fa-solid fa-graduation-cap"></i> ${locale === 'ar' ? 'بوابة الباحث' : 'Candidate Portal'}</a></li>
-          <li><a href="/${locale}/employer/dashboard" class="nav-link nav-cta"><i class="fa-solid fa-user-tie"></i> ${locale === 'ar' ? 'بوابة الأعمال' : 'Employer Portal'}</a></li>
+          <li><a href="/${locale}/insights" class="nav-link">📊 ${t.insights}</a></li>
+          <li><a href="/${locale}/blog" class="nav-link">📝 ${t.blog}</a></li>
+          <li><a href="/${locale}/candidate/dashboard" class="nav-link" style="color: var(--primary);"><i class="fa-solid fa-graduation-cap"></i> ${t.candidatePortal}</a></li>
+          <li><a href="/${locale}/employer/dashboard" class="nav-link nav-cta"><i class="fa-solid fa-user-tie"></i> ${t.employerPortal}</a></li>
         </ul>
       </nav>
 
       <!-- Header Actions -->
       <div class="header-actions">
-        <a href="/${locale}?favorites=1" class="icon-btn" title="${locale === 'ar' ? 'المفضلة' : 'Saved Jobs'}">
+        <a href="/${locale}?favorites=1" class="icon-btn" title="${t.savedJobs}">
           <i class="fa-regular fa-heart"></i>
           <span class="badge" id="fav-count-badge">0</span>
         </a>
-        <button id="dark-mode-toggle" class="icon-btn" title="${locale === 'ar' ? 'الوضع الداكن' : 'Dark Mode'}">
+        <button id="dark-mode-toggle" class="icon-btn" title="${t.darkMode}">
           <i class="fa-solid fa-moon"></i>
         </button>
-        <a href="https://t.me/jobsistanbul" target="_blank" rel="noopener" class="header-telegram-btn" title="${locale === 'ar' ? 'انضم لقناة التلغرام' : 'Join Telegram Channel'}">
+        <a href="https://t.me/jobsistanbul" target="_blank" rel="noopener" class="header-telegram-btn" title="${t.joinTelegram}">
           <i class="fa-brands fa-telegram"></i>
-          <span>${locale === 'ar' ? 'تلغرام' : 'Telegram'}</span>
+          <span>${t.telegram}</span>
         </a>
-        <a href="${langSwitchUrl}" class="lang-btn">
-          <i class="fa-solid fa-globe"></i> ${t.langLabel}
-        </a>
+        <!-- Desktop Language Dropdown -->
+        <div class="nav-dropdown">
+          <a href="#" class="lang-btn" onclick="event.preventDefault()">
+            <img src="${locale === 'ar' ? 'https://flagcdn.com/w20/sa.png' : (locale === 'tr' ? 'https://flagcdn.com/w20/tr.png' : 'https://flagcdn.com/w20/gb.png')}" alt="${locale}" style="width: 18px; height: 13px; border-radius: 1px; object-fit: cover;">
+            <span>${locale === 'ar' ? 'العربية' : (locale === 'tr' ? 'Türkçe' : 'English')}</span>
+            <i class="fa-solid fa-chevron-down" style="font-size: 0.65rem; opacity: 0.7;"></i>
+          </a>
+          <div class="nav-dropdown-menu" style="min-width: 140px; padding: 6px 0; ${isRtl ? 'right: auto; left: 50%; transform: translateX(-50%);' : 'left: auto; right: 50%; transform: translateX(50%);'}">
+            <a href="${getLangUrl(requestPath, 'ar')}" class="dropdown-item" style="gap: 8px; justify-content: flex-start;">
+              <img src="https://flagcdn.com/w20/sa.png" alt="العربية" style="width: 18px; height: 13px; border-radius: 1px;">
+              <span>العربية</span>
+            </a>
+            <a href="${getLangUrl(requestPath, 'tr')}" class="dropdown-item" style="gap: 8px; justify-content: flex-start;">
+              <img src="https://flagcdn.com/w20/tr.png" alt="Türkçe" style="width: 18px; height: 13px; border-radius: 1px;">
+              <span>Türkçe</span>
+            </a>
+            <a href="${getLangUrl(requestPath, 'en')}" class="dropdown-item" style="gap: 8px; justify-content: flex-start;">
+              <img src="https://flagcdn.com/w20/gb.png" alt="English" style="width: 18px; height: 13px; border-radius: 1px;">
+              <span>English</span>
+            </a>
+          </div>
+        </div>
         <!-- Mobile hamburger -->
         <button class="icon-btn" id="mobile-menu-btn" style="display:none">
           <i class="fa-solid fa-bars"></i>
@@ -293,46 +436,62 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:28px;">
         <a href="/${locale}" class="logo" style="font-size:1.2rem">
           <div class="logo-icon"><i class="fa-solid fa-briefcase"></i></div>
-          <div class="logo-text"><strong>${locale === 'ar' ? 'فرص عمل في إسطنبول' : 'Jobs in Istanbul'}</strong></div>
+          <div class="logo-text"><strong>${t.siteName}</strong></div>
         </a>
         <button onclick="document.getElementById('mobile-nav').style.display='none'" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <nav style="display:flex; flex-direction:column; gap:6px;">
-        <a href="/${locale}" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">🏠 ${locale === 'ar' ? 'الرئيسية' : 'Home'}</a>
-        <a href="/${locale}/insights" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">📊 ${locale === 'ar' ? 'إحصائيات السوق' : 'Market Insights'}</a>
-        <a href="/${locale}/blog" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">📝 ${locale === 'ar' ? 'مدونة المهنة' : 'Career Blog'}</a>
+        <a href="/${locale}" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">🏠 ${t.home}</a>
+        <a href="/${locale}/insights" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">📊 ${t.insights}</a>
+        <a href="/${locale}/blog" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">📝 ${t.blog}</a>
         
-        <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-top:14px; margin-bottom:6px; padding-inline-start:16px; letter-spacing:0.05em;">🤖 ${locale === 'ar' ? 'أدوات الذكاء الاصطناعي' : 'AI Assistant Tools'}</div>
-        <a href="/${locale}/cv-optimizer" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary);"></i> ${locale === 'ar' ? 'تحسين السيرة الذاتية' : 'AI CV Optimizer'}</a>
-        <a href="/${locale}/ats-scanner" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-barcode" style="color: #6366f1;"></i> ${locale === 'ar' ? 'فاحص السيرة الذاتية (ATS)' : 'AI CV ATS Scanner'}</a>
-        <a href="/${locale}/cover-letter-generator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-pen-nib" style="color: var(--accent);"></i> ${locale === 'ar' ? 'مولد رسائل التغطية' : 'Cover Letter Generator'}</a>
-        <a href="/${locale}/interview-prep" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-microphone-lines" style="color: #10b981;"></i> ${locale === 'ar' ? 'محاكي المقابلات' : 'AI Interview Prep'}</a>
+        <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-top:14px; margin-bottom:6px; padding-inline-start:16px; letter-spacing:0.05em;">🤖 ${t.aiTools}</div>
+        <a href="/${locale}/cv-optimizer" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary);"></i> ${t.cvOptimizer}</a>
+        <a href="/${locale}/ats-scanner" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-barcode" style="color: #6366f1;"></i> ${t.atsScanner}</a>
+        <a href="/${locale}/cover-letter-generator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-pen-nib" style="color: var(--accent);"></i> ${t.coverLetter}</a>
+        <a href="/${locale}/interview-prep" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-microphone-lines" style="color: #10b981;"></i> ${t.interviewPrep}</a>
 
-        <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-top:14px; margin-bottom:6px; padding-inline-start:16px; letter-spacing:0.05em;">🛠 ${locale === 'ar' ? 'التقييمات والحسابات' : 'Calculators & Tests'}</div>
-        <a href="/${locale}/resume-builder" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-file-invoice" style="color: #eab308;"></i> ${locale === 'ar' ? 'منشئ السيرة التفاعلي' : 'CV Builder'}</a>
-        <a href="/${locale}/work-permit-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-passport" style="color: #a855f7;"></i> ${locale === 'ar' ? 'حاسبة إذن العمل' : 'Work Permit Eligibility'}</a>
-        <a href="/${locale}/turkish-test" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-graduation-cap" style="color: #14b8a6;"></i> ${locale === 'ar' ? 'اختبار اللغة التركية للعمل' : 'Turkish Competency Test'}</a>
-        <a href="/${locale}/salary-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-scale-balanced" style="color: #ec4899;"></i> ${locale === 'ar' ? 'مؤشر الرواتب' : 'Salary Estimator'}</a>
+        <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-top:14px; margin-bottom:6px; padding-inline-start:16px; letter-spacing:0.05em;">🛠 ${t.toolsAndTests}</div>
+        <a href="/${locale}/resume-builder" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-file-invoice" style="color: #eab308;"></i> ${t.cvBuilder}</a>
+        <a href="/${locale}/work-permit-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-passport" style="color: #a855f7;"></i> ${t.workPermit}</a>
+        <a href="/${locale}/turkish-test" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-graduation-cap" style="color: #14b8a6;"></i> ${t.turkishTest}</a>
+        <a href="/${locale}/salary-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-scale-balanced" style="color: #ec4899;"></i> ${t.salaryCalc}</a>
+        <a href="/${locale}/currency-prices" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-coins" style="color: #0ea5e9;"></i> ${t.currencyPrices}</a>
+        <a href="/${locale}/gold-prices" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-gem" style="color: #f59e0b;"></i> ${t.goldPrices}</a>
 
         <div style="margin-top:14px; border-top:1px solid var(--border); padding-top:10px; display:flex; flex-direction:column; gap:6px;">
-          <a href="/${locale}/submit-job" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">📢 ${locale === 'ar' ? 'نشر وظيفة' : 'Post a Job'}</a>
-          <a href="/${locale}/candidate/dashboard" style="padding:12px 16px; border-radius:var(--r-md); color:var(--primary); font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-graduation-cap"></i> ${locale === 'ar' ? 'بوابة الباحث عن عمل' : 'Candidate Portal'}</a>
-          <a href="/${locale}/employer/dashboard" style="margin-top:6px; padding:14px 16px; border-radius:var(--r-md); background:var(--primary); color:white; font-weight:700; display:flex; align-items:center; gap:10px; justify-content:center;"><i class="fa-solid fa-user-tie"></i> ${locale === 'ar' ? 'بوابة الأعمال' : 'Employer Portal'}</a>
+          <a href="/${locale}/submit-job" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">📢 ${t.postJob}</a>
+          <a href="/${locale}/candidate/dashboard" style="padding:12px 16px; border-radius:var(--r-md); color:var(--primary); font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-graduation-cap"></i> ${t.candidatePortal}</a>
+          <a href="/${locale}/employer/dashboard" style="margin-top:6px; padding:14px 16px; border-radius:var(--r-md); background:var(--primary); color:white; font-weight:700; display:flex; align-items:center; gap:10px; justify-content:center;"><i class="fa-solid fa-user-tie"></i> ${t.employerPortal}</a>
         </div>
         
         <a href="https://t.me/jobsistanbul" target="_blank" rel="noopener" style="margin-top:12px; display:flex; align-items:center; justify-content:center; gap:8px; background:#0088cc; color:white; padding:12px; border-radius:var(--r-md); font-weight:700; font-size:0.875rem; text-decoration:none; box-shadow:0 4px 12px rgba(0, 136, 204, 0.15);">
           <i class="fa-brands fa-telegram" style="font-size:1.2rem;"></i>
-          ${locale === 'ar' ? 'انضم لقناتنا على تلغرام' : 'Join Our Telegram'}
+          ${t.mobileJoinTelegram}
         </a>
 
         <!-- Mobile Actions inside Drawer -->
-        <div style="margin-top:24px; padding-top:20px; border-top:1px solid var(--border); display:flex; gap:10px; justify-content:space-between; align-items:center;">
-          <a href="${langSwitchUrl}" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px 14px; border-radius:var(--r-full); border:1.5px solid var(--border); font-size:0.82rem; font-weight:700; color:var(--text-body); transition:var(--t-base);">
-            <i class="fa-solid fa-globe"></i> ${t.langLabel}
-          </a>
-          <button id="dark-mode-toggle-mobile" style="width:40px; height:40px; border-radius:var(--r-md); border:1.5px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--text-body); cursor:pointer; transition:var(--t-base);" title="${locale === 'ar' ? 'الوضع الداكن' : 'Dark Mode'}">
-            <i class="fa-solid fa-moon"></i>
-          </button>
+        <div style="margin-top:24px; padding-top:20px; border-top:1px solid var(--border); display:flex; flex-direction:column; gap:16px; width:100%;">
+          <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+            <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; padding-inline-start:4px; letter-spacing:0.05em;">🌐 ${locale === 'ar' ? 'اللغة' : (locale === 'tr' ? 'Dil' : 'Language')}</div>
+            <button id="dark-mode-toggle-mobile" style="width:36px; height:36px; border-radius:var(--r-md); border:1.5px solid var(--border); background:transparent; display:flex; align-items:center; justify-content:center; color:var(--text-body); cursor:pointer; transition:var(--t-base);" title="${t.darkMode}">
+              <i class="fa-solid fa-moon"></i>
+            </button>
+          </div>
+          <div style="display:flex; gap:8px; width:100%;">
+            <a href="${getLangUrl(requestPath, 'ar')}" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px 8px; border-radius:var(--r-md); border:1.5px solid ${locale === 'ar' ? 'var(--primary)' : 'var(--border)'}; background: ${locale === 'ar' ? 'var(--primary-light)' : 'transparent'}; color:${locale === 'ar' ? 'var(--primary)' : 'var(--text-body)'}; font-size:0.8rem; font-weight:700; transition:var(--t-base); text-decoration:none;">
+              <img src="https://flagcdn.com/w20/sa.png" alt="العربية" style="width: 18px; height: 13px; border-radius: 1px;">
+              <span>العربية</span>
+            </a>
+            <a href="${getLangUrl(requestPath, 'tr')}" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px 8px; border-radius:var(--r-md); border:1.5px solid ${locale === 'tr' ? 'var(--primary)' : 'var(--border)'}; background: ${locale === 'tr' ? 'var(--primary-light)' : 'transparent'}; color:${locale === 'tr' ? 'var(--primary)' : 'var(--text-body)'}; font-size:0.8rem; font-weight:700; transition:var(--t-base); text-decoration:none;">
+              <img src="https://flagcdn.com/w20/tr.png" alt="Türkçe" style="width: 18px; height: 13px; border-radius: 1px;">
+              <span>Türkçe</span>
+            </a>
+            <a href="${getLangUrl(requestPath, 'en')}" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px 8px; border-radius:var(--r-md); border:1.5px solid ${locale === 'en' ? 'var(--primary)' : 'var(--border)'}; background: ${locale === 'en' ? 'var(--primary-light)' : 'transparent'}; color:${locale === 'en' ? 'var(--primary)' : 'var(--text-body)'}; font-size:0.8rem; font-weight:700; transition:var(--t-base); text-decoration:none;">
+              <img src="https://flagcdn.com/w20/gb.png" alt="English" style="width: 18px; height: 13px; border-radius: 1px;">
+              <span>English</span>
+            </a>
+          </div>
         </div>
       </nav>
     </div>
@@ -349,11 +508,11 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         <div class="logo" style="margin-bottom:16px; color:white;">
           <div class="logo-icon"><i class="fa-solid fa-briefcase"></i></div>
           <div class="logo-text" style="color:white;">
-            <strong style="color:white;">${locale === 'ar' ? 'وظائف إسطنبول' : 'Istanbul Jobs'}</strong>
-            <span style="color:rgba(255,255,255,0.5);">${locale === 'ar' ? 'فرص عمل حقيقية' : 'Real Opportunities'}</span>
+            <strong style="color:white;">${t.siteName}</strong>
+            <span style="color:rgba(255,255,255,0.5);">${t.realOpportunities}</span>
           </div>
         </div>
-        <p>${locale === 'ar' ? 'المنصة الرائدة في توصيل المواهب العربية والدولية بأفضل فرص العمل في إسطنبول.' : 'The leading platform connecting Arab & international talents with the best job opportunities in Istanbul.'}</p>
+        <p>${t.footerTagline}</p>
         <div class="footer-social">
           <a href="https://t.me/jobsistanbul" target="_blank" rel="noopener" class="social-btn" title="Telegram"><i class="fa-brands fa-telegram"></i></a>
           <a href="#" class="social-btn" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
@@ -363,33 +522,45 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       </div>
       <div class="footer-links-group">
         <ul class="footer-links">
-          <li class="footer-col-title">${locale === 'ar' ? 'الموقع' : 'Platform'}</li>
-          <li><a href="/${locale}">${locale === 'ar' ? 'جميع الوظائف' : 'All Jobs'}</a></li>
-          <li><a href="/${locale}/blog">${locale === 'ar' ? 'مدونة المهنة' : 'Career Blog'}</a></li>
-          <li><a href="/${locale}/insights">${locale === 'ar' ? 'إحصائيات السوق' : 'Market Insights'}</a></li>
-          <li><a href="/${locale}/about">${locale === 'ar' ? 'من نحن' : 'About Us'}</a></li>
-          <li><a href="/${locale}/contact">${locale === 'ar' ? 'اتصل بنا' : 'Contact Us'}</a></li>
-          <li><a href="/${locale}/submit-job">${locale === 'ar' ? 'نشر وظيفة' : 'Post a Job'}</a></li>
+          <li class="footer-col-title">${t.platform}</li>
+          <li><a href="/${locale}">${t.allJobs}</a></li>
+          <li><a href="/${locale}/blog">${t.blog}</a></li>
+          <li><a href="/${locale}/insights">${t.insights}</a></li>
+          <li><a href="/${locale}/about">${t.about}</a></li>
+          <li><a href="/${locale}/contact">${t.contact}</a></li>
+          <li><a href="/${locale}/submit-job">${t.postJob}</a></li>
         </ul>
         <ul class="footer-links">
-          <li class="footer-col-title">${locale === 'ar' ? 'أدوات ذكية' : 'Smart Tools'}</li>
-          <li><a href="/${locale}/cv-optimizer">${locale === 'ar' ? 'تحسين السيرة بالذكاء الاصطناعي' : 'AI CV Optimizer'}</a></li>
-          <li><a href="/${locale}/ats-scanner">${locale === 'ar' ? 'فاحص السيرة الذاتية (ATS)' : 'AI CV ATS Scanner'}</a></li>
-          <li><a href="/${locale}/resume-builder">${locale === 'ar' ? 'منشئ السيرة الذاتية' : 'Resume Builder'}</a></li>
-          <li><a href="/${locale}/salary-calculator">${locale === 'ar' ? 'حاسبة ومؤشر الرواتب' : 'Salary Estimator'}</a></li>
+          <li class="footer-col-title">${t.smartTools}</li>
+          <li><a href="/${locale}/cv-optimizer">${t.cvOptimizer}</a></li>
+          <li><a href="/${locale}/ats-scanner">${t.atsScanner}</a></li>
+          <li><a href="/${locale}/resume-builder">${t.cvBuilder}</a></li>
+          <li><a href="/${locale}/salary-calculator">${t.salaryCalc}</a></li>
+          <li><a href="/${locale}/currency-prices">${t.currencyPrices}</a></li>
+          <li><a href="/${locale}/gold-prices">${t.goldPrices}</a></li>
         </ul>
         <ul class="footer-links">
-          <li class="footer-col-title">${locale === 'ar' ? 'شروط وخصوصية' : 'Legal'}</li>
-          <li><a href="/${locale}/privacy">${locale === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy'}</a></li>
-          <li><a href="/${locale}/terms">${locale === 'ar' ? 'الشروط والأحكام' : 'Terms & Conditions'}</a></li>
+          <li class="footer-col-title">${t.legal}</li>
+          <li><a href="/${locale}/privacy">${t.privacy}</a></li>
+          <li><a href="/${locale}/terms">${t.terms}</a></li>
           <li><a href="mailto:info@jobs-in-istanbul.com"><i class="fa-solid fa-envelope" style="margin-inline-end:6px;opacity:.6"></i>info@jobs-in-istanbul.com</a></li>
         </ul>
       </div>
     </div>
     <div class="container footer-bottom" style="max-width:1360px">
       <p>${t.copyright}</p>
-      <div style="display:flex;gap:16px;">
-        <a href="${langSwitchUrl}" style="opacity:.6;font-size:.82rem;"><i class="fa-solid fa-globe"></i> ${t.langLabel}</a>
+      <div style="display:flex; gap:12px; align-items:center;">
+        <a href="${getLangUrl(requestPath, 'ar')}" style="opacity:.6; font-size:.82rem; display:flex; align-items:center; gap:6px; text-decoration:none; color:inherit;">
+          <img src="https://flagcdn.com/w20/sa.png" alt="العربية" style="width: 16px; height: 11px; border-radius: 1px;"> العربية
+        </a>
+        <span style="opacity:.3; font-size:.82rem;">|</span>
+        <a href="${getLangUrl(requestPath, 'tr')}" style="opacity:.6; font-size:.82rem; display:flex; align-items:center; gap:6px; text-decoration:none; color:inherit;">
+          <img src="https://flagcdn.com/w20/tr.png" alt="Türkçe" style="width: 16px; height: 11px; border-radius: 1px;"> Türkçe
+        </a>
+        <span style="opacity:.3; font-size:.82rem;">|</span>
+        <a href="${getLangUrl(requestPath, 'en')}" style="opacity:.6; font-size:.82rem; display:flex; align-items:center; gap:6px; text-decoration:none; color:inherit;">
+          <img src="https://flagcdn.com/w20/gb.png" alt="English" style="width: 16px; height: 11px; border-radius: 1px;"> English
+        </a>
       </div>
     </div>
   </footer>
@@ -535,7 +706,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           else card.style.display = 'none';
         });
         const countLabel = document.querySelector('.jobs-count');
-        if (countLabel) countLabel.innerHTML = '<strong>' + visibleCount + '</strong> ${locale === 'ar' ? 'وظيفة محفوظة' : 'saved jobs'}';
+        if (countLabel) countLabel.innerHTML = '<strong>' + visibleCount + '</strong> ' + (locale === 'ar' ? 'وظيفة محفوظة' : (locale === 'tr' ? 'kaydedilen ilan' : 'saved jobs'));
       }
 
       // Dark Mode
@@ -636,7 +807,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
     function copyToClipboard(text) {
       navigator.clipboard.writeText(text).then(() => {
         const msg = document.createElement('div');
-        msg.textContent = '${locale === 'ar' ? '✅ تم نسخ الرابط!' : '✅ Link copied!'}';
+        msg.textContent = locale === 'ar' ? '✅ تم نسخ الرابط!' : (locale === 'tr' ? '✅ Bağlantı kopyalandı!' : '✅ Link copied!');
         msg.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--text-heading);color:white;padding:10px 24px;border-radius:var(--r-full);font-weight:600;z-index:9999;font-size:.9rem;box-shadow:var(--shadow-lg);';
         document.body.appendChild(msg);
         setTimeout(() => msg.remove(), 2500);
@@ -653,7 +824,7 @@ publicRouter.get('/', (c) => {
 })
 
 // Homepage for listing jobs
-const homeHandler = async (c: any, locale: 'ar' | 'en') => {
+const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr') => {
   const db = c.env.DB;
 
   // Get query parameters
@@ -729,10 +900,13 @@ const homeHandler = async (c: any, locale: 'ar' | 'en') => {
     jobs = jobs.filter((job: any) =>
       job.title_ar.toLowerCase().includes(kw) ||
       job.title_en.toLowerCase().includes(kw) ||
+      (job.title_tr && job.title_tr.toLowerCase().includes(kw)) ||
       job.description_ar.toLowerCase().includes(kw) ||
       job.description_en.toLowerCase().includes(kw) ||
+      (job.description_tr && job.description_tr.toLowerCase().includes(kw)) ||
       job.location_ar.toLowerCase().includes(kw) ||
-      job.location_en.toLowerCase().includes(kw)
+      job.location_en.toLowerCase().includes(kw) ||
+      (job.location_tr && job.location_tr.toLowerCase().includes(kw))
     );
   }
 
@@ -741,7 +915,8 @@ const homeHandler = async (c: any, locale: 'ar' | 'en') => {
     const kw = queryDistrict.toLowerCase();
     jobs = jobs.filter((job: any) =>
       job.location_ar.toLowerCase().includes(kw) ||
-      job.location_en.toLowerCase().includes(kw)
+      job.location_en.toLowerCase().includes(kw) ||
+      (job.location_tr && job.location_tr.toLowerCase().includes(kw))
     );
   }
 
@@ -791,12 +966,29 @@ const homeHandler = async (c: any, locale: 'ar' | 'en') => {
       featuredBadge: 'Featured',
       applyBtn: 'Apply Now',
       noJobs: 'No jobs match your search filters.'
+    },
+    tr: {
+      heroTitle: 'İstanbul\'da Gelecekteki İşinizi Bulun',
+      heroSubtitle: 'İstanbul metropol bölgesindeki yerli ve uluslararası yetenekler için özel iş ilanları',
+      searchPlh: 'İş unvanı, anahtar kelime arayın...',
+      locPlh: 'Tüm ilçeler',
+      allCats: 'Tüm kategoriler',
+      filterTitle: 'Filtrele',
+      jobType: 'Çalışma Şekli',
+      fullTime: 'Tam Zamanlı',
+      partTime: 'Yarı Zamanlı',
+      remote: 'Uzaktan (Remote)',
+      internship: 'Staj',
+      resultsCount: `${jobs.length} açık iş ilanı bulundu`,
+      featuredBadge: 'Öne Çıkan',
+      applyBtn: 'Hemen Başvur',
+      noJobs: 'Arama kriterlerinize uygun iş ilanı bulunamadı.'
     }
   }[locale];
 
   // Render Categories HTML
   const categoriesHtml = categories.map((cat: any) => {
-    const name = locale === 'ar' ? cat.name_ar : cat.name_en;
+    const name = locale === 'ar' ? cat.name_ar : (locale === 'tr' ? (cat.name_tr || cat.name_en) : cat.name_en);
     const activeClass = queryCategory === cat.id ? 'active' : '';
     return `<a href="/${locale}?category=${cat.id}" class="category-card ${activeClass}">
       <div class="cat-emoji">${cat.icon || '💼'}</div>
@@ -806,8 +998,8 @@ const homeHandler = async (c: any, locale: 'ar' | 'en') => {
 
   // Render Jobs HTML
   const jobsHtml = jobs.length > 0 ? jobs.map((job: any) => {
-    const title = locale === 'ar' ? job.title_ar : job.title_en;
-    const location = locale === 'ar' ? job.location_ar : job.location_en;
+    const title = locale === 'ar' ? job.title_ar : (locale === 'tr' ? (job.title_tr || job.title_en) : job.title_en);
+    const location = locale === 'ar' ? job.location_ar : (locale === 'tr' ? (job.location_tr || job.location_en) : job.location_en);
     const typeKey = job.jobType === 'full-time' ? 'fullTime' : job.jobType === 'part-time' ? 'partTime' : job.jobType === 'remote' ? 'remote' : 'internship';
     const typeLabel = t[typeKey];
     const isRemote = job.jobType === 'remote';
@@ -1217,16 +1409,22 @@ publicRouter.get(
   (c) => homeHandler(c, 'en')
 )
 
+publicRouter.get(
+  '/tr',
+  cache({ cacheName: 'istanbul-jobs-tr', cacheControl: 'max-age=60' }),
+  (c) => homeHandler(c, 'tr')
+)
+
 // Detail view for a job
 publicRouter.get(
   '/:locale/jobs/:slug',
   cache({ cacheName: 'istanbul-job-details', cacheControl: 'max-age=300' }),
   async (c) => {
-    const locale = c.req.param('locale') as 'ar' | 'en';
+    const locale = c.req.param('locale') as 'ar' | 'en' | 'tr';
     const slug = c.req.param('slug');
     const db = (c.env as any).DB;
 
-    if (locale !== 'ar' && locale !== 'en') {
+    if (locale !== 'ar' && locale !== 'en' && locale !== 'tr') {
       return c.redirect('/ar');
     }
 
@@ -1251,14 +1449,16 @@ publicRouter.get(
     ).bind(job.company).first();
     const company = compRow ? JSON.parse(compRow.data) : { name: job.company || 'Company', description: '' };
 
-    const title = locale === 'ar' ? job.title_ar : job.title_en;
-    const description = locale === 'ar' ? job.description_ar : job.description_en;
-    const location = locale === 'ar' ? job.location_ar : job.location_en;
+    const title = locale === 'ar' ? job.title_ar : (locale === 'tr' ? (job.title_tr || job.title_en) : job.title_en);
+    const description = locale === 'ar' ? job.description_ar : (locale === 'tr' ? (job.description_tr || job.description_en) : job.description_en);
+    const location = locale === 'ar' ? job.location_ar : (locale === 'tr' ? (job.location_tr || job.location_en) : job.location_en);
 
     const shareUrl = `https://jobs-in-istanbul.com/${locale}/jobs/${job.slug}`;
     const shareText = locale === 'ar'
       ? `🔥 فرصة عمل مميزة في إسطنبول!\n\n📌 المسمى الوظيفي: ${title}\n🏢 الشركة: ${company.name}\n\nالتفاصيل والتقديم عبر الرابط المباشر:\n📍 ${shareUrl}\n\n#وظائف_إسطنبول #عمل_في_تركيا`
-      : `🔥 Hot Job Opening in Istanbul!\n\n📌 Role: ${title}\n🏢 Company: ${company.name}\n\nCheck details and apply here:\n📍 ${shareUrl}\n\n#IstanbulJobs #TurkeyJobs`;
+      : (locale === 'tr'
+        ? `🔥 İstanbul'da Harika İş Fırsatı!\n\n📌 Pozisyon: ${title}\n🏢 Şirket: ${company.name}\n\nDetaylar ve başvuru için linke tıklayın:\n📍 ${shareUrl}\n\n#IstanbulIsIlanlari #TurkiyedeCalismak`
+        : `🔥 Hot Job Opening in Istanbul!\n\n📌 Role: ${title}\n🏢 Company: ${company.name}\n\nCheck details and apply here:\n📍 ${shareUrl}\n\n#IstanbulJobs #TurkeyJobs`);
 
     let quizQuestionsRaw = [];
     try {
@@ -1297,6 +1497,21 @@ publicRouter.get(
         remote: 'Remote',
         internship: 'Internship',
         featured: 'Featured Job'
+      },
+      tr: {
+        jobType: 'Çalışma Şekli',
+        location: 'Konum',
+        published: 'Yayınlanma Tarihi',
+        salary: 'Tahmini Maaş',
+        applyNow: 'Şimdi Başvur',
+        companyDetails: 'Şirket Hakkında',
+        requirements: 'İş Tanımı & Gereksinimler',
+        backToList: '← Tüm iş ilanlarına geri dön',
+        fullTime: 'Tam Zamanlı',
+        partTime: 'Yarı Zamanlı',
+        remote: 'Uzaktan (Remote)',
+        internship: 'Staj',
+        featured: 'Öne Çıkan İlan'
       }
     }[locale];
 
@@ -1660,9 +1875,9 @@ publicRouter.get(
 
 // Submit Job Page
 publicRouter.get('/:locale/submit-job', async (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en';
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr';
 
-  if (locale !== 'ar' && locale !== 'en') {
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr') {
     return c.redirect('/ar/submit-job');
   }
 
@@ -1713,6 +1928,22 @@ publicRouter.get('/:locale/submit-job', async (c) => {
       desc: 'Job Description & Requirements',
       submit: 'Publish Job Instantly',
       successMsg: 'Job published successfully! It is now live on the site.'
+    },
+    tr: {
+      title: 'İş İlanı Yayınla',
+      subtitle: 'İstanbul\'da iş arayan binlerce aktif adaya ulaşmak için iş ilanınızı yayınlayın',
+      jobTitle: 'Pozisyon / İş Unvanı',
+      compName: 'Şirket Adı',
+      category: 'İş Kategorisi',
+      jobType: 'Çalışma Şekli',
+      location: 'İstanbul\'daki İlçe',
+      salary: 'Sunulan Maaş (İsteğe Bağlı)',
+      applyEmail: 'Başvuru E-postası',
+      phone: 'Telefon Numarası (İsteğe Bağlı)',
+      seoKeywords: 'SEO Anahtar Kelimeleri (İsteğe bağlı - virgülle ayırın, örn: iş ilanları, istanbulda çalışma)',
+      desc: 'İş Tanımı & Gereksinimler',
+      submit: 'İlanı Hemen Yayınla',
+      successMsg: 'İş ilanı başarıyla yayınlandı! Şu anda sitede canlı yayında.'
     }
   }[locale];
 
@@ -2268,8 +2499,8 @@ publicRouter.get('/admin-api/backfill-images', async (c) => {
 
 // About Us Page
 publicRouter.get('/:locale/about', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en';
-  if (locale !== 'ar' && locale !== 'en') return c.redirect('/ar/about');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr') return c.redirect('/ar/about');
 
   const t = {
     ar: {
@@ -2313,6 +2544,27 @@ publicRouter.get('/:locale/about', (c) => {
       stat2Lbl: 'Monthly Job Seekers',
       stat3Val: '100%',
       stat3Lbl: 'Verified Listings'
+    },
+    tr: {
+      title: 'Hakkımızda - İstanbul İş İlanları',
+      heading: 'Hakkımızda',
+      subtitle: 'İstanbul\'daki lider kariyer platformu ve akıllı istihdam çözümü',
+      missionTitle: 'Misyonumuz & Amacımız',
+      missionText: 'İstanbul\'daki seçkin iş arayanlar ile öncü işverenler arasında bir köprü oluşturmak için çalışıyoruz. Amacımız, en son teknoloji ve yapay zeka entegrasyonları ile iş eşleştirmeyi kolay, erişilebilir ve %100 doğrulanmış hale getirmektir.',
+      featureTitle: 'Neden Bizim Platformumuz?',
+      feat1Title: 'Yapay Zeka Destekli Araçlar 🤖',
+      feat1Desc: 'Özgeçmişinizi geliştirin, profesyonel ön yazılar oluşturun ve gerçekçi yapay zeka mülakat simülatörümüzle pratik yapın.',
+      feat2Title: 'Anında İş İlanı Verme ⚡',
+      feat2Desc: 'Şirketlerin ve bireylerin binlerce adaya ulaşmak için anında canlı yayına geçen iş ilanları yayınlamasını sağlıyoruz.',
+      feat3Title: 'Şeffaflık & Güven 🤝',
+      feat3Desc: 'Güvenilir bir işe alım deneyimi sağlamak için iş ilanlarını doğrular, maaş şeffaflığını destekleriz.',
+      statsTitle: 'Sayılarla Etkimiz',
+      stat1Val: '500+',
+      stat1Lbl: 'Aktif İş İlanı',
+      stat2Val: '10B+',
+      stat2Lbl: 'Aylık Ziyaretçi',
+      stat3Val: '100%',
+      stat3Lbl: 'Doğrulanmış İlanlar'
     }
   }[locale];
 
@@ -2370,8 +2622,8 @@ publicRouter.get('/:locale/about', (c) => {
 
 // Contact Us Page
 publicRouter.get('/:locale/contact', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en';
-  if (locale !== 'ar' && locale !== 'en') return c.redirect('/ar/contact');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr') return c.redirect('/ar/contact');
 
   const t = {
     ar: {
@@ -2403,6 +2655,21 @@ publicRouter.get('/:locale/contact', (c) => {
       cardEmail: 'Email Us',
       cardPhone: 'WhatsApp & Support',
       cardLoc: 'Office Address'
+    },
+    tr: {
+      title: 'İletişim - İstanbul İş İlanları',
+      heading: 'İletişim',
+      subtitle: 'Sorularınızı yanıtlamak ve size yardımcı olmak için buradayız. Bizimle aktif kanallarımız üzerinden iletişime geçin.',
+      formTitle: 'Bize Doğrudan Mesaj Gönderin',
+      name: 'Ad Soyad',
+      email: 'E-posta Adresi',
+      subject: 'Konu',
+      message: 'Mesaj İçeriği',
+      sendBtn: 'Mesajı Gönder ✉️',
+      successMsg: 'Mesajınız başarıyla gönderildi! En kısa sürede sizinle iletişime geçeceğiz.',
+      cardEmail: 'E-posta Gönderin',
+      cardPhone: 'WhatsApp & Destek',
+      cardLoc: 'Ofis Adresi'
     }
   }[locale];
 
@@ -2516,8 +2783,8 @@ publicRouter.get('/:locale/contact', (c) => {
 
 // Privacy Policy Page
 publicRouter.get('/:locale/privacy', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en';
-  if (locale !== 'ar' && locale !== 'en') return c.redirect('/ar/privacy');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr') return c.redirect('/ar/privacy');
 
   const t = {
     ar: {
@@ -2547,6 +2814,20 @@ publicRouter.get('/:locale/privacy', (c) => {
       sec3Text: 'We implement strong technical and organizational measures to safeguard your personal data in compliance with Turkish Data Protection Law (KVKK) and EU General Data Protection Regulation (GDPR). We never sell your data.',
       sec4Title: '4. Your Data Rights',
       sec4Text: 'You have the right to access, edit, update, or request permanent deletion of your personal data from our systems at any time by contacting our data support team.'
+    },
+    tr: {
+      title: 'Gizlilik Politikası - İstanbul İş İlanları',
+      heading: 'Gizlilik Politikası',
+      lastUpdated: 'Son Güncelleme: Haziran 2026',
+      intro: 'Gizliliğinizi ve kişisel verilerinizi korumayı taahhüt ediyoruz. Bu Gizlilik Politikası, platformumuzu ziyaret ettiğinizde bilgilerinizi nasıl topladığımızı, kullandığımızı ve koruduğumuzu açıklar.',
+      sec1Title: '1. Topladığımız Bilgiler',
+      sec1Text: 'Gönüllü olarak sağladığınız kişisel bilgileri toplarız (örn. iş başvurusu yaparken veya iş ilanı yayınlarken ad, e-posta adresi, CV/özgeçmiş ve ön yazı). Ayrıca IP adresi ve çerez verileri gibi otomatik teknik verileri de toplarız.',
+      sec2Title: '2. Bilgilerinizi Nasıl Kullanıyoruz',
+      sec2Text: 'Bilgilerinizi işe alım hizmetlerini yürütmek ve kolaylaştırmak, başvurularınızla ilgili sizinle iletişim kurmak, yapay zeka destekli özelliklerimizi optimize etmek ve platform güvenliğini sağlamak amacıyla kullanırız.',
+      sec3Title: '3. Veri Güvenliği (KVKK / GDPR)',
+      sec3Text: 'Kişisel verilerinizi KVKK ve AB Genel Veri Koruma Yönetmeliği (GDPR) ile uyumlu olarak korumak için güçlü teknik ve idari tedbirler uyguluyoruz. Verilerinizi asla satmayız.',
+      sec4Title: '4. Veri Haklarınız',
+      sec4Text: 'Veri destek ekibimizle iletişime geçerek kişisel verilerinize erişme, bunları düzeltme, güncelleme veya sistemlerimizden kalıcı olarak silinmesini talep etme hakkına her zaman sahipsiniz.'
     }
   }[locale];
 
@@ -2585,8 +2866,8 @@ publicRouter.get('/:locale/privacy', (c) => {
 
 // Terms & Conditions Page
 publicRouter.get('/:locale/terms', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en';
-  if (locale !== 'ar' && locale !== 'en') return c.redirect('/ar/terms');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr') return c.redirect('/ar/terms');
 
   const t = {
     ar: {
@@ -2616,6 +2897,20 @@ publicRouter.get('/:locale/terms', (c) => {
       sec3Text: 'We act as an advertising venue only. We do not participate in employment agreements or guarantee hiring outcomes, and we are not liable for any disputes arising between employers and candidates.',
       sec4Title: '4. Modifications of Terms',
       sec4Text: 'We reserve the right to modify these terms and conditions at any time. Updates become effective immediately upon posting on this page.'
+    },
+    tr: {
+      title: 'Kullanım Şartları - İstanbul İş İlanları',
+      heading: 'Kullanım Şartları',
+      lastUpdated: 'Son Güncelleme: Haziran 2026',
+      intro: 'Lütfen platformumuzu kullanmadan önce bu kullanım şartlarını dikkatlice okuyunuz. Siteye erişerek veya siteyi kullanarak bu şartlara bağlı kalmayı kabul etmiş olursunuz.',
+      sec1Title: '1. Şartların Kabulü',
+      sec1Text: 'Platformumuz iş ilanları yayınlama ve kariyer araçları sunar. Kullanımınız genel ahlak kurallarına, uluslararası standartlara ve yürürlükteki Türk kanunlarına uygun olmalıdır.',
+      sec2Title: '2. Job Posting Politikası',
+      sec2Text: 'İş ilanı yayınlayan işverenler ve bireyler, ilan detaylarının doğruluğu ve yasallığı konusunda tüm sorumluluğu üstlenirler. Spam, dolandırıcılık, yasa dışı açık pozisyonlar veya adaylardan ödeme talep eden ilanlar kesinlikle yasaktır.',
+      sec3Title: '3. Sorumluluk Reddi Beyanı',
+      sec3Text: 'Yalnızca bir ilan mecrası olarak faaliyet gösteriyoruz. İş sözleşmelerine dahil olmuyoruz, işe alım sonuçlarını garanti etmiyoruz ve işverenler ile adaylar arasında ortaya çıkabilecek anlaşmazlıklardan sorumlu tutulamayız.',
+      sec4Title: '4. Şartların Değiştirilmesi',
+      sec4Text: 'Bu şart ve koşulları dilediğimiz zaman değiştirme hakkını saklı tutarız. Güncellemeler bu sayfada yayınlandığı andan itibaren geçerli olur.'
     }
   }[locale];
 

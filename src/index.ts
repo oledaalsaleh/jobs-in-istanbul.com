@@ -72,9 +72,13 @@ import { candidatePortalRouter } from './routes/candidate-portal'
 import { aiFeaturesRouter } from './routes/ai-features'
 import { careerBlogRouter } from './routes/career-blog'
 import { insightsRouter } from './routes/insights'
+import { currencyPricesRouter } from './routes/currency-prices'
+import { goldPricesRouter } from './routes/gold-prices'
 import { runScraper } from './services/scraper'
 import { runTelegramScraper } from './services/telegram-scraper'
 import { optimizeSeoWithGemini } from './services/gemini-seo'
+import { runCurrencyScraper } from './services/currency-scraper'
+import { runGoldScraper } from './services/gold-scraper'
 
 // Mount routes
 app.route('/', publicRouter)
@@ -86,12 +90,21 @@ app.route('/', candidatePortalRouter)
 app.route('/', aiFeaturesRouter)
 app.route('/', careerBlogRouter)
 app.route('/', insightsRouter)
+app.route('/', currencyPricesRouter)
+app.route('/', goldPricesRouter)
 
 // Export the application for both HTTP requests (fetch) and Cron triggers (scheduled)
 export default {
   async fetch(request: Request, env: any, ctx: any) {
     const url = new URL(request.url);
     if (url.pathname === '/' || url.pathname === '') {
+      const acceptLang = request.headers.get('accept-language') || '';
+      if (acceptLang.toLowerCase().startsWith('tr')) {
+        return Response.redirect(`${url.origin}/tr`, 302);
+      }
+      if (acceptLang.toLowerCase().startsWith('en')) {
+        return Response.redirect(`${url.origin}/en`, 302);
+      }
       return Response.redirect(`${url.origin}/ar`, 302);
     }
     return app.fetch(request, env, ctx);
@@ -198,6 +211,24 @@ export default {
           } catch (seoErr) {
             console.error('[CRON SEO] Auto SEO Optimizer execution error:', seoErr);
           }
+        }
+
+        // 5. Run Currency Scraper
+        try {
+          console.log('[CRON CURRENCY] Running currency scraper...');
+          await runCurrencyScraper({ DB: env.DB });
+          console.log('[CRON CURRENCY] Currency scraper finished successfully.');
+        } catch (currErr) {
+          console.error('[CRON CURRENCY] Currency scraper execution error:', currErr);
+        }
+
+        // 6. Run Gold Scraper
+        try {
+          console.log('[CRON GOLD] Running gold scraper...');
+          await runGoldScraper({ DB: env.DB, GEMINI_API_KEY: env.GEMINI_API_KEY });
+          console.log('[CRON GOLD] Gold scraper finished successfully.');
+        } catch (goldErr) {
+          console.error('[CRON GOLD] Gold scraper execution error:', goldErr);
         }
 
       } catch (err) {

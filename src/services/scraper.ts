@@ -5,12 +5,15 @@ import { sendTelegramAlert } from './telegram';
 export interface ScrapedJobData {
   title_ar: string;
   title_en: string;
+  title_tr: string;
   description_ar: string;
   description_en: string;
+  description_tr: string;
   company_name: string;
   category_slug: string;
   location_ar: string;
   location_en: string;
+  location_tr: string;
   jobType: 'full-time' | 'part-time' | 'remote' | 'internship';
   salary: string;
   applyLink: string;
@@ -199,7 +202,7 @@ export function cleanJsonString(str: string): string {
 export async function analyzeJobWithAI(ai: any, rawText: string): Promise<ScrapedJobData> {
   const aiPrompt = `
 You are an expert recruiter and data classifier for job postings in Istanbul.
-Analyze the provided job advertisement text and extract key details into a clean JSON structure in BOTH Arabic and English.
+Analyze the provided job advertisement text and extract key details into a clean JSON structure in Arabic, English, and Turkish.
 Return ONLY a valid JSON object. Do not wrap it in markdown code blocks, do not write comments, do not add intros or outros.
 
 CRITICAL JSON RULES:
@@ -211,12 +214,15 @@ JSON structure:
 {
   "title_ar": "اسم الوظيفة بالعربية (مختصر وجذاب)",
   "title_en": "Job title in English (short and attractive)",
+  "title_tr": "Job title in Turkish (short and attractive)",
   "description_ar": "تفاصيل ومسؤوليات وشروط الوظيفة بالتفصيل واللغة العربية (استخدم علامات اقتباس مفردة '' بدلا من علامات اقتباس مزدوجة \"\")",
   "description_en": "Detailed description, responsibilities, and requirements in English (use single quotes '' instead of double quotes \"\")",
+  "description_tr": "Detailed description, responsibilities, and requirements in Turkish (use single quotes '' instead of double quotes \"\")",
   "company_name": "Name of the hiring company (e.g. Acme Corp)",
   "category_slug": "Map to one of these EXACT categories based on content: 'it-software', 'tourism-hospitality', 'real-estate-sales', 'education-teaching', 'customer-service-translation', 'marketing-advertising', 'accounting-finance', 'healthcare-medical', 'engineering-construction', 'design-creative-arts', 'admin-human-resources', 'logistics-transportation', 'beauty-salon', 'general-others'",
   "location_ar": "المنطقة أو الحي في إسطنبول باللغة العربية (مثل: الفاتح, شيشلي, اسنيورت, باشاك شهير)",
   "location_en": "District/neighborhood in Istanbul in English (e.g. Fatih, Sisli, Esenyurt, Basaksehir)",
+  "location_tr": "District/neighborhood in Istanbul in Turkish (e.g. Fatih, Şişli, Esenyurt, Başakşehir)",
   "jobType": "Map to one of: 'full-time', 'part-time', 'remote', 'internship'",
   "salary": "Salary range if specified (e.g. 20,000 - 30,000 TL), otherwise leave empty string",
   "applyLink": "URL link to apply, or empty string",
@@ -462,9 +468,11 @@ export async function saveJobToDb(
 
   const description_en = rawData.description_en || rawData.descriptionEn || rawData.description || '';
   const description_ar = rawData.description_ar || rawData.descriptionAr || description_en || '';
+  const description_tr = rawData.description_tr || rawData.descriptionTr || description_en || '';
 
   const location_en = ((rawData.location_en || rawData.locationEn || rawData.location || 'Istanbul') as string).trim();
   const location_ar = ((rawData.location_ar || rawData.locationAr || location_en || 'إسطنبول') as string).trim();
+  const location_tr = ((rawData.location_tr || rawData.locationTr || location_en || 'İstanbul') as string).trim();
 
   const jobType = ((rawData.jobType || rawData.job_type || 'full-time') as string).trim();
   const salary = ((rawData.salary || '') as string).trim();
@@ -478,6 +486,8 @@ export async function saveJobToDb(
   let seoDescription = '';
   let finalTitleEn = title_en;
   let finalDescEn = description_en;
+  let finalTitleTr = rawData.title_tr || rawData.titleTr || title_en;
+  let finalDescTr = description_tr;
 
   if (geminiApiKey) {
     try {
@@ -497,6 +507,12 @@ export async function saveJobToDb(
       if (seoResult.correctedDesc) {
         finalDescEn = seoResult.correctedDesc;
       }
+      if (seoResult.title_tr) {
+        finalTitleTr = seoResult.title_tr;
+      }
+      if (seoResult.description_tr) {
+        finalDescTr = seoResult.description_tr;
+      }
     } catch (e) {
       console.error('Gemini SEO auto-optimization failed:', e);
     }
@@ -505,13 +521,16 @@ export async function saveJobToDb(
   const docData = JSON.stringify({
     title_ar,
     title_en: finalTitleEn,
+    title_tr: finalTitleTr,
     slug,
     description_ar,
     description_en: finalDescEn,
+    description_tr: finalDescTr,
     company: companyId,
     category: categoryId,
     location_ar,
     location_en,
+    location_tr,
     jobType,
     salary,
     phone,

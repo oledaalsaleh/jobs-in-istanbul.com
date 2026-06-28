@@ -22,6 +22,12 @@ export default {
         required: true,
         maxLength: 200,
       },
+      title_tr: {
+        type: 'string',
+        title: 'Job Title (Turkish)',
+        required: true,
+        maxLength: 200,
+      },
       slug: {
         type: 'slug',
         title: 'URL Slug',
@@ -36,6 +42,11 @@ export default {
       description_en: {
         type: 'textarea',
         title: 'Description & Requirements (English)',
+        required: true,
+      },
+      description_tr: {
+        type: 'textarea',
+        title: 'Description & Requirements (Turkish)',
         required: true,
       },
       company: {
@@ -59,6 +70,12 @@ export default {
       location_en: {
         type: 'string',
         title: 'Location / District (English, e.g. Fatih)',
+        required: true,
+        maxLength: 100,
+      },
+      location_tr: {
+        type: 'string',
+        title: 'Location / District (Turkish, e.g. Fatih)',
         required: true,
         maxLength: 100,
       },
@@ -152,13 +169,16 @@ export default {
     required: [
       'title_ar',
       'title_en',
+      'title_tr',
       'slug',
       'description_ar',
       'description_en',
+      'description_tr',
       'company',
       'category',
       'location_ar',
       'location_en',
+      'location_tr',
       'jobType',
       'language',
       'status',
@@ -166,7 +186,7 @@ export default {
   },
 
   listFields: ['title_en', 'company', 'category', 'status', 'publishedAt'],
-  searchFields: ['title_en', 'title_ar', 'description_en', 'description_ar', 'location_en', 'location_ar'],
+  searchFields: ['title_en', 'title_ar', 'title_tr', 'description_en', 'description_ar', 'description_tr', 'location_en', 'location_ar', 'location_tr'],
   defaultSort: 'publishedAt',
   defaultSortOrder: 'desc',
 

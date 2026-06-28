@@ -50,9 +50,11 @@ seoRouter.get('/sitemap.xml', async (c) => {
 
   // Static routes
   const staticRoutes = [
-    { ar: '/ar', en: '/en' },
-    { ar: '/ar/submit-job', en: '/en/submit-job' },
-    { ar: '/ar/blog', en: '/en/blog' }
+    { ar: '/ar', en: '/en', tr: '/tr' },
+    { ar: '/ar/submit-job', en: '/en/submit-job', tr: '/tr/submit-job' },
+    { ar: '/ar/blog', en: '/en/blog', tr: '/tr/blog' },
+    { ar: '/ar/currency-prices', en: '/en/currency-prices', tr: '/tr/currency-prices' },
+    { ar: '/ar/gold-prices', en: '/en/gold-prices', tr: '/tr/gold-prices' }
   ];
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -61,40 +63,38 @@ seoRouter.get('/sitemap.xml', async (c) => {
 
   // 1. Static pages
   for (const route of staticRoutes) {
-    xml += `
+    for (const loc of ['ar', 'en', 'tr'] as const) {
+      xml += `
   <url>
-    <loc>${siteUrl}${route.ar}</loc>
+    <loc>${siteUrl}${route[loc]}</loc>
     <lastmod>${now}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="ar" href="${siteUrl}${route.ar}" />
     <xhtml:link rel="alternate" hreflang="en" href="${siteUrl}${route.en}" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="${siteUrl}${route.ar}" />
-  </url>
-  <url>
-    <loc>${siteUrl}${route.en}</loc>
-    <lastmod>${now}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="ar" href="${siteUrl}${route.ar}" />
-    <xhtml:link rel="alternate" hreflang="en" href="${siteUrl}${route.en}" />
+    <xhtml:link rel="alternate" hreflang="tr" href="${siteUrl}${route.tr}" />
     <xhtml:link rel="alternate" hreflang="x-default" href="${siteUrl}${route.ar}" />
   </url>`;
+    }
   }
 
   // 2. Categories
   for (const cat of categories) {
     const arUrl = `${siteUrl}/ar?category=${cat.slug}`;
     const enUrl = `${siteUrl}/en?category=${cat.slug}`;
-    xml += `
+    const trUrl = `${siteUrl}/tr?category=${cat.slug}`;
+    for (const [, url] of [['ar', arUrl], ['en', enUrl], ['tr', trUrl]] as const) {
+      xml += `
   <url>
-    <loc>${arUrl}</loc>
+    <loc>${url}</loc>
     <lastmod>${now}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="ar" href="${arUrl}" />
     <xhtml:link rel="alternate" hreflang="en" href="${enUrl}" />
+    <xhtml:link rel="alternate" hreflang="tr" href="${trUrl}" />
   </url>`;
+    }
   }
 
   // 3. Jobs
@@ -102,25 +102,20 @@ seoRouter.get('/sitemap.xml', async (c) => {
     const jobDate = new Date(job.updated_at).toISOString().split('T')[0];
     const arUrl = `${siteUrl}/ar/jobs/${job.slug}`;
     const enUrl = `${siteUrl}/en/jobs/${job.slug}`;
-    xml += `
+    const trUrl = `${siteUrl}/tr/jobs/${job.slug}`;
+    for (const url of [arUrl, enUrl, trUrl]) {
+      xml += `
   <url>
-    <loc>${arUrl}</loc>
+    <loc>${url}</loc>
     <lastmod>${jobDate}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="ar" href="${arUrl}" />
     <xhtml:link rel="alternate" hreflang="en" href="${enUrl}" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="${arUrl}" />
-  </url>
-  <url>
-    <loc>${enUrl}</loc>
-    <lastmod>${jobDate}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="ar" href="${arUrl}" />
-    <xhtml:link rel="alternate" hreflang="en" href="${enUrl}" />
+    <xhtml:link rel="alternate" hreflang="tr" href="${trUrl}" />
     <xhtml:link rel="alternate" hreflang="x-default" href="${arUrl}" />
   </url>`;
+    }
   }
 
   // 4. Blog Posts
@@ -142,25 +137,20 @@ seoRouter.get('/sitemap.xml', async (c) => {
       : now;
     const arUrl = `${siteUrl}/ar/blog/${slug}`;
     const enUrl = `${siteUrl}/en/blog/${slug}`;
-    xml += `
+    const trUrl = `${siteUrl}/tr/blog/${slug}`;
+    for (const url of [arUrl, enUrl, trUrl]) {
+      xml += `
   <url>
-    <loc>${arUrl}</loc>
+    <loc>${url}</loc>
     <lastmod>${blogDate}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="ar" href="${arUrl}" />
     <xhtml:link rel="alternate" hreflang="en" href="${enUrl}" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="${arUrl}" />
-  </url>
-  <url>
-    <loc>${enUrl}</loc>
-    <lastmod>${blogDate}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="ar" href="${arUrl}" />
-    <xhtml:link rel="alternate" hreflang="en" href="${enUrl}" />
+    <xhtml:link rel="alternate" hreflang="tr" href="${trUrl}" />
     <xhtml:link rel="alternate" hreflang="x-default" href="${arUrl}" />
   </url>`;
+    }
   }
 
   xml += `

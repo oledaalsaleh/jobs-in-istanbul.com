@@ -10,8 +10,8 @@ const COOKIE_NAME = 'candidate_jwt';
 
 // Candidate Login
 candidatePortalRouter.get('/:locale/candidate/login', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en';
-  if (locale !== 'ar' && locale !== 'en') return c.redirect('/ar/candidate/login');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr') return c.redirect('/ar/candidate/login');
 
   const t = {
     ar: {
@@ -33,6 +33,16 @@ candidatePortalRouter.get('/:locale/candidate/login', (c) => {
       loading: 'Sending magic link... ⏳',
       successMsg: 'Magic login link sent! Please check your email inbox.',
       devNotice: '🔧 In development mode, you can sign in directly by clicking below:'
+    },
+    tr: {
+      title: 'Aday Portalı - Giriş Yap',
+      subtitle: 'Başvurularınızı takip etmek ve yapay zeka uyumluluğunu kontrol etmek için sihirli giriş bağlantısı alacağınız e-posta adresinizi girin.',
+      emailLabel: 'Kişisel E-posta Adresi',
+      emailPlh: 'candidate@example.com',
+      submitBtn: 'Sihirli Bağlantı Gönder 🚀',
+      loading: 'Bağlantı gönderiliyor... ⏳',
+      successMsg: 'Sihirli giriş bağlantısı gönderildi! Lütfen e-posta gelen kutunuzu kontrol edin.',
+      devNotice: '🔧 Geliştirme modunda, doğrudan aşağıdaki bağlantıya tıklayarak giriş yapabilirsiniz:'
     }
   }[locale];
 
@@ -152,7 +162,7 @@ candidatePortalRouter.post('/api/candidate/request-magic', rateLimiter(3, 10), a
 candidatePortalRouter.get('/candidate/verify', async (c) => {
   const env: any = c.env;
   const token = c.req.query('token');
-  const locale = (c.req.query('locale') || 'ar') as 'ar' | 'en';
+  const locale = (c.req.query('locale') || 'ar') as 'ar' | 'en' | 'tr';
 
   if (!token) {
     return c.text('Token parameter missing', 400);
@@ -197,8 +207,8 @@ candidatePortalRouter.get('/candidate/logout', (c) => {
 candidatePortalRouter.get('/:locale/candidate/dashboard', async (c) => {
   const env: any = c.env;
   const db = env.DB;
-  const locale = c.req.param('locale') as 'ar' | 'en';
-  if (locale !== 'ar' && locale !== 'en') return c.redirect('/ar/candidate/dashboard');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr') return c.redirect('/ar/candidate/dashboard');
 
   const cookieVal = getCookie(c, COOKIE_NAME);
   if (!cookieVal) {
@@ -254,6 +264,26 @@ candidatePortalRouter.get('/:locale/candidate/dashboard', async (c) => {
       statusReviewed: 'Reviewed',
       statusShortlisted: 'Interview Scheduled',
       statusRejected: 'Rejected'
+    },
+    tr: {
+      title: 'Aday Yönetim Paneli',
+      welcome: `Hoş geldiniz, ${candidateEmail}`,
+      logout: 'Çıkış Yap',
+      appsTitle: 'İş Başvurularınız',
+      noApps: 'Henüz herhangi bir başvuru yapmadınız.',
+      tblJob: 'İş & Şirket',
+      tblDate: 'Başvuru Tarihi',
+      tblQuiz: 'Test Skoru',
+      tblStatus: 'Başvuru Durumu',
+      aiMatchingTitle: 'Yapay Zeka İş Eşleştirme 🤖',
+      aiMatchingDesc: 'Açık ilanlarımızla eşleşme oranlarını hesaplamak için özgeçmiş metninizi yapıştırın.',
+      cvPlh: 'CV / Özgeçmiş metninizi buraya yapıştırın...',
+      matchBtn: 'İşleri Eşleştir 🔍',
+      tblMatchScore: 'Eşleşme Skoru',
+      statusApplied: 'Başvuruldu',
+      statusReviewed: 'İncelendi',
+      statusShortlisted: 'Mülakat Planlandı',
+      statusRejected: 'Reddedildi'
     }
   }[locale];
 
@@ -295,7 +325,7 @@ candidatePortalRouter.get('/:locale/candidate/dashboard', async (c) => {
       }
       return filtered.map((app: any) => {
         const job = jobsMap.get(app.jobId) || { title_ar: 'Job Posting', title_en: 'Job Posting', company: 'Company', slug: '' };
-        const title = locale === 'ar' ? job.title_ar : job.title_en;
+        const title = locale === 'ar' ? job.title_ar : (locale === 'tr' ? (job.title_tr || job.title_en) : job.title_en);
         const quizText = app.quizScore ? `${app.quizScore}%` : '';
         return `
           <div class="kanban-card" draggable="true" ondragstart="drag(event)" id="app-card-${app.id}" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 12px; box-shadow: var(--shadow-sm); cursor: grab; transition: var(--t-base);">
@@ -465,7 +495,7 @@ candidatePortalRouter.get('/:locale/candidate/dashboard', async (c) => {
               <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95rem;">
                 <thead>
                   <tr style="border-bottom: 2px solid var(--border); color: var(--text-dark); font-weight: 700;">
-                    <th style="padding: 10px;">${locale === 'ar' ? 'الوظيفة' : 'Job Title'}</th>
+                    <th style="padding: 10px;">${locale === 'ar' ? 'الوظيفة' : (locale === 'tr' ? 'İş Unvanı' : 'Job Title')}</th>
                     <th style="padding: 10px; text-align: center;">${t.tblMatchScore}</th>
                   </tr>
                 </thead>
@@ -564,7 +594,7 @@ candidatePortalRouter.get('/:locale/candidate/dashboard', async (c) => {
                 div.style.color = 'var(--text-muted)';
                 div.style.fontSize = '0.85rem';
                 div.style.fontStyle = 'italic';
-                div.textContent = "${locale === 'ar' ? 'فارغ' : 'Empty'}";
+                div.textContent = "${locale === 'ar' ? 'فارغ' : (locale === 'tr' ? 'Boş' : 'Empty')}";
                 col.appendChild(div);
               }
             }
@@ -578,7 +608,7 @@ candidatePortalRouter.get('/:locale/candidate/dashboard', async (c) => {
           const tbody = document.getElementById('matching-results-body');
           const container = document.getElementById('matching-results-container');
           
-          btn.innerText = "${locale === 'ar' ? 'جاري التحليل والمطابقة...' : 'Analyzing & Matching...'}";
+          btn.innerText = "${locale === 'ar' ? 'جاري التحليل والمطابقة...' : (locale === 'tr' ? 'Analiz Ediliyor ve Eşleştiriliyor...' : 'Analyzing & Matching...')}";
           btn.disabled = true;
           container.style.display = 'none';
 
@@ -606,7 +636,7 @@ candidatePortalRouter.get('/:locale/candidate/dashboard', async (c) => {
               }).join('');
               container.style.display = 'block';
             } else {
-              tbody.innerHTML = '<tr><td colspan="2" style="padding:10px; text-align:center; color:var(--text-muted);">${locale === 'ar' ? 'لا توجد وظائف متطابقة حالياً.' : 'No matching jobs found.'}</td></tr>';
+              tbody.innerHTML = '<tr><td colspan="2" style="padding:10px; text-align:center; color:var(--text-muted);">${locale === 'ar' ? 'لا توجد وظائف متطابقة حالياً.' : (locale === 'tr' ? 'Eşleşen iş ilanı bulunamadı.' : 'No matching jobs found.')}</td></tr>';
               container.style.display = 'block';
             }
           } catch (err) {

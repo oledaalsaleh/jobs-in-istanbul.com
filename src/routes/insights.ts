@@ -5,7 +5,8 @@ export const insightsRouter = new Hono()
 
 // ─── Istanbul Job Market Insights Page ─────────────────────────────────────
 insightsRouter.get('/:locale/insights', async (c) => {
-  const locale = (c.req.param('locale') === 'en') ? 'en' : 'ar'
+  const locale = (c.req.param('locale') || 'ar') as 'ar' | 'en' | 'tr';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr') return c.redirect('/ar/insights');
   const isRtl = locale === 'ar'
 
   const t = {
@@ -82,6 +83,43 @@ insightsRouter.get('/:locale/insights', async (c) => {
       tipText: 'Istanbul\'s job market is diverse and rich with opportunities. Tech and business sectors are the fastest growing, with increasing demand for bilingual professionals.',
       monthlyTrend: 'Jobs by Month',
       month: 'Month',
+    },
+    tr: {
+      title: 'İstanbul İş İlanları Analizleri',
+      subtitle: 'İstanbul\'daki iş fırsatları, maaşlar ve sektörlerin kapsamlı bir görünümü — veriler platformumuzda yayınlanan iş ilanlarına dayanmaktadır',
+      totalJobs: 'Toplam İş İlanı',
+      totalCompanies: 'Şirket Sayısı',
+      totalCategories: 'Sektör Sayısı',
+      jobsByType: 'Çalışma Türüne Göre İlanlar',
+      jobsByCategory: 'En Çok Eleman Aranan Sektörler',
+      jobsByDistrict: 'İlçelere Göre İş İlanları',
+      jobsByLanguage: 'Gerekli Diller',
+      featuredVsRegular: 'Öne Çıkan ve Standart İlanlar',
+      recentJobs: 'Son Yayınlanan İş İlanları',
+      salaryInsights: 'Maaş Aralıkları',
+      jobType: 'Çalışma Türü',
+      count: 'Sayı',
+      category: 'Sektör',
+      district: 'İlçe',
+      language: 'Dil',
+      featured: 'Öne Çıkan',
+      regular: 'Standart',
+      fullTime: 'Tam Zamanlı',
+      partTime: 'Yarı Zamanlı',
+      remote: 'Uzaktan Çalışma',
+      internship: 'Staj',
+      arabic: 'Arapça',
+      english: 'İngilizce',
+      both: 'Çok Dilli',
+      lastUpdated: 'Son Güncelleme',
+      noData: 'Henüz yeterli veri bulunmamaktadır',
+      viewAllJobs: 'Tüm İş İlanlarına Göz At',
+      jobs: 'iş ilanı',
+      jobsPerCategory: 'iş ilanı',
+      tip: 'İpucu',
+      tipText: 'İstanbul iş piyasası oldukça hareketli ve çeşitlidir. Teknoloji ve ticaret en hızlı büyüyen sektörlerdir; çok dilli adaylara olan talep artmaktadır.',
+      monthlyTrend: 'Aylara Göre İlanlar',
+      month: 'Ay'
     }
   }[locale]
 
@@ -143,7 +181,7 @@ insightsRouter.get('/:locale/insights', async (c) => {
           `SELECT data FROM documents WHERE root_id = ? AND is_current_draft = 1 AND deleted_at IS NULL LIMIT 1`
         ).bind(catRef).first()
         const catData = catDoc ? JSON.parse((catDoc as any).data || '{}') : {}
-        const catName = locale === 'ar' ? (catData.name_ar || catData.name_en || catRef) : (catData.name_en || catData.name_ar || catRef)
+        const catName = locale === 'ar' ? (catData.name_ar || catData.name_en || catRef) : (locale === 'tr' ? (catData.name_tr || catData.name_en || catRef) : (catData.name_en || catData.name_ar || catRef))
         categoryStats.push({ name: catName, count: (row as any).count })
       }
     }
@@ -661,13 +699,13 @@ Portal Statistics:
           <div class="chart-title"><i class="fa-solid fa-chart-line"></i> ${t.monthlyTrend}</div>
           ${monthlyData.length > 0 ? (() => {
         const maxMonthly = Math.max(...monthlyData.map((m: any) => m.count), 1)
-        const monthNames: Record<string, { ar: string; en: string }> = {
-          '01': { ar: 'يناير', en: 'Jan' }, '02': { ar: 'فبراير', en: 'Feb' },
-          '03': { ar: 'مارس', en: 'Mar' }, '04': { ar: 'أبريل', en: 'Apr' },
-          '05': { ar: 'مايو', en: 'May' }, '06': { ar: 'يونيو', en: 'Jun' },
-          '07': { ar: 'يوليو', en: 'Jul' }, '08': { ar: 'أغسطس', en: 'Aug' },
-          '09': { ar: 'سبتمبر', en: 'Sep' }, '10': { ar: 'أكتوبر', en: 'Oct' },
-          '11': { ar: 'نوفمبر', en: 'Nov' }, '12': { ar: 'ديسمبر', en: 'Dec' },
+        const monthNames: Record<string, { ar: string; en: string; tr: string }> = {
+          '01': { ar: 'يناير', en: 'Jan', tr: 'Oca' }, '02': { ar: 'فبراير', en: 'Feb', tr: 'Şub' },
+          '03': { ar: 'مارس', en: 'Mar', tr: 'Mar' }, '04': { ar: 'أبريل', en: 'Apr', tr: 'Nis' },
+          '05': { ar: 'مايو', en: 'May', tr: 'May' }, '06': { ar: 'يونيو', en: 'Jun', tr: 'Haz' },
+          '07': { ar: 'يوليو', en: 'Jul', tr: 'Tem' }, '08': { ar: 'أغسطس', en: 'Aug', tr: 'Ağu' },
+          '09': { ar: 'سبتمبر', en: 'Sep', tr: 'Eyl' }, '10': { ar: 'أكتوبر', en: 'Oct', tr: 'Eki' },
+          '11': { ar: 'نوفمبر', en: 'Nov', tr: 'Kas' }, '12': { ar: 'ديسمبر', en: 'Dec', tr: 'Ara' },
         }
         return `
               <div class="trend-chart">
@@ -708,7 +746,7 @@ Portal Statistics:
                   ${rj.salary ? `<span><i class="fa-solid fa-coins"></i> ${rj.salary}</span>` : ''}
                 </div>
               </div>
-              <span class="recent-link">${isRtl ? 'عرض ←' : '→ View'}</span>
+              <span class="recent-link">${locale === 'ar' ? 'عرض ←' : (locale === 'tr' ? 'Görüntüle →' : '→ View')}</span>
             </a>
           `).join('')}
         </div>
@@ -717,7 +755,7 @@ Portal Statistics:
 
       <!-- Salary Estimator Card -->
       <div class="chart-card" style="margin-bottom: 30px; border: 1px solid var(--border); text-align: left;">
-        <div class="chart-title"><i class="fa-solid fa-calculator"></i> ${locale === 'ar' ? '🧮 حاسبة ومخمن الرواتب التفاعلي' : '🧮 Interactive Salary Estimator'}</div>
+        <div class="chart-title"><i class="fa-solid fa-calculator"></i> ${locale === 'ar' ? '🧮 حاسبة ومخمن الرواتب التفاعلي' : (locale === 'tr' ? '🧮 İnteraktif Maaş Tahmin Aracı' : '🧮 Interactive Salary Estimator')}</div>
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5;">
           ${locale === 'ar' 
             ? 'اختر القطاع ونوع الدوام لمعرفة متوسط وهيكل الرواتب التقريبية المتوقعة في سوق العمل بإسطنبول حالياً:'
@@ -726,18 +764,18 @@ Portal Statistics:
 
         <div style="display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap;">
           <div style="flex: 1; min-width: 200px; text-align: left;">
-            <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-dark); margin-bottom: 6px;">${locale === 'ar' ? 'القطاع الوظيفي' : 'Job Sector'}</label>
+            <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-dark); margin-bottom: 6px;">${locale === 'ar' ? 'القطاع الوظيفي' : (locale === 'tr' ? 'İş Sektörü' : 'Job Sector')}</label>
             <select id="calc-sector" style="width:100%; padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-card); color: var(--text-dark); font-weight: 600; cursor:pointer;">
-              <option value="cat-general">${locale === 'ar' ? 'عام / وظائف أخرى' : 'General / Other Jobs'}</option>
-              <option value="cat-it">${locale === 'ar' ? 'تكنولوجيا المعلومات والبرمجة' : 'IT & Software Development'}</option>
-              <option value="cat-tourism">${locale === 'ar' ? 'السياحة والفنادق' : 'Tourism & Hospitality'}</option>
-              <option value="cat-realestate">${locale === 'ar' ? 'العقارات والمبيعات' : 'Real Estate & Sales'}</option>
-              <option value="cat-education">${locale === 'ar' ? 'التعليم والتدريس' : 'Education & Teaching'}</option>
-              <option value="cat-customer">${locale === 'ar' ? 'خدمة العملاء والدعم' : 'Customer Service & Support'}</option>
+              <option value="cat-general">${locale === 'ar' ? 'عام / وظائف أخرى' : (locale === 'tr' ? 'Genel / Diğer İşler' : 'General / Other Jobs')}</option>
+              <option value="cat-it">${locale === 'ar' ? 'تكنولوجيا المعلومات والبرمجة' : (locale === 'tr' ? 'Bilişim & Yazılım Geliştirme' : 'IT & Software Development')}</option>
+              <option value="cat-tourism">${locale === 'ar' ? 'السياحة والفنادق' : (locale === 'tr' ? 'Turizm & Otelcilik' : 'Tourism & Hospitality')}</option>
+              <option value="cat-realestate">${locale === 'ar' ? 'العقارات والمبيعات' : (locale === 'tr' ? 'Emlak & Satış' : 'Real Estate & Sales')}</option>
+              <option value="cat-education">${locale === 'ar' ? 'التعليم والتدريس' : (locale === 'tr' ? 'Eğitim & Öğretmenlik' : 'Education & Teaching')}</option>
+              <option value="cat-customer">${locale === 'ar' ? 'خدمة العملاء والدعم' : (locale === 'tr' ? 'Müşteri Hizmetleri & Destek' : 'Customer Service & Support')}</option>
             </select>
           </div>
           <div style="flex: 1; min-width: 200px; text-align: left;">
-            <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-dark); margin-bottom: 6px;">${locale === 'ar' ? 'نوع الدوام' : 'Job Type'}</label>
+            <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-dark); margin-bottom: 6px;">${locale === 'ar' ? 'نوع الدوام' : (locale === 'tr' ? 'Çalışma Türü' : 'Job Type')}</label>
             <select id="calc-type" style="width:100%; padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-card); color: var(--text-dark); font-weight: 600; cursor:pointer;">
               <option value="full-time">${t.fullTime}</option>
               <option value="part-time">${t.partTime}</option>
@@ -750,9 +788,9 @@ Portal Statistics:
         <!-- Slider Bar Visual -->
         <div style="background: var(--bg-subtle); padding: 24px; border-radius: var(--radius-md); border: 1px solid var(--border);">
           <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 8px;">
-            <span>${locale === 'ar' ? 'الحد الأدنى' : 'Minimum'}</span>
-            <span>${locale === 'ar' ? 'المتوسط المعروض' : 'Average'}</span>
-            <span>${locale === 'ar' ? 'الحد الأعلى' : 'Maximum'}</span>
+            <span>${locale === 'ar' ? 'الحد الأدنى' : (locale === 'tr' ? 'Minimum' : 'Minimum')}</span>
+            <span>${locale === 'ar' ? 'المتوسط المعروض' : (locale === 'tr' ? 'Ortalama' : 'Average')}</span>
+            <span>${locale === 'ar' ? 'الحد الأعلى' : (locale === 'tr' ? 'Maksimum' : 'Maximum')}</span>
           </div>
 
           <!-- Bar Visualizer -->

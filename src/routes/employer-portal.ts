@@ -33,6 +33,16 @@ employerPortalRouter.get('/:locale/employer/login', (c) => {
       loading: 'Sending magic link... ⏳',
       successMsg: 'Magic login link sent! Please check your email inbox.',
       devLinkNotice: '🔧 In development mode, you can sign in directly by clicking below:'
+    },
+    tr: {
+      title: 'İşveren Portalı - Giriş Yap',
+      subtitle: 'Başvuruları yönetmek ve aday listelerini kontrol etmek için güvenli sihirli giriş bağlantısı alacağınız şirket e-postanızı girin.',
+      emailLabel: 'Şirket E-posta Adresi',
+      emailPlh: 'company@example.com',
+      submitBtn: 'Giriş Bağlantısı Gönder 🚀',
+      loading: 'Bağlantı gönderiliyor... ⏳',
+      successMsg: 'Sihirli giriş bağlantısı başarıyla gönderildi! Lütfen e-postanızı kontrol edin.',
+      devLinkNotice: '🔧 Geliştirme modunda doğrudan aşağıdaki bağlantıya tıklayarak giriş yapabilirsiniz:'
     }
   }[locale];
 
@@ -152,7 +162,7 @@ employerPortalRouter.post('/api/employer/request-magic', rateLimiter(3, 10), asy
 employerPortalRouter.get('/employer/verify', async (c) => {
   const env: any = c.env;
   const token = c.req.query('token');
-  const locale = (c.req.query('locale') || 'ar') as 'ar' | 'en';
+  const locale = (c.req.query('locale') || 'ar') as 'ar' | 'en' | 'tr';
 
   if (!token) {
     return c.text('Verification token is missing.', 400);
@@ -226,6 +236,20 @@ employerPortalRouter.get('/:locale/employer/pricing', (c) => {
       sandboxTitle: 'Stripe Sandbox Simulation',
       sandboxDesc: 'This is a simulated gateway checkout to activate your premium ATS Employer limits.',
       sandboxSuccess: 'Plan upgraded successfully! You can now publish unlimited jobs and filter ATS candidates.'
+    },
+    tr: {
+      title: 'İşveren Abonelik Paketleri',
+      subtitle: 'İstanbul\'daki binlerce adaya ulaşmak ve akıllı ATS araçlarını kullanmak için firmanıza en uygun planı seçin.',
+      planFree: 'Ücretsiz Başlangıç Planı',
+      planPro: 'Profesyonel Plan (Pro)',
+      planEnterprise: 'Kurumsal Plan (Enterprise)',
+      priceFree: 'Ücretsiz',
+      pricePro: '99 $ / aylık',
+      priceEnterprise: '249 $ / aylık',
+      btnSelect: 'Şimdi Abone Ol 💳',
+      sandboxTitle: 'Ödeme Simülasyonu (Sandbox)',
+      sandboxDesc: 'Profesyonel işveren hesabı özelliklerini aktifleştirmek için hızlı bir ödeme simülasyonudur.',
+      sandboxSuccess: 'Hesabınız başarıyla yükseltildi! Artık sınırsız iş ilanı yayınlayabilir ve ATS sistemini kullanabilirsiniz.'
     }
   }[locale];
 
@@ -323,8 +347,8 @@ employerPortalRouter.get('/:locale/employer/pricing', (c) => {
 employerPortalRouter.get('/:locale/employer/dashboard', async (c) => {
   const env: any = c.env;
   const db = env.DB;
-  const locale = c.req.param('locale') as 'ar' | 'en';
-  if (locale !== 'ar' && locale !== 'en') return c.redirect('/ar/employer/dashboard');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr') return c.redirect('/ar/employer/dashboard');;
 
   const cookieVal = getCookie(c, COOKIE_NAME);
   if (!cookieVal) {
@@ -384,6 +408,45 @@ employerPortalRouter.get('/:locale/employer/dashboard', async (c) => {
       aiGenBtn: 'Generate description 🤖',
       quizPlaceholder: 'Example:\\n1. Do you know React? [Yes/No]\\n2. Years of experience? [1-3/4+]',
       pricingLink: 'Pricing Plans & Upgrades 👑'
+    },
+    tr: {
+      title: 'İşveren Paneli & ATS',
+      welcome: `Hoş geldiniz, ${employerEmail}`,
+      logout: 'Çıkış Yap',
+      postJobSec: 'Yeni İş İlanı Yayınla (Yapay Zeka Destekli 🤖)',
+      jobsTitle: 'Yayınladığınız İş İlanları',
+      appsTitle: 'ATS - Başvurular & Test Skorları',
+      noJobs: 'Henüz herhangi bir iş ilanı yayınlamadınız.',
+      noApps: 'Henüz yeni başvuru alınmadı.',
+      tblCandidate: 'Aday',
+      tblJob: 'İş Unvanı',
+      tblQuiz: 'Test Skoru',
+      tblStatus: 'Durum',
+      tblActions: 'İşlemler',
+      viewLetter: 'Ön Yazı',
+      downloadCV: 'CV Dosyası',
+      playVideo: 'Video Pitch',
+      postBtn: 'İş İlanını Yayınla 🚀',
+      aiGenBtn: 'Açıklama Üret 🤖',
+      quizPlaceholder: 'Örnek:\n1. React biliyor musunuz? [Evet/Hayır]\n2. Kaç yıl deneyiminiz var? [1-3/4+]',
+      pricingLink: 'Paketler ve Yükseltmeler 👑',
+      lblTitleEn: 'İş Unvanı (İngilizce)',
+      lblTitleAr: 'İş Unvanı (Arapça)',
+      lblCompany: 'Şirket Adı',
+      lblCategory: 'Kategori',
+      lblDistrict: 'İlçe (örn. Şişli)',
+      lblTransit: 'Ulaşım Hattı',
+      lblJobType: 'Çalışma Türü',
+      lblLanguage: 'Gerekli Dil',
+      lblDesc: 'Açıklama (Gereksinimler)',
+      lblQuizHeader: 'Değerlendirme Test Soruları (YAML/JSON Array)',
+      genQuizBtn: 'Yapay Zeka ile Test Oluştur 🤖',
+      modalVideoTitle: 'Aday Video Sunumu 🎥',
+      transitNone: 'Yok',
+      statusApplied: 'Başvuruldu',
+      statusReviewed: 'İncelendi',
+      statusShortlisted: 'Kısa Listeye Alındı',
+      statusRejected: 'Reddedildi'
     }
   }[locale];
 
@@ -430,7 +493,7 @@ employerPortalRouter.get('/:locale/employer/dashboard', async (c) => {
 
     // Render Jobs List
     const jobsHtml = jobs.length > 0 ? jobs.map((job: any) => {
-      const title = locale === 'ar' ? job.title_ar : job.title_en;
+      const title = locale === 'ar' ? job.title_ar : (locale === 'tr' ? (job.title_tr || job.title_en) : job.title_en);
       return `
         <div style="background: var(--bg-site); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
           <div>
@@ -458,7 +521,7 @@ employerPortalRouter.get('/:locale/employer/dashboard', async (c) => {
           <tbody>
             ${applications.map((app: any) => {
               const job = jobs.find((j: any) => j.id === app.jobId);
-              const jobTitle = job ? (locale === 'ar' ? job.title_ar : job.title_en) : 'Unspecified';
+              const jobTitle = job ? (locale === 'ar' ? job.title_ar : (locale === 'tr' ? (job.title_tr || job.title_en) : job.title_en)) : 'Unspecified';
               const quizScore = app.quizScore ? app.quizScore : '--';
               const statusSel = (st: string) => app.status === st ? 'selected' : '';
               
@@ -522,38 +585,38 @@ employerPortalRouter.get('/:locale/employer/dashboard', async (c) => {
               
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                 <div>
-                  <label style="font-weight: 700; font-size: 0.9rem; color: var(--text-dark); display: block; margin-bottom: 6px;">Job Title (English)</label>
+                  <label style="font-weight: 700; font-size: 0.9rem; color: var(--text-dark); display: block; margin-bottom: 6px;">${t.lblTitleEn}</label>
                   <input type="text" id="post-title-en" name="title_en" required class="form-input">
                 </div>
                 <div>
-                  <label style="font-weight: 700; font-size: 0.9rem; color: var(--text-dark); display: block; margin-bottom: 6px;">Job Title (Arabic)</label>
+                  <label style="font-weight: 700; font-size: 0.9rem; color: var(--text-dark); display: block; margin-bottom: 6px;">${t.lblTitleAr}</label>
                   <input type="text" name="title_ar" required class="form-input">
                 </div>
               </div>
 
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                 <div>
-                  <label style="font-weight: 700; font-size: 0.9rem; color: var(--text-dark); display: block; margin-bottom: 6px;">Company Name</label>
+                  <label style="font-weight: 700; font-size: 0.9rem; color: var(--text-dark); display: block; margin-bottom: 6px;">${t.lblCompany}</label>
                   <input type="text" name="company" required class="form-input" value="My Enterprise">
                 </div>
                 <div>
-                  <label style="font-weight: 700; font-size: 0.9rem; color: var(--text-dark); display: block; margin-bottom: 6px;">Category</label>
+                  <label style="font-weight: 700; font-size: 0.9rem; color: var(--text-dark); display: block; margin-bottom: 6px;">${t.lblCategory}</label>
                   <select name="category" required class="form-input">
-                    ${categories.map((c: any) => `<option value="${c.id}">${locale === 'ar' ? c.name_ar : c.name_en}</option>`).join('')}
+                    ${categories.map((c: any) => `<option value="${c.id}">${locale === 'ar' ? c.name_ar : (locale === 'tr' ? (c.name_tr || c.name_en) : c.name_en)}</option>`).join('')}
                   </select>
                 </div>
               </div>
 
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                 <div>
-                  <label style="font-weight: 700; font-size: 0.9rem; color: var(--text-dark); display: block; margin-bottom: 6px;">District (e.g. Sisli)</label>
+                  <label style="font-weight: 700; font-size: 0.9rem; color: var(--text-dark); display: block; margin-bottom: 6px;">${t.lblDistrict}</label>
                   <input type="text" name="location_en" required class="form-input" value="Sisli">
                   <input type="hidden" name="location_ar" value="شيشلي">
                 </div>
                 <div>
-                  <label style="font-weight: 700; font-size: 0.9rem; color: var(--text-dark); display: block; margin-bottom: 6px;">Transit Node</label>
+                  <label style="font-weight: 700; font-size: 0.9rem; color: var(--text-dark); display: block; margin-bottom: 6px;">${t.lblTransit}</label>
                   <select name="transitLine" class="form-input">
-                    <option value="none">None</option>
+                    <option value="none">${t.transitNone}</option>
                     <option value="m2">M2 Metro (Sisli/Mecidiyekoy/Levent)</option>
                     <option value="metrobus">Metrobus (E-5 Express Line)</option>
                     <option value="m4">M4 Metro (Kadikoy Side)</option>
@@ -564,7 +627,7 @@ employerPortalRouter.get('/:locale/employer/dashboard', async (c) => {
 
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                 <div>
-                  <label style="font-weight: 700; font-size: 0.9rem; color: var(--text-dark); display: block; margin-bottom: 6px;">Job Type</label>
+                  <label style="font-weight: 700; font-size: 0.9rem; color: var(--text-dark); display: block; margin-bottom: 6px;">${t.lblJobType}</label>
                   <select name="jobType" class="form-input">
                     <option value="full-time">Full Time</option>
                     <option value="part-time">Part Time</option>
@@ -573,7 +636,7 @@ employerPortalRouter.get('/:locale/employer/dashboard', async (c) => {
                   </select>
                 </div>
                 <div>
-                  <label style="font-weight: 700; font-size: 0.9rem; color: var(--text-dark); display: block; margin-bottom: 6px;">Required Language</label>
+                  <label style="font-weight: 700; font-size: 0.9rem; color: var(--text-dark); display: block; margin-bottom: 6px;">${t.lblLanguage}</label>
                   <select name="language" class="form-input">
                     <option value="both">Bilingual (Ar/En)</option>
                     <option value="en">English Only</option>
@@ -584,7 +647,7 @@ employerPortalRouter.get('/:locale/employer/dashboard', async (c) => {
 
               <div style="margin-bottom: 16px; position: relative;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                  <label style="font-weight: 700; font-size: 0.9rem; color: var(--text-dark); margin:0;">Description (Requirements)</label>
+                  <label style="font-weight: 700; font-size: 0.9rem; color: var(--text-dark); margin:0;">${t.lblDesc}</label>
                   <button type="button" onclick="generateAiJobDescription()" id="desc-ai-btn" class="btn-apply-now" style="font-size: 0.8rem; padding: 4px 10px; margin-top:0; border-color: var(--primary); color:var(--primary); background:transparent;">
                     ${t.aiGenBtn}
                   </button>
@@ -596,9 +659,9 @@ employerPortalRouter.get('/:locale/employer/dashboard', async (c) => {
               <!-- Screening Questions assessment builder -->
               <div style="margin-bottom: 24px; position: relative;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                  <label style="font-weight: 700; font-size: 0.9rem; color: var(--text-dark); margin:0;">Screening Quiz Questions (YAML/JSON Array)</label>
+                  <label style="font-weight: 700; font-size: 0.9rem; color: var(--text-dark); margin:0;">${t.lblQuizHeader}</label>
                   <button type="button" onclick="generateAiScreeningQuiz()" id="quiz-ai-btn" class="btn-apply-now" style="font-size: 0.8rem; padding: 4px 10px; margin-top:0; border-color: var(--primary); color:var(--primary); background:transparent;">
-                    ${locale === 'ar' ? 'توليد بالذكاء الاصطناعي 🤖' : 'Generate Quiz with AI 🤖'}
+                    ${t.genQuizBtn}
                   </button>
                 </div>
                 <textarea id="post-quiz" name="screeningQuestionsJson" rows="4" placeholder="${t.quizPlaceholder}" class="form-input" style="font-family: monospace; font-size:0.85rem;"></textarea>
@@ -628,7 +691,7 @@ employerPortalRouter.get('/:locale/employer/dashboard', async (c) => {
       <div id="video-pitch-modal" class="apply-modal">
         <div class="apply-modal-content" style="max-width: 500px; text-align: center;">
           <span class="modal-close" onclick="closeVideoModal()">&times;</span>
-          <h2 style="font-size: 1.3rem; font-weight: 800; color: var(--text-dark); margin-bottom: 20px;">Candidate Video Pitch 🎥</h2>
+          <h2 style="font-size: 1.3rem; font-weight: 800; color: var(--text-dark); margin-bottom: 20px;">${t.modalVideoTitle}</h2>
           <video id="modal-video-player" controls style="width: 100%; border-radius: var(--radius-md); box-shadow: var(--shadow-md); background: #000;"></video>
         </div>
       </div>
