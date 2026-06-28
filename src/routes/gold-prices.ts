@@ -128,14 +128,97 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
   // Generate gold select options
   const selectOptions = metals.map(m => `<option value="${m.id}">${localizedGoldName(m.id, m.name)}</option>`).join('');
 
+  const getKaratBadge = (id: string) => {
+    const styleMap: Record<string, { bg: string, text: string, label: string }> = {
+      '1': { bg: 'linear-gradient(135deg, #f59e0b, #d97706)', text: '#fff', label: '24K' },
+      '12': { bg: 'linear-gradient(135deg, #fbbf24, #ca8a04)', text: '#fff', label: '22K' },
+      '11': { bg: 'linear-gradient(135deg, #facc15, #a16207)', text: '#fff', label: '21K' },
+      '2': { bg: 'linear-gradient(135deg, #edc0a6, #c27a51)', text: '#fff', label: '18K' },
+      '3': { bg: 'linear-gradient(135deg, #9ca3af, #4b5563)', text: '#fff', label: '14K' },
+      '4': { bg: 'linear-gradient(135deg, #cbd5e1, #64748b)', text: '#fff', label: 'OZ' },
+      '5': { bg: 'linear-gradient(135deg, #fcd34d, #b45309)', text: '#fff', label: 'LIRA' }
+    };
+    const item = styleMap[id] || { bg: '#e2e8f0', text: '#1e293b', label: 'ALTIN' };
+    return `<span class="gold-badge" style="background: ${item.bg}; color: ${item.text}; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: 800; text-transform: uppercase;">${item.label}</span>`;
+  };
+
+  // Extract popular metrics for highlights (24K, 21K, Ounce)
+  const popularMetals = metals.filter(m => ['1', '11', '4'].includes(m.id));
+  const highlightsHtml = popularMetals.map(m => {
+    const isOz = m.id === '4';
+    const buyPrice = m.buy.toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const sellPrice = m.sell.toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const titleText = localizedGoldName(m.id, m.name);
+    
+    return `
+      <div class="highlight-card">
+        <div class="highlight-glow-bar"></div>
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            ${getKaratBadge(m.id)}
+            <span style="font-weight: 800; color: var(--text-dark); font-size: 1.05rem;">${titleText}</span>
+          </div>
+          <div style="margin-top: 8px; display: flex; gap: 16px;">
+            <div>
+              <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; display: block;">${locale === 'ar' ? 'شراء' : (locale === 'tr' ? 'Alış' : 'Buy')}</span>
+              <span style="font-size: 1.25rem; font-weight: 800; color: var(--text-dark);">${buyPrice} ₺</span>
+            </div>
+            <div style="border-left: 1px solid var(--border); padding-left: 16px; padding-right: 16px;">
+              <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; display: block;">${locale === 'ar' ? 'بيع' : (locale === 'tr' ? 'Satış' : 'Sell')}</span>
+              <span style="font-size: 1.25rem; font-weight: 800; color: #b45309;">${sellPrice} ₺</span>
+            </div>
+          </div>
+        </div>
+        <div style="font-size: 2rem; color: #fbbf24; filter: drop-shadow(0 2px 4px rgba(217, 119, 6, 0.15));">
+          <i class="${isOz ? 'fa-solid fa-coins' : 'fa-solid fa-cubes'}"></i>
+        </div>
+      </div>
+    `;
+  }).join('');
+
   const html = `
     <style>
+      .gold-highlights {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        max-width: 1200px;
+        margin: 30px auto 10px;
+        padding: 0 20px;
+      }
+      .highlight-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 24px;
+        box-shadow: var(--shadow-md);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+        transition: var(--transition);
+      }
+      .highlight-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg), 0 10px 30px -10px rgba(217, 119, 6, 0.15);
+        border-color: #fbbf24;
+      }
+      .highlight-glow-bar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #fbbf24, #d97706);
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      }
       .gold-grid {
         display: grid;
         grid-template-columns: 1.8fr 1.2fr;
         gap: 30px;
         max-width: 1200px;
-        margin: 40px auto 100px;
+        margin: 20px auto 100px;
         padding: 0 20px;
       }
       @media (max-width: 900px) {
@@ -143,55 +226,185 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
           grid-template-columns: 1fr;
         }
       }
+      .gold-table-container {
+        display: block;
+      }
+      @media (max-width: 600px) {
+        .gold-table-container {
+          display: none;
+        }
+      }
       .gold-table {
         width: 100%;
-        border-collapse: collapse;
+        border-collapse: separate;
+        border-spacing: 0;
         text-align: right;
       }
       .gold-table th {
-        padding: 14px 16px;
+        padding: 16px 20px;
         font-weight: 800;
         color: var(--text-dark);
         border-bottom: 2px solid var(--border);
-        font-size: 0.95rem;
+        font-size: 0.9rem;
+        background: #f8fafc;
+      }
+      .gold-table th:first-child {
+        border-top-left-radius: 12px;
+      }
+      .gold-table th:last-child {
+        border-top-right-radius: 12px;
       }
       .gold-table td {
-        padding: 14px 16px;
+        padding: 16px 20px;
         border-bottom: 1px solid var(--border);
-        font-size: 0.92rem;
-        color: var(--text-main);
-        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--text-dark);
+        font-weight: 700;
+        transition: var(--transition);
       }
-      .gold-row:hover {
-        background: var(--bg-subtle);
+      .gold-row:hover td {
+        background: var(--primary-light);
+      }
+      .gold-mobile-cards {
+        display: none;
+        flex-direction: column;
+        gap: 16px;
+      }
+      @media (max-width: 600px) {
+        .gold-mobile-cards {
+          display: flex;
+        }
+      }
+      .mobile-gold-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 18px;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+      }
+      .mobile-gold-card:hover {
+        border-color: #fbbf24;
+      }
+      .mobile-gold-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 8px;
+      }
+      .mobile-gold-price-box {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .price-slot {
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        padding: 10px;
+        border-radius: var(--radius-sm);
+        text-align: center;
+      }
+      .price-slot.sell {
+        background: #fffbeb;
+        border-color: #fde68a;
+      }
+      .price-slot-title {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        font-weight: 600;
+        margin-bottom: 4px;
+        display: block;
+      }
+      .price-slot-value {
+        font-size: 1rem;
+        font-weight: 800;
+        color: var(--text-dark);
+      }
+      .price-slot.sell .price-slot-value {
+        color: #b45309;
+      }
+      .calc-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 30px;
+        box-shadow: var(--shadow-md);
+        border-top: 4px solid #fbbf24;
+        position: relative;
+        overflow: hidden;
       }
       .calc-input {
         width: 100%;
-        padding: 12px;
+        padding: 12px 14px;
         border: 1px solid var(--border);
         border-radius: var(--radius-md);
         background: var(--bg-site);
         color: var(--text-dark);
         font-weight: 700;
+        font-size: 1rem;
+        transition: var(--transition);
+      }
+      .calc-input:focus {
+        border-color: #fbbf24;
+        box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15);
+        outline: none;
+      }
+      .calc-presets {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .preset-btn {
+        background: var(--bg-site);
+        border: 1px solid var(--border);
+        color: var(--text-dark);
+        font-size: 0.78rem;
+        font-weight: 700;
+        padding: 6px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: var(--transition);
+      }
+      .preset-btn:hover {
+        background: #fffbeb;
+        border-color: #fbbf24;
+        color: #b45309;
+      }
+      .calc-result-box {
+        background: linear-gradient(135deg, rgba(251, 191, 36, 0.05) 0%, rgba(180, 83, 9, 0.05) 100%);
+        border: 1px solid rgba(251, 191, 36, 0.20);
+        padding: 20px;
+        border-radius: var(--radius-md);
+        text-align: center;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.01);
       }
       .ai-advice-box {
         background: linear-gradient(135deg, rgba(20, 184, 166, 0.07) 0%, rgba(99, 102, 241, 0.07) 100%);
         border: 1px solid rgba(20, 184, 166, 0.15);
         padding: 24px;
         border-radius: var(--radius-lg);
-        margin-bottom: 30px;
+        margin-bottom: 20px;
       }
     </style>
 
     <div class="container" style="padding: 40px 20px 0;">
       <h1 class="hero-title-gradient" style="text-align: center; margin-bottom: 12px; font-size: 2.3rem; font-weight: 800;">${t.title}</h1>
       <p style="color: var(--text-muted); text-align: center; margin-bottom: 16px; font-size: 1.05rem; max-width: 700px; margin-left: auto; margin-right: auto; line-height: 1.6;">${t.subtitle}</p>
-      <div style="text-align: center; font-size: 0.85rem; color: var(--text-muted); font-weight: 600; margin-bottom: 30px;">
+      
+      <div style="text-align: center; font-size: 0.85rem; color: var(--text-muted); font-weight: 600; margin-bottom: 20px;">
         <i class="fa-regular fa-clock"></i> ${t.lastUpdate} ${lastUpdateStr}
       </div>
 
+      <!-- Key Highlight Rates -->
+      <div class="gold-highlights">
+        ${highlightsHtml}
+      </div>
+
       <!-- AI Advice Widget -->
-      <div class="ai-advice-box max-width: 1200px; margin-left: auto; margin-right: auto; max-width: 1160px;">
+      <div class="ai-advice-box" style="max-width: 1160px; margin-left: auto; margin-right: auto; margin-top: 20px;">
         <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-dark); margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
           <i class="fa-solid fa-robot" style="color: #0d9488;"></i> ${t.aiTitle}
         </h3>
@@ -201,45 +414,93 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
       <div class="gold-grid">
         
         <!-- Table Column -->
-        <div class="glass-card" style="padding: 24px; border-radius: var(--radius-lg); overflow-x: auto;">
-          <table class="gold-table" style="direction: ${locale === 'ar' ? 'rtl' : 'ltr'}; text-align: ${locale === 'ar' ? 'right' : 'left'};">
-            <thead>
-              <tr>
-                <th style="text-align: ${locale === 'ar' ? 'right' : 'left'};">${t.colGoldType}</th>
-                <th style="text-align: ${locale === 'ar' ? 'right' : 'left'};">${t.colBuy}</th>
-                <th style="text-align: ${locale === 'ar' ? 'right' : 'left'};">${t.colSell}</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${metals.map(m => {
-                return `
-                  <tr class="gold-row">
-                    <td style="display: flex; align-items: center; gap: 10px; text-align: ${locale === 'ar' ? 'right' : 'left'};">
-                      <i class="fa-solid fa-cubes" style="color: #d97706; font-size: 1.1rem;"></i>
-                      <div>
-                        <div style="font-weight: 800; color: var(--text-dark);">${localizedGoldName(m.id, m.name)}</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted);">${m.unit}</div>
-                      </div>
-                    </td>
-                    <td>${m.buy.toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺</td>
-                    <td>${m.sell.toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺</td>
-                  </tr>
-                `;
-              }).join('')}
-            </tbody>
-          </table>
-          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 20px; line-height: 1.5; text-align: center;">${t.textDescription}</p>
+        <div class="glass-card" style="padding: 24px; border-radius: var(--radius-lg);">
+          
+          <!-- Desktop View Table -->
+          <div class="gold-table-container">
+            <table class="gold-table" style="direction: ${locale === 'ar' ? 'rtl' : 'ltr'}; text-align: ${locale === 'ar' ? 'right' : 'left'};">
+              <thead>
+                <tr>
+                  <th style="text-align: ${locale === 'ar' ? 'right' : 'left'};">${t.colGoldType}</th>
+                  <th style="text-align: ${locale === 'ar' ? 'right' : 'left'};">${t.colBuy}</th>
+                  <th style="text-align: ${locale === 'ar' ? 'right' : 'left'};">${t.colSell}</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${metals.map(m => {
+                  const buyPrice = m.buy.toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                  const sellPrice = m.sell.toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                  return `
+                    <tr class="gold-row">
+                      <td style="display: flex; align-items: center; gap: 12px; text-align: ${locale === 'ar' ? 'right' : 'left'};">
+                        <div style="font-size: 1.15rem; color: #d97706; display: flex; align-items: center;"><i class="${m.id === '4' || m.id === '5' ? 'fa-solid fa-coins' : 'fa-solid fa-cubes'}"></i></div>
+                        <div>
+                          <div style="font-weight: 800; color: var(--text-dark); display: flex; align-items: center; gap: 8px;">
+                            <span>${localizedGoldName(m.id, m.name)}</span>
+                            ${getKaratBadge(m.id)}
+                          </div>
+                          <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">${m.unit}</div>
+                        </div>
+                      </td>
+                      <td style="font-size: 1.05rem; font-weight: 800; color: var(--text-dark);">${buyPrice} ₺</td>
+                      <td style="font-size: 1.05rem; font-weight: 800; color: #b45309;">${sellPrice} ₺</td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Mobile View Cards -->
+          <div class="gold-mobile-cards">
+            ${metals.map(m => {
+              const buyPrice = m.buy.toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+              const sellPrice = m.sell.toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+              return `
+                <div class="mobile-gold-card">
+                  <div class="mobile-gold-card-header" style="direction: ${locale === 'ar' ? 'rtl' : 'ltr'};">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <i class="${m.id === '4' || m.id === '5' ? 'fa-solid fa-coins' : 'fa-solid fa-cubes'}" style="color: #d97706; font-size: 1.05rem;"></i>
+                      <span style="font-weight: 800; color: var(--text-dark); font-size: 0.95rem;">${localizedGoldName(m.id, m.name)}</span>
+                    </div>
+                    ${getKaratBadge(m.id)}
+                  </div>
+                  <div class="mobile-gold-price-box" style="direction: ${locale === 'ar' ? 'rtl' : 'ltr'};">
+                    <div class="price-slot">
+                      <span class="price-slot-title">${locale === 'ar' ? 'شراء' : (locale === 'tr' ? 'Alış' : 'Buy')}</span>
+                      <span class="price-slot-value">${buyPrice} ₺</span>
+                    </div>
+                    <div class="price-slot sell">
+                      <span class="price-slot-title">${locale === 'ar' ? 'بيع' : (locale === 'tr' ? 'Satış' : 'Sell')}</span>
+                      <span class="price-slot-value">${sellPrice} ₺</span>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 25px; line-height: 1.6; text-align: center;">${t.textDescription}</p>
         </div>
 
         <!-- Calculator Column -->
         <div style="display: flex; flex-direction: column; gap: 30px;">
-          <div class="glass-card" style="padding: 30px; border-radius: var(--radius-lg);">
-            <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--text-dark); margin: 0 0 24px 0; border-bottom: 1px solid var(--border); padding-bottom: 15px; text-align: center;">${t.converterTitle}</h3>
+          <div class="calc-card">
+            <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-dark); margin: 0 0 24px 0; border-bottom: 1px solid var(--border); padding-bottom: 15px; text-align: center;">${t.converterTitle}</h3>
             
-            <form id="gold-calc-form" onsubmit="event.preventDefault(); calculateGold();">
+            <form id="gold-calc-form" onsubmit="event.preventDefault(); calculateGold();" style="direction: ${locale === 'ar' ? 'rtl' : 'ltr'}; text-align: ${locale === 'ar' ? 'right' : 'left'};">
               <div style="margin-bottom: 20px;">
                 <label style="display: block; font-weight: 700; color: var(--text-dark); margin-bottom: 8px;">${t.weightLabel}</label>
                 <input type="number" id="gold-weight" value="10" min="0.01" step="any" class="calc-input" oninput="calculateGold()">
+                
+                <!-- Quick Preset Weight Buttons -->
+                <div class="calc-presets">
+                  <button type="button" class="preset-btn" onclick="setWeight(1)">1 ${locale === 'ar' ? 'جرام' : 'g'}</button>
+                  <button type="button" class="preset-btn" onclick="setWeight(5)">5 ${locale === 'ar' ? 'جرام' : 'g'}</button>
+                  <button type="button" class="preset-btn" onclick="setWeight(10)">10 ${locale === 'ar' ? 'جرام' : 'g'}</button>
+                  <button type="button" class="preset-btn" onclick="setWeight(50)">50 ${locale === 'ar' ? 'جرام' : 'g'}</button>
+                  <button type="button" class="preset-btn" onclick="setWeight(100)">100 ${locale === 'ar' ? 'جرام' : 'g'}</button>
+                </div>
               </div>
 
               <div style="margin-bottom: 20px;">
@@ -257,9 +518,9 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
                 </select>
               </div>
 
-              <div style="background: rgba(0,0,0,0.02); border: 1px solid var(--border); padding: 20px; border-radius: var(--radius-md); text-align: center;">
+              <div class="calc-result-box">
                 <div style="font-size: 0.88rem; color: var(--text-muted); font-weight: 600; margin-bottom: 6px;">${t.resultLabel}</div>
-                <div id="gold-calc-result" style="font-size: 2rem; font-weight: 900; color: #b45309; word-break: break-all;">--</div>
+                <div id="gold-calc-result" style="font-size: 2.1rem; font-weight: 900; color: #b45309; word-break: break-all;">--</div>
               </div>
             </form>
           </div>
@@ -273,6 +534,12 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
         acc[cur.id] = { buy: cur.buy, sell: cur.sell, name: cur.name };
         return acc;
       }, {}))};
+      const locale = '${locale}';
+
+      function setWeight(val) {
+        document.getElementById('gold-weight').value = val;
+        calculateGold();
+      }
 
       function calculateGold() {
         const weight = parseFloat(document.getElementById('gold-weight').value) || 0;

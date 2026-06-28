@@ -2368,6 +2368,8 @@ aiFeaturesRouter.get('/:locale/workplace-quiz', (c) => {
     }
   ];
 
+  void questions;
+
   const html = `
     <style>
       .quiz-container {

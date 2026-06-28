@@ -228,6 +228,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
     langSwitchUrl = `/${oppositeLocale}/gold-prices`;
   }
 
+  void langSwitchUrl;
+
   return `<!DOCTYPE html>
 <html lang="${locale}" dir="${isRtl ? 'rtl' : 'ltr'}">
 <head>

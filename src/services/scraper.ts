@@ -18,6 +18,7 @@ export interface ScrapedJobData {
   salary: string;
   applyLink: string;
   applyEmail: string;
+  phone?: string;
   language: 'ar' | 'en' | 'both';
 }
 
@@ -151,6 +152,32 @@ export async function getJobsList(): Promise<string[]> {
     }
   } catch (e) {
     console.error('Failed to crawl adwhit.com:', e);
+  }
+
+  // 4. Crawl salamjobs.com (recent postings from first 2 pages)
+  try {
+    const salamSources = [
+      'https://salamjobs.com/search?country_id=1&city_id=4&page=1',
+      'https://salamjobs.com/search?country_id=1&city_id=4&page=2'
+    ];
+    for (const source of salamSources) {
+      const response = await fetch(source, { headers, signal: AbortSignal.timeout(10000) });
+      if (response.ok) {
+        const html = await response.text();
+        const articleRegex = /<article class="sj-card[^"]*">([\s\S]*?)<\/article>/gi;
+        let match;
+        while ((match = articleRegex.exec(html)) !== null) {
+          const content = match[1];
+          const linkRegex = /href="(https:\/\/salamjobs\.com\/jobs\/[^"]+)"/i;
+          const linkMatch = content.match(linkRegex);
+          if (linkMatch) {
+            allUrls.push(linkMatch[1].trim());
+          }
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Failed to crawl salamjobs.com:', e);
   }
 
   return [...new Set(allUrls)];
@@ -297,15 +324,62 @@ export async function isJobAlreadyScraped(db: D1Database, sourceUrl: string): Pr
 /**
  * Resolves category slug to category document ID
  */
-function resolveCategory(slug: string): string {
+export function resolveCategory(slug: string): string {
   const mapping: Record<string, string> = {
     'it-software': 'cat-it',
     'tourism-hospitality': 'cat-tourism',
     'real-estate-sales': 'cat-realestate',
     'education-teaching': 'cat-education',
-    'customer-service-translation': 'cat-customer'
+    'customer-service-translation': 'cat-customer',
+    'marketing-advertising': 'cat-marketing',
+    'accounting-finance': 'cat-finance',
+    'healthcare-medical': 'cat-healthcare',
+    'engineering-construction': 'cat-engineering',
+    'design-creative-arts': 'cat-design',
+    'admin-human-resources': 'cat-admin',
+    'logistics-transportation': 'cat-logistics',
+    'beauty-salon': 'cat-salon',
+    'general-others': 'cat-general'
   };
   return mapping[slug] || 'cat-general';
+}
+
+/**
+ * Decodes Cloudflare email protection hex strings
+ */
+export function decodeCfEmail(encoded: string): string {
+  try {
+    let email = '';
+    const r = parseInt(encoded.substring(0, 2), 16);
+    for (let n = 2; n < encoded.length; n += 2) {
+      const c = parseInt(encoded.substring(n, 2), 16) ^ r;
+      email += String.fromCharCode(c);
+    }
+    return email;
+  } catch (e) {
+    return '';
+  }
+}
+
+/**
+ * Replaces Cloudflare-obfuscated email links and content in HTML with plain text
+ */
+export function decodeCloudflareEmails(html: string): string {
+  // 1. Replace data-cfemail="xxx" elements
+  const cfEmailRegex = /class="__cf_email__"\s+data-cfemail="([a-f0-9]+)"/gi;
+  let decodedHtml = html.replace(cfEmailRegex, (_, hex) => {
+    const decoded = decodeCfEmail(hex);
+    return `href="mailto:${decoded}">${decoded}</a>`;
+  });
+
+  // 2. Replace href="/cdn-cgi/l/email-protection#xxx"
+  const cfHrefRegex = /href="\/cdn-cgi\/l\/email-protection#([a-f0-9]+)"/gi;
+  decodedHtml = decodedHtml.replace(cfHrefRegex, (_, hex) => {
+    const decoded = decodeCfEmail(hex);
+    return `href="mailto:${decoded}"`;
+  });
+
+  return decodedHtml;
 }
 
 /**
@@ -629,7 +703,30 @@ export async function runScraper(
         }
         
         const html = await response.text();
-        const cleanedText = cleanHtml(html);
+        // Decode Cloudflare email protection in HTML
+        const decodedHtml = decodeCloudflareEmails(html);
+        
+        // Extract phone number from buttons if any
+        let phoneFromHtml = '';
+        const telRegex = /href="tel:([^"]+)"/i;
+        const telMatch = decodedHtml.match(telRegex);
+        if (telMatch) {
+          phoneFromHtml = decodeURIComponent(telMatch[1]).trim();
+        } else {
+          const waRegex = /phone=([^&"]+)/i;
+          const waMatch = decodedHtml.match(waRegex);
+          if (waMatch) {
+            let num = decodeURIComponent(waMatch[1]).trim();
+            if (!num.startsWith('+') && num.length > 5) {
+              if (num.startsWith('90') || num.startsWith('96')) {
+                num = '+' + num;
+              }
+            }
+            phoneFromHtml = num;
+          }
+        }
+
+        const cleanedText = cleanHtml(decodedHtml);
 
         if (cleanedText.length < 150) {
           throw new Error('Retrieved content is too short or blocked.');
@@ -637,6 +734,11 @@ export async function runScraper(
 
         details.push(`[AI] Analyzing text with Llama AI (${cleanedText.length} chars)...`);
         const jobJson = await analyzeJobWithAI(env.AI, cleanedText);
+
+        // Inject phone from HTML buttons if not detected by AI
+        if (!jobJson.phone && phoneFromHtml) {
+          jobJson.phone = phoneFromHtml;
+        }
 
         details.push(`[SAVE] Saving job: "${jobJson.title_en}" (Company: ${jobJson.company_name})`);
         const { jobId, slug } = await saveJobToDb(
@@ -650,6 +752,7 @@ export async function runScraper(
         scrapedCount++;
 
         // Auto-publish to Telegram if configured
+        let telegramPublished = false;
         if (env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHANNEL_ID) {
           try {
             console.log(`[TELEGRAM] Publishing scraped job to Telegram channel: ${env.TELEGRAM_CHANNEL_ID}`);
@@ -660,10 +763,23 @@ export async function runScraper(
               jobJson.location_ar || jobJson.location_en,
               slug
             );
+            telegramPublished = true;
             details.push(`[TELEGRAM] Successfully published job "${jobJson.title_en}" to Telegram.`);
           } catch (tgErr: any) {
             console.error('[TELEGRAM ERROR] Failed to send Telegram alert for scraped job:', tgErr);
             details.push(`[TELEGRAM ERROR] Failed to publish "${jobJson.title_en}" to Telegram: ${tgErr.message}`);
+          }
+        }
+
+        // If published, update metadata in D1
+        if (telegramPublished) {
+          try {
+            const metaJson = JSON.stringify({ telegramPublished: true, telegramPublishedAt: Date.now() });
+            await env.DB.prepare(
+              `UPDATE documents SET metadata = ? WHERE id = ?`
+            ).bind(metaJson, jobId).run();
+          } catch (metaErr) {
+            console.error('Failed to update job metadata:', metaErr);
           }
         }
 
