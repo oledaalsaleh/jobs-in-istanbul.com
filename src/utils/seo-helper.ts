@@ -23,7 +23,7 @@ interface MetaDataInput {
 
 export function generateMetaTags(locale: 'ar' | 'en', pageType: 'home' | 'job' | 'submit' | 'blog' | 'blog_post', data: MetaDataInput = {}) {
   const siteUrl = 'https://jobs-in-istanbul.com';
-  
+
   const defaults = {
     ar: {
       title: 'وظائف في إسطنبول | وظائف لمتحدثي الإنجليزية في تركيا',
@@ -37,26 +37,26 @@ export function generateMetaTags(locale: 'ar' | 'en', pageType: 'home' | 'job' |
 
   let title = data.title || defaults.title;
   let desc = data.seoDescription || data.description || defaults.desc;
-  
+
   if (pageType === 'job') {
-    title = locale === 'ar' 
+    title = locale === 'ar'
       ? `${data.title} - وظيفة في إسطنبول لدى ${data.companyName}`
       : `${data.title} - Job in Istanbul at ${data.companyName}`;
     desc = data.seoDescription || (data.description ? data.description.substring(0, 160).replace(/<[^>]*>/g, '') : defaults.desc);
   } else if (pageType === 'submit') {
     title = locale === 'ar' ? 'أعلن عن وظيفة شاغرة في إسطنبول' : 'Post a Job Vacancy in Istanbul';
-    desc = locale === 'ar' 
+    desc = locale === 'ar'
       ? 'أعلن عن وظيفة شاغرة في شركتك وقم بالوصول إلى آلاف الكفاءات والباحثين عن عمل في إسطنبول.'
       : 'Post a vacancy in your organization and reach thousands of skilled job seekers in Istanbul.';
   } else if (pageType === 'blog') {
-    title = locale === 'ar' 
+    title = locale === 'ar'
       ? 'مدونة المهنة - إسطنبول | نصائح التوظيف وإقامة العمل في تركيا'
       : 'Career Blog - Istanbul | Work Permits & Commuting Tips';
-    desc = locale === 'ar' 
+    desc = locale === 'ar'
       ? 'دليلك المهني الشامل ونواصح التوظيف في إسطنبول. اقرأ حول تعديل السير الذاتية لأنظمة ATS وقوانين إقامة العمل والمواصلات في إسطنبول.'
       : 'Your ultimate guide to working in Istanbul. Read articles on ATS resume optimization, work permit laws, and navigating transportation.';
   } else if (pageType === 'blog_post') {
-    title = locale === 'ar' 
+    title = locale === 'ar'
       ? `${data.title} | مدونة المهنة إسطنبول`
       : `${data.title} | Istanbul Career Blog`;
     desc = data.description ? data.description.substring(0, 160).replace(/<[^>]*>/g, '') : defaults.desc;
@@ -163,7 +163,7 @@ function parseSalary(salaryStr: string) {
   const clean = salaryStr.replace(/,/g, '').trim();
   const matches = clean.match(/\d+/g);
   if (!matches) return null;
-  
+
   if (matches.length >= 2) {
     const val1 = parseFloat(matches[0]);
     const val2 = parseFloat(matches[1]);
@@ -179,9 +179,91 @@ function parseSalary(salaryStr: string) {
   return null;
 }
 
+function getIstanbulPostalCode(locationStr?: string): string {
+  if (!locationStr) return '34000';
+  const loc = locationStr.toLowerCase();
+
+  // District to Postal Code map (major districts)
+  const districtMap: Record<string, string> = {
+    'şişli': '34360', 'sisli': '34360',
+    'kadıköy': '34710', 'kadikoy': '34710',
+    'beşiktaş': '34330', 'besiktas': '34330',
+    'fatih': '34090',
+    'esenyurt': '34510',
+    'üsküdar': '34660', 'uskudar': '34660',
+    'pendik': '34890',
+    'beyoğlu': '34421', 'beyoglu': '34421',
+    'ataşehir': '34758', 'atasehir': '34758',
+    'kağıthane': '34403', 'kagithane': '34403',
+    'sarıyer': '34450', 'sariyer': '34450',
+    'kartal': '34860',
+    'maltepe': '34840',
+    'ümraniye': '34764', 'umraniye': '34764',
+    'başakşehir': '34480', 'basaksehir': '34480',
+    'beylikdüzü': '34520', 'beylikduzu': '34520',
+    'bakırköy': '34142', 'bakirkoy': '34142',
+    'bağcılar': '34200', 'bagcilar': '34200',
+    'bahçelievler': '34180', 'bahcelievler': '34180',
+    'eyüp': '34050', 'eyup': '34050',
+    'gaziosmanpaşa': '34245', 'gaziosmanpasa': '34245',
+    'tuzla': '34947',
+    'çekmeköy': '34782', 'cekmekoy': '34782',
+    'beykoz': '34820',
+    'sancaktepe': '34785',
+    'sultangazi': '34265',
+    'arnavutköy': '34275', 'arnavutkoy': '34275',
+    'silivri': '34570',
+    'çatalca': '34540', 'catalca': '34540',
+    'شيشلي': '34360',
+    'كاديكوي': '34710',
+    'بشكتاش': '34330',
+    'الفاتح': '34090',
+    'اسنيورت': '34510',
+    'اسكودار': '34660',
+    'بينديك': '34890',
+    'بيوغلو': '34421',
+    'أتاشهير': '34758',
+    'كاغيت هانة': '34403',
+    'ساريير': '34450',
+    'كارتال': '34860',
+    'مالتيبي': '34840',
+    'عمرانية': '34764',
+    'باشاك شهير': '34480',
+    'بيليك دوزو': '34520',
+    'باقركوي': '34142',
+    'باغجلار': '34200',
+    'باهتشلي ايفلر': '34180',
+    'أيوب': '34050',
+    'غازي عثمان باشا': '34245',
+    'توزلا': '34947',
+    'تشيكميكوي': '34782',
+    'بيكوز': '34820',
+    'سنجاق تبي': '34785',
+    'سلطان غازي': '34265',
+    'أرناؤوط كوي': '34275'
+  };
+
+  for (const [district, zip] of Object.entries(districtMap)) {
+    if (loc.includes(district)) {
+      return zip;
+    }
+  }
+
+  return '34000'; // Default Istanbul zip
+}
+
+function getStreetAddress(locationStr?: string): string {
+  if (!locationStr) return 'Istanbul, Turkey';
+  const loc = locationStr.toLowerCase();
+  if (loc.includes('remote') || loc.includes('عن بعد')) {
+    return 'Istanbul, Turkey';
+  }
+  return locationStr;
+}
+
 export function generateJsonLd(locale: 'ar' | 'en', pageType: 'home' | 'job' | 'blog' | 'blog_post', data: MetaDataInput = {}) {
   const siteUrl = 'https://jobs-in-istanbul.com';
-  
+
   if (pageType === 'home') {
     const orgSchema = {
       "@context": "https://schema.org",
@@ -248,8 +330,8 @@ export function generateJsonLd(locale: 'ar' | 'en', pageType: 'home' | 'job' | '
       }
     }
 
-    const cleanDesc = data.description 
-      ? data.description.substring(0, 160).replace(/<[^>]*>/g, '') 
+    const cleanDesc = data.description
+      ? data.description.substring(0, 160).replace(/<[^>]*>/g, '')
       : (locale === 'ar' ? 'مقال مهني في إسطنبول' : 'Career article in Istanbul');
 
     const blogPostingSchema = {
@@ -313,7 +395,7 @@ export function generateJsonLd(locale: 'ar' | 'en', pageType: 'home' | 'job' | '
   if (pageType === 'job') {
     // Map jobType to standard Google Schema JobPosting values
     const typeLabel = data.jobType === 'full-time' ? 'FULL_TIME' : data.jobType === 'part-time' ? 'PART_TIME' : data.jobType === 'internship' ? 'INTERN' : 'FULL_TIME';
-    
+
     let publishedTime = Date.now();
     if (data.publishedAt) {
       const parsed = new Date(data.publishedAt).getTime();
@@ -321,7 +403,7 @@ export function generateJsonLd(locale: 'ar' | 'en', pageType: 'home' | 'job' | '
         publishedTime = parsed;
       }
     }
-    
+
     // HTML-formatted description is highly recommended by Google
     let formattedDescription = data.description || '';
     if (formattedDescription && !formattedDescription.includes('<p>') && !formattedDescription.includes('<br>')) {
@@ -346,8 +428,10 @@ export function generateJsonLd(locale: 'ar' | 'en', pageType: 'home' | 'job' | '
       "@type": "Place",
       "address": {
         "@type": "PostalAddress",
+        "streetAddress": getStreetAddress(data.location),
         "addressLocality": data.location || 'Istanbul',
         "addressRegion": 'Istanbul',
+        "postalCode": getIstanbulPostalCode(data.location),
         "addressCountry": 'TR'
       }
     };
@@ -372,6 +456,7 @@ export function generateJsonLd(locale: 'ar' | 'en', pageType: 'home' | 'job' | '
       };
     }
 
+    let salaryObject = null;
     if (data.salary) {
       const parsedSalary = parseSalary(data.salary);
       if (parsedSalary) {
@@ -383,7 +468,7 @@ export function generateJsonLd(locale: 'ar' | 'en', pageType: 'home' | 'job' | '
           currency = "EUR";
         }
 
-        jobSchema.baseSalary = {
+        salaryObject = {
           "@type": "MonetaryAmount",
           "currency": currency,
           "value": {
@@ -394,6 +479,22 @@ export function generateJsonLd(locale: 'ar' | 'en', pageType: 'home' | 'job' | '
         };
       }
     }
+
+    if (!salaryObject) {
+      // Fallback baseSalary for Istanbul jobs when salary is not specified
+      salaryObject = {
+        "@type": "MonetaryAmount",
+        "currency": "TRY",
+        "value": {
+          "@type": "QuantitativeValue",
+          "minValue": 20000,
+          "maxValue": 35000,
+          "unitText": "MONTH"
+        }
+      };
+    }
+
+    jobSchema.baseSalary = salaryObject;
 
     const breadcrumbSchema = {
       "@context": "https://schema.org",

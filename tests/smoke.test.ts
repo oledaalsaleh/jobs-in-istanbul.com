@@ -170,6 +170,13 @@ describe('Istanbul Jobs Portal Smoke Tests', () => {
     expect(text).toContain('منشئ السيرة الذاتية')
   })
 
+  test('GET /ar/workplace-quiz loads workplace quiz page', async () => {
+    const res = await app.request('/ar/workplace-quiz', {}, mockEnv)
+    expect(res.status).toBe(200)
+    const text = await res.text()
+    expect(text).toContain('اختبار لغة العمل التركية')
+  })
+
   test('GET /ar/employer/login loads employer login page', async () => {
     const res = await app.request('/ar/employer/login', {}, mockEnv)
     expect(res.status).toBe(200)

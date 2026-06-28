@@ -843,7 +843,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en') => {
         <div class="job-footer">
           <div class="job-meta">
             <span class="job-meta-item"><i class="fa-regular fa-clock"></i> ${timeAgo}</span>
-            ${job.salary ? `<span class="job-salary"><i class="fa-solid fa-turkish-lira-sign"></i> ${job.salary}</span>` : ''}
+            <span class="job-salary"><i class="fa-solid fa-turkish-lira-sign"></i> ${job.salary || (locale === 'ar' ? 'تنافسي' : 'Competitive')}</span>
           </div>
           <a href="/${locale}/jobs/${job.slug}" class="btn-apply">${t.applyBtn} <i class="fa-solid fa-arrow-${locale === 'ar' ? 'left' : 'right'}"></i></a>
         </div>
@@ -963,6 +963,151 @@ const homeHandler = async (c: any, locale: 'ar' | 'en') => {
       return `<a href="/${locale}?search=${querySearch}&category=${queryCategory}&type=${queryJobType}&district=${dist.en}" class="district-card ${queryDistrict.toLowerCase() === dist.en.toLowerCase() ? 'active' : ''}">${name}</a>`;
     }).join('')}
         </div>
+      </section>
+
+      <!-- SMART CAREER TOOLS SECTION -->
+      <section class="career-tools-section" style="margin-bottom: 56px; position: relative;">
+        <div class="sec-header" style="margin-bottom: 24px;">
+          <h2 class="sec-title" style="display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary);"></i>
+            ${locale === 'ar' ? 'أدوات التوظيف الذكية في jobs-in-istanbul.com' : 'Smart Career Tools on jobs-in-istanbul.com'}
+          </h2>
+          <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">
+            ${locale === 'ar' ? 'استخدم أدواتنا المتطورة لزيادة فرص قبولك وحساب راتبك ومعرفة القوانين.' : 'Use our advanced career tools to double your hiring chance, calculate your salary, and read guides.'}
+          </p>
+        </div>
+
+        <div class="tools-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px;">
+          
+          <!-- Tool 1: Resume Builder -->
+          <div class="tool-card glass-card" style="padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px);">
+            <div style="position: absolute; right: -15px; top: -15px; font-size: 90px; opacity: 0.04; color: var(--text-dark); pointer-events: none;">
+              <i class="fa-solid fa-file-invoice"></i>
+            </div>
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                <div class="tool-icon-wrapper" style="width: 48px; height: 48px; border-radius: var(--radius-md); background: linear-gradient(135deg, #facc15 0%, #eab308 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem;">
+                  <i class="fa-solid fa-file-invoice"></i>
+                </div>
+                <span class="tag-status" style="font-size: 0.75rem; font-weight: 700; background: #fef08a; color: #854d0e; padding: 4px 10px; border-radius: var(--r-full);">
+                  ${locale === 'ar' ? 'مجاني 100%' : '100% Free'}
+                </span>
+              </div>
+              <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-dark); margin: 0 0 10px 0;">
+                ${locale === 'ar' ? 'منشئ السيرة الذاتية' : 'Interactive Resume Builder'}
+              </h3>
+              <p style="font-size: 0.875rem; color: var(--text-main); line-height: 1.5; margin: 0 0 20px 0;">
+                ${locale === 'ar'
+                  ? 'أنشئ سيرة ذاتية احترافية ثنائية اللغة (عربي/تركي/إنجليزي) مصممة خصيصاً لسوق العمل في إسطنبول وقم بتحميلها كـ PDF.'
+                  : 'Build a job-winning, bilingual resume (English/Turkish) optimized for Istanbul employers and download as print-ready PDF.'}
+              </p>
+            </div>
+            <a href="/${locale}/resume-builder" class="btn-primary" style="font-size: 0.85rem; padding: 10px 16px; width: fit-content; text-decoration: none;">
+              ${locale === 'ar' ? 'جرب المنشئ التفاعلي ←' : 'Start Builder ←'}
+            </a>
+          </div>
+
+          <!-- Tool 2: Salary Calculator -->
+          <div class="tool-card glass-card" style="padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px);">
+            <div style="position: absolute; right: -15px; top: -15px; font-size: 90px; opacity: 0.04; color: var(--text-dark); pointer-events: none;">
+              <i class="fa-solid fa-calculator"></i>
+            </div>
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                <div class="tool-icon-wrapper" style="width: 48px; height: 48px; border-radius: var(--radius-md); background: linear-gradient(135deg, #10b981 0%, #059669 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem;">
+                  <i class="fa-solid fa-calculator"></i>
+                </div>
+                <span class="tag-status" style="font-size: 0.75rem; font-weight: 700; background: #d1fae5; color: #065f46; padding: 4px 10px; border-radius: var(--r-full);">
+                  ${locale === 'ar' ? 'مؤشر محدّث' : 'Live Index'}
+                </span>
+              </div>
+              <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-dark); margin: 0 0 10px 0;">
+                ${locale === 'ar' ? 'حاسبة ومؤشر الرواتب' : 'Salary Index Calculator'}
+              </h3>
+              <p style="font-size: 0.875rem; color: var(--text-main); line-height: 1.5; margin: 0 0 20px 0;">
+                ${locale === 'ar'
+                  ? 'اعرف مستحقاتك وقارن متوسط الرواتب المتوقع في إسطنبول بالليرة التركية والدولار مقسمة حسب القطاع المهني ومستوى خبرتك.'
+                  : 'Check average salaries in Istanbul in TRY/USD. Get insights by sector, career level, and exact job industry.'}
+              </p>
+            </div>
+            <a href="/${locale}/salary-calculator" class="btn-primary" style="font-size: 0.85rem; padding: 10px 16px; width: fit-content; text-decoration: none; background: #10b981;">
+              ${locale === 'ar' ? 'احسب راتبك المتوقع ←' : 'Calculate Salary ←'}
+            </a>
+          </div>
+
+          <!-- Tool 3: Infinite Scroll & Search -->
+          <div class="tool-card glass-card" style="padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px);">
+            <div style="position: absolute; right: -15px; top: -15px; font-size: 90px; opacity: 0.04; color: var(--text-dark); pointer-events: none;">
+              <i class="fa-solid fa-list-check"></i>
+            </div>
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                <div class="tool-icon-wrapper" style="width: 48px; height: 48px; border-radius: var(--radius-md); background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem;">
+                  <i class="fa-solid fa-list-check"></i>
+                </div>
+                <span class="tag-status" style="font-size: 0.75rem; font-weight: 700; background: #e0e7ff; color: #3730a3; padding: 4px 10px; border-radius: var(--r-full);">
+                  ${locale === 'ar' ? 'تصفح ذكي' : 'Smart Scroll'}
+                </span>
+              </div>
+              <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-dark); margin: 0 0 10px 0;">
+                ${locale === 'ar' ? 'التصفح والتمرير اللانهائي' : 'Infinite Scroll Explorer'}
+              </h3>
+              <p style="font-size: 0.875rem; color: var(--text-main); line-height: 1.5; margin: 0 0 20px 0;">
+                ${locale === 'ar'
+                  ? 'ابحث بسلاسة دون الحاجة للتنقل بين الصفحات. استعمل الفلترة الجغرافية حسب الأحياء والربط المباشر مع خطوط مواصلات المتروبوس والمترو.'
+                  : 'Search jobs without page-load friction. Instantly filter positions by Istanbul districts and metro/metrobus transit routes.'}
+              </p>
+            </div>
+            <a href="#jobs-anchor" onclick="document.querySelector('.main-layout').scrollIntoView({behavior:'smooth'}); return false;" class="btn-primary" style="font-size: 0.85rem; padding: 10px 16px; width: fit-content; text-decoration: none; background: #6366f1;">
+              ${locale === 'ar' ? 'ابدأ البحث المتقدم ↓' : 'Explore Jobs ↓'}
+            </a>
+          </div>
+
+          <!-- Tool 4: Career Guides -->
+          <div class="tool-card glass-card" style="padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px);">
+            <div style="position: absolute; right: -15px; top: -15px; font-size: 90px; opacity: 0.04; color: var(--text-dark); pointer-events: none;">
+              <i class="fa-solid fa-book-open"></i>
+            </div>
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                <div class="tool-icon-wrapper" style="width: 48px; height: 48px; border-radius: var(--radius-md); background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem;">
+                  <i class="fa-solid fa-book-open"></i>
+                </div>
+                <span class="tag-status" style="font-size: 0.75rem; font-weight: 700; background: #ffedd5; color: #9a3412; padding: 4px 10px; border-radius: var(--r-full);">
+                  ${locale === 'ar' ? 'أدلة إرشادية' : 'Guides'}
+                </span>
+              </div>
+              <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-dark); margin: 0 0 10px 0;">
+                ${locale === 'ar' ? 'أدلة العمل والإقامة بتركيا' : 'Work Permits & Residency'}
+              </h3>
+              <p style="font-size: 0.875rem; color: var(--text-main); line-height: 1.5; margin: 0 0 20px 0;">
+                ${locale === 'ar'
+                  ? 'اعرف إجراءات الحصول على إذن عمل (Çalışma İzni) والإقامة السياحية، ونصائح تحسين ملفك المهني لتخطي اختبارات أنظمة ATS التلقائية.'
+                  : 'Get legal work permit instructions, residency details, and professional tips to optimize your CV for ATS parsing in Turkey.'}
+              </p>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <a href="/${locale}/blog" class="btn-primary" style="font-size: 0.82rem; padding: 8px 12px; text-decoration: none; background: #f97316;">
+                ${locale === 'ar' ? 'أدلة المهنة ←' : 'Read Guides ←'}
+              </a>
+              <a href="/${locale}/turkish-test" class="btn-primary" style="font-size: 0.82rem; padding: 8px 12px; text-decoration: none; background: #14b8a6;">
+                ${locale === 'ar' ? 'اختبار الكفاءة 🎓' : 'Turkish Test 🎓'}
+              </a>
+              <a href="/${locale}/workplace-quiz" class="btn-primary" style="font-size: 0.82rem; padding: 8px 12px; text-decoration: none; background: var(--primary);">
+                ${locale === 'ar' ? 'تدريب سريع ✍️' : 'Quick Quiz ✍️'}
+              </a>
+            </div>
+          </div>
+
+        </div>
+
+        <style>
+          .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md) !important;
+            border-color: var(--primary) !important;
+          }
+        </style>
       </section>
 
       <!-- MAIN LAYOUT: SIDEBAR + JOBS -->
@@ -1207,10 +1352,12 @@ publicRouter.get(
               <span style="font-weight: 700; color: var(--text-dark); display: block; font-size: 0.9rem;">${translations.jobType}</span>
               <span style="color: var(--text-main); font-size: 1rem;">${typeLabel}</span>
             </div>
-            ${job.salary ? `<div style="margin-bottom: 16px;">
+            <div style="margin-bottom: 16px;">
               <span style="font-weight: 700; color: var(--text-dark); display: block; font-size: 0.9rem;">${translations.salary}</span>
-              <span style="color: var(--text-main); font-size: 1rem;">${job.salary}</span>
-            </div>` : ''}
+              <span style="color: var(--text-main); font-size: 1rem;">
+                ${job.salary || (locale === 'ar' ? 'تنافسي (تقديري ٢٠,٠٠٠ - ٣٥,٠٠٠ ل.ت / شهر)' : 'Competitive (Estimated 20,000 - 35,000 TRY / Month)')}
+              </span>
+            </div>
             <div style="margin-bottom: 24px;">
               <span style="font-weight: 700; color: var(--text-dark); display: block; font-size: 0.9rem;">${translations.published}</span>
               <span style="color: var(--text-main); font-size: 1rem;">${pubDate}</span>

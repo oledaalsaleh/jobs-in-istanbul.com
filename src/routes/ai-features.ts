@@ -318,7 +318,7 @@ aiFeaturesRouter.get('/:locale/salary-calculator', (c) => {
               </select>
             </div>
 
-            <div style="margin-bottom: 30px;">
+            <div style="margin-bottom: 20px;">
               <label style="display: block; font-weight: 700; color: var(--text-dark); margin-bottom: 8px;">${t.languages}</label>
               <select id="sal-lang" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-site); color: var(--text-dark);">
                 <option value="ar">${t.langAr}</option>
@@ -328,27 +328,65 @@ aiFeaturesRouter.get('/:locale/salary-calculator', (c) => {
               </select>
             </div>
 
+            <div style="margin-bottom: 30px;">
+              <label style="display: block; font-weight: 700; color: var(--text-dark); margin-bottom: 8px;">
+                ${locale === 'ar' ? 'منطقة السكن المتوقعة لحساب التكاليف' : 'Expected Residential District'}
+              </label>
+              <select id="sal-district" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-site); color: var(--text-dark);">
+                <option value="luxury">${locale === 'ar' ? 'بشكتاش، شيشلي، كاديكوي (إيجار مرتفع)' : 'Besiktas, Sisli, Kadikoy (High Rent)'}</option>
+                <option value="mid">${locale === 'ar' ? 'الفاتح، بيوغلو، إسكودار (إيجار متوسط)' : 'Fatih, Beyoglu, Uskudar (Mid Rent)'}</option>
+                <option value="low">${locale === 'ar' ? 'اسنيورت، بيليك دوزو، بندك (إيجار اقتصادي)' : 'Esenyurt, Beylikduzu, Pendik (Budget)'}</option>
+                <option value="general">${locale === 'ar' ? 'مناطق أخرى في إسطنبول (عام)' : 'Other Districts (General)'}</option>
+              </select>
+            </div>
+
             <button type="submit" class="btn-sidebar-apply" style="border: none;">${t.calcBtn}</button>
           </form>
         </div>
 
         <!-- Output Visual Card -->
-        <div class="glass-card" style="padding: 30px; border-radius: var(--radius-lg); display: flex; flex-direction: column; justify-content: center;">
-          <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--text-dark); margin-bottom: 24px; text-align: center;">${t.resultTitle}</h2>
-          
-          <div style="text-align: center; margin-bottom: 30px;">
-            <div id="sal-result-avg" style="font-size: 3rem; font-weight: 900; color: var(--primary); text-shadow: 0 4px 12px var(--primary-glow);">--</div>
-            <span style="font-weight: 600; color: var(--text-muted);">${t.salaryAvg}</span>
+        <div class="glass-card" style="padding: 30px; border-radius: var(--radius-lg); display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--text-dark); margin-bottom: 20px; text-align: center;">${t.resultTitle}</h2>
+            
+            <div style="text-align: center; margin-bottom: 24px;">
+              <div id="sal-result-avg" style="font-size: 2.8rem; font-weight: 900; color: var(--primary); text-shadow: 0 4px 12px var(--primary-glow);">--</div>
+              <span style="font-weight: 600; color: var(--text-muted); font-size: 0.9rem;">${t.salaryAvg}</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; gap: 16px; font-weight: 600; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 20px;">
+              <div style="text-align: center; flex: 1;">
+                <div id="sal-result-low" style="color: var(--text-dark); font-size: 1.1rem; font-weight: 700;">--</div>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">${t.salaryLow}</span>
+              </div>
+              <div style="text-align: center; flex: 1; border-left: 1px solid var(--border);">
+                <div id="sal-result-high" style="color: var(--accent); font-size: 1.1rem; font-weight: 700;">--</div>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">${t.salaryHigh}</span>
+              </div>
+            </div>
           </div>
 
-          <div style="display: flex; justify-content: space-between; gap: 20px; font-weight: 600; border-top: 1px solid var(--border); padding-top: 20px;">
-            <div style="text-align: center; flex: 1;">
-              <div id="sal-result-low" style="color: var(--text-dark); font-size: 1.2rem; font-weight: 700;">--</div>
-              <span style="font-size: 0.8rem; color: var(--text-muted);">${t.salaryLow}</span>
+          <!-- Cost of Living & Savings Estimation -->
+          <div style="background: rgba(0,0,0,0.02); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border);">
+            <h4 style="font-weight: 800; color: var(--text-dark); margin: 0 0 12px 0; font-size: 0.95rem; text-align: center;">
+              ${locale === 'ar' ? '📊 التكاليف المعيشية والادخار المتوقع' : '📊 Cost of Living & Savings Estimate'}
+            </h4>
+            
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 8px; color: var(--text-main);">
+              <span>${locale === 'ar' ? '🏠 إيجار السكن التقديري:' : '🏠 Estimated Rent:'}</span>
+              <span id="rent-cost" style="font-weight: 700;">--</span>
             </div>
-            <div style="text-align: center; flex: 1; border-left: 1px solid var(--border); border-right: 1px solid var(--border);">
-              <div id="sal-result-high" style="color: var(--accent); font-size: 1.2rem; font-weight: 700;">--</div>
-              <span style="font-size: 0.8rem; color: var(--text-muted);">${t.salaryHigh}</span>
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 12px; color: var(--text-main); border-bottom: 1px dashed var(--border); padding-bottom: 8px;">
+              <span>${locale === 'ar' ? '🚌 المواصلات والمعيشة الأساسية:' : '🚌 Transport & Living Essentials:'}</span>
+              <span id="living-cost" style="font-weight: 700;">--</span>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; font-weight: 700; color: var(--text-dark);">
+              <span>${locale === 'ar' ? '💰 صافي المدخرات الشهري:' : '💰 Net Monthly Savings:'}</span>
+              <span id="savings-cost" style="color: var(--primary); font-size: 1.1rem;">--</span>
+            </div>
+            <div id="savings-status" style="margin-top: 10px; text-align: center;">
+              --
             </div>
           </div>
         </div>
@@ -380,11 +418,21 @@ aiFeaturesRouter.get('/:locale/salary-calculator', (c) => {
         all: 1.40
       };
 
+      const districtRent = {
+        luxury: 22000,
+        mid: 16000,
+        low: 11000,
+        general: 14000
+      };
+
+      const generalLivingCost = 9500; // utilities, internet, transport (istanbulkart monthly), basic groceries
+
       function calculateSalary(e) {
         if(e) e.preventDefault();
         const field = document.getElementById('sal-field').value;
         const exp = document.getElementById('sal-exp').value;
         const lang = document.getElementById('sal-lang').value;
+        const district = document.getElementById('sal-district').value;
 
         const base = baseSalaries[field][exp];
         const mult = langMultipliers[lang];
@@ -393,16 +441,46 @@ aiFeaturesRouter.get('/:locale/salary-calculator', (c) => {
         const low = Math.round(avg * 0.85);
         const high = Math.round(avg * 1.25);
 
+        const rent = districtRent[district];
+        const living = generalLivingCost;
+        const savings = avg - (rent + living);
+
         // Render with formatter
-        const formatter = new Intl.NumberFormat('${locale === 'ar' ? 'ar-EG' : 'en-US'}', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 });
+        const isAr = '${locale}' === 'ar';
+        const formatter = new Intl.NumberFormat(isAr ? 'ar-EG' : 'en-US', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 });
         
         document.getElementById('sal-result-avg').textContent = formatter.format(avg);
         document.getElementById('sal-result-low').textContent = formatter.format(low);
         document.getElementById('sal-result-high').textContent = formatter.format(high);
+
+        document.getElementById('rent-cost').textContent = formatter.format(rent);
+        document.getElementById('living-cost').textContent = formatter.format(living);
+        
+        const savingsEl = document.getElementById('savings-cost');
+        savingsEl.textContent = formatter.format(savings);
+        savingsEl.style.color = savings >= 0 ? 'var(--primary)' : 'var(--danger)';
+
+        const statusEl = document.getElementById('savings-status');
+        if (savings > avg * 0.25) {
+          statusEl.innerHTML = isAr 
+            ? '<span style="color:#166534; background:#dcfce7; padding:4px 10px; border-radius:var(--r-full); font-size:0.8rem; font-weight:700; display:inline-block;">✓ ادخار ممتاز</span>' 
+            : '<span style="color:#166534; background:#dcfce7; padding:4px 10px; border-radius:var(--r-full); font-size:0.8rem; font-weight:700; display:inline-block;">✓ Excellent Savings</span>';
+        } else if (savings > 0) {
+          statusEl.innerHTML = isAr 
+            ? '<span style="color:#854d0e; background:#fef08a; padding:4px 10px; border-radius:var(--r-full); font-size:0.8rem; font-weight:700; display:inline-block;">⚠ ميزانية مقيدة</span>' 
+            : '<span style="color:#854d0e; background:#fef08a; padding:4px 10px; border-radius:var(--r-full); font-size:0.8rem; font-weight:700; display:inline-block;">⚠ Tight Budget</span>';
+        } else {
+          statusEl.innerHTML = isAr 
+            ? '<span style="color:#991b1b; background:#fee2e2; padding:4px 10px; border-radius:var(--r-full); font-size:0.8rem; font-weight:700; display:inline-block;">✗ عجز مالي متوقع</span>' 
+            : '<span style="color:#991b1b; background:#fee2e2; padding:4px 10px; border-radius:var(--r-full); font-size:0.8rem; font-weight:700; display:inline-block;">✗ Deficit Warning</span>';
+        }
       }
 
-      // Initial calculation
+      // Hook listeners to form controls for real-time updates
       document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('#salary-form select').forEach(select => {
+          select.addEventListener('change', () => calculateSalary());
+        });
         calculateSalary();
       });
     </script>
@@ -2201,6 +2279,308 @@ aiFeaturesRouter.get('/:locale/ats-scanner', async (c) => {
           btn.disabled = false;
         }
       });
+    </script>
+  `;
+
+  return c.html(renderLayout(c, t.title, html, locale));
+});
+
+// Turkish Workplace Language Quiz Page
+aiFeaturesRouter.get('/:locale/workplace-quiz', (c) => {
+  const locale = c.req.param('locale') as 'ar' | 'en';
+  if (locale !== 'ar' && locale !== 'en') return c.redirect('/ar/workplace-quiz');
+
+  const t = {
+    ar: {
+      title: 'اختبار لغة العمل التركية للمغتربين',
+      subtitle: 'اختبر معرفتك بأهم العبارات والمصطلحات التركية المستخدمة يومياً في بيئة العمل بإسطنبول لزيادة فرص اندماجك وتجنب سوء الفهم.',
+      startBtn: 'ابدأ الاختبار الآن ✍️',
+      nextBtn: 'السؤال التالي ←',
+      finishBtn: 'عرض النتيجة النهائية 🏆',
+      restartBtn: 'إعادة المحاولة 🔄',
+      scoreTitle: 'نتيجتك النهائية:',
+      rankLabel: 'مستواك في مكاتب إسطنبول:',
+      rankG: 'خبير مكاتب إسطنبول (Guru) 🏆',
+      rankM: 'موظف محترف (Mid-Level) 💼',
+      rankJ: 'متدرب مكتب (Intern) 📁',
+      rankN: 'مبتدئ تماماً (Novice) 🚶‍♂️',
+      correct: 'إجابة صحيحة! 🎉',
+      incorrect: 'إجابة خاطئة! ❌ الإجابة الصحيحة هي: '
+    },
+    en: {
+      title: 'Turkish Workplace Language Quiz',
+      subtitle: 'Test your knowledge of essential Turkish phrases used daily in Istanbul office environments to boost integration and career success.',
+      startBtn: 'Start the Quiz ✍️',
+      nextBtn: 'Next Question ←',
+      finishBtn: 'View Final Score 🏆',
+      restartBtn: 'Try Again 🔄',
+      scoreTitle: 'Your Final Score:',
+      rankLabel: 'Your Office Rank:',
+      rankG: 'Istanbul Office Guru 🏆',
+      rankM: 'Professional Employee 💼',
+      rankJ: 'Office Intern 📁',
+      rankN: 'Absolute Novice 🚶‍♂️',
+      correct: 'Correct Answer! 🎉',
+      incorrect: 'Incorrect! The correct answer is: '
+    }
+  }[locale];
+
+  const questions = [
+    {
+      q: locale === 'ar' ? 'ماذا تعني عبارة "Kolay gelsin" ومتى تستخدم في بيئة العمل؟' : 'What does "Kolay gelsin" mean and when is it used?',
+      options: locale === 'ar' 
+        ? ['تمني وجبة شهية للزملاء', 'تمني التيسير والسهولة في العمل الحالي للزميل', 'وداع الزملاء في نهاية الدوام', 'تحية الصباح الباكر']
+        : ['Wishing a good meal to coworkers', 'Wishing someone ease in their current work', 'Saying goodbye at the end of the shift', 'Early morning greeting'],
+      correct: 1,
+      explain: locale === 'ar' ? 'تقال لمن يعمل لتمني التيسير له في عمله (مثال: عند المرور بزميل يكتب تقريراً أو ينظف المكتب).' : 'Said to someone working to wish them ease in their task (e.g. passing a colleague writing a report).'
+    },
+    {
+      q: locale === 'ar' ? 'ما هو الرد المناسب عندما يقول لك زميلك في العمل "Geçmiş olsun" بسبب مرضك؟' : 'What is the correct response when a colleague says "Geçmiş olsun" to you?',
+      options: locale === 'ar'
+        ? ['Sağ ol / Teşekkür ederim (شكراً لك)', 'Kolay gelsin (سهل الله عملك)', 'Rica ederim (على الرحب والسعة)', 'Afiyet olsun (بالعافية)']
+        : ['Sağ ol / Teşekkür ederim (Thank you)', 'Kolay gelsin (Ease in your work)', 'Rica ederim (You are welcome)', 'Afiyet olsun (Bon appetit)'],
+      correct: 0,
+      explain: locale === 'ar' ? 'يعني التعبير "أتمنى أن يزول عنك هذا المرض/البلاء"، والرد الصحيح هو الشكر.' : 'The expression means "May it pass/Get well soon", and the correct response is gratitude.'
+    },
+    {
+      q: locale === 'ar' ? 'أي من العبارات التالية تقال للزميل الذي يتناول طعام الغداء؟' : 'Which phrase is used to wish a coworker a good meal?',
+      options: locale === 'ar'
+        ? ['Kolay gelsin', 'Afiyet olsun', 'Eline sağlık', 'Geçmiş olsun']
+        : ['Kolay gelsin', 'Afiyet olsun', 'Eline sağlık', 'Geçmiş olsun'],
+      correct: 1,
+      explain: locale === 'ar' ? 'تعني "بالهناء والشفاء" أو "بالعافية" وتستخدم لتمني هضم هنيء للطعام.' : 'Means "Bon appetit" or "Enjoy your meal".'
+    },
+    {
+      q: locale === 'ar' ? 'كيف تثني على زميلك الذي أنجز مهمة يدوية أو عملية صعبة بمجهوده؟' : 'How do you praise a colleague who completed a hands-on task or cooked/built something?',
+      options: locale === 'ar'
+        ? ['Çok yaşa', 'Geçmiş olsun', 'Eline sağlık', 'Kolay gelsin']
+        : ['Çok yaşa', 'Geçmiş olsun', 'Eline sağlık', 'Kolay gelsin'],
+      correct: 2,
+      explain: locale === 'ar' ? 'تعني "تسلم يداك" وتقال تقديراً لأي عمل تم القيام به يدوياً وبمجهود شخصي.' : 'Means "Health to your hands" and is said in appreciation of hands-on work.'
+    },
+    {
+      q: locale === 'ar' ? 'عند دخولك المكتب صباحاً لبدء يوم عمل جديد، ما هي التحية الرسمية المعتادة؟' : 'What is the most standard greeting when entering the office in the morning?',
+      options: locale === 'ar'
+        ? ['Günaydın / İyi çalışmalar', 'Görüşürüz', 'Başarılar', 'Hoş bulduk']
+        : ['Günaydın / İyi çalışmalar', 'Görüşürüz', 'Başarılar', 'Hoş bulduk'],
+      correct: 0,
+      explain: locale === 'ar' ? 'تعني "صباح الخير / أتمنى لكم عملاً جيداً وسهلاً".' : 'Means "Good morning / Have a good working day".'
+    }
+  ];
+
+  const html = `
+    <style>
+      .quiz-container {
+        max-width: 650px;
+        margin: 60px auto 100px;
+        padding: 20px;
+      }
+      .option-card {
+        padding: 16px 20px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        background: var(--bg-site);
+        color: var(--text-dark);
+        margin-bottom: 12px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .option-card:hover {
+        background: var(--bg-subtle);
+        border-color: var(--primary);
+      }
+      .option-card.correct {
+        background: #dcfce7 !important;
+        border-color: #22c55e !important;
+        color: #166534 !important;
+      }
+      .option-card.correct span {
+        color: #166534 !important;
+      }
+      .option-card.incorrect {
+        background: #fee2e2 !important;
+        border-color: #ef4444 !important;
+        color: #991b1b !important;
+      }
+      .option-card.incorrect span {
+        color: #991b1b !important;
+      }
+      .progress-bar-fill {
+        height: 6px;
+        background: var(--primary);
+        border-radius: var(--r-full);
+        transition: width 0.3s ease;
+      }
+    </style>
+
+    <div class="quiz-container">
+      <div id="quiz-intro" class="glass-card" style="padding: 40px; border-radius: var(--radius-lg); text-align: center;">
+        <div style="font-size: 3.5rem; margin-bottom: 20px;">🇹🇷</div>
+        <h1 class="hero-title-gradient" style="margin-bottom: 12px; font-size: 2.2rem; font-weight: 800;">\${t.title}</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; margin-bottom: 30px; line-height: 1.6;">\${t.subtitle}</p>
+        <button onclick="startQuiz()" class="btn-sidebar-apply" style="border: none; max-width: 250px; margin: 0 auto;">\${t.startBtn}</button>
+      </div>
+
+      <div id="quiz-play" class="glass-card" style="padding: 40px; border-radius: var(--radius-lg); display: none;">
+        <div style="display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 8px; font-weight: 600;">
+          <span id="question-index">Question 1 of 5</span>
+          <span id="score-tracker">Score: 0</span>
+        </div>
+        <div style="width: 100%; height: 6px; background: var(--border); border-radius: var(--r-full); margin-bottom: 30px;">
+          <div id="progress-fill" class="progress-bar-fill" style="width: 20%;"></div>
+        </div>
+
+        <h3 id="question-text" style="font-size: 1.25rem; font-weight: 800; color: var(--text-dark); margin-bottom: 24px; line-height: 1.5;">--</h3>
+
+        <div id="options-container"></div>
+
+        <div id="feedback-box" style="display: none; padding: 16px; border-radius: var(--radius-md); margin-top: 20px; font-size: 0.9rem; line-height: 1.6;"></div>
+
+        <button id="next-btn" onclick="nextQuestion()" class="btn-sidebar-apply" style="border: none; margin-top: 30px; display: none;">\${t.nextBtn}</button>
+      </div>
+
+      <div id="quiz-result" class="glass-card" style="padding: 40px; border-radius: var(--radius-lg); text-align: center; display: none;">
+        <div style="font-size: 4rem; margin-bottom: 20px;">🏆</div>
+        <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--text-dark); margin-bottom: 24px;">\${locale === 'ar' ? 'اكتمل الاختبار!' : 'Quiz Completed!'}</h2>
+        
+        <div style="margin-bottom: 30px;">
+          <span style="font-size: 1.1rem; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 8px;">\${t.scoreTitle}</span>
+          <span id="final-score" style="font-size: 3.5rem; font-weight: 900; color: var(--primary);">4 / 5</span>
+        </div>
+
+        <div style="margin-bottom: 40px; background: rgba(0,0,0,0.02); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border);">
+          <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 6px;">\${t.rankLabel}</span>
+          <div id="final-rank" style="font-size: 1.3rem; font-weight: 800; color: var(--text-dark);">--</div>
+        </div>
+
+        <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+          <button onclick="restartQuiz()" class="btn-sidebar-apply" style="border: none; background: var(--bg-subtle); color: var(--text-dark); max-width: 200px; margin: 0;">\${t.restartBtn}</button>
+          <a href="/\${locale}" class="btn-sidebar-apply" style="border: none; max-width: 200px; margin: 0; text-decoration: none; display: flex; align-items: center; justify-content: center;">
+            \${locale === 'ar' ? 'تصفح الوظائف 💼' : 'Browse Jobs 💼'}
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const questions = \${JSON.stringify(questions)};
+      let currentIdx = 0;
+      let score = 0;
+      let answered = false;
+
+      function startQuiz() {
+        document.getElementById('quiz-intro').style.display = 'none';
+        document.getElementById('quiz-play').style.display = 'block';
+        showQuestion();
+      }
+
+      function showQuestion() {
+        answered = false;
+        const qData = questions[currentIdx];
+        
+        document.getElementById('question-index').textContent = \`\${locale === 'ar' ? 'السؤال' : 'Question'} \${currentIdx + 1} \${locale === 'ar' ? 'من' : 'of'} 5\`;
+        document.getElementById('score-tracker').textContent = \`Score: \${score}\`;
+        document.getElementById('progress-fill').style.width = \`\${(currentIdx + 1) * 20}%\`;
+
+        document.getElementById('question-text').textContent = qData.q;
+
+        const optContainer = document.getElementById('options-container');
+        optContainer.innerHTML = '';
+        
+        qData.options.forEach((opt, idx) => {
+          const card = document.createElement('div');
+          card.className = 'option-card';
+          card.innerHTML = \`<span>\${String.fromCharCode(65 + idx)})</span> <span>\${opt}</span>\`;
+          card.onclick = () => selectOption(idx, card);
+          optContainer.appendChild(card);
+        });
+
+        document.getElementById('feedback-box').style.display = 'none';
+        document.getElementById('next-btn').style.display = 'none';
+      }
+
+      function selectOption(selectedIdx, cardEl) {
+        if (answered) return;
+        answered = true;
+        
+        const qData = questions[currentIdx];
+        const isCorrect = selectedIdx === qData.correct;
+        const optCards = document.querySelectorAll('.option-card');
+
+        if (isCorrect) {
+          score++;
+          cardEl.classList.add('correct');
+          showFeedback(true, qData.explain);
+        } else {
+          cardEl.classList.add('incorrect');
+          optCards[qData.correct].classList.add('correct');
+          showFeedback(false, qData.explain, qData.options[qData.correct]);
+        }
+
+        const nextBtn = document.getElementById('next-btn');
+        if (currentIdx === questions.length - 1) {
+          nextBtn.textContent = "\${t.finishBtn}";
+        } else {
+          nextBtn.textContent = "\${t.nextBtn}";
+        }
+        nextBtn.style.display = 'block';
+      }
+
+      function showFeedback(isCorrect, explanation, correctOpt) {
+        const box = document.getElementById('feedback-box');
+        if (isCorrect) {
+          box.style.background = '#f0fdf4';
+          box.style.border = '1px solid #bbf7d0';
+          box.style.color = '#166534';
+          box.innerHTML = \`<strong>\${"\${t.correct}"}</strong><br>\${explanation}\`;
+        } else {
+          box.style.background = '#fef2f2';
+          box.style.border = '1px solid #fca5a5';
+          box.style.color = '#991b1b';
+          box.innerHTML = \`<strong>\${"\${t.incorrect}"} "\${correctOpt}"</strong><br>\${explanation}\`;
+        }
+        box.style.display = 'block';
+      }
+
+      function nextQuestion() {
+        if (currentIdx < questions.length - 1) {
+          currentIdx++;
+          showQuestion();
+        } else {
+          showResults();
+        }
+      }
+
+      function showResults() {
+        document.getElementById('quiz-play').style.display = 'none';
+        document.getElementById('quiz-result').style.display = 'block';
+
+        document.getElementById('final-score').textContent = \`\${score} / 5\`;
+        
+        let rankText = '';
+        if (score === 5) {
+          rankText = "\${t.rankG}";
+        } else if (score >= 3) {
+          rankText = "\${t.rankM}";
+        } else if (score >= 1) {
+          rankText = "\${t.rankJ}";
+        } else {
+          rankText = "\${t.rankN}";
+        }
+        document.getElementById('final-rank').textContent = rankText;
+      }
+
+      function restartQuiz() {
+        currentIdx = 0;
+        score = 0;
+        document.getElementById('quiz-result').style.display = 'none';
+        document.getElementById('quiz-play').style.display = 'block';
+        showQuestion();
+      }
     </script>
   `;
 
