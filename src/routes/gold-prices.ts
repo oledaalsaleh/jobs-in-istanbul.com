@@ -149,7 +149,7 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
     const buyPrice = m.buy.toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const sellPrice = m.sell.toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const titleText = localizedGoldName(m.id, m.name);
-    
+
     return `
       <div class="highlight-card">
         <div class="highlight-glow-bar"></div>
@@ -428,9 +428,9 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
               </thead>
               <tbody>
                 ${metals.map(m => {
-                  const buyPrice = m.buy.toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                  const sellPrice = m.sell.toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                  return `
+    const buyPrice = m.buy.toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const sellPrice = m.sell.toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return `
                     <tr class="gold-row">
                       <td style="display: flex; align-items: center; gap: 12px; text-align: ${locale === 'ar' ? 'right' : 'left'};">
                         <div style="font-size: 1.15rem; color: #d97706; display: flex; align-items: center;"><i class="${m.id === '4' || m.id === '5' ? 'fa-solid fa-coins' : 'fa-solid fa-cubes'}"></i></div>
@@ -446,7 +446,7 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
                       <td style="font-size: 1.05rem; font-weight: 800; color: #b45309;">${sellPrice} ₺</td>
                     </tr>
                   `;
-                }).join('')}
+  }).join('')}
               </tbody>
             </table>
           </div>
@@ -454,9 +454,9 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
           <!-- Mobile View Cards -->
           <div class="gold-mobile-cards">
             ${metals.map(m => {
-              const buyPrice = m.buy.toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-              const sellPrice = m.sell.toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-              return `
+    const buyPrice = m.buy.toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const sellPrice = m.sell.toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return `
                 <div class="mobile-gold-card">
                   <div class="mobile-gold-card-header" style="direction: ${locale === 'ar' ? 'rtl' : 'ltr'};">
                     <div style="display: flex; align-items: center; gap: 8px;">
@@ -477,7 +477,7 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
                   </div>
                 </div>
               `;
-            }).join('')}
+  }).join('')}
           </div>
 
           <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 25px; line-height: 1.6; text-align: center;">${t.textDescription}</p>
@@ -531,9 +531,9 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
 
     <script>
       const goldRates = ${JSON.stringify(metals.reduce((acc: any, cur) => {
-        acc[cur.id] = { buy: cur.buy, sell: cur.sell, name: cur.name };
-        return acc;
-      }, {}))};
+    acc[cur.id] = { buy: cur.buy, sell: cur.sell, name: cur.name };
+    return acc;
+  }, {}))};
       const locale = '${locale}';
 
       function setWeight(val) {
@@ -569,7 +569,7 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
     </script>
   `;
 
-  const seoTitle = locale === 'ar' 
+  const seoTitle = locale === 'ar'
     ? 'أسعار الذهب في تركيا اليوم | عيار 24 و 21 والليرة الذهب بالليرة التركية'
     : (locale === 'tr' ? 'Bugün Türkiye Altın Fiyatları | Canlı Altın Ayarları ve Fiyatları' : 'Gold Prices in Turkey Today | Live Gold Karat & Lira Rates');
 

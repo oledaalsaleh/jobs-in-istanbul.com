@@ -105,7 +105,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       realOpportunities: 'فرص حقيقية',
       footerTagline: 'المنصة الرائدة لربط الكفاءات العربية والأجنبية بأفضل فرص العمل في إسطنبول.',
       joinTelegram: 'انضم لقناة التلغرام',
-      mobileJoinTelegram: 'انضم لقناتنا على التلغرام'
+      mobileJoinTelegram: 'انضم لقناتنا على التلغرام',
+      installApp: 'تثبيت التطبيق'
     },
     en: {
       siteName: 'Istanbul Jobs',
@@ -146,7 +147,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       realOpportunities: 'Real Opportunities',
       footerTagline: 'The leading platform connecting Arab & international talents with the best job opportunities in Istanbul.',
       joinTelegram: 'Join Telegram Channel',
-      mobileJoinTelegram: 'Join Our Telegram'
+      mobileJoinTelegram: 'Join Our Telegram',
+      installApp: 'Install App'
     },
     tr: {
       siteName: 'İstanbul İş İlanları',
@@ -187,7 +189,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       realOpportunities: 'Gerçek Fırsatlar',
       footerTagline: 'Arap ve uluslararası yetenekleri İstanbul\'daki en iyi iş fırsatlarıyla buluşturan lider platform.',
       joinTelegram: 'Telegram Kanalımıza Katılın',
-      mobileJoinTelegram: 'Telegram\'a Katılın'
+      mobileJoinTelegram: 'Telegram\'a Katılın',
+      installApp: 'Uygulamayı Yükle'
     }
   };
 
@@ -239,6 +242,14 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
   ${c.env?.BING_SITE_VERIFICATION ? `<meta name="msvalidate.01" content="${c.env.BING_SITE_VERIFICATION}" />` : ''}
   ${c.env?.YANDEX_SITE_VERIFICATION ? `<meta name="yandex-verification" content="${c.env.YANDEX_SITE_VERIFICATION}" />` : ''}
   ${seoHtml ? seoHtml : `<title>${title} | ${t.tagline}</title>`}
+
+  <!-- كود ربط ملف معلومات التطبيق Manifest -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#007bff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Jobs in Istanbul">
+  <link rel="apple-touch-icon" href="/icon-192.png">
   
   <!-- Preconnect for performance -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -378,6 +389,10 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
                 <i class="fa-solid fa-gem" style="color: #f59e0b;"></i>
                 <span>${t.goldPrices}</span>
               </a>
+              <a href="/${locale}/install" class="dropdown-item">
+                <i class="fa-solid fa-mobile-screen-button" style="color: var(--primary);"></i>
+                <span>${t.installApp}</span>
+              </a>
             </div>
           </li>
           
@@ -397,6 +412,10 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         <button id="dark-mode-toggle" class="icon-btn" title="${t.darkMode}">
           <i class="fa-solid fa-moon"></i>
         </button>
+        <a href="/${locale}/install" class="header-install-btn" title="${t.installApp}">
+          <i class="fa-solid fa-mobile-screen-button"></i>
+          <span>${t.installApp}</span>
+        </a>
         <a href="https://t.me/jobsistanbul" target="_blank" rel="noopener" class="header-telegram-btn" title="${t.joinTelegram}">
           <i class="fa-brands fa-telegram"></i>
           <span>${t.telegram}</span>
@@ -460,6 +479,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         <a href="/${locale}/salary-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-scale-balanced" style="color: #ec4899;"></i> ${t.salaryCalc}</a>
         <a href="/${locale}/currency-prices" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-coins" style="color: #0ea5e9;"></i> ${t.currencyPrices}</a>
         <a href="/${locale}/gold-prices" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-gem" style="color: #f59e0b;"></i> ${t.goldPrices}</a>
+        <a href="/${locale}/install" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-mobile-screen-button" style="color: var(--primary);"></i> ${t.installApp}</a>
 
         <div style="margin-top:14px; border-top:1px solid var(--border); padding-top:10px; display:flex; flex-direction:column; gap:6px;">
           <a href="/${locale}/submit-job" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">📢 ${t.postJob}</a>
@@ -540,6 +560,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           <li><a href="/${locale}/salary-calculator">${t.salaryCalc}</a></li>
           <li><a href="/${locale}/currency-prices">${t.currencyPrices}</a></li>
           <li><a href="/${locale}/gold-prices">${t.goldPrices}</a></li>
+          <li><a href="/${locale}/install" style="font-weight: 700; color: var(--primary);"><i class="fa-solid fa-mobile-screen-button" style="margin-inline-end:6px;"></i>${t.installApp}</a></li>
         </ul>
         <ul class="footer-links">
           <li class="footer-col-title">${t.legal}</li>
@@ -590,16 +611,28 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       transform: translateY(-1px);
       box-shadow: 0 6px 16px rgba(0, 136, 204, 0.25);
     }
+    .header-install-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--primary);
+      color: white !important;
+      padding: 8px 14px;
+      border-radius: var(--r-full);
+      font-size: 0.82rem;
+      font-weight: 700;
+      transition: var(--t-base);
+      text-decoration: none;
+      box-shadow: 0 4px 12px var(--primary-light);
+    }
+    .header-install-btn:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px var(--primary-light);
+    }
     @media (max-width: 768px) {
-      .header-telegram-btn span {
-        display: none;
-      }
-      .header-telegram-btn {
-        padding: 8px;
-        width: 36px;
-        height: 36px;
-        justify-content: center;
-        border-radius: 50%;
+      .header-telegram-btn, .header-install-btn {
+        display: none !important;
       }
     }
   </style>
@@ -697,8 +730,40 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       });
       updateFavCounter();
 
-      // Fav filter page
+      // Categories drawer initialization
       const urlParams = new URLSearchParams(window.location.search);
+      const activeCategory = urlParams.get('category');
+      if (activeCategory) {
+        const content = document.getElementById('categories-collapse-content');
+        if (content) {
+          content.style.maxHeight = content.scrollHeight + 'px';
+          const icon = document.getElementById('categories-toggle-icon');
+          if (icon) icon.style.transform = 'rotate(180deg)';
+          const btn = document.getElementById('categories-toggle-btn');
+          if (btn) {
+            btn.style.borderColor = 'var(--primary)';
+            btn.style.boxShadow = '0 8px 24px var(--primary-glow)';
+          }
+        }
+      }
+
+      // Districts drawer initialization
+      const activeDistrict = urlParams.get('district');
+      if (activeDistrict) {
+        const content = document.getElementById('districts-collapse-content');
+        if (content) {
+          content.style.maxHeight = content.scrollHeight + 'px';
+          const icon = document.getElementById('districts-toggle-icon');
+          if (icon) icon.style.transform = 'rotate(180deg)';
+          const btn = document.getElementById('districts-toggle-btn');
+          if (btn) {
+            btn.style.borderColor = 'var(--primary)';
+            btn.style.boxShadow = '0 8px 24px var(--primary-glow)';
+          }
+        }
+      }
+
+      // Fav filter page
       if (urlParams.get('favorites') === '1') {
         const jobCards = document.querySelectorAll('.job-card');
         let visibleCount = 0;
@@ -813,6 +878,79 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         msg.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--text-heading);color:white;padding:10px 24px;border-radius:var(--r-full);font-weight:600;z-index:9999;font-size:.9rem;box-shadow:var(--shadow-lg);';
         document.body.appendChild(msg);
         setTimeout(() => msg.remove(), 2500);
+      });
+    }
+
+    function toggleCategoriesCollapse(e) {
+      if (e) e.preventDefault();
+      const content = document.getElementById('categories-collapse-content');
+      const icon = document.getElementById('categories-toggle-icon');
+      const btn = document.getElementById('categories-toggle-btn');
+      
+      const isCollapsed = content.style.maxHeight === '0px' || content.style.maxHeight === '';
+      if (isCollapsed) {
+        content.style.maxHeight = content.scrollHeight + 'px';
+        icon.style.transform = 'rotate(180deg)';
+        btn.style.borderColor = 'var(--primary)';
+        btn.style.boxShadow = '0 8px 24px var(--primary-glow)';
+      } else {
+        content.style.maxHeight = '0px';
+        icon.style.transform = 'rotate(0deg)';
+        btn.style.borderColor = 'var(--border)';
+        btn.style.boxShadow = 'var(--shadow-sm)';
+      }
+    }
+
+    function toggleDistrictsCollapse(e) {
+      if (e) e.preventDefault();
+      const content = document.getElementById('districts-collapse-content');
+      const icon = document.getElementById('districts-toggle-icon');
+      const btn = document.getElementById('districts-toggle-btn');
+      
+      const isCollapsed = content.style.maxHeight === '0px' || content.style.maxHeight === '';
+      if (isCollapsed) {
+        content.style.maxHeight = content.scrollHeight + 'px';
+        icon.style.transform = 'rotate(180deg)';
+        btn.style.borderColor = 'var(--primary)';
+        btn.style.boxShadow = '0 8px 24px var(--primary-glow)';
+      } else {
+        content.style.maxHeight = '0px';
+        icon.style.transform = 'rotate(0deg)';
+        btn.style.borderColor = 'var(--border)';
+        btn.style.boxShadow = 'var(--shadow-sm)';
+      }
+    }
+
+    function toggleToolsCollapse(e) {
+      if (e) e.preventDefault();
+      const content = document.getElementById('tools-collapse-content');
+      const icon = document.getElementById('tools-toggle-icon');
+      const btn = document.getElementById('tools-toggle-btn');
+      
+      const isCollapsed = content.style.maxHeight === '0px' || content.style.maxHeight === '';
+      if (isCollapsed) {
+        content.style.maxHeight = content.scrollHeight + 'px';
+        icon.style.transform = 'rotate(180deg)';
+        btn.style.borderColor = 'var(--primary)';
+        btn.style.boxShadow = '0 8px 24px var(--primary-glow)';
+      } else {
+        content.style.maxHeight = '0px';
+        icon.style.transform = 'rotate(0deg)';
+        btn.style.borderColor = 'var(--border)';
+        btn.style.boxShadow = 'var(--shadow-sm)';
+      }
+    }
+
+    // كود تشغيل وتفعيل التطبيق في المتصفح
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js')
+          .then(function(registration) {
+            console.log('تم تفعيل تطبيق PWA بنجاح في النطاق: ', registration.scope);
+          })
+          .catch(function(error) {
+            console.log('فشل تسجيل الـ Service Worker: ', error);
+          });
       });
     }
   </script>
@@ -998,6 +1136,9 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr') => {
     </a>`;
   }).join('');
 
+  const activeCategoryObj = categories.find((c: any) => c.id === queryCategory || c.slug === queryCategory);
+  const activeCategoryName = activeCategoryObj ? (locale === 'ar' ? activeCategoryObj.name_ar : (locale === 'tr' ? (activeCategoryObj.name_tr || activeCategoryObj.name_en) : activeCategoryObj.name_en)) : '';
+
   // Render Jobs HTML
   const jobsHtml = jobs.length > 0 ? jobs.map((job: any) => {
     const title = locale === 'ar' ? job.title_ar : (locale === 'tr' ? (job.title_tr || job.title_en) : job.title_en);
@@ -1109,13 +1250,26 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr') => {
       </div>
 
       <!-- CATEGORIES -->
-      <section class="categories-sec">
-        <div class="sec-header">
-          <h2 class="sec-title">${locale === 'ar' ? 'تصفح بالقطاعات' : 'Browse by Sector'}</h2>
-          ${queryCategory ? `<a href="/${locale}" class="sec-link">${locale === 'ar' ? 'عرض الكل' : 'View all'} <i class="fa-solid fa-arrow-${locale === 'ar' ? 'left' : 'right'}"></i></a>` : ''}
-        </div>
-        <div class="categories-grid">
-          ${categoriesHtml}
+      <section class="categories-sec" style="margin-bottom: 24px;">
+        <button id="categories-toggle-btn" style="width: 100%; display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); border: 1.5px solid var(--border); padding: 16px 24px; border-radius: var(--r-md); font-weight: 800; font-size: 1.05rem; color: var(--text-heading); cursor: pointer; transition: var(--t-fast); box-shadow: var(--shadow-sm);" onclick="toggleCategoriesCollapse(event)">
+          <span style="display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-folder-open" style="color: var(--primary); font-size: 1.2rem;"></i>
+            <span>${locale === 'ar' ? 'تصفح بالقطاعات والوظائف' : (locale === 'tr' ? 'Sektörlere Göre Göz At' : 'Browse by Job Sectors')}</span>
+            <span style="background: var(--primary-light); color: var(--primary); font-size: 0.8rem; font-weight: 700; padding: 2px 10px; border-radius: var(--r-full); margin-inline-start: 6px;">${categories.length}</span>
+            ${queryCategory && activeCategoryName ? `<span style="background: var(--accent-light); color: var(--accent-hover); font-size: 0.8rem; font-weight: 700; padding: 2px 10px; border-radius: var(--r-full); display: inline-flex; align-items: center; gap: 6px; margin-inline-start: 10px;"><i class="fa-solid fa-check"></i> ${activeCategoryName}</span>` : ''}
+          </span>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            ${queryCategory ? `<a href="/${locale}" style="font-size: 0.85rem; color: var(--danger); font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" onclick="event.stopPropagation()"><i class="fa-solid fa-circle-xmark"></i> ${locale === 'ar' ? 'إلغاء الفلتر' : (locale === 'tr' ? 'Filtreyi Temizle' : 'Clear Filter')}</a>` : ''}
+            <span id="categories-toggle-icon" style="transition: transform 0.25s ease-out; font-size: 0.9rem; opacity: 0.7;">
+              <i class="fa-solid fa-chevron-down"></i>
+            </span>
+          </div>
+        </button>
+        
+        <div id="categories-collapse-content" style="max-height: 0px; overflow: hidden; transition: max-height 0.3s ease-out; margin-bottom: 0px;">
+          <div class="categories-grid" style="padding: 20px 0 10px;">
+            ${categoriesHtml}
+          </div>
         </div>
       </section>
 
@@ -1144,131 +1298,144 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr') => {
       </section>
 
       <!-- DISTRICTS -->
-      <section class="chips-section" style="margin-bottom:48px">
-        <div class="sec-header">
-          <h2 class="sec-title">${locale === 'ar' ? 'البحث بالأحياء' : 'Filter by District'}</h2>
-        </div>
-        <div class="district-grid">
-          <a href="/${locale}?search=${querySearch}&category=${queryCategory}&type=${queryJobType}" class="district-card ${!queryDistrict ? 'active' : ''}">
-            ${locale === 'ar' ? 'الكل' : 'All'}
-          </a>
-          ${ISTANBUL_DISTRICTS.map(dist => {
-      const name = locale === 'ar' ? dist.ar : dist.en;
-      return `<a href="/${locale}?search=${querySearch}&category=${queryCategory}&type=${queryJobType}&district=${dist.en}" class="district-card ${queryDistrict.toLowerCase() === dist.en.toLowerCase() ? 'active' : ''}">${name}</a>`;
-    }).join('')}
+      <section class="chips-section" style="margin-bottom: 24px;">
+        <button id="districts-toggle-btn" style="width: 100%; display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); border: 1.5px solid var(--border); padding: 16px 24px; border-radius: var(--r-md); font-weight: 800; font-size: 1.05rem; color: var(--text-heading); cursor: pointer; transition: var(--t-fast); box-shadow: var(--shadow-sm);" onclick="toggleDistrictsCollapse(event)">
+          <span style="display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-map-location-dot" style="color: var(--primary); font-size: 1.2rem;"></i>
+            <span>${locale === 'ar' ? 'البحث بالأحياء والمناطق' : (locale === 'tr' ? 'İlçelere Göre Ara' : 'Filter by District/Neighborhood')}</span>
+            <span style="background: var(--primary-light); color: var(--primary); font-size: 0.8rem; font-weight: 700; padding: 2px 10px; border-radius: var(--r-full); margin-inline-start: 6px;">${ISTANBUL_DISTRICTS.length}</span>
+            ${queryDistrict ? `<span style="background: var(--accent-light); color: var(--accent-hover); font-size: 0.8rem; font-weight: 700; padding: 2px 10px; border-radius: var(--r-full); display: inline-flex; align-items: center; gap: 6px; margin-inline-start: 10px;"><i class="fa-solid fa-check"></i> ${locale === 'ar' ? (ISTANBUL_DISTRICTS.find(d => d.en.toLowerCase() === queryDistrict.toLowerCase())?.ar || queryDistrict) : queryDistrict}</span>` : ''}
+          </span>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            ${queryDistrict ? `<a href="/${locale}?search=${querySearch}&category=${queryCategory}&type=${queryJobType}" style="font-size: 0.85rem; color: var(--danger); font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" onclick="event.stopPropagation()"><i class="fa-solid fa-circle-xmark"></i> ${locale === 'ar' ? 'إلغاء الفلتر' : (locale === 'tr' ? 'Filtreyi Temizle' : 'Clear Filter')}</a>` : ''}
+            <span id="districts-toggle-icon" style="transition: transform 0.25s ease-out; font-size: 0.9rem; opacity: 0.7;">
+              <i class="fa-solid fa-chevron-down"></i>
+            </span>
+          </div>
+        </button>
+        
+        <div id="districts-collapse-content" style="max-height: 0px; overflow: hidden; transition: max-height 0.3s ease-out; margin-bottom: 0px;">
+          <div class="district-grid" style="padding: 20px 0 10px;">
+            <a href="/${locale}?search=${querySearch}&category=${queryCategory}&type=${queryJobType}" class="district-card ${!queryDistrict ? 'active' : ''}">
+              ${locale === 'ar' ? 'الكل' : 'All'}
+            </a>
+            ${ISTANBUL_DISTRICTS.map(dist => {
+              const name = locale === 'ar' ? dist.ar : dist.en;
+              return `<a href="/${locale}?search=${querySearch}&category=${queryCategory}&type=${queryJobType}&district=${dist.en}" class="district-card ${queryDistrict.toLowerCase() === dist.en.toLowerCase() ? 'active' : ''}">${name}</a>`;
+            }).join('')}
+          </div>
         </div>
       </section>
 
       <!-- SMART CAREER TOOLS SECTION -->
-      <section class="career-tools-section" style="margin-bottom: 56px; position: relative;">
-        <div class="sec-header" style="margin-bottom: 24px;">
-          <h2 class="sec-title" style="display: flex; align-items: center; gap: 10px;">
-            <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary);"></i>
-            ${locale === 'ar' ? 'أدوات التوظيف الذكية في jobs-in-istanbul.com' : 'Smart Career Tools on jobs-in-istanbul.com'}
-          </h2>
-          <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">
-            ${locale === 'ar' ? 'استخدم أدواتنا المتطورة لزيادة فرص قبولك وحساب راتبك ومعرفة القوانين.' : 'Use our advanced career tools to double your hiring chance, calculate your salary, and read guides.'}
-          </p>
-        </div>
-
-        <div class="tools-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px;">
-          
-          <!-- Tool 1: Resume Builder -->
-          <div class="tool-card glass-card" style="padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px);">
-            <div style="position: absolute; right: -15px; top: -15px; font-size: 90px; opacity: 0.04; color: var(--text-dark); pointer-events: none;">
-              <i class="fa-solid fa-file-invoice"></i>
-            </div>
-            <div>
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-                <div class="tool-icon-wrapper" style="width: 48px; height: 48px; border-radius: var(--radius-md); background: linear-gradient(135deg, #facc15 0%, #eab308 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem;">
+      <section class="career-tools-section" style="margin-bottom: 32px; position: relative;">
+        <button id="tools-toggle-btn" style="width: 100%; display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); border: 1.5px solid var(--border); padding: 16px 24px; border-radius: var(--r-md); font-weight: 800; font-size: 1.05rem; color: var(--text-heading); cursor: pointer; transition: var(--t-fast); box-shadow: var(--shadow-sm);" onclick="toggleToolsCollapse(event)">
+          <span style="display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary); font-size: 1.2rem;"></i>
+            <span>${locale === 'ar' ? 'أدوات التوظيف الذكية والآلية' : (locale === 'tr' ? 'Akıllı Kariyer Araçları' : 'Smart Career & Job Tools')}</span>
+            <span style="background: var(--primary-light); color: var(--primary); font-size: 0.8rem; font-weight: 700; padding: 2px 10px; border-radius: var(--r-full); margin-inline-start: 6px;">4</span>
+          </span>
+          <span id="tools-toggle-icon" style="transition: transform 0.25s ease-out; font-size: 0.9rem; opacity: 0.7;">
+            <i class="fa-solid fa-chevron-down"></i>
+          </span>
+        </button>
+        
+        <div id="tools-collapse-content" style="max-height: 0px; overflow: hidden; transition: max-height 0.3s ease-out; margin-bottom: 0px;">
+          <div style="padding: 24px 0 10px;">
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">
+              ${locale === 'ar' ? 'استخدم أدواتنا المتطورة لزيادة فرص قبولك وحساب راتبك ومعرفة القوانين.' : 'Use our advanced career tools to double your hiring chance, calculate your salary, and read guides.'}
+            </p>
+            <div class="tools-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px;">
+              
+              <!-- Tool 1: Resume Builder -->
+              <div class="tool-card glass-card" style="padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px);">
+                <div style="position: absolute; right: -15px; top: -15px; font-size: 90px; opacity: 0.04; color: var(--text-dark); pointer-events: none;">
                   <i class="fa-solid fa-file-invoice"></i>
                 </div>
-                <span class="tag-status" style="font-size: 0.75rem; font-weight: 700; background: #fef08a; color: #854d0e; padding: 4px 10px; border-radius: var(--r-full);">
-                  ${locale === 'ar' ? 'مجاني 100%' : '100% Free'}
-                </span>
+                <div>
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                    <div class="tool-icon-wrapper" style="width: 48px; height: 48px; border-radius: var(--radius-md); background: linear-gradient(135deg, #facc15 0%, #eab308 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem;">
+                      <i class="fa-solid fa-file-invoice"></i>
+                    </div>
+                    <span class="tag-status" style="font-size: 0.75rem; font-weight: 700; background: #fef08a; color: #854d0e; padding: 4px 10px; border-radius: var(--r-full);">
+                      ${locale === 'ar' ? 'مجاني 100%' : '100% Free'}
+                    </span>
+                  </div>
+                  <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-dark); margin: 0 0 10px 0;">
+                    ${locale === 'ar' ? 'منشئ السيرة الذاتية' : 'Interactive Resume Builder'}
+                  </h3>
+                  <p style="font-size: 0.875rem; color: var(--text-main); line-height: 1.5; margin: 0 0 20px 0;">
+                    ${locale === 'ar'
+                      ? 'أنشئ سيرة ذاتية احترافية ثنائية اللغة (عربي/تركي/إنجليزي) مصممة خصيصاً لسوق العمل في إسطنبول وقم بتحميلها كـ PDF.'
+                      : 'Build a job-winning, bilingual resume (English/Turkish) optimized for Istanbul employers and download as print-ready PDF.'}
+                  </p>
+                </div>
+                <a href="/${locale}/resume-builder" class="btn-primary" style="font-size: 0.85rem; padding: 10px 16px; width: fit-content; text-decoration: none;">
+                  ${locale === 'ar' ? 'جرب المنشئ التفاعلي ←' : 'Start Builder ←'}
+                </a>
               </div>
-              <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-dark); margin: 0 0 10px 0;">
-                ${locale === 'ar' ? 'منشئ السيرة الذاتية' : 'Interactive Resume Builder'}
-              </h3>
-              <p style="font-size: 0.875rem; color: var(--text-main); line-height: 1.5; margin: 0 0 20px 0;">
-                ${locale === 'ar'
-                  ? 'أنشئ سيرة ذاتية احترافية ثنائية اللغة (عربي/تركي/إنجليزي) مصممة خصيصاً لسوق العمل في إسطنبول وقم بتحميلها كـ PDF.'
-                  : 'Build a job-winning, bilingual resume (English/Turkish) optimized for Istanbul employers and download as print-ready PDF.'}
-              </p>
-            </div>
-            <a href="/${locale}/resume-builder" class="btn-primary" style="font-size: 0.85rem; padding: 10px 16px; width: fit-content; text-decoration: none;">
-              ${locale === 'ar' ? 'جرب المنشئ التفاعلي ←' : 'Start Builder ←'}
-            </a>
-          </div>
 
-          <!-- Tool 2: Salary Calculator -->
-          <div class="tool-card glass-card" style="padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px);">
-            <div style="position: absolute; right: -15px; top: -15px; font-size: 90px; opacity: 0.04; color: var(--text-dark); pointer-events: none;">
-              <i class="fa-solid fa-calculator"></i>
-            </div>
-            <div>
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-                <div class="tool-icon-wrapper" style="width: 48px; height: 48px; border-radius: var(--radius-md); background: linear-gradient(135deg, #10b981 0%, #059669 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem;">
+              <!-- Tool 2: Salary Calculator -->
+              <div class="tool-card glass-card" style="padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px);">
+                <div style="position: absolute; right: -15px; top: -15px; font-size: 90px; opacity: 0.04; color: var(--text-dark); pointer-events: none;">
                   <i class="fa-solid fa-calculator"></i>
                 </div>
-                <span class="tag-status" style="font-size: 0.75rem; font-weight: 700; background: #d1fae5; color: #065f46; padding: 4px 10px; border-radius: var(--r-full);">
-                  ${locale === 'ar' ? 'مؤشر محدّث' : 'Live Index'}
-                </span>
+                <div>
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                    <div class="tool-icon-wrapper" style="width: 48px; height: 48px; border-radius: var(--radius-md); background: linear-gradient(135deg, #10b981 0%, #059669 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem;">
+                      <i class="fa-solid fa-calculator"></i>
+                    </div>
+                    <span class="tag-status" style="font-size: 0.75rem; font-weight: 700; background: #d1fae5; color: #065f46; padding: 4px 10px; border-radius: var(--r-full);">
+                      ${locale === 'ar' ? 'مؤشر محدّث' : 'Live Index'}
+                    </span>
+                  </div>
+                  <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-dark); margin: 0 0 10px 0;">
+                    ${locale === 'ar' ? 'حاسبة ومؤشر الرواتب' : 'Salary Index Calculator'}
+                  </h3>
+                  <p style="font-size: 0.875rem; color: var(--text-main); line-height: 1.5; margin: 0 0 20px 0;">
+                    ${locale === 'ar'
+                      ? 'اعرف مستحقاتك وقارن متوسط الرواتب المتوقع في إسطنبول بالليرة التركية والدولار مقسمة حسب القطاع المهني ومستوى خبرتك.'
+                      : 'Check average salaries in Istanbul in TRY/USD. Get insights by sector, career level, and exact job industry.'}
+                  </p>
+                </div>
+                <a href="/${locale}/salary-calculator" class="btn-primary" style="font-size: 0.85rem; padding: 10px 16px; width: fit-content; text-decoration: none; background: #10b981;">
+                  ${locale === 'ar' ? 'احسب راتبك المتوقع ←' : 'Calculate Salary ←'}
+                </a>
               </div>
-              <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-dark); margin: 0 0 10px 0;">
-                ${locale === 'ar' ? 'حاسبة ومؤشر الرواتب' : 'Salary Index Calculator'}
-              </h3>
-              <p style="font-size: 0.875rem; color: var(--text-main); line-height: 1.5; margin: 0 0 20px 0;">
-                ${locale === 'ar'
-                  ? 'اعرف مستحقاتك وقارن متوسط الرواتب المتوقع في إسطنبول بالليرة التركية والدولار مقسمة حسب القطاع المهني ومستوى خبرتك.'
-                  : 'Check average salaries in Istanbul in TRY/USD. Get insights by sector, career level, and exact job industry.'}
-              </p>
-            </div>
-            <a href="/${locale}/salary-calculator" class="btn-primary" style="font-size: 0.85rem; padding: 10px 16px; width: fit-content; text-decoration: none; background: #10b981;">
-              ${locale === 'ar' ? 'احسب راتبك المتوقع ←' : 'Calculate Salary ←'}
-            </a>
-          </div>
 
-          <!-- Tool 3: Infinite Scroll & Search -->
-          <div class="tool-card glass-card" style="padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px);">
-            <div style="position: absolute; right: -15px; top: -15px; font-size: 90px; opacity: 0.04; color: var(--text-dark); pointer-events: none;">
-              <i class="fa-solid fa-list-check"></i>
-            </div>
-            <div>
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-                <div class="tool-icon-wrapper" style="width: 48px; height: 48px; border-radius: var(--radius-md); background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem;">
+              <!-- Tool 3: Infinite Scroll & Search -->
+              <div class="tool-card glass-card" style="padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px);">
+                <div style="position: absolute; right: -15px; top: -15px; font-size: 90px; opacity: 0.04; color: var(--text-dark); pointer-events: none;">
                   <i class="fa-solid fa-list-check"></i>
                 </div>
-                <span class="tag-status" style="font-size: 0.75rem; font-weight: 700; background: #e0e7ff; color: #3730a3; padding: 4px 10px; border-radius: var(--r-full);">
-                  ${locale === 'ar' ? 'تصفح ذكي' : 'Smart Scroll'}
-                </span>
+                <div>
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                    <div class="tool-icon-wrapper" style="width: 48px; height: 48px; border-radius: var(--radius-md); background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem;">
+                      <i class="fa-solid fa-list-check"></i>
+                    </div>
+                    <span class="tag-status" style="font-size: 0.75rem; font-weight: 700; background: #e0e7ff; color: #3730a3; padding: 4px 10px; border-radius: var(--r-full);">
+                      ${locale === 'ar' ? 'تصفح ذكي' : 'Smart Search'}
+                    </span>
+                  </div>
+                  <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-dark); margin: 0 0 10px 0;">
+                    ${locale === 'ar' ? 'التصفح والتمرير اللانهائي' : 'Instant Search & Filter'}
+                  </h3>
+                  <p style="font-size: 0.875rem; color: var(--text-main); line-height: 1.5; margin: 0 0 20px 0;">
+                    ${locale === 'ar'
+                      ? 'ابحث بسلاسة دون الحاجة للتنقل بين الصفحات. استعمل الفلترة الجغرافية حسب الأحياء والربط المباشر مع خطوط مواصلات المتروبوس والمترو.'
+                      : 'Search jobs without page-load friction. Instantly filter positions by Istanbul districts and metro/metrobus transit routes.'}
+                  </p>
+                </div>
+                <a href="#jobs-anchor" onclick="document.querySelector('.main-layout').scrollIntoView({behavior:'smooth'}); return false;" class="btn-primary" style="font-size: 0.85rem; padding: 10px 16px; width: fit-content; text-decoration: none; background: #6366f1;">
+                  ${locale === 'ar' ? 'ابدأ البحث المتقدم ↓' : 'Explore Jobs ↓'}
+                </a>
               </div>
-              <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-dark); margin: 0 0 10px 0;">
-                ${locale === 'ar' ? 'التصفح والتمرير اللانهائي' : 'Infinite Scroll Explorer'}
-              </h3>
-              <p style="font-size: 0.875rem; color: var(--text-main); line-height: 1.5; margin: 0 0 20px 0;">
-                ${locale === 'ar'
-                  ? 'ابحث بسلاسة دون الحاجة للتنقل بين الصفحات. استعمل الفلترة الجغرافية حسب الأحياء والربط المباشر مع خطوط مواصلات المتروبوس والمترو.'
-                  : 'Search jobs without page-load friction. Instantly filter positions by Istanbul districts and metro/metrobus transit routes.'}
-              </p>
-            </div>
-            <a href="#jobs-anchor" onclick="document.querySelector('.main-layout').scrollIntoView({behavior:'smooth'}); return false;" class="btn-primary" style="font-size: 0.85rem; padding: 10px 16px; width: fit-content; text-decoration: none; background: #6366f1;">
-              ${locale === 'ar' ? 'ابدأ البحث المتقدم ↓' : 'Explore Jobs ↓'}
-            </a>
-          </div>
 
-          <!-- Tool 4: Career Guides -->
-          <div class="tool-card glass-card" style="padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px);">
-            <div style="position: absolute; right: -15px; top: -15px; font-size: 90px; opacity: 0.04; color: var(--text-dark); pointer-events: none;">
-              <i class="fa-solid fa-book-open"></i>
-            </div>
-            <div>
-              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-                <div class="tool-icon-wrapper" style="width: 48px; height: 48px; border-radius: var(--radius-md); background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem;">
+              <!-- Tool 4: Career Guides -->
+              <div class="tool-card glass-card" style="padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px);">
+                <div style="position: absolute; right: -15px; top: -15px; font-size: 90px; opacity: 0.04; color: var(--text-dark); pointer-events: none;">
                   <i class="fa-solid fa-book-open"></i>
                 </div>
-                <span class="tag-status" style="font-size: 0.75rem; font-weight: 700; background: #ffedd5; color: #9a3412; padding: 4px 10px; border-radius: var(--r-full);">
-                  ${locale === 'ar' ? 'أدلة إرشادية' : 'Guides'}
                 </span>
               </div>
               <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-dark); margin: 0 0 10px 0;">
@@ -1276,8 +1443,8 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr') => {
               </h3>
               <p style="font-size: 0.875rem; color: var(--text-main); line-height: 1.5; margin: 0 0 20px 0;">
                 ${locale === 'ar'
-                  ? 'اعرف إجراءات الحصول على إذن عمل (Çalışma İzni) والإقامة السياحية، ونصائح تحسين ملفك المهني لتخطي اختبارات أنظمة ATS التلقائية.'
-                  : 'Get legal work permit instructions, residency details, and professional tips to optimize your CV for ATS parsing in Turkey.'}
+      ? 'اعرف إجراءات الحصول على إذن عمل (Çalışma İzni) والإقامة السياحية، ونصائح تحسين ملفك المهني لتخطي اختبارات أنظمة ATS التلقائية.'
+      : 'Get legal work permit instructions, residency details, and professional tips to optimize your CV for ATS parsing in Turkey.'}
               </p>
             </div>
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
@@ -2947,5 +3114,158 @@ publicRouter.get('/:locale/terms', (c) => {
   `;
 
   return c.html(renderLayout(c, t.title, html, locale));
+});
+
+// PWA Install Landing Page
+publicRouter.get('/:locale/install', (c) => {
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr') return c.redirect('/ar/install');
+
+  const isRtl = locale === 'ar';
+
+  const t = {
+    ar: {
+      title: 'تحميل وتثبيت تطبيق فرص عمل في إسطنبول على الهاتف',
+      description: 'دليل بسيط لتثبيت تطبيق فرص عمل في إسطنبول (PWA) على الأندرويد والآيفون لتصفح الوظائف بلمسة واحدة.',
+      keywords: 'تثبيت تطبيق وظائف إسطنبول, تنزيل تطبيق فرص عمل في تركيا, تطبيق PWA إسطنبول, تطبيق التوظيف في تركيا',
+      heading: 'تثبيت تطبيق فرص عمل في إسطنبول',
+      subheading: 'تصفّح وتقدّم لأفضل الوظائف الشاغرة في إسطنبول مباشرةً من شاشتك الرئيسية!',
+      featuresTitle: 'مميزات التطبيق المحمول',
+      feature1: 'دخول سريع بلمسة واحدة من شاشتك دون كتابة الرابط',
+      feature2: 'خفيف جداً (أقل من 1 ميجابايت) ولا يستهلك مساحة أو بطارية',
+      feature3: 'يعمل بسلاسة وسرعة فائقة حتى مع اتصالات الإنترنت الضعيفة',
+      feature4: 'تصفح فوري وتحديثات لحظية لكل الوظائف الشاغرة',
+      iosTitle: '📱 أجهزة الآيفون (iOS)',
+      iosStep1: 'افتح متصفح <strong>Safari</strong> وانتقل إلى الموقع.',
+      iosStep2: 'اضغط على زر <strong>مشاركة (Share)</strong> (أيقونة المربع مع السهم للأعلى بالأسفل).',
+      iosStep3: 'مرر لأسفل القائمة واضغط على خيار <strong>"إضافة إلى الصفحة الرئيسية"</strong> (Add to Home Screen).',
+      androidTitle: '🤖 أجهزة الأندرويد (Android)',
+      androidStep1: 'افتح متصفح <strong>Chrome</strong> وانتقل إلى الموقع.',
+      androidStep2: 'ستظهر لك نافذة منبثقة تقترح عليك التثبيت، اضغط على <strong>"تثبيت التطبيق"</strong> (Install).',
+      androidStep3: 'أو اضغط على النقاط الثلاث في أعلى المتصفح واختر <strong>"تثبيت التطبيق"</strong>.',
+      btnText: 'الذهاب للرئيسية وتثبيت التطبيق'
+    },
+    en: {
+      title: 'Install Jobs in Istanbul App on Your Mobile',
+      description: 'Easy guide to install Jobs in Istanbul app (PWA) on Android & iOS to browse job vacancies in one tap.',
+      keywords: 'install istanbul jobs app, download turkey jobs app, jobs in istanbul pwa, turkey recruitment mobile app',
+      heading: 'Install Jobs in Istanbul App',
+      subheading: 'Browse and apply for the best jobs in Istanbul directly from your home screen!',
+      featuresTitle: 'App Key Features',
+      feature1: 'Instant one-tap access from your home screen without typing the URL',
+      feature2: 'Extremely lightweight (less than 1MB), no storage or battery drain',
+      feature3: 'Works smoothly and loads fast even on slow mobile networks',
+      feature4: 'Fast navigation and real-time updates of new jobs',
+      iosTitle: '📱 iPhone & iPad (iOS)',
+      iosStep1: 'Open <strong>Safari</strong> and navigate to jobs-in-istanbul.com.',
+      iosStep2: 'Tap the <strong>Share</strong> button (the square icon with an upward arrow at the bottom).',
+      iosStep3: 'Scroll down and tap <strong>"Add to Home Screen"</strong>.',
+      androidTitle: '🤖 Android Phones',
+      androidStep1: 'Open <strong>Chrome</strong> and navigate to jobs-in-istanbul.com.',
+      androidStep2: 'Tap the <strong>"Install App"</strong> prompt that appears at the bottom.',
+      androidStep3: 'Or tap the three dots in the top-right and select <strong>"Install App"</strong>.',
+      btnText: 'Go to Homepage & Install'
+    },
+    tr: {
+      title: 'İstanbul İş İlanları Mobil Uygulamasını Telefonunuza Yükleyin',
+      description: 'İstanbul İş İlanları uygulamasını (PWA) Android ve iOS cihazlarınıza yüklemek için kolay rehber. Tek tıkla iş ilanlarına ulaşın.',
+      keywords: 'istanbul iş ilanları uygulaması yükle, türkiye iş ilanları mobil indir, istanbul pwa uygulaması, iş ilanları uygulaması',
+      heading: 'İstanbul İş İlanları Uygulamasını Yükleyin',
+      subheading: "İstanbul'daki en iyi iş ilanlarına doğrudan ana ekranınızdan ulaşın ve başvurun!",
+      featuresTitle: 'Uygulama Özellikleri',
+      feature1: 'Adresi yazmadan, ana ekranınızdan tek dokunuşla anında erişim',
+      feature2: "Son derece hafif (1MB'tan az), depolama alanı ve pil tüketmez",
+      feature3: 'Yavaş mobil bağlantılarda bile son derece hızlı ve sorunsuz çalışır',
+      feature4: 'Hızlı gezinti ve yeni iş ilanları için anlık güncellemeler',
+      iosTitle: '📱 iPhone ve iPad (iOS)',
+      iosStep1: '<strong>Safari</strong> tarayıcısını açın ve jobs-in-istanbul.com adresine gidin.',
+      iosStep2: 'Paylaş (Share) butonuna tıklayın (kare ve yukarı ok simgesi).',
+      iosStep3: 'Listeyi aşağı kaydırın ve <strong>"Ana Ekrana Ekle"</strong> seçeneğini seçin.',
+      androidTitle: '🤖 Android Telefonlar',
+      androidStep1: '<strong>Chrome</strong> tarayıcısını açın ve jobs-in-istanbul.com adresine gidin.',
+      androidStep2: 'Altta beliren <strong>"Uygulamayı Yükle"</strong> bildirimine dokunun.',
+      androidStep3: 'Veya sağ üstteki üç noktaya tıklayıp <strong>"Uygulamayı Yükle"</strong> seçeneğini seçin.',
+      btnText: 'Ana Sayfaya Git ve Yükle'
+    }
+  }[locale];
+
+  const html = `
+    <div class="container" style="max-width: 1100px; padding: 60px 20px;">
+      <!-- Hero Section -->
+      <div style="text-align: center; margin-bottom: 50px;">
+        <div style="width: 80px; height: 80px; background: var(--primary-light); color: var(--primary); border-radius: var(--r-xl); display: inline-flex; align-items: center; justify-content: center; font-size: 2.2rem; margin-bottom: 20px; box-shadow: var(--shadow-md);">
+          <i class="fa-solid fa-mobile-screen-button"></i>
+        </div>
+        <h1 class="hero-title-gradient" style="font-size: 2.5rem; font-weight: 900; margin-bottom: 12px;">${t.heading}</h1>
+        <p style="font-size: 1.15rem; color: var(--text-body); max-width: 650px; margin: 0 auto; line-height: 1.6;">${t.subheading}</p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; margin-bottom: 50px;">
+        <!-- iOS Card -->
+        <div class="glass-card" style="padding: 35px; border-radius: var(--r-lg); display: flex; flex-direction: column; text-align: ${isRtl ? 'right' : 'left'};">
+          <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--text-heading); margin-bottom: 24px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+            ${t.iosTitle}
+          </h2>
+          <ol style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 16px; font-size: 1rem; color: var(--text-body); line-height: 1.6;">
+            <li>${t.iosStep1}</li>
+            <li>${t.iosStep2}</li>
+            <li>${t.iosStep3}</li>
+          </ol>
+        </div>
+
+        <!-- Android Card -->
+        <div class="glass-card" style="padding: 35px; border-radius: var(--r-lg); display: flex; flex-direction: column; text-align: ${isRtl ? 'right' : 'left'};">
+          <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--text-heading); margin-bottom: 24px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+            ${t.androidTitle}
+          </h2>
+          <ol style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 16px; font-size: 1rem; color: var(--text-body); line-height: 1.6;">
+            <li>${t.androidStep1}</li>
+            <li>${t.androidStep2}</li>
+            <li>${t.androidStep3}</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Features Section -->
+      <div class="glass-card" style="padding: 40px; border-radius: var(--r-lg); text-align: center; margin-bottom: 50px;">
+        <h3 style="font-size: 1.6rem; font-weight: 800; color: var(--text-heading); margin-bottom: 30px;">⚡ ${t.featuresTitle}</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px;">
+          <div style="padding: 10px;">
+            <div style="font-size: 1.5rem; color: var(--primary); margin-bottom: 12px;"><i class="fa-solid fa-bolt"></i></div>
+            <p style="font-size: 0.95rem; color: var(--text-body); font-weight: 600; line-height: 1.5; margin: 0;">${t.feature1}</p>
+          </div>
+          <div style="padding: 10px;">
+            <div style="font-size: 1.5rem; color: #10b981; margin-bottom: 12px;"><i class="fa-solid fa-hard-drive"></i></div>
+            <p style="font-size: 0.95rem; color: var(--text-body); font-weight: 600; line-height: 1.5; margin: 0;">${t.feature2}</p>
+          </div>
+          <div style="padding: 10px;">
+            <div style="font-size: 1.5rem; color: #6366f1; margin-bottom: 12px;"><i class="fa-solid fa-wifi"></i></div>
+            <p style="font-size: 0.95rem; color: var(--text-body); font-weight: 600; line-height: 1.5; margin: 0;">${t.feature3}</p>
+          </div>
+          <div style="padding: 10px;">
+            <div style="font-size: 1.5rem; color: #f59e0b; margin-bottom: 12px;"><i class="fa-solid fa-arrows-rotate"></i></div>
+            <p style="font-size: 0.95rem; color: var(--text-body); font-weight: 600; line-height: 1.5; margin: 0;">${t.feature4}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <div style="text-align: center;">
+        <a href="/${locale}" class="btn btn-primary" style="padding: 16px 40px; font-size: 1.1rem; font-weight: 700; border-radius: var(--r-full); box-shadow: var(--shadow-lg); text-decoration: none; display: inline-flex; align-items: center; gap: 10px; transition: var(--t-base);">
+          <i class="fa-solid fa-house"></i>
+          <span>${t.btnText}</span>
+        </a>
+      </div>
+    </div>
+  `;
+
+  const seoHtml = generateMetaTags(locale, 'submit', {
+    title: t.title,
+    seoDescription: t.description,
+    seoKeywords: t.keywords,
+    slug: 'install'
+  });
+
+  return c.html(renderLayout(c, t.title, html, locale, seoHtml));
 });
 

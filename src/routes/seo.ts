@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import { FAVICON_BASE64 } from '../utils/logo-base64'
 
 export const seoRouter = new Hono()
 
@@ -54,7 +55,8 @@ seoRouter.get('/sitemap.xml', async (c) => {
     { ar: '/ar/submit-job', en: '/en/submit-job', tr: '/tr/submit-job' },
     { ar: '/ar/blog', en: '/en/blog', tr: '/tr/blog' },
     { ar: '/ar/currency-prices', en: '/en/currency-prices', tr: '/tr/currency-prices' },
-    { ar: '/ar/gold-prices', en: '/en/gold-prices', tr: '/tr/gold-prices' }
+    { ar: '/ar/gold-prices', en: '/en/gold-prices', tr: '/tr/gold-prices' },
+    { ar: '/ar/install', en: '/en/install', tr: '/tr/install' }
   ];
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -215,4 +217,139 @@ seoRouter.get('/google:code.html', (c) => {
     'Content-Type': 'text/html; charset=utf-8'
   });
 })
+
+// PWA manifest.json handler
+seoRouter.get('/manifest.json', (c) => {
+  const manifest = {
+    name: 'Jobs in Istanbul | فرص عمل في إسطنبول',
+    short_name: 'Jobs in Istanbul',
+    description: 'Premium Job Board for Istanbul - المنصة الرائدة لربط الكفاءات بأفضل فرص العمل في إسطنبول',
+    start_url: '/',
+    display: 'standalone',
+    background_color: '#ffffff',
+    theme_color: '#007bff',
+    orientation: 'portrait-primary',
+    icons: [
+      {
+        src: '/icon-192.png',
+        type: 'image/png',
+        sizes: '192x192',
+        purpose: 'any maskable'
+      },
+      {
+        src: '/icon-512.png',
+        type: 'image/png',
+        sizes: '512x512',
+        purpose: 'any maskable'
+      }
+    ]
+  };
+  return c.json(manifest, 200, {
+    'Cache-Control': 'public, max-age=86400'
+  });
+})
+
+// PWA Service Worker handler
+seoRouter.get('/sw.js', (c) => {
+  const swCode = `const CACHE_NAME = 'jobs-istanbul-cache-v1';
+const ASSETS_TO_CACHE = [
+  '/css/theme.css',
+  '/favicon.ico',
+  '/icon-192.png'
+];
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS_TO_CACHE);
+    })
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cache) => {
+          if (cache !== CACHE_NAME) {
+            return caches.delete(cache);
+          }
+        })
+      );
+    })
+  );
+  self.clients.claim();
+});
+
+self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+  if (event.request.method !== 'GET') return;
+
+  if (
+    ASSETS_TO_CACHE.includes(url.pathname) || 
+    url.hostname.includes('cdnjs.cloudflare.com') ||
+    url.hostname.includes('fonts.googleapis.com') ||
+    url.hostname.includes('fonts.gstatic.com')
+  ) {
+    event.respondWith(
+      caches.match(event.request).then((cachedResponse) => {
+        if (cachedResponse) return cachedResponse;
+        return fetch(event.request).then((networkResponse) => {
+          return caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, networkResponse.clone());
+            return networkResponse;
+          });
+        });
+      })
+    );
+  } else {
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        return caches.match(event.request);
+      })
+    );
+  }
+});`;
+  return c.body(swCode, 200, {
+    'Content-Type': 'application/javascript; charset=utf-8',
+    'Cache-Control': 'public, max-age=3600'
+  });
+})
+
+// PWA Icons handler
+const serveIcon = async (c: any) => {
+  const env: any = c.env;
+  try {
+    const bucket = env.MEDIA_BUCKET;
+    if (bucket) {
+      const path = c.req.path.slice(1); // e.g. "icon-192.png"
+      let object = await bucket.get(`public/images/${path}`);
+      if (!object) {
+        object = await bucket.get('public/images/logo.png');
+      }
+      
+      if (object) {
+        const headers = new Headers();
+        object.writeHttpMetadata(headers);
+        headers.set('etag', object.httpEtag);
+        headers.set('Content-Type', 'image/png');
+        headers.set('Cache-Control', 'public, max-age=86400');
+        return c.body(object.body, 200, Object.fromEntries(headers.entries()));
+      }
+    }
+  } catch (err: any) {
+    console.error('Failed to load PWA icon from R2, using fallback:', err);
+  }
+
+  // Fallback to built-in logo
+  const logoBuffer = Buffer.from(FAVICON_BASE64, 'base64');
+  return c.body(logoBuffer, 200, {
+    'Content-Type': 'image/png',
+    'Cache-Control': 'public, max-age=86400'
+  });
+};
+
+seoRouter.get('/icon-192.png', serveIcon);
+seoRouter.get('/icon-512.png', serveIcon);
 
