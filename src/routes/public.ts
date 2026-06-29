@@ -1685,6 +1685,82 @@ publicRouter.get(
       }
     } catch (err) { }
 
+    // Fetch related jobs in the same category
+    let relatedJobs: any[] = [];
+    try {
+      if (job.category) {
+        const relatedRows = await db.prepare(
+          `SELECT id, slug, data, published_at FROM documents 
+           WHERE type_id = 'jobs' 
+             AND status = 'published' 
+             AND is_published = 1 
+             AND id != ? 
+             AND EXISTS (
+               SELECT 1 FROM document_references ref 
+               WHERE ref.from_document_id = documents.id 
+                 AND ref.field_name = 'category' 
+                 AND ref.to_root_id = ?
+             )
+           ORDER BY published_at DESC LIMIT 3`
+        ).bind(job.id, job.category).all();
+
+        relatedJobs = (relatedRows.results || []).map((row: any) => ({
+          id: row.id,
+          slug: row.slug,
+          publishedAt: row.published_at,
+          ...JSON.parse(row.data)
+        }));
+      }
+    } catch (err) {
+      console.error('Error fetching related jobs:', err);
+    }
+
+    // Fallback to recent jobs if not enough related jobs
+    if (relatedJobs.length < 3) {
+      try {
+        const excludeIds = [job.id, ...relatedJobs.map(rj => rj.id)];
+        const placeholders = excludeIds.map(() => '?').join(',');
+        const query = `SELECT id, slug, data, published_at FROM documents 
+                       WHERE type_id = 'jobs' 
+                         AND status = 'published' 
+                         AND is_published = 1 
+                         AND id NOT IN (${placeholders}) 
+                       ORDER BY published_at DESC LIMIT ?`;
+        const limit = 3 - relatedJobs.length;
+        const fallbackRows = await db.prepare(query)
+          .bind(...excludeIds, limit)
+          .all();
+        
+        const fallbackJobs = (fallbackRows.results || []).map((row: any) => ({
+          id: row.id,
+          slug: row.slug,
+          publishedAt: row.published_at,
+          ...JSON.parse(row.data)
+        }));
+        
+        relatedJobs = [...relatedJobs, ...fallbackJobs];
+      } catch (err) {
+        console.error('Error fetching fallback related jobs:', err);
+      }
+    }
+
+    // Resolve companies for related jobs
+    let relatedCompanies: Record<string, any> = {};
+    const relCompanyIds = [...new Set(relatedJobs.map((j: any) => j.company).filter(Boolean))];
+    if (relCompanyIds.length > 0) {
+      try {
+        const placeholders = relCompanyIds.map(() => '?').join(',');
+        const compRows = await db.prepare(
+          `SELECT id, data FROM documents WHERE id IN (${placeholders})`
+        ).bind(...relCompanyIds).all();
+        compRows.results.forEach((row: any) => {
+          relatedCompanies[row.id] = JSON.parse(row.data);
+        });
+      } catch (err) {
+        console.error('Error fetching related companies:', err);
+      }
+    }
+
     const translations = {
       ar: {
         jobType: 'نوع العمل',
@@ -1737,6 +1813,56 @@ publicRouter.get(
     const pubDate = new Date(job.publishedAt).toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-US', { month: 'long', day: 'numeric', year: 'numeric' });
     // Format description paragraphs
     const formattedDescription = description.split('\n').map((p: string) => p.trim() ? `<p style="margin-bottom: 16px;">${p}</p>` : '').join('');
+
+    const relatedJobsHtml = relatedJobs.length > 0 ? `
+      <!-- RELATED JOBS SECTION -->
+      <section class="related-jobs-sec" style="margin-top: 48px; border-top: 1px solid var(--border); padding-top: 40px; margin-bottom: 40px;">
+        <h2 style="font-size: 1.45rem; font-weight: 800; color: var(--text-heading); margin-bottom: 24px; display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-briefcase" style="color: var(--primary);"></i>
+          ${locale === 'ar' ? 'وظائف مقترحة قد تهمك' : (locale === 'tr' ? 'İlginizi Çekebilecek Benzer İlanlar' : 'Suggested Jobs You May Like')}
+        </h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
+          ${relatedJobs.map((relJob: any) => {
+            const relTitle = locale === 'ar' ? relJob.title_ar : (locale === 'tr' ? (relJob.title_tr || relJob.title_en) : relJob.title_en);
+            const relLocation = locale === 'ar' ? relJob.location_ar : (locale === 'tr' ? (relJob.location_tr || relJob.location_en) : relJob.location_en);
+            const relCompany = relatedCompanies[relJob.company] || { name: relJob.company || 'Company' };
+            const typeKey = relJob.jobType === 'full-time' ? 'fullTime' : relJob.jobType === 'part-time' ? 'partTime' : relJob.jobType === 'remote' ? 'remote' : 'internship';
+            const relTypeLabel = translations[typeKey] || relJob.jobType;
+            const viewJobLabel = locale === 'ar' ? 'عرض الوظيفة ←' : (locale === 'tr' ? 'İlanı Görüntüle ←' : 'View Job ←');
+            
+            return `
+            <a href="/${locale}/jobs/${relJob.slug}" style="display: flex; flex-direction: column; justify-content: space-between; background: var(--bg-card); border: 1.5px solid var(--border); border-radius: var(--r-md); padding: 24px; transition: var(--t-fast); text-decoration: none; box-shadow: var(--shadow-xs); position: relative; height: 100%;"
+               onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='var(--primary)'; this.style.boxShadow='var(--shadow-md)';"
+               onmouseout="this.style.transform='none'; this.style.borderColor='var(--border)'; this.style.boxShadow='var(--shadow-xs)';"
+               onclick="window.location.href='/${locale}/jobs/${relJob.slug}'">
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                  <div style="width: 44px; height: 44px; border-radius: var(--r-sm); background: var(--bg-subtle); display: flex; align-items: center; justify-content: center; font-weight: 800; color: var(--primary); font-size: 1.25rem; overflow: hidden; border: 1px solid var(--border);">
+                    ${relCompany.logo ? `<img src="${relCompany.logo}" alt="${relCompany.name}" style="width:100%; height:100%; object-fit:cover;">` : relCompany.name.charAt(0).toUpperCase()}
+                  </div>
+                  <span style="font-size: 0.72rem; font-weight: 700; background: var(--primary-light); color: var(--primary); padding: 4px 8px; border-radius: var(--r-full);">
+                    ${relTypeLabel}
+                  </span>
+                </div>
+                <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-heading); margin-bottom: 6px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.8em;">
+                  ${relTitle}
+                </h3>
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; font-weight: 600;">
+                  <i class="fa-solid fa-building" style="font-size: 0.8rem; margin-inline-end: 4px;"></i> ${relCompany.name}
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.82rem; color: var(--text-muted); font-weight: 500; border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px;">
+                <span><i class="fa-solid fa-location-dot" style="margin-inline-end: 4px;"></i> ${relLocation}</span>
+                <span style="color: var(--primary); font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                  ${viewJobLabel}
+                </span>
+              </div>
+            </a>
+            `;
+          }).join('')}
+        </div>
+      </section>
+    ` : '';
 
     const html = `
     <div class="container">
@@ -1851,6 +1977,8 @@ publicRouter.get(
           </div>
         </aside>
       </div>
+
+      ${relatedJobsHtml}
     </div>
 
     <!-- Quick Apply Modal -->
