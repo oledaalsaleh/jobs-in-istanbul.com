@@ -400,6 +400,12 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           <li><a href="/${locale}/blog" class="nav-link">📝 ${t.blog}</a></li>
           <li><a href="/${locale}/candidate/dashboard" class="nav-link" style="color: var(--primary);"><i class="fa-solid fa-graduation-cap"></i> ${t.candidatePortal}</a></li>
           <li><a href="/${locale}/employer/dashboard" class="nav-link nav-cta"><i class="fa-solid fa-user-tie"></i> ${t.employerPortal}</a></li>
+          <li>
+            <a href="https://t.me/jobsistanbul" target="_blank" rel="noopener" class="nav-link nav-cta" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; color: white !important; font-weight: 800; border-radius: var(--r-sm) !important; padding: 7px 16px !important; display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-paper-plane" style="font-size: 0.9rem;"></i>
+              <span>${locale === 'ar' ? 'أضف إعلانك مجاناً' : (locale === 'tr' ? 'Ücretsiz İlan Ekle' : 'Post a Job Free')}</span>
+            </a>
+          </li>
         </ul>
       </nav>
 
@@ -483,6 +489,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
 
         <div style="margin-top:14px; border-top:1px solid var(--border); padding-top:10px; display:flex; flex-direction:column; gap:6px;">
           <a href="/${locale}/submit-job" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">📢 ${t.postJob}</a>
+          <a href="https://t.me/jobsistanbul" target="_blank" rel="noopener" style="margin-top:6px; padding:14px 16px; border-radius:var(--r-md); background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:white; font-weight:700; display:flex; align-items:center; gap:10px; justify-content:center;"><i class="fa-solid fa-paper-plane"></i> ${locale === 'ar' ? 'أضف إعلانك مجاناً' : (locale === 'tr' ? 'Ücretsiz İlan Ekle' : 'Post a Job Free')}</a>
           <a href="/${locale}/candidate/dashboard" style="padding:12px 16px; border-radius:var(--r-md); color:var(--primary); font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-graduation-cap"></i> ${t.candidatePortal}</a>
           <a href="/${locale}/employer/dashboard" style="margin-top:6px; padding:14px 16px; border-radius:var(--r-md); background:var(--primary); color:white; font-weight:700; display:flex; align-items:center; gap:10px; justify-content:center;"><i class="fa-solid fa-user-tie"></i> ${t.employerPortal}</a>
         </div>
@@ -633,6 +640,43 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
     @media (max-width: 768px) {
       .header-telegram-btn, .header-install-btn {
         display: none !important;
+      }
+    }
+    .floating-post-job-badge {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      z-index: 250;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #0088cc 0%, #00a2ff 100%);
+      color: white !important;
+      padding: 12px 20px;
+      border-radius: var(--r-full);
+      font-weight: 800;
+      font-size: 0.85rem;
+      box-shadow: 0 8px 24px rgba(0, 136, 204, 0.4);
+      transition: var(--t-spring);
+      text-decoration: none;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .floating-post-job-badge:hover {
+      transform: scale(1.05) translateY(-2px);
+      box-shadow: 0 12px 28px rgba(0, 136, 204, 0.5);
+    }
+    .floating-post-job-badge i {
+      font-size: 1.25rem;
+    }
+    @media (max-width: 480px) {
+      .floating-post-job-badge span {
+        display: none;
+      }
+      .floating-post-job-badge {
+        padding: 12px;
+        width: 46px;
+        height: 46px;
+        justify-content: center;
       }
     }
   </style>
@@ -954,6 +998,11 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       });
     }
   </script>
+  <!-- Floating Telegram Job Posting Badge -->
+  <a href="https://t.me/jobsistanbul" target="_blank" rel="noopener" class="floating-post-job-badge" title="${locale === 'ar' ? 'أضف إعلانك مجاناً عبر تلغرام' : 'Post a Job Free via Telegram'}">
+    <i class="fa-brands fa-telegram"></i>
+    <span>${locale === 'ar' ? 'أضف إعلانك مجاناً' : (locale === 'tr' ? 'Ücretsiz İlan Ekle' : 'Post a Job Free')}</span>
+  </a>
 </body>
 </html>`;
 }
