@@ -8,6 +8,147 @@ export const careerBlogRouter = new Hono()
 const seededArticles: Record<string, any[]> = {
   ar: [
     {
+      title: 'التأمين الصحي الإجباري للعمال (SGK) في تركيا 2026: كيفية الاستفادة منه وما الفرق بينه وبين التأمين الخاص',
+      slug: 'sgk-health-insurance-turkey-workers',
+      summary: 'دليل شامل ومفصل لعام 2026 حول نظام التأمين الصحي الإجباري (SGK) للعمال الأجانب والمغتربين في تركيا، شروطه، خدمات التغطية الصحية، والفرق بينه وبين التأمين الخاص بالتفصيل.',
+      publishedAt: '2026-06-30',
+      canonical: 'https://jobs-in-istanbul.com/ar/blog/sgk-health-insurance-turkey-workers',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=1200" alt="التأمين الصحي الإجباري للعمال SGK في تركيا" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+            <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 8px;">الرعاية الطبية المتقدمة والخدمات الصحية الشاملة للعمال الأجانب تحت مظلة الضمان الاجتماعي التركي</p>
+          </div>
+
+          <p>بمجرد أن ينجح الموظف الأجنبي في تأمين عقد عمل رسمي والحصول على تصريح العمل (Çalışma İzni) في الجمهورية التركية لعام 2026، فإنه يدخل تلقائياً وقانونياً تحت مظلة <strong>التأمين الصحي الإجباري للعمال (SGK)</strong> التابع لمؤسسة الضمان الاجتماعي التركية. لا يعتبر الاشتراك في هذا التأمين خياراً ثانوياً أو إضافياً يمكن للعامل أو الشركة التنازل عنه، بل هو التزام دستوري وقانوني إلزامي يقع بالكامل على عاتق رب العمل والشركة الحاضنة. يمثل هذا النظام أحد أهم صمامات الأمان المهنية والصحية للمغتربين المقيمين في إسطنبول وسائر المدن التركية، حيث يضمن لهم ولأفرد عائلاتهم الحصول على رعاية طبية شاملة بأسعار رمزية أو مجانية بالكامل. ومع ذلك، يجهل الكثير من العمال الأجانب حقوقهم المضمنة تحت هذا الاشتراك وكيفية الاستفادة الفعالة منه في الحياة اليومية.</p>
+
+          <p>يشهد قطاع الرعاية الصحية والضمان الاجتماعي في تركيا لعام 2026 تحديثات تنظيمية مستمرة تهدف إلى توسيع شبكة الخدمات الإلكترونية وتسهيل عمليات الفحص وصرف الدواء للأجانب المقيمين. في هذا الدليل الشامل والمفصل، سنناقش بعمق كل ما يتعلق بنظام <strong>التأمين الصحي في تركيا للأجانب</strong> الخاضعين للضمان الاجتماعي، وشروط وتفاصيل الاستفادة منه، مع تقديم جدول مقارنة موضوعي وواضح يوضح <strong>الفرق بين التأمين الخاص و SGK</strong>، وتوضيح متى يجب عليك كعامل الاستعانة بتغطية صحية تكميلية خاصة لحماية نفسك وعائلتك.</p>
+
+          <h2>أولاً: ما هي مؤسسة الضمان الاجتماعي التركية (SGK)؟</h2>
+          <p>مؤسسة الضمان الاجتماعي التركية (Sosyal Güvenlik Kurumu)، المعروفة اختصاراً بالرمز <strong>SGK</strong>، هي الهيئة الحكومية الرسمية الوحيدة والمسؤولة عن إدارة وتنظيم كافة برامج الحماية والضمان الاجتماعي والصحي والتقاعدي في الجمهورية التركية. تأسست هذه المؤسسة لتوحيد الصناديق التأمينية المختلفة في البلاد وتقديم خدمات رعاية صحية متكاملة لجميع العاملين المسجلين في القطاعين العام والخاص، بما في ذلك العمال الأجانب الذين يعاملهم القانون التركي بمساواة تامة مع المواطنين المحليين في الحقوق التأمينية بمجرد صدور إذن العمل الرسمي.</p>
+
+          <div style="margin: 32px 0;">
+            <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1200" alt="إدارة الضمان الاجتماعي والتأمين" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+            <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 8px;">مؤسسة الضمان الاجتماعي تنظم كافة عمليات الرعاية الصحية والاشتراكات الشهرية للعمال والشركات</p>
+          </div>
+
+          <h2>ثانياً: كيف يعمل التأمين الصحي الإجباري للعمال الأجانب؟</h2>
+          <p>تتميز آلية الاشتراك وتفعيل تأمين الضمان الاجتماعي للعمال بالبساطة والسرعة، حيث يعتمد النظام على الإجراءات الرقمية المباشرة بين الشركة والمؤسسة الحكومية:</p>
+          <ul>
+            <li><strong>مسؤولية صاحب العمل الكاملة:</strong> لا يتعين على العامل الأجنبي التوجه إلى مكاتب SGK لطلب التأمين. يلتزم صاحب العمل (الشركة) قانونياً بتسجيل الموظف في نظام الضمان الاجتماعي من اليوم الأول المذكور في تصريح العمل، ودفع الاشتراكات الشهرية المقررة بانتظام. عدم قيام الشركة بذلك يقع تحت طائلة الغرامات المالية الكبيرة والمساءلة القانونية الجسيمة.</li>
+            <li><strong>آلية تمويل الاشتراكات واقتطاعها:</strong> يتم تمويل التأمين من خلال اقتطاع نسبة مئوية محددة قانونياً من الراتب الإجمالي للموظف (Brüt Maaş) شهرياً. تبلغ نسبة مساهمة العامل حوالي 14% للتأمينات الاجتماعية و1% لتأمين البطالة، بينما يدفع صاحب العمل نسبة تكميلية تبلغ حوالي 20.5% من قيمة الراتب الإجمالي لتغطية التأمين الصحي وحوادث العمل والمزايا التقاعدية.</li>
+            <li><strong>التغطية العائلية الشاملة (Aile Kapsamı):</strong> من أهم ميزات نظام <strong>التأمين الصحي الإجباري للعمال SGK</strong> أنه لا يقتصر على الموظف بمفرده. يتيح القانون للعامل المسجل والنشط في النظام إضافة أفراد عائلته (الزوج أو الزوجة غير العاملة، والأبناء دون سن 18 عاماً، أو دون سن 25 عاماً إذا كانوا يتابعون دراستهم الجامعية) للاستفادة مجاناً وتلقائياً من نفس التغطية الصحية دون دفع أي اشتراكات إضافية.</li>
+            <li><strong>الجهوزية والبدء الفوري للتغطية:</strong> على عكس برامج التأمين الخاص التي تفرض فترات انتظار طويلة (تصل أحياناً إلى عام كامل للحالات المرضية السابقة وجراحات معينة)، فإن تغطية SGK تبدأ بالعمل الفعلي وتصبح سارية المفعول بمجرد إكمال 30 يوماً من دفع الاشتراكات بانتظام في النظام.</li>
+          </ul>
+
+          <h2>ثالثاً: ما هي الخدمات الصحية التي يغطيها تأمين SGK بالتفصيل؟</h2>
+          <p>تتمتع بطاقة التأمين الصحي للضمان الاجتماعي بتغطية واسعة وشاملة داخل منظومة الرعاية الصحية التركية، مما يضمن للموظف الاستفادة من الميزات التالية:</p>
+          <ol>
+            <li><strong>العلاج المجاني الكامل في المستشفيات الحكومية:</strong> يشمل ذلك جميع الفحوصات الطبية، والتحاليل المخبرية، والتصوير بالأشعة (بما في ذلك الرنين المغناطيسي والأشعة المقطعية)، والعمليات الجراحية، والإقامة في المستشفى داخل المرافق الحكومية والمستشفيات الجامعية دون دفع أي رسوم إضافية.</li>
+            <li><strong>دعم أسعار الأدوية الموصوفة طبياً:</strong> تلتزم الصيدليات المتعاقدة بتقديم خصومات هائلة للمشتركين في SGK. يدفع الموظف نسبة تتراوح بين 10% إلى 20% فقط من القيمة الفعلية للدواء المكتوب في الوصفة الطبية الإلكترونية (E-Reçete) الصادرة من طبيب معتمد في المستشفى.</li>
+            <li><strong>تغطية حوادث العمل والأمراض المهنية:</strong> في حال تعرض العامل لإصابة أثناء أداء عمله أو بسبب ظروف المهنة، يلتزم الضمان الاجتماعي بتغطية كافة تكاليف العلاج وإعادة التأهيل، بالإضافة إلى صرف رواتب تعويضية عن فترة العجز المؤقت عن العمل (İş Göremezlik Ödeneği).</li>
+            <li><strong>الحصول على خصومات كبيرة في المستشفيات الخاصة:</strong> تتعاقد العديد من المستشفيات الخاصة الكبرى مع مؤسسة SGK. عند زيارة هذه المشافي، يقوم التأمين بتغطية جزء من تكلفة الفحص والعلاج، ويتحمل الموظف دفع فارق بسيط يسمى "أجرة المساهمة" (Katkı Payı) والتي تكون أقل بكثير من السعر المخصص للمرضى غير المؤمنين.</li>
+          </ol>
+
+          <div style="margin: 32px 0;">
+            <img src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=1200" alt="الاستشارة الطبية والرعاية الصحية" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+            <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 8px;">يضمن تأمين الضمان الاجتماعي الفحص الطبي الشامل في المراكز والمستشفيات الحكومية مجاناً</p>
+          </div>
+
+          <h2>رابعاً: مقارنة شاملة: الفرق بين التأمين الإجباري (SGK) والتأمين الخاص</h2>
+          <p>لتوضيح الخيارات المالية المتاحة للأجانب في تركيا، يوضح الجدول التالي أهم الفروقات الجوهرية بين النظامين الحكومي والخاص:</p>
+
+          <table class="table-custom" style="width: 100%; border-collapse: collapse; margin-bottom: 32px; text-align: start; font-size: 0.95rem;">
+            <thead>
+              <tr style="background: var(--bg-subtle); border-bottom: 2px solid var(--border);">
+                <th style="padding: 12px; font-weight: 700;">وجه المقارنة</th>
+                <th style="padding: 12px; font-weight: 700;">التأمين الإجباري الحكومي (SGK)</th>
+                <th style="padding: 12px; font-weight: 700;">التأمين الصحي الخاص (Özel Sağlık Sigortası)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 12px;"><strong>طبيعة الاشتراك والطلب</strong></td>
+                <td style="padding: 12px;">إلزامي وتلقائي بموجب قانون العمل وتصريح العمل النشط.</td>
+                <td style="padding: 12px;">اختياري وطوعي بالكامل، يتم شراؤه مباشرة من شركات التأمين الخاصة.</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 12px;"><strong>آلية دفع التكاليف</strong></td>
+                <td style="padding: 12px;">نسبة مقتطعة شهرياً من الراتب الإجمالي، تشارك الشركة في دفع الجزء الأكبر منها.</td>
+                <td style="padding: 12px;">قسط مالي سنوي أو شهري ثابت يحدده عمر العميل وحالته الصحية وسقف التغطية.</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 12px;"><strong>شبكة المستشفيات المتاحة</strong></td>
+                <td style="padding: 12px;">مجاني بالكامل في المشافي الحكومية والجامعية، وخصومات محددة في المستشفيات الخاصة المتعاقدة.</td>
+                <td style="padding: 12px;">تغطية ممتازة وشاملة في أرقى شبكات المستشفيات الخاصة المتعاقدة مع شركة التأمين.</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 12px;"><strong>التغطية العائلية</strong></td>
+                <td style="padding: 12px;">تشمل الزوج والزوجة والأبناء تلقائياً ودون أي تكلفة إضافية.</td>
+                <td style="padding: 12px;">يجب شراء بوليصة تأمين منفصلة لكل فرد من أفراد العائلة على حدة.</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 12px;"><strong>فترات الانتظار والأمراض السابقة</strong></td>
+                <td style="padding: 12px;">لا توجد فترات انتظار؛ تتم تغطية كافة الحالات والأمراض المزمنة السابقة من اليوم الأول.</td>
+                <td style="padding: 12px;">تفرض الشركات فترات انتظار وتستثني غالباً تغطية الأمراض والعمليات الجراحية السابقة للاشتراك.</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 12px;"><strong>الاستخدام لتجديد الإقامة</strong></td>
+                <td style="padding: 12px;">مقبول ومعتمد مباشرة لتجديد الإقامة المرتبطة بالعمل دون الحاجة لأي وثيقة أخرى.</td>
+                <td style="padding: 12px;">إلزامي ومطلوب للحصول على الإقامة السياحية أو الطلابية لمن لا يملكون تصريح عمل رسمي.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h2>خامساً: هل يحتاج العامل المؤمن في SGK إلى تأمين خاص إضافي؟</h2>
+          <p>من الناحية القانونية الصرفة، فإن امتلاكك لتأمين SGK النشط يلبي كافة المتمتطلبات الحكومية للحصول على الرعاية والعمل وتجديد الإقامة، ولن تطالبك السلطات بأي وثيقة تأمين أخرى. ومع ذلك، يفضل العديد من العمال الأجانب والمغتربين الجمع بين النظامين أو الحصول على ما يسمى بـ <strong>التأمين التكميلي (Tamamlayıcı Sağlık Sigortası)</strong> للأسباب العملية التالية:</p>
+          <ul>
+            <li><strong>تجنب فترات الانتظار الطويلة:</strong> تشهد المستشفيات الحكومية في المدن المكتظة مثل إسطنبول ضغطاً هائلاً، مما قد يؤدي لطول فترات حجز المواعيد للفحوصات المتخصصة أو العمليات الجراحية غير الطارئة. يتيح لك التأمين التكميلي أو الخاص التوجه مباشرة إلى المستشفيات الخاصة والحصول على رعاية فورية.</li>
+            <li><strong>تجاوز حاجز اللغة:</strong> نادراً ما يتحدث موظفو المستشفيات الحكومية أو الأطباء فيها لغات أجنبية كالعربية أو الإنجليزية بسبب طبيعة العمل السريعة. في المقابل، توفر المستشفيات الخاصة مترجمين مجانيين لمرافقة المرضى الأجانب وتسهيل التواصل.</li>
+            <li><strong>تغطية علاجات الأسنان والنظارات:</strong> يغطي تأمين SGK علاجات الأسنان البسيطة والأساسية فقط في المراكز الحكومية، ويستثني الجوانب التجميلية أو تركيبات الزركونيا والتقويم بشكل كامل. شراء تأمين خاص يمنحك ميزات إضافية لتغطية هذه الجوانب المرتفعة التكلفة.</li>
+          </ul>
+
+          <div style="margin: 32px 0;">
+            <img src="https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?q=80&w=1200" alt="تكاليف الرعاية الصحية والمقارنة المالية" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+            <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 8px;">مقارنة التكاليف ومستويات التغطية الطبية تساعدك في اختيار الاستراتيجية الصحية الأمثل لك ولعائلتك</p>
+          </div>
+
+          <h2>سادساً: كيفية التحقق من حالة تسجيلك وصلاحية تأمينك في SGK</h2>
+          <p>تتيح بوابة الحكومة الإلكترونية <strong>e-Devlet</strong> للأجانب إمكانية مراقبة سجلاتهم المالية والتأمينية بسهولة ودون الحاجة لمراجعة المؤسسات الحكومية. للتحقق من صلاحية تأمينك الصحي، اتبع الخطوات التالية:</p>
+          <ol>
+            <li>قم بتسجيل الدخول إلى تطبيق أو موقع e-Devlet باستخدام رقم هويتك الأجنبي (99xxxxxx) وكلمة المرور الخاصة بك.</li>
+            <li>ابحث عن الخدمة المسمية <strong>"SGK Tescil ve Hizmet Dökümü"</strong> (بيان الخدمة والتسجيل في الضمان الاجتماعي) لاستعراض تاريخ عملك وعدد الأيام التي تم دفع اشتراكاتها من قِبل الشركة للتأكد من تسجيلك الفعلي.</li>
+            <li>للتأكد من أنك وعائلتك مؤهلون للحصول على العلاج المجاني، ابحث عن خدمة <strong>"SPAS Müstehaklık Sorgulama"</strong> (الاستعلام عن استحقاق العلاج عبر نظام البرمجيات الصحية للضمان الاجتماعي). إذا ظهرت النتيجة "Müstehaktır" (مستحق)، فهذا يعني أن تأمينك فعال وصالح للاستخدام الفوري في جميع الصيدليات والمستشفيات.</li>
+          </ol>
+
+          <h2>سابعاً: الأسئلة الشائعة حول التأمين الصحي للعمال الأجانب في تركيا</h2>
+          <p>نجيب هنا عن أبرز الأسئلة والاستفسارات الشائعة التي تشغل بال الموظفين الأجانب حول نظام الضمان الاجتماعي والصحي:</p>
+          
+          <h3>1. ماذا يحدث لتأميني الصحي في حال استقالتي أو فصلي من العمل؟</h3>
+          <p>بمجرد إنهاء عقد العمل رسمياً وإخطار مؤسسة SGK، تتوقف الشركة عن دفع الاشتراكات. ومع ذلك، يمنح القانون الموظف فترة سماح وتغطية صحية مجانية مستمرة تتراوح بين 10 إلى 90 يوماً كحد أقصى اعتماداً على إجمالي عدد الأيام التي عمل ودفع اشتراكاتها بانتظام خلال السنة الأخيرة. بعد انتهاء هذه الفترة، يجب الحصول على تأمين صحي خاص للحفاظ على الوضع القانوني وتفادي العقوبات.</p>
+
+          <h3>2. هل يغطي تأمين SGK تكاليف الولادة ورعاية الأطفال حديثي الولادة؟</h3>
+          <p>نعم، يغطي تأمين الضمان الاجتماعي كافة تكاليف متابعة الحمل والولادة الطبيعية أو القيصرية والفحوصات الطبية الدورية للأم والطفل داخل المستشفيات الحكومية بشكل مجاني وشامل بالكامل، بالإضافة إلى تقديم معونات حليب الأطفال وإجازة أمومة مدفوعة الأجر للأمهات العاملات.</p>
+
+          <h3>3. ما هي مخاطر العمل دون تسجيل رسمي في مؤسسة SGK؟</h3>
+          <p>يعتبر العمل غير الرسمي (بدون عقد عمل وإذن عمل) مخالفة قانونية جسيمة في تركيا. الموظف في هذه الحالة يحرم تماماً من كافة حقوق الحماية والرعاية الطبية المجانية في حال المرض أو حوادث العمل، ويكون معرضاً لغرامات مالية باهظة وخطر إلغاء إقامته أو الترحيل. كما تواجه الشركات غرامات مالية مضاعفة تفرضها وزارة العمل والضمان الاجتماعي التركية.</p>
+
+          <h2>خلاصة وتوصيات ختامية</h2>
+          <p>يمثل التأمين الصحي الإجباري عبر مؤسسة الضمان الاجتماعي (SGK) أحد أعظم الميزات التي يحصل عليها العامل الأجنبي بمجرد تقنين وضعه المهني في تركيا لعام 2026. يوفر هذا النظام حماية مالية وطبية فائقة للموظف وأسرته ضد الحالات الصحية المفاجئة دون الحاجة لتحمل أعباء مالية شهرية ضخمة. نوصي دائماً بالتأكد المستمر من انتظام دفع اشتراكاتك عبر منصة e-Devlet، ومناقشة تفاصيل التغطية والتأمين التكميلي مع قسم الموارد البشرية في شركتك لضمان تحقيق أقصى استفادة والاستمتاع بإقامة صحية وآمنة بالكامل في تركيا.</p>
+
+          <hr style="border: 0; border-top: 1px solid var(--border); margin: 40px 0;">
+
+          <h2>مقالات ذات صلة وخدمات تهمك</h2>
+          <ul>
+            <li><a href="https://med-turk.com/blog/cosmetic-dentistry-turkey-guide?lang=ar" target="_blank" rel="noopener">تجميل الأسنان في إسطنبول: دليلك الشامل لعام 2026</a></li>
+            <li><a href="https://med-turk.com/services?lang=ar" target="_blank" rel="noopener">عرض كافة الخدمات الطبية والعمليات المتاحة</a></li>
+            <li><a href="https://med-turk.com/calculator?lang=ar" target="_blank" rel="noopener">حاسبة أسعار وتكاليف عمليات التجميل في تركيا</a></li>
+            <li><a href="https://med-turk.com/clinics?lang=ar" target="_blank" rel="noopener">دليلك لأفضل عيادات التجميل في إسطنبول</a></li>
+          </ul>
+        </div>
+      `
+    },
+    {
       title: 'فتح حساب بنكي في تركيا للأجانب 2026: الشروط، المستندات، وأفضل البنوك للمغتربين',
       slug: 'open-bank-account-turkey-foreigners',
       summary: 'دليل شامل ومفصل لعام 2026 حول كيفية فتح حساب بنكي في تركيا للأجانب والمغتربين، شروط فتح الحساب بدون إقامة، المستندات المطلوبة، والخطوات بالتفصيل مع مقارنة أفضل البنوك التركية.',
@@ -483,6 +624,62 @@ const seededArticles: Record<string, any[]> = {
   ],
   en: [
     {
+      title: 'Compulsory Health Insurance (SGK) in Turkey 2026: Expats Guide & Benefits',
+      slug: 'sgk-health-insurance-turkey-workers',
+      summary: 'A comprehensive 2026 guide on compulsory health insurance (SGK) for foreign workers in Turkey, detailing requirements, benefits, and a comparison with private health insurance.',
+      publishedAt: '2026-06-30',
+      canonical: 'https://jobs-in-istanbul.com/en/blog/sgk-health-insurance-turkey-workers',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=1200" alt="Compulsory Health Insurance (SGK) in Turkey" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+
+          <p>For expats and foreign employees working legally in Turkey, <strong>compulsory health insurance (SGK)</strong> is automatically activated on the first day of employment. Managed by the Social Security Institution (Sosyal Güvenlik Kurumu), this insurance is a legal obligation for employers and represents one of the most critical employment rights. In this guide, we outline how the SGK system operates, its extensive coverage, and the core differences between SGK and private health insurance in 2026.</p>
+
+          <h2>How Compulsory Worker Insurance Works</h2>
+          <p>Under local labor law, your employer must register you with the SGK system when they issue your work permit (Çalışma İzni). The features of the system include:</p>
+          <ul>
+            <li><strong>Employer Responsibility:</strong> The employer coordinates the registration and pays the monthly premiums. Non-compliance results in severe financial penalties.</li>
+            <li><strong>Monthly Deductions:</strong> Premiums are deducted as a percentage of your gross salary (14% social security, 1% unemployment insurance), complemented by a larger contribution from the employer.</li>
+            <li><strong>Family Coverage:</strong> The primary worker\'s SGK plan covers non-working spouses and dependent children under the age of 18 (or up to 25 if university students) without additional costs.</li>
+            <li><strong>Instant Coverage:</strong> SGK coverage becomes active after your employer pays the premiums for 30 consecutive days.</li>
+          </ul>
+
+          <h2>SGK vs. Private Health Insurance in Turkey</h2>
+          <table class="table-custom" style="width: 100%; border-collapse: collapse; margin-bottom: 24px; text-align: start; font-size: 0.95rem;">
+            <thead>
+              <tr style="background: var(--bg-subtle); border-bottom: 2px solid var(--border);">
+                <th style="padding: 12px; font-weight: 700;">Criteria</th>
+                <th style="padding: 12px; font-weight: 700;">Compulsory Insurance (SGK)</th>
+                <th style="padding: 12px; font-weight: 700;">Private Health Insurance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td><strong>Hospitals</strong></td>
+                <td>100% free in public and university hospitals.</td>
+                <td>High coverage in private network hospitals.</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td><strong>Family</strong></td>
+                <td>Automatically covers dependents for free.</td>
+                <td>Separate policies must be purchased for each individual.</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td><strong>Pre-existing Conditions</strong></td>
+                <td>Fully covered immediately with no waiting period.</td>
+                <td>Often excluded or subject to 12-month waiting periods.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h2>Checking Your Status</h2>
+          <p>Foreigners can easily verify if their employer is paying SGK contributions by logging into the government portal <strong>e-Devlet</strong> and searching for the service <strong>"SGK Tescil ve Hizmet Dökümü"</strong> or checking treatment eligibility under <strong>"SPAS Müstehaklık Sorgulama"</strong>.</p>
+        </div>
+      `
+    },
+    {
       title: 'Opening a Bank Account in Turkey for Foreigners 2026: Requirements, Steps, and Best Banks',
       slug: 'open-bank-account-turkey-foreigners',
       summary: 'A comprehensive 2026 guide for foreigners and expats on how to open a bank account in Turkey, highlighting conditions for non-residents and comparing top Turkish banks.',
@@ -663,6 +860,62 @@ const seededArticles: Record<string, any[]> = {
     }
   ],
   tr: [
+    {
+      title: 'Yabancı Çalışanlar İçin Türkiye\'de Zorunlu Sağlık Sigortası (SGK) 2026',
+      slug: 'sgk-health-insurance-turkey-workers',
+      summary: 'Türkiye\'de yasal olarak çalışan yabancılar için zorunlu sağlık sigortası (SGK) hakkında kapsamlı 2026 rehberi. SGK kapsamı, şartları ve özel sağlık sigortasından farkları.',
+      publishedAt: '2026-06-30',
+      canonical: 'https://jobs-in-istanbul.com/tr/blog/sgk-health-insurance-turkey-workers',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=1200" alt="Zorunlu Sağlık Sigortası (SGK)" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+
+          <p>Türkiye\'de çalışma izni (Çalışma İzni) ile yasal olarak istihdam edilen tüm yabancı çalışanlar, işe başladıkları ilk gün itibarıyla otomatik olarak <strong>zorunlu sağlık sigortası (SGK)</strong> kapsamına dahil edilir. Sosyal Güvenlik Kurumu (SGK) tarafından yürütülen bu sistem, işverenlerin yasal bir yükümlülüğüdür. Bu rehberde, SGK sisteminin yabancı çalışanlar için nasıl işlediğini, hangi sağlık hizmetlerini kapsadığını ve özel sağlık sigortası ile temel farklarını derledik.</p>
+
+          <h2>SGK Sisteminin Yabancı Çalışanlar İçin İşleyişi</h2>
+          <p>Yerel iş kanunlarına göre, işvereniniz çalışma izniniz çıktığı andan itibaren sizi SGK sistemine kaydetmekle yükümlüdür. Sistemin temel özellikleri şunlardır:</p>
+          <ul>
+            <li><strong>İşverenin Sorumluluğu:</strong> Kayıt işlemleri ve aylık prim ödemeleri tamamen işverenin sorumluluğundadır. Primlerin ödenmemesi durumunda işverene idari para cezaları uygulanır.</li>
+            <li><strong>Aylık Prim Kesintileri:</strong> SGK primleri, brüt maaşınız üzerinden hesaplanan oranlarda kesilir (%14 sosyal güvenlik, %1 işsizlik sigortası çalışan payı) ve işveren katkısı ile tamamlanır.</li>
+            <li><strong>Aile Kapsamı:</strong> Çalışanın SGK sigortası, çalışmayan eşini ve 18 yaşın altındaki (üniversite öğrencisi ise 25 yaş altı) çocuklarını ek bir ücret ödemeden otomatik olarak kapsar.</li>
+            <li><strong>Kapsamın Aktifleşmesi:</strong> SGK sağlık hizmetlerinden yararlanabilmek için işe giriş tarihinden itibaren son bir yıl içinde en az 30 gün sağlık primi ödenmiş olması gerekir.</li>
+          </ul>
+
+          <h2>SGK ve Özel Sağlık Sigortası Karşılaştırması</h2>
+          <table class="table-custom" style="width: 100%; border-collapse: collapse; margin-bottom: 24px; text-align: start; font-size: 0.95rem;">
+            <thead>
+              <tr style="background: var(--bg-subtle); border-bottom: 2px solid var(--border);">
+                <th style="padding: 12px; font-weight: 700;">Özellik</th>
+                <th style="padding: 12px; font-weight: 700;">Zorunlu Sağlık Sigortası (SGK)</th>
+                <th style="padding: 12px; font-weight: 700;">Özel Sağlık Sigortası</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td><strong>Hastaneler</strong></td>
+                <td>Devlet ve üniversite hastanelerinde %100 ücretsizdir. Özel hastanelerde indirim sağlar.</td>
+                <td>Anlaşmalı özel hastanelerde yüksek oranda teminat sunar.</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td><strong>Aile Teminatı</strong></td>
+                <td>Bakmakla yükümlü olunan kişileri ücretsiz ve otomatik kapsar.</td>
+                <td>Her aile bireyi için ayrı ayrı poliçe satın alınmalıdır.</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td><strong>Önceden Gelen Hastalıklar</strong></td>
+                <td>Mevcut tüm kronik ve geçmiş hastalıklar hemen kapsama alınır.</td>
+                <td>Geçmişten gelen hastalıkları kapsam dışı bırakır veya bekleme süresi uygular.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h2>Durumunuzu e-Devlet Üzerinden Kontrol Edin</h2>
+          <p>Yabancı çalışanlar, e-Devlet sistemine giriş yaparak <strong>"SGK Tescil ve Hizmet Dökümü"</strong> hizmetinden prim günlerini kontrol edebilir ve <strong>"SPAS Müstehaklık Sorgulama"</strong> ile sağlık aktivasyonunu sorgulayabilirler.</p>
+        </div>
+      `
+    },
     {
       title: 'Yabancılar İçin Türkiye\'de Banka Hesabı Açma 2026: Şartlar, Gerekli Belgeler ve En İyi Bankalar',
       slug: 'open-bank-account-turkey-foreigners',

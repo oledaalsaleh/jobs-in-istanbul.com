@@ -122,6 +122,7 @@ seoRouter.get('/sitemap.xml', async (c) => {
 
   // 4. Blog Posts
   const staticBlogSlugs = [
+    'sgk-health-insurance-turkey-workers',
     'open-bank-account-turkey-foreigners',
     'best-dental-implants-clinic-turkey',
     'turkey-work-permit-residency-laws',
