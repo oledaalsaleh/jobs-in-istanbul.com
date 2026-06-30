@@ -1092,6 +1092,87 @@ const seededArticles: Record<string, any[]> = {
   ]
 };;
 
+// Helper to extract first image
+function extractFirstImage(content: string): string {
+  if (!content) return 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=800';
+  const match = content.match(/<img[^>]+src=["']([^"']+)["']/i);
+  return match ? match[1] : 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=800';
+}
+
+// Helper to get reading time
+function getReadingTime(content: string, locale: 'ar' | 'en' | 'tr'): string {
+  if (!content) return locale === 'ar' ? '1 دقيقة قراءة' : (locale === 'tr' ? '1 dk okuma' : '1 min read');
+  const wordsCount = content.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length;
+  const min = Math.max(1, Math.round(wordsCount / 200));
+  return {
+    ar: min + ' دقائق قراءة',
+    en: min + ' min read',
+    tr: min + ' dk okuma'
+  }[locale];
+}
+
+// Helper to get category
+function getCategory(slug: string, locale: 'ar' | 'en' | 'tr'): { name: string; color: string } {
+  const maps: Record<string, Record<'ar' | 'en' | 'tr', string>> = {
+    'sgk-health-insurance-turkey-workers': {
+      ar: 'الضمان الاجتماعي',
+      en: 'Social Security',
+      tr: 'Sosyal Güvenlik'
+    },
+    'open-bank-account-turkey-foreigners': {
+      ar: 'الخدمات المالية',
+      en: 'Finance',
+      tr: 'Finansal Hizmetler'
+    },
+    'best-dental-implants-clinic-turkey': {
+      ar: 'طب وصحة',
+      en: 'Dentistry',
+      tr: 'Diş Tedavisi'
+    },
+    'turkey-work-permit-residency-laws': {
+      ar: 'قوانين العمل',
+      en: 'Work Permits',
+      tr: 'Çalışma İzni'
+    },
+    'optimize-resume-to-pass-ats-systems': {
+      ar: 'إرشاد مهني',
+      en: 'Career Guide',
+      tr: 'Kariyer Rehberi'
+    },
+    'avoid-istanbul-traffic-and-transportation-tips': {
+      ar: 'المواصلات والسكن',
+      en: 'Transport & Housing',
+      tr: 'Ulaşım ve Yaşam'
+    },
+    'turkey-minimum-wage-employer-cost-2026': {
+      ar: 'الأجور والرواتب',
+      en: 'Salaries & Wages',
+      tr: 'Asgari Ücret'
+    }
+  };
+
+  const cat = maps[slug] || {
+    ar: 'إرشاد مهني',
+    en: 'Career Guide',
+    tr: 'Kariyer Rehberi'
+  };
+
+  const colors: Record<string, string> = {
+    'sgk-health-insurance-turkey-workers': '#10b981', // emerald
+    'open-bank-account-turkey-foreigners': '#3b82f6', // blue
+    'best-dental-implants-clinic-turkey': '#ec4899', // pink
+    'turkey-work-permit-residency-laws': '#f59e0b', // amber
+    'optimize-resume-to-pass-ats-systems': '#8b5cf6', // purple
+    'avoid-istanbul-traffic-and-transportation-tips': '#06b6d4', // cyan
+    'turkey-minimum-wage-employer-cost-2026': '#ef4444' // red
+  };
+
+  return {
+    name: cat[locale] || cat['en'],
+    color: colors[slug] || '#6366f1' // indigo
+  };
+}
+
 // Blog List View
 careerBlogRouter.get('/:locale/blog', async (c) => {
   const locale = c.req.param('locale') as 'ar' | 'en' | 'tr';
@@ -1101,7 +1182,6 @@ careerBlogRouter.get('/:locale/blog', async (c) => {
   let articles: any[] = seededArticles[locale] || [];
 
   try {
-    // Attempt to query additional documents from database
     const rows = await db.prepare(
       `SELECT data, published_at FROM documents WHERE type_id = 'blog_post' AND status = 'published' AND is_published = 1 ORDER BY published_at DESC`
     ).all();
@@ -1128,41 +1208,235 @@ careerBlogRouter.get('/:locale/blog', async (c) => {
       title: 'مدونة المهنة - إسطنبول',
       subtitle: 'مقالات ونصائح مهنية تهمك حول إقامة العمل، السيرة الذاتية، والنقل والمواصلات في إسطنبول.',
       readMore: 'اقرأ المزيد ←',
-      pubDate: 'تاريخ النشر:'
+      pubDate: 'تاريخ النشر:',
+      featured: 'مقال مميز'
     },
     en: {
       title: 'Career Blog - Istanbul',
       subtitle: 'Insights and career advice on work permits, CV optimizations, and transportation guides in Istanbul.',
       readMore: 'Read More ←',
-      pubDate: 'Published:'
+      pubDate: 'Published:',
+      featured: 'Featured Post'
     },
     tr: {
       title: 'Kariyer Blogu - İstanbul',
       subtitle: 'İstanbul\'da çalışma izinleri, CV optimizasyonu ve ulaşım rehberi hakkında ipuçları ve kariyer tavsiyeleri.',
       readMore: 'Devamını Oku ←',
-      pubDate: 'Yayınlanma Tarihi:'
+      pubDate: 'Yayınlanma Tarihi:',
+      featured: 'Öne Çıkan Yazı'
     }
   }[locale];
 
-  const listHtml = articles.map((art: any) => {
-    return `
-      <article class="glass-card" style="padding: 24px; border-radius: var(--radius-lg); display: flex; flex-direction: column; justify-content: space-between;">
-        <div>
-          <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 8px;"><i class="fa-regular fa-calendar"></i> ${t.pubDate} ${art.publishedAt}</span>
-          <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--text-dark); margin-bottom: 12px; line-height: 1.4;">${art.title}</h2>
-          <p style="color: var(--text-main); font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px;">${art.summary}</p>
+  if (articles.length === 0) {
+    return c.html(renderLayout(c, t.title, `<div class="container" style="padding: 100px 20px; text-align: center; color: var(--text-muted);">${locale === 'ar' ? 'لا توجد مقالات حالياً.' : 'No articles available.'}</div>`, locale, ''));
+  }
+
+  const styles = `
+    <style>
+      .blog-hero-card {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 32px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        margin-bottom: 50px;
+        box-shadow: var(--shadow-sm);
+        transition: transform var(--t-base), box-shadow var(--t-base);
+        align-items: stretch;
+      }
+      .blog-hero-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-md);
+      }
+      .blog-hero-image-wrap {
+        position: relative;
+        overflow: hidden;
+        min-height: 350px;
+        background: var(--bg-subtle);
+      }
+      .blog-hero-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform var(--t-base);
+      }
+      .blog-hero-card:hover .blog-hero-image {
+        transform: scale(1.03);
+      }
+      .blog-hero-content {
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      
+      .blog-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 30px;
+      }
+      
+      .blog-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        box-shadow: var(--shadow-sm);
+        transition: transform var(--t-base), box-shadow var(--t-base);
+      }
+      .blog-card:hover {
+        transform: translateY(-6px);
+        box-shadow: var(--shadow-md);
+      }
+      .blog-card-image-wrap {
+        position: relative;
+        padding-top: 56.25%; /* 16:9 Aspect Ratio */
+        overflow: hidden;
+        background: var(--bg-subtle);
+      }
+      .blog-card-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform var(--t-base);
+      }
+      .blog-card:hover .blog-card-image {
+        transform: scale(1.05);
+      }
+      .blog-card-content {
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+      }
+      
+      .category-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        border-radius: var(--radius-sm);
+        color: #fff;
+        width: fit-content;
+        margin-bottom: 12px;
+      }
+      
+      .blog-meta {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-bottom: 12px;
+      }
+      
+      .blog-card-title {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--text-dark);
+        line-height: 1.4;
+        margin-bottom: 10px;
+        transition: color var(--t-base);
+      }
+      .blog-card:hover .blog-card-title {
+        color: var(--primary);
+      }
+
+      .blog-card-summary {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        line-height: 1.6;
+        margin-bottom: 20px;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      
+      @media (max-width: 768px) {
+        .blog-hero-card {
+          grid-template-columns: 1fr;
+        }
+        .blog-hero-image-wrap {
+          min-height: 220px;
+        }
+        .blog-hero-content {
+          padding: 24px;
+        }
+      }
+    </style>
+  `;
+
+  const featured = articles[0];
+  const restOfArticles = articles.slice(1);
+
+  const featuredImg = extractFirstImage(featured.content);
+  const featuredCat = getCategory(featured.slug, locale);
+  const featuredTime = getReadingTime(featured.content, locale);
+  const featuredCleanSummary = featured.summary || featured.content.replace(/<[^>]*>/g, '').substring(0, 180).trim() + '...';
+
+  const featuredHtml = `
+    <div class="blog-hero-card">
+      <div class="blog-hero-image-wrap">
+        <img class="blog-hero-image" src="${featuredImg}" alt="${featured.title}">
+      </div>
+      <div class="blog-hero-content">
+        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+          <span style="font-size: 0.75rem; background: var(--primary); color: #fff; padding: 2px 8px; border-radius: var(--radius-sm); font-weight: 700;">${t.featured}</span>
+          <span class="category-badge" style="background: ${featuredCat.color}; margin-bottom: 0;">${featuredCat.name}</span>
         </div>
-        <a href="/${locale}/blog/${art.slug}" class="btn-apply-now" style="width: fit-content; margin-top: auto;">${t.readMore}</a>
+        <h2 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 12px; line-height: 1.3;"><a href="/${locale}/blog/${featured.slug}" style="color: var(--text-dark); transition: color var(--t-base); text-decoration: none;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-dark)'">${featured.title}</a></h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px;">${featuredCleanSummary}</p>
+        <div class="blog-meta" style="margin-bottom: 24px;">
+          <span><i class="fa-regular fa-calendar"></i> ${featured.publishedAt}</span>
+          <span><i class="fa-regular fa-clock"></i> ${featuredTime}</span>
+        </div>
+        <a href="/${locale}/blog/${featured.slug}" class="btn-apply-now" style="width: fit-content;">${t.readMore}</a>
+      </div>
+    </div>
+  `;
+
+  const listHtml = restOfArticles.map((art: any) => {
+    const img = extractFirstImage(art.content);
+    const cat = getCategory(art.slug, locale);
+    const time = getReadingTime(art.content, locale);
+    const cleanSummary = art.summary || art.content.replace(/<[^>]*>/g, '').substring(0, 120).trim() + '...';
+
+    return `
+      <article class="blog-card">
+        <a href="/${locale}/blog/${art.slug}" class="blog-card-image-wrap">
+          <img class="blog-card-image" src="${img}" alt="${art.title}">
+        </a>
+        <div class="blog-card-content">
+          <span class="category-badge" style="background: ${cat.color};">${cat.name}</span>
+          <h3 class="blog-card-title"><a href="/${locale}/blog/${art.slug}" style="color: inherit; text-decoration: none;">${art.title}</a></h3>
+          <p class="blog-card-summary">${cleanSummary}</p>
+          <div class="blog-meta" style="margin-top: auto; margin-bottom: 16px;">
+            <span><i class="fa-regular fa-calendar"></i> ${art.publishedAt}</span>
+            <span><i class="fa-regular fa-clock"></i> ${time}</span>
+          </div>
+          <a href="/${locale}/blog/${art.slug}" class="btn-apply-now" style="width: fit-content;">${t.readMore}</a>
+        </div>
       </article>
     `;
   }).join('');
 
   const html = `
+    ${styles}
     <div class="container" style="padding: 60px 20px; margin-bottom: 100px;">
       <h1 class="hero-title-gradient" style="text-align: center; margin-bottom: 12px; font-size: 2.5rem; font-weight: 800;">${t.title}</h1>
       <p style="color: var(--text-muted); text-align: center; margin-bottom: 50px; font-size: 1.1rem; max-width: 600px; margin-left: auto; margin-right: auto;">${t.subtitle}</p>
+ 
+      ${featuredHtml}
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px;">
+      <div class="blog-grid">
         ${listHtml}
       </div>
     </div>
@@ -1170,7 +1444,7 @@ careerBlogRouter.get('/:locale/blog', async (c) => {
 
   const seoHtml = generateMetaTags(locale, 'blog') + generateJsonLd(locale, 'blog');
   return c.html(renderLayout(c, t.title, html, locale, seoHtml));
-})
+});
 
 // Blog Detail View
 careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
@@ -1206,20 +1480,249 @@ careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
     return c.text(locale === 'ar' ? 'المقالة غير موجودة.' : (locale === 'tr' ? 'Yazı bulunamadı.' : 'Article not found.'), 404);
   }
 
+  const cat = getCategory(article.slug, locale);
+  const time = getReadingTime(article.content, locale);
+
+  let allArticles: any[] = seededArticles[locale] || [];
+  try {
+    const rows = await db.prepare(
+      `SELECT data, published_at FROM documents WHERE type_id = 'blog_post' AND status = 'published' AND is_published = 1 ORDER BY published_at DESC`
+    ).all();
+    
+    if (rows.results && rows.results.length > 0) {
+      const dbArticles = (rows.results || []).map((row: any) => {
+        const parsed = JSON.parse(row.data);
+        return {
+          title: parsed.title,
+          slug: parsed.slug,
+          summary: parsed.content ? parsed.content.replace(/<[^>]*>/g, '').substring(0, 150).trim() + '...' : '',
+          publishedAt: new Date(row.published_at).toISOString().split('T')[0],
+          content: parsed.content
+        };
+      });
+      allArticles = [...dbArticles, ...allArticles];
+    }
+  } catch (err) {
+    // ignore
+  }
+
+  const otherArticles = allArticles.filter((art: any) => art.slug !== slug).slice(0, 3);
+
+  const tLabels = {
+    ar: {
+      back: '← العودة للمدونة',
+      share: 'مشاركة المقال:',
+      copySuccess: 'تم نسخ رابط المقال بنجاح!',
+      suggested: 'مقالات مقترحة قد تهمك',
+      readMore: 'اقرأ المزيد ←'
+    },
+    en: {
+      back: '← Back to Blog',
+      share: 'Share Article:',
+      copySuccess: 'Article link copied successfully!',
+      suggested: 'Suggested Articles You May Like',
+      readMore: 'Read More ←'
+    },
+    tr: {
+      back: '← Bloga Geri Dön',
+      share: 'Yazıyı Paylaş:',
+      copySuccess: 'Yazı bağlantısı başarıyla kopyalandı!',
+      suggested: 'İlginizi Çekebilecek Diğer Yazılar',
+      readMore: 'Devamını Oku ←'
+    }
+  }[locale];
+
+  const shareUrl = `https://jobs-in-istanbul.com/${locale}/blog/${article.slug}`;
+
+  const shareButtonsHtml = `
+    <div style="margin-top: 50px; padding-top: 30px; border-top: 1px solid var(--border);">
+      <h4 style="margin-bottom: 16px; font-size: 1.05rem; font-weight: 700; color: var(--text-dark);">${tLabels.share}</h4>
+      <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+        <a href="https://api.whatsapp.com/send?text=${encodeURIComponent(article.title + ' ' + shareUrl)}" target="_blank" rel="noopener" class="icon-btn" style="background: #25d366; color: #fff; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-md); font-size: 1.2rem; transition: transform var(--t-base); text-decoration: none;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+          <i class="fa-brands fa-whatsapp"></i>
+        </a>
+        <a href="https://telegram.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(article.title)}" target="_blank" rel="noopener" class="icon-btn" style="background: #0088cc; color: #fff; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-md); font-size: 1.2rem; transition: transform var(--t-base); text-decoration: none;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+          <i class="fa-brands fa-telegram"></i>
+        </a>
+        <a href="https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(article.title)}" target="_blank" rel="noopener" class="icon-btn" style="background: #111; color: #fff; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-md); font-size: 1.2rem; transition: transform var(--t-base); text-decoration: none;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+          <i class="fa-brands fa-x-twitter"></i>
+        </a>
+        <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}" target="_blank" rel="noopener" class="icon-btn" style="background: #0077b5; color: #fff; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-md); font-size: 1.2rem; transition: transform var(--t-base); text-decoration: none;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+          <i class="fa-brands fa-linkedin-in"></i>
+        </a>
+        <button onclick="copyShareLink()" class="icon-btn" style="background: var(--bg-subtle); color: var(--text-body); border: 1.5px solid var(--border); width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-md); font-size: 1.2rem; cursor: pointer; transition: transform var(--t-base);" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+          <i class="fa-regular fa-copy"></i>
+        </button>
+      </div>
+    </div>
+
+    <script>
+      function copyShareLink() {
+        const url = window.location.href;
+        navigator.clipboard.writeText(url).then(() => {
+          const toast = document.getElementById('share-toast');
+          if (toast) {
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateY(0)';
+            setTimeout(() => {
+              toast.style.opacity = '0';
+              toast.style.transform = 'translateY(10px)';
+            }, 3000);
+          }
+        }).catch(err => {
+          console.error('Failed to copy link: ', err);
+        });
+      }
+    </script>
+    <div id="share-toast" style="position: fixed; bottom: 24px; right: 24px; background: #10b981; color: #fff; padding: 12px 24px; border-radius: var(--radius-md); box-shadow: var(--shadow-md); opacity: 0; transform: translateY(10px); transition: opacity var(--t-base), transform var(--t-base); pointer-events: none; z-index: 9999; font-weight: 600; font-size: 0.95rem;">
+      ${tLabels.copySuccess}
+    </div>
+  `;
+
+  const suggestedCardsHtml = otherArticles.map((art: any) => {
+    const img = extractFirstImage(art.content);
+    const category = getCategory(art.slug, locale);
+    const time = getReadingTime(art.content, locale);
+    const cleanSummary = art.summary || art.content.replace(/<[^>]*>/g, '').substring(0, 100).trim() + '...';
+
+    return `
+      <article class="blog-card">
+        <a href="/${locale}/blog/${art.slug}" class="blog-card-image-wrap">
+          <img class="blog-card-image" src="${img}" alt="${art.title}">
+        </a>
+        <div class="blog-card-content">
+          <span class="category-badge" style="background: ${category.color};">${category.name}</span>
+          <h4 class="blog-card-title"><a href="/${locale}/blog/${art.slug}" style="color: inherit; text-decoration: none;">${art.title}</a></h4>
+          <p class="blog-card-summary">${cleanSummary}</p>
+          <div class="blog-meta" style="margin-top: auto; margin-bottom: 12px;">
+            <span><i class="fa-regular fa-calendar"></i> ${art.publishedAt}</span>
+            <span><i class="fa-regular fa-clock"></i> ${time}</span>
+          </div>
+          <a href="/${locale}/blog/${art.slug}" class="btn-apply-now" style="width: fit-content; padding: 6px 16px; font-size: 0.85rem;">${tLabels.readMore}</a>
+        </div>
+      </article>
+    `;
+  }).join('');
+
+  const suggestedWidgetHtml = otherArticles.length > 0 ? `
+    <div style="margin-top: 60px; padding-top: 40px; border-top: 2px solid var(--border);">
+      <h3 style="font-size: 1.5rem; font-weight: 800; color: var(--text-dark); margin-bottom: 24px;">${tLabels.suggested}</h3>
+      <div class="blog-grid">
+        ${suggestedCardsHtml}
+      </div>
+    </div>
+  ` : '';
+
+  const styles = `
+    <style>
+      .blog-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 24px;
+      }
+      .blog-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        box-shadow: var(--shadow-sm);
+        transition: transform var(--t-base), box-shadow var(--t-base);
+      }
+      .blog-card:hover {
+        transform: translateY(-6px);
+        box-shadow: var(--shadow-md);
+      }
+      .blog-card-image-wrap {
+        position: relative;
+        padding-top: 56.25%;
+        overflow: hidden;
+        background: var(--bg-subtle);
+      }
+      .blog-card-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform var(--t-base);
+      }
+      .blog-card:hover .blog-card-image {
+        transform: scale(1.05);
+      }
+      .blog-card-content {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+      }
+      .category-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        border-radius: var(--radius-sm);
+        color: #fff;
+        width: fit-content;
+        margin-bottom: 10px;
+      }
+      .blog-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+      }
+      .blog-card-title {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--text-dark);
+        line-height: 1.4;
+        margin-bottom: 8px;
+        transition: color var(--t-base);
+      }
+      .blog-card:hover .blog-card-title {
+        color: var(--primary);
+      }
+      .blog-card-summary {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        line-height: 1.5;
+        margin-bottom: 16px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+    </style>
+  `;
+
   const html = `
-    <div class="container" style="max-width: 800px; padding: 60px 20px; margin-bottom: 100px;">
-      <div style="margin-bottom: 24px;">
-        <a href="/${locale}/blog" style="color: var(--primary); font-weight: 700;">${locale === 'ar' ? '← العودة للمدونة' : (locale === 'tr' ? '← Bloga Geri Dön' : '← Back to Blog')}</a>
+    ${styles}
+    <div class="container" style="max-width: 850px; padding: 60px 20px; margin-bottom: 100px;">
+      <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+        <a href="/${locale}/blog" style="color: var(--primary); font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 4px;">${tLabels.back}</a>
+        <span class="category-badge" style="background: ${cat.color}; margin-bottom: 0;">${cat.name}</span>
       </div>
 
       <article class="glass-card" style="padding: 40px; border-radius: var(--radius-xl);">
-        <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 12px;"><i class="fa-regular fa-calendar"></i> ${locale === 'ar' ? 'تم النشر في:' : (locale === 'tr' ? 'Yayınlanma Tarihi:' : 'Published At:')} ${article.publishedAt}</span>
+        <div class="blog-meta" style="margin-bottom: 12px; font-size: 0.85rem;">
+          <span><i class="fa-regular fa-calendar"></i> ${locale === 'ar' ? 'تم النشر في:' : (locale === 'tr' ? 'Yayınlanma Tarihi:' : 'Published At:')} ${article.publishedAt}</span>
+          <span><i class="fa-regular fa-clock"></i> ${time}</span>
+        </div>
         <h1 style="font-size: 2.25rem; font-weight: 800; color: var(--text-dark); margin-bottom: 30px; line-height: 1.3;">${article.title}</h1>
         
         <div class="detail-body" style="font-size: 1.1rem; line-height: 1.8; color: var(--text-dark);">
           ${article.content}
         </div>
+
+        ${shareButtonsHtml}
       </article>
+
+      ${suggestedWidgetHtml}
     </div>
   `;
 
@@ -1238,4 +1741,4 @@ careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
   });
 
   return c.html(renderLayout(c, article.title, html, locale, seoHtml));
-})
+});
