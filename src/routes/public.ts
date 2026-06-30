@@ -1369,9 +1369,9 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr') => {
               ${locale === 'ar' ? 'الكل' : 'All'}
             </a>
             ${ISTANBUL_DISTRICTS.map(dist => {
-              const name = locale === 'ar' ? dist.ar : dist.en;
-              return `<a href="/${locale}?search=${querySearch}&category=${queryCategory}&type=${queryJobType}&district=${dist.en}" class="district-card ${queryDistrict.toLowerCase() === dist.en.toLowerCase() ? 'active' : ''}">${name}</a>`;
-            }).join('')}
+      const name = locale === 'ar' ? dist.ar : dist.en;
+      return `<a href="/${locale}?search=${querySearch}&category=${queryCategory}&type=${queryJobType}&district=${dist.en}" class="district-card ${queryDistrict.toLowerCase() === dist.en.toLowerCase() ? 'active' : ''}">${name}</a>`;
+    }).join('')}
           </div>
         </div>
       </section>
@@ -1415,8 +1415,8 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr') => {
                   </h3>
                   <p style="font-size: 0.875rem; color: var(--text-main); line-height: 1.5; margin: 0 0 20px 0;">
                     ${locale === 'ar'
-                      ? 'أنشئ سيرة ذاتية احترافية ثنائية اللغة (عربي/تركي/إنجليزي) مصممة خصيصاً لسوق العمل في إسطنبول وقم بتحميلها كـ PDF.'
-                      : 'Build a job-winning, bilingual resume (English/Turkish) optimized for Istanbul employers and download as print-ready PDF.'}
+      ? 'أنشئ سيرة ذاتية احترافية ثنائية اللغة (عربي/تركي/إنجليزي) مصممة خصيصاً لسوق العمل في إسطنبول وقم بتحميلها كـ PDF.'
+      : 'Build a job-winning, bilingual resume (English/Turkish) optimized for Istanbul employers and download as print-ready PDF.'}
                   </p>
                 </div>
                 <a href="/${locale}/resume-builder" class="btn-primary" style="font-size: 0.85rem; padding: 10px 16px; width: fit-content; text-decoration: none;">
@@ -1443,8 +1443,8 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr') => {
                   </h3>
                   <p style="font-size: 0.875rem; color: var(--text-main); line-height: 1.5; margin: 0 0 20px 0;">
                     ${locale === 'ar'
-                      ? 'اعرف مستحقاتك وقارن متوسط الرواتب المتوقع في إسطنبول بالليرة التركية والدولار مقسمة حسب القطاع المهني ومستوى خبرتك.'
-                      : 'Check average salaries in Istanbul in TRY/USD. Get insights by sector, career level, and exact job industry.'}
+      ? 'اعرف مستحقاتك وقارن متوسط الرواتب المتوقع في إسطنبول بالليرة التركية والدولار مقسمة حسب القطاع المهني ومستوى خبرتك.'
+      : 'Check average salaries in Istanbul in TRY/USD. Get insights by sector, career level, and exact job industry.'}
                   </p>
                 </div>
                 <a href="/${locale}/salary-calculator" class="btn-primary" style="font-size: 0.85rem; padding: 10px 16px; width: fit-content; text-decoration: none; background: #10b981;">
@@ -1471,8 +1471,8 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr') => {
                   </h3>
                   <p style="font-size: 0.875rem; color: var(--text-main); line-height: 1.5; margin: 0 0 20px 0;">
                     ${locale === 'ar'
-                      ? 'ابحث بسلاسة دون الحاجة للتنقل بين الصفحات. استعمل الفلترة الجغرافية حسب الأحياء والربط المباشر مع خطوط مواصلات المتروبوس والمترو.'
-                      : 'Search jobs without page-load friction. Instantly filter positions by Istanbul districts and metro/metrobus transit routes.'}
+      ? 'ابحث بسلاسة دون الحاجة للتنقل بين الصفحات. استعمل الفلترة الجغرافية حسب الأحياء والربط المباشر مع خطوط مواصلات المتروبوس والمترو.'
+      : 'Search jobs without page-load friction. Instantly filter positions by Istanbul districts and metro/metrobus transit routes.'}
                   </p>
                 </div>
                 <a href="#jobs-anchor" onclick="document.querySelector('.main-layout').scrollIntoView({behavior:'smooth'}); return false;" class="btn-primary" style="font-size: 0.85rem; padding: 10px 16px; width: fit-content; text-decoration: none; background: #6366f1;">
@@ -1730,14 +1730,14 @@ publicRouter.get(
         const fallbackRows = await db.prepare(query)
           .bind(...excludeIds, limit)
           .all();
-        
+
         const fallbackJobs = (fallbackRows.results || []).map((row: any) => ({
           id: row.id,
           slug: row.slug,
           publishedAt: row.published_at,
           ...JSON.parse(row.data)
         }));
-        
+
         relatedJobs = [...relatedJobs, ...fallbackJobs];
       } catch (err) {
         console.error('Error fetching fallback related jobs:', err);
@@ -1823,14 +1823,14 @@ publicRouter.get(
         </h2>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
           ${relatedJobs.map((relJob: any) => {
-            const relTitle = locale === 'ar' ? relJob.title_ar : (locale === 'tr' ? (relJob.title_tr || relJob.title_en) : relJob.title_en);
-            const relLocation = locale === 'ar' ? relJob.location_ar : (locale === 'tr' ? (relJob.location_tr || relJob.location_en) : relJob.location_en);
-            const relCompany = relatedCompanies[relJob.company] || { name: relJob.company || 'Company' };
-            const typeKey = relJob.jobType === 'full-time' ? 'fullTime' : relJob.jobType === 'part-time' ? 'partTime' : relJob.jobType === 'remote' ? 'remote' : 'internship';
-            const relTypeLabel = translations[typeKey] || relJob.jobType;
-            const viewJobLabel = locale === 'ar' ? 'عرض الوظيفة ←' : (locale === 'tr' ? 'İlanı Görüntüle ←' : 'View Job ←');
-            
-            return `
+      const relTitle = locale === 'ar' ? relJob.title_ar : (locale === 'tr' ? (relJob.title_tr || relJob.title_en) : relJob.title_en);
+      const relLocation = locale === 'ar' ? relJob.location_ar : (locale === 'tr' ? (relJob.location_tr || relJob.location_en) : relJob.location_en);
+      const relCompany = relatedCompanies[relJob.company] || { name: relJob.company || 'Company' };
+      const typeKey = relJob.jobType === 'full-time' ? 'fullTime' : relJob.jobType === 'part-time' ? 'partTime' : relJob.jobType === 'remote' ? 'remote' : 'internship';
+      const relTypeLabel = translations[typeKey] || relJob.jobType;
+      const viewJobLabel = locale === 'ar' ? 'عرض الوظيفة ←' : (locale === 'tr' ? 'İlanı Görüntüle ←' : 'View Job ←');
+
+      return `
             <a href="/${locale}/jobs/${relJob.slug}" style="display: flex; flex-direction: column; justify-content: space-between; background: var(--bg-card); border: 1.5px solid var(--border); border-radius: var(--r-md); padding: 24px; transition: var(--t-fast); text-decoration: none; box-shadow: var(--shadow-xs); position: relative; height: 100%;"
                onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='var(--primary)'; this.style.boxShadow='var(--shadow-md)';"
                onmouseout="this.style.transform='none'; this.style.borderColor='var(--border)'; this.style.boxShadow='var(--shadow-xs)';"
@@ -1859,7 +1859,7 @@ publicRouter.get(
               </div>
             </a>
             `;
-          }).join('')}
+    }).join('')}
         </div>
       </section>
     ` : '';

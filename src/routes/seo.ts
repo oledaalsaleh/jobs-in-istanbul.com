@@ -122,6 +122,7 @@ seoRouter.get('/sitemap.xml', async (c) => {
 
   // 4. Blog Posts
   const staticBlogSlugs = [
+    'best-dental-implants-clinic-turkey',
     'turkey-work-permit-residency-laws',
     'optimize-resume-to-pass-ats-systems',
     'avoid-istanbul-traffic-and-transportation-tips',

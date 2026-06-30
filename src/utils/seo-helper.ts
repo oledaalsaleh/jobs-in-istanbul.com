@@ -19,6 +19,7 @@ interface MetaDataInput {
   jobType?: string;
   seoKeywords?: string[] | string;
   seoDescription?: string;
+  canonical?: string;
 }
 
 export function generateMetaTags(locale: 'ar' | 'en' | 'tr', pageType: 'home' | 'job' | 'submit' | 'blog' | 'blog_post', data: MetaDataInput = {}) {
@@ -77,15 +78,17 @@ export function generateMetaTags(locale: 'ar' | 'en' | 'tr', pageType: 'home' | 
   }
 
   // Calculate canonical & alternate URLs based on pageType
-  let canonicalUrl = `${siteUrl}/${locale}`;
-  if (pageType === 'job' && data.slug) {
-    canonicalUrl = `${siteUrl}/${locale}/jobs/${data.slug}`;
-  } else if (pageType === 'blog') {
-    canonicalUrl = `${siteUrl}/${locale}/blog`;
-  } else if (pageType === 'blog_post' && data.slug) {
-    canonicalUrl = `${siteUrl}/${locale}/blog/${data.slug}`;
-  } else if (data.slug) {
-    canonicalUrl = `${siteUrl}/${locale}/${data.slug}`;
+  let canonicalUrl = data.canonical || `${siteUrl}/${locale}`;
+  if (!data.canonical) {
+    if (pageType === 'job' && data.slug) {
+      canonicalUrl = `${siteUrl}/${locale}/jobs/${data.slug}`;
+    } else if (pageType === 'blog') {
+      canonicalUrl = `${siteUrl}/${locale}/blog`;
+    } else if (pageType === 'blog_post' && data.slug) {
+      canonicalUrl = `${siteUrl}/${locale}/blog/${data.slug}`;
+    } else if (data.slug) {
+      canonicalUrl = `${siteUrl}/${locale}/${data.slug}`;
+    }
   }
 
   // Helper to build alternate URLs
