@@ -854,19 +854,60 @@ body.dark-mode .site-footer { background: hsl(222, 30%, 5%); }
 .btn-outline:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
 
 /* Resume builder */
-.resume-builder-layout { display: grid; grid-template-columns: 1fr 1.1fr; gap: 40px; }
+.resume-builder-layout { display: grid; grid-template-columns: 1.1fr 1fr; gap: 32px; }
 .builder-preview { position: sticky; top: 88px; height: calc(100vh - 110px); display: flex; flex-direction: column; }
+
 .paper-cv-page {
-  background: #fff; color: #333; width: 100%; flex: 1;
-  border: 1px solid #ddd; border-radius: 4px; box-shadow: var(--shadow-lg);
-  padding: 30px; overflow-y: auto;
+  --cv-primary: #3b82f6; /* Default Blue */
+  background: #fff;
+  color: #1f2937;
+  width: 100%;
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 40px;
+  overflow-y: auto;
+  min-height: 842px;
+  transition: all var(--t-base);
 }
+
+.theme-indigo .paper-cv-page { --cv-primary: #4f46e5; }
+.theme-emerald .paper-cv-page { --cv-primary: #10b981; }
+.theme-crimson .paper-cv-page { --cv-primary: #dc2626; }
+.theme-slate .paper-cv-page { --cv-primary: #475569; }
+
 .rtl .paper-cv-page { direction: rtl; }
-.cv-header { border-bottom: 2px solid #1f2937; padding-bottom: 12px; margin-bottom: 20px; text-align: center; }
-.cv-header h1 { font-size: 1.8rem; font-weight: 800; color: #111; margin-bottom: 4px; }
-.cv-header h2 { font-size: 1.1rem; font-weight: 600; color: var(--primary); }
-.cv-contact { display: flex; justify-content: center; gap: 20px; font-size: 0.85rem; color: #4b5563; margin-top: 8px; }
-.cv-sec-title { font-size: 1rem; font-weight: 800; color: #111; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; margin: 16px 0 10px; text-transform: uppercase; }
+
+/* Template 1: Modern Minimalist */
+.tpl-minimal .cv-header { border-bottom: 2px solid var(--cv-primary); padding-bottom: 16px; margin-bottom: 24px; text-align: center; }
+.tpl-minimal .cv-header h1 { font-size: 1.9rem; font-weight: 900; color: #111827; margin-bottom: 4px; }
+.tpl-minimal .cv-header h2 { font-size: 1.15rem; font-weight: 700; color: var(--cv-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+.tpl-minimal .cv-contact { display: flex; justify-content: center; gap: 20px; font-size: 0.85rem; color: #4b5563; margin-top: 8px; }
+.tpl-minimal .cv-sec-title { font-size: 1.05rem; font-weight: 800; color: var(--cv-primary); border-bottom: 1.5px solid var(--border); padding-bottom: 4px; margin: 24px 0 12px; text-transform: uppercase; }
+
+/* Template 2: Professional Sidebar */
+.tpl-sidebar { padding: 0 !important; display: flex !important; flex-direction: row !important; align-items: stretch; min-height: 842px; }
+.tpl-sidebar .cv-sidebar { width: 32%; background: #f9fafb; border-right: 1px solid var(--border); padding: 36px 20px; box-sizing: border-box; }
+.rtl .tpl-sidebar .cv-sidebar { border-right: none; border-left: 1px solid var(--border); }
+.tpl-sidebar .cv-main { width: 68%; padding: 36px 28px; box-sizing: border-box; }
+.tpl-sidebar .cv-header { text-align: left; border-bottom: none; padding-bottom: 0; margin-bottom: 20px; }
+.rtl .tpl-sidebar .cv-header { text-align: right; }
+.tpl-sidebar .cv-header h1 { font-size: 1.7rem; font-weight: 800; color: #111827; margin-bottom: 2px; }
+.tpl-sidebar .cv-header h2 { font-size: 1.05rem; font-weight: 700; color: var(--cv-primary); }
+.tpl-sidebar .cv-contact { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; margin-top: 16px; font-size: 0.8rem; color: #4b5563; }
+.rtl .tpl-sidebar .cv-contact { align-items: flex-start; }
+.tpl-sidebar .cv-sec-title { font-size: 0.95rem; font-weight: 800; color: #111827; border-bottom: 2px solid var(--cv-primary); padding-bottom: 4px; margin: 20px 0 10px; text-transform: uppercase; }
+
+/* Template 3: Executive Classic */
+.tpl-classic { font-family: 'Georgia', 'Garamond', serif !important; padding: 44px; }
+.tpl-classic .cv-header { text-align: center; border-bottom: 1px solid #1f2937; padding-bottom: 12px; margin-bottom: 20px; }
+.tpl-classic .cv-header h1 { font-size: 2.1rem; font-weight: 500; color: #000; font-family: 'Georgia', 'Garamond', serif !important; margin-bottom: 4px; }
+.tpl-classic .cv-header h2 { font-size: 1.15rem; font-style: italic; color: #4b5563; font-weight: 500; font-family: 'Georgia', 'Garamond', serif !important; }
+.tpl-classic .cv-contact { display: flex; justify-content: center; gap: 20px; font-size: 0.85rem; color: #4b5563; margin-top: 8px; }
+.tpl-classic .cv-sec-title { font-size: 1rem; font-weight: 700; color: #000; border-bottom: 1px double #4b5563; padding-bottom: 2px; margin: 20px 0 10px; text-align: center; text-transform: uppercase; font-family: 'Georgia', 'Garamond', serif !important; }
+.tpl-classic .cv-item { font-family: 'Georgia', 'Garamond', serif !important; }
+
 .cv-item { font-size: 0.9rem; line-height: 1.5; }
 .district-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
 .district-card {

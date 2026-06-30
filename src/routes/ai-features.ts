@@ -496,36 +496,44 @@ aiFeaturesRouter.get('/:locale/resume-builder', (c) => {
 
   const t = {
     ar: {
-      title: 'منشئ السيرة الذاتية الاحترافية المباشر',
-      subtitle: 'املأ بياناتك لإنشاء سيرة ذاتية ذات مظهر جذاب ومصممة للطباعة وحفظها بصيغة PDF فوراً.',
+      title: 'منشئ السيرة الذاتية الاحترافية التفاعلي',
+      subtitle: 'اصنع سيرتك الذاتية المميزة بخطوات بسيطة، وتصفح قوالب متعددة، وقم بتنزيلها كـ PDF فوراً.',
       personalTab: 'البيانات الشخصية',
-      expTab: 'الخبرات المهنية',
+      expTab: 'الخبرة المهنية',
       eduTab: 'التعليم والشهادات',
-      skillsTab: 'المهارات واللغات',
+      skillsTab: 'المهارات والتصميم',
       fullName: 'الاسم الكامل',
       jobTitle: 'المسمى الوظيفي المستهدف',
       email: 'البريد الإلكتروني',
       phone: 'رقم الهاتف',
-      summary: 'نبذة شخصية تعريفية',
-      company: 'الشركة / جهة العمل',
+      summary: 'الملخص المهني',
+      company: 'اسم الشركة / جهة العمل',
       role: 'المسمى الوظيفي',
-      dates: 'الفترة (مثال: ٢٠٢٣ - ٢٠٢٦)',
-      desc: 'الوصف والمسؤوليات الرئيسية',
-      school: 'الجامعة / المدرسة الكبرى',
-      degree: 'التخصص والدرجة العلمية',
-      skills: 'المهارات الفنية (افصل بينها بفاصلة)',
+      dates: 'الفترة (مثال: ٢٠٢٤ - الحالي)',
+      desc: 'المهام والإنجازات الرئيسية',
+      school: 'الجامعة / الكلية / المدرسة',
+      degree: 'الدرجة العلمية والتخصص',
+      skills: 'المهارات الأساسية (افصل بينها بفاصلة)',
       languages: 'اللغات (مثال: العربية (الأم)، الإنجليزية (ممتاز))',
       printBtn: '🖨️ طباعة وحفظ كـ PDF',
       addBtn: 'إضافة بند آخر +',
-      previewTitle: 'معاينة السيرة الذاتية المستندة للطباعة A4'
+      previewTitle: 'معاينة السيرة الذاتية (قياس A4)',
+      loadSampleBtn: '✨ تعبئة نموذج تجريبي',
+      tplLabel: 'القالب:',
+      colorLabel: 'اللون الرئيسي:',
+      tplMinimal: 'بسيط عصري',
+      tplSidebar: 'عمود جانبي احترافي',
+      tplClassic: 'تنفيذي كلاسيكي',
+      stepPrev: 'السابق',
+      stepNext: 'التالي'
     },
     en: {
       title: 'Professional Interactive Resume Builder',
-      subtitle: 'Build your job-winning resume in real-time, optimized for printing and PDF export directly in your browser.',
+      subtitle: 'Create a stand-out resume in simple steps, choose templates, and export as PDF instantly.',
       personalTab: 'Personal Info',
       expTab: 'Experience',
       eduTab: 'Education',
-      skillsTab: 'Skills & Languages',
+      skillsTab: 'Skills & Design',
       fullName: 'Full Name',
       jobTitle: 'Target Job Title',
       email: 'Email Address',
@@ -533,183 +541,512 @@ aiFeaturesRouter.get('/:locale/resume-builder', (c) => {
       summary: 'Professional Summary',
       company: 'Company / Employer',
       role: 'Job Role / Title',
-      dates: 'Dates (e.g. 2023 - 2026)',
-      desc: 'Role description & achievements',
-      school: 'University / School',
-      degree: 'Degree & Field',
+      dates: 'Dates (e.g. 2024 - Present)',
+      desc: 'Achievements & responsibilities',
+      school: 'University / College',
+      degree: 'Degree & Field of Study',
       skills: 'Skills (comma separated)',
       languages: 'Languages (e.g. Arabic (Native), English (Fluent))',
       printBtn: '🖨️ Print & Save PDF',
       addBtn: 'Add Item +',
-      previewTitle: 'A4 Print Preview'
+      previewTitle: 'A4 Live Preview',
+      loadSampleBtn: '✨ Load Sample Data',
+      tplLabel: 'Template:',
+      colorLabel: 'Theme Color:',
+      tplMinimal: 'Modern Minimal',
+      tplSidebar: 'Professional Sidebar',
+      tplClassic: 'Executive Classic',
+      stepPrev: 'Back',
+      stepNext: 'Next'
     }
   }[locale];
 
   const html = `
-    <div class="container resume-builder-layout" style="padding: 60px 24px; margin-bottom: 100px;">
+    <style>
+      .stepper-steps {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 24px;
+        border-bottom: 1.5px solid var(--border);
+        padding-bottom: 12px;
+      }
+      .step-tab {
+        flex: 1;
+        padding: 10px 4px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        transition: all var(--t-base);
+        text-align: center;
+        border-radius: var(--radius-sm);
+      }
+      .step-tab:hover {
+        background: var(--bg-subtle);
+        color: var(--text-dark);
+      }
+      .step-tab.active {
+        color: var(--primary);
+        background: var(--primary-light);
+      }
+      .control-panel {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 16px 24px;
+        margin-bottom: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: var(--shadow-sm);
+      }
+      .color-dot {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: transform var(--t-base);
+        display: inline-block;
+      }
+      .color-dot:hover {
+        transform: scale(1.15);
+      }
+      .color-dot.active {
+        border-color: var(--text-dark);
+        transform: scale(1.15);
+      }
+      .form-step-content {
+        display: none;
+      }
+      .form-step-content.active {
+        display: block;
+      }
       
-      <!-- Left: Input controls (hidden during print) -->
-      <div class="builder-inputs glass-card" style="padding: 30px; border-radius: var(--radius-lg);">
-        <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--text-dark); margin-bottom: 8px;">${t.title}</h1>
-        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 30px;">${t.subtitle}</p>
+      .cv-header-minimal-classic { display: block; }
+      .cv-sidebar-skills { display: none; }
+      .cv-header-sidebar { display: none; }
+      .cv-main-skills { display: block; }
+      .cv-layout-wrap { display: block; }
 
-        <!-- Form fields mapping inputs directly to live-preview -->
-        <form id="resume-form" oninput="updateLivePreview()">
-          <h3 class="form-sec-title">${t.personalTab}</h3>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-            <div>
-              <label>${t.fullName}</label>
-              <input type="text" id="in-name" value="Ahmad Al-Khatib" class="form-input">
-            </div>
-            <div>
-              <label>${t.jobTitle}</label>
-              <input type="text" id="in-title" value="Senior Full Stack Engineer" class="form-input">
-            </div>
-          </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-            <div>
-              <label>${t.email}</label>
-              <input type="email" id="in-email" value="ahmad@example.com" class="form-input">
-            </div>
-            <div>
-              <label>${t.phone}</label>
-              <input type="text" id="in-phone" value="+90 555 123 45 67" class="form-input">
-            </div>
-          </div>
-          <div style="margin-bottom: 30px;">
-            <label>${t.summary}</label>
-            <textarea id="in-summary" rows="3" class="form-input">Highly analytical software developer with over 5 years of experience in building secure, distributed web applications. Passionate about optimization and clean edge architectures.</textarea>
-          </div>
+      .tpl-sidebar .cv-layout-wrap { display: flex; flex-direction: row; align-items: stretch; min-height: 842px; }
+      .tpl-sidebar .cv-sidebar-part { width: 32%; background: #f9fafb; border-right: 1px solid var(--border); padding: 30px 20px; box-sizing: border-box; }
+      .rtl .tpl-sidebar .cv-sidebar-part { border-right: none; border-left: 1px solid var(--border); }
+      .tpl-sidebar .cv-main-part { width: 68%; padding: 30px 24px; box-sizing: border-box; }
+      
+      .tpl-sidebar .cv-header-minimal-classic { display: none; }
+      .tpl-sidebar .cv-main-skills { display: none; }
+      .tpl-sidebar .cv-header-sidebar { display: block; }
+      .tpl-sidebar .cv-sidebar-skills { display: block; }
 
-          <!-- Experiences Dynamic Fields -->
-          <h3 class="form-sec-title">${t.expTab}</h3>
-          <div id="exp-fields-group">
-            <div class="dynamic-group-box">
-              <input type="text" class="in-exp-comp form-input" placeholder="${t.company}" value="Istanbul Tech Labs" style="margin-bottom: 8px;">
-              <input type="text" class="in-exp-role form-input" placeholder="${t.role}" value="Lead Developer" style="margin-bottom: 8px;">
-              <input type="text" class="in-exp-dates form-input" placeholder="${t.dates}" value="2024 - Present" style="margin-bottom: 8px;">
-              <textarea class="in-exp-desc form-input" placeholder="${t.desc}" rows="3">Led the development of bilingual payment integrations using TypeScript and Cloudflare Workers.</textarea>
-            </div>
-          </div>
-          <button type="button" onclick="addExpField()" class="btn-apply-now" style="margin-bottom: 30px; font-size:0.85rem;">${t.addBtn}</button>
+      .dynamic-group-box {
+        background: var(--bg-subtle);
+        border: 1px dashed var(--border);
+        border-radius: var(--radius-md);
+        padding: 16px;
+        margin-bottom: 16px;
+        position: relative;
+      }
+      .btn-delete-item {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: transparent;
+        border: none;
+        color: #ef4444;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: opacity var(--t-base);
+      }
+      .rtl .btn-delete-item {
+        right: auto;
+        left: 12px;
+      }
+      .btn-delete-item:hover {
+        color: #dc2626;
+      }
+      
+      @media print {
+        .control-panel, .stepper-steps, .step-actions, .btn-delete-item, .btn-apply-now, label {
+          display: none !important;
+        }
+      }
+    </style>
 
-          <!-- Education Dynamic Fields -->
-          <h3 class="form-sec-title">${t.eduTab}</h3>
-          <div id="edu-fields-group">
-            <div class="dynamic-group-box">
-              <input type="text" class="in-edu-school form-input" placeholder="${t.school}" value="Istanbul Technical University" style="margin-bottom: 8px;">
-              <input type="text" class="in-edu-degree form-input" placeholder="${t.degree}" value="B.Sc. in Computer Engineering" style="margin-bottom: 8px;">
-              <input type="text" class="in-edu-dates form-input" placeholder="${t.dates}" value="2018 - 2022" style="margin-bottom: 8px;">
-            </div>
+    <div class="container" style="padding-top: 40px; padding-bottom: 80px;" id="resume-container">
+      
+      <!-- Top controls (Hidden in print) -->
+      <div class="control-panel no-print">
+        <div>
+          <span style="font-weight: 700; color: var(--text-dark); margin-right: 10px; display: inline-block;">${t.tplLabel}</span>
+          <div class="btn-group" style="display: inline-flex; gap: 8px;">
+            <button class="btn-apply-now active" id="btn-tpl-minimal" onclick="setTemplate('minimal')" style="padding: 6px 14px; font-size: 0.85rem; background: var(--primary); color: #fff;">${t.tplMinimal}</button>
+            <button class="btn-apply-now" id="btn-tpl-sidebar" onclick="setTemplate('sidebar')" style="padding: 6px 14px; font-size: 0.85rem; background: var(--bg-subtle); color: var(--text-body);">${t.tplSidebar}</button>
+            <button class="btn-apply-now" id="btn-tpl-classic" onclick="setTemplate('classic')" style="padding: 6px 14px; font-size: 0.85rem; background: var(--bg-subtle); color: var(--text-body);">${t.tplClassic}</button>
           </div>
-          <button type="button" onclick="addEduField()" class="btn-apply-now" style="margin-bottom: 30px; font-size:0.85rem;">${t.addBtn}</button>
+        </div>
 
-          <!-- Skills & Languages -->
-          <h3 class="form-sec-title">${t.skillsTab}</h3>
-          <div style="margin-bottom: 16px;">
-            <label>${t.skills}</label>
-            <input type="text" id="in-skills" value="TypeScript, Javascript, Node.js, Cloudflare, Docker, SQL" class="form-input">
+        <div>
+          <span style="font-weight: 700; color: var(--text-dark); margin-right: 10px; display: inline-block;">${t.colorLabel}</span>
+          <div style="display: inline-flex; gap: 10px; align-items: center; vertical-align: middle;">
+            <span class="color-dot active" style="background: #4f46e5;" onclick="setColor('indigo')" id="dot-indigo"></span>
+            <span class="color-dot" style="background: #10b981;" onclick="setColor('emerald')" id="dot-emerald"></span>
+            <span class="color-dot" style="background: #dc2626;" onclick="setColor('crimson')" id="dot-crimson"></span>
+            <span class="color-dot" style="background: #475569;" onclick="setColor('slate')" id="dot-slate"></span>
           </div>
-          <div style="margin-bottom: 30px;">
-            <label>${t.languages}</label>
-            <input type="text" id="in-langs" value="Arabic (Native), English (Fluent), Turkish (Intermediate)" class="form-input">
-          </div>
+        </div>
 
-          <button type="button" onclick="window.print()" class="btn-sidebar-apply">${t.printBtn}</button>
-        </form>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn-apply-now" onclick="loadSampleData()" style="padding: 8px 16px; font-size: 0.85rem; background: var(--bg-subtle); color: var(--primary); border: 1px solid var(--primary);">${t.loadSampleBtn}</button>
+          <button class="btn-sidebar-apply" onclick="window.print()" style="padding: 8px 20px; font-size: 0.85rem; margin-top: 0; min-width: auto; height: auto;">${t.printBtn}</button>
+        </div>
       </div>
 
-      <!-- Right: Live A4 preview page (Styled like paper document) -->
-      <div class="builder-preview">
-        <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--text-dark); margin-bottom: 16px; text-align: center;" class="preview-header-label">${t.previewTitle}</h2>
-        <div id="paper-cv" class="paper-cv-page">
-          <!-- Header -->
-          <div class="cv-header">
-            <h1 id="cv-name">Ahmad Al-Khatib</h1>
-            <h2 id="cv-title">Senior Full Stack Engineer</h2>
-            <div class="cv-contact">
-              <span id="cv-email"><i class="fa-regular fa-envelope"></i> ahmad@example.com</span>
-              <span id="cv-phone"><i class="fa-solid fa-phone"></i> +95 555 123 45 67</span>
-            </div>
+      <div class="resume-builder-layout">
+        
+        <!-- Left: Form inputs -->
+        <div class="builder-inputs glass-card no-print" style="padding: 30px; border-radius: var(--radius-lg); height: fit-content;">
+          <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--text-dark); margin-bottom: 8px;">${t.title}</h1>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px;">${t.subtitle}</p>
+
+          <!-- Stepper Steps -->
+          <div class="stepper-steps">
+            <button class="step-tab active" id="tab-step-0" onclick="switchStep(0)">${t.personalTab}</button>
+            <button class="step-tab" id="tab-step-1" onclick="switchStep(1)">${t.expTab}</button>
+            <button class="step-tab" id="tab-step-2" onclick="switchStep(2)">${t.eduTab}</button>
+            <button class="step-tab" id="tab-step-3" onclick="switchStep(3)">${t.skillsTab}</button>
           </div>
 
-          <!-- Body -->
-          <div class="cv-body-layout">
-            <!-- Summary -->
-            <div class="cv-section">
-              <h3 class="cv-sec-title">${locale === 'ar' ? 'ملخص مهني' : 'Professional Summary'}</h3>
-              <p id="cv-summary">Highly analytical software developer with over 5 years of experience...</p>
-            </div>
-
-            <!-- Experience -->
-            <div class="cv-section">
-              <h3 class="cv-sec-title">${locale === 'ar' ? 'الخبرة المهنية' : 'Work Experience'}</h3>
-              <div id="cv-experience">
-                <!-- Injected via JS -->
-              </div>
-            </div>
-
-            <!-- Education -->
-            <div class="cv-section">
-              <h3 class="cv-sec-title">${locale === 'ar' ? 'التعليم والشهادات' : 'Education'}</h3>
-              <div id="cv-education">
-                <!-- Injected via JS -->
-              </div>
-            </div>
-
-            <!-- Skills -->
-            <div class="cv-section">
-              <h3 class="cv-sec-title">${locale === 'ar' ? 'المهارات واللغات' : 'Skills & Languages'}</h3>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <form id="resume-form" oninput="updateLivePreview()" onsubmit="event.preventDefault();">
+            
+            <!-- Step 0: Personal Info -->
+            <div class="form-step-content active" id="step-0">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                 <div>
-                  <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-dark); margin-bottom: 6px;">${locale === 'ar' ? 'المهارات الأساسية' : 'Key Skills'}</h4>
-                  <div id="cv-skills-list" style="line-height:1.6;"></div>
+                  <label style="font-weight:700; font-size:0.85rem; display:block; margin-bottom:6px;">${t.fullName}</label>
+                  <input type="text" id="in-name" value="أحمد الخطيب" class="form-input">
                 </div>
                 <div>
-                  <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-dark); margin-bottom: 6px;">${locale === 'ar' ? 'اللغات' : 'Languages'}</h4>
-                  <div id="cv-langs-list" style="line-height:1.6;"></div>
+                  <label style="font-weight:700; font-size:0.85rem; display:block; margin-bottom:6px;">${t.jobTitle}</label>
+                  <input type="text" id="in-title" value="مهندس برمجيات أول" class="form-input">
                 </div>
               </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div>
+                  <label style="font-weight:700; font-size:0.85rem; display:block; margin-bottom:6px;">${t.email}</label>
+                  <input type="email" id="in-email" value="ahmed.alkhatib@example.com" class="form-input">
+                </div>
+                <div>
+                  <label style="font-weight:700; font-size:0.85rem; display:block; margin-bottom:6px;">${t.phone}</label>
+                  <input type="text" id="in-phone" value="+90 555 123 45 67" class="form-input">
+                </div>
+              </div>
+              <div style="margin-bottom: 16px;">
+                <label style="font-weight:700; font-size:0.85rem; display:block; margin-bottom:6px;">${t.summary}</label>
+                <textarea id="in-summary" rows="4" class="form-input">مهندس برمجيات ذو خبرة تمتد لأكثر من 5 سنوات في تطوير تطبيقات الويب الآمنة والموزعة. شغوف بتحسين الأداء وبناء هياكل الحوسبة الطرفية السحابية النظيفة.</textarea>
+              </div>
+            </div>
+
+            <!-- Step 1: Experience -->
+            <div class="form-step-content" id="step-1">
+              <div id="exp-fields-group">
+                <div class="dynamic-group-box">
+                  <button type="button" class="btn-delete-item" onclick="this.parentElement.remove(); updateLivePreview();"><i class="fa-regular fa-trash-can"></i></button>
+                  <input type="text" class="in-exp-comp form-input" placeholder="${t.company}" value="مختبرات إسطنبول التقنية" style="margin-bottom: 8px;">
+                  <input type="text" class="in-exp-role form-input" placeholder="${t.role}" value="مطور برمجيات رئيسي" style="margin-bottom: 8px;">
+                  <input type="text" class="in-exp-dates form-input" placeholder="${t.dates}" value="٢٠٢٤ - الحالي" style="margin-bottom: 8px;">
+                  <textarea class="in-exp-desc form-input" placeholder="${t.desc}" rows="3">قيادة تطوير وتكامل بوابات الدفع الإلكترونية ثنائية اللغة باستخدام لغة TypeScript وتقنيات Cloudflare Workers.</textarea>
+                </div>
+              </div>
+              <button type="button" onclick="addExpField()" class="btn-apply-now" style="font-size:0.85rem; margin-bottom: 10px;">${t.addBtn}</button>
+            </div>
+
+            <!-- Step 2: Education -->
+            <div class="form-step-content" id="step-2">
+              <div id="edu-fields-group">
+                <div class="dynamic-group-box">
+                  <button type="button" class="btn-delete-item" onclick="this.parentElement.remove(); updateLivePreview();"><i class="fa-regular fa-trash-can"></i></button>
+                  <input type="text" class="in-edu-school form-input" placeholder="${t.school}" value="جامعة إسطنبول التقنية" style="margin-bottom: 8px;">
+                  <input type="text" class="in-edu-degree form-input" placeholder="${t.degree}" value="بكالوريوس هندسة الحاسوب" style="margin-bottom: 8px;">
+                  <input type="text" class="in-edu-dates form-input" placeholder="${t.dates}" value="٢٠١٨ - ٢٠٢٢" style="margin-bottom: 8px;">
+                </div>
+              </div>
+              <button type="button" onclick="addEduField()" class="btn-apply-now" style="font-size:0.85rem; margin-bottom: 10px;">${t.addBtn}</button>
+            </div>
+
+            <!-- Step 3: Skills & Languages -->
+            <div class="form-step-content" id="step-3">
+              <div style="margin-bottom: 16px;">
+                <label style="font-weight:700; font-size:0.85rem; display:block; margin-bottom:6px;">${t.skills}</label>
+                <input type="text" id="in-skills" value="TypeScript, JavaScript, Node.js, Cloudflare, Docker, SQL" class="form-input">
+              </div>
+              <div style="margin-bottom: 16px;">
+                <label style="font-weight:700; font-size:0.85rem; display:block; margin-bottom:6px;">${t.languages}</label>
+                <input type="text" id="in-langs" value="العربية (اللغة الأم)، الإنجليزية (ممتاز)، التركية (متوسط)" class="form-input">
+              </div>
+            </div>
+
+            <!-- Stepper Navigation Actions -->
+            <div class="step-actions" style="margin-top: 24px; padding-top: 20px; border-top: 1.5px solid var(--border); display: flex; justify-content: space-between;">
+              <button type="button" id="btn-prev-step" onclick="prevStep()" class="btn-apply-now" style="background: var(--bg-subtle); color: var(--text-body); border: 1px solid var(--border); display: none;">${t.stepPrev}</button>
+              <button type="button" id="btn-next-step" onclick="nextStep()" class="btn-sidebar-apply" style="margin-top: 0; min-width: auto; height: auto; padding: 10px 24px;">${t.stepNext}</button>
+            </div>
+
+          </form>
+        </div>
+
+        <!-- Right: Paper A4 Live Preview -->
+        <div class="builder-preview">
+          <h2 style="font-size: 1.15rem; font-weight: 800; color: var(--text-dark); margin-bottom: 16px; text-align: center;" class="preview-header-label no-print">${t.previewTitle}</h2>
+          
+          <div id="paper-cv" class="paper-cv-page tpl-minimal theme-indigo">
+            <div class="cv-layout-wrap">
+              
+              <!-- Sidebar segment -->
+              <div class="cv-sidebar-part">
+                <div class="cv-header-sidebar">
+                  <h1 class="target-cv-name" style="margin-bottom:4px; font-weight:900;"></h1>
+                  <h2 class="target-cv-title" style="font-weight:700; font-size:1.05rem;"></h2>
+                  <div class="cv-contact">
+                    <span class="target-cv-email"></span>
+                    <span class="target-cv-phone"></span>
+                  </div>
+                </div>
+
+                <div class="cv-sidebar-skills">
+                  <h3 class="cv-sec-title">${locale === 'ar' ? 'المهارات' : 'Skills'}</h3>
+                  <div id="cv-skills-sidebar-list" style="line-height:1.6; font-size:0.85rem; font-weight:600;"></div>
+
+                  <h3 class="cv-sec-title">${locale === 'ar' ? 'اللغات' : 'Languages'}</h3>
+                  <div id="cv-langs-sidebar-list" style="line-height:1.6; font-size:0.85rem; font-weight:600;"></div>
+                </div>
+              </div>
+
+              <!-- Main segment -->
+              <div class="cv-main-part">
+                
+                <!-- Minimalist/Classic Header -->
+                <div class="cv-header-minimal-classic">
+                  <h1 class="target-cv-name" style="margin-bottom:4px;"></h1>
+                  <h2 class="target-cv-title"></h2>
+                  <div class="cv-contact">
+                    <span class="target-cv-email"></span>
+                    <span class="target-cv-phone"></span>
+                  </div>
+                </div>
+
+                <!-- Professional Summary -->
+                <div class="cv-section" style="margin-bottom: 20px;">
+                  <h3 class="cv-sec-title">${locale === 'ar' ? 'الملخص المهني' : 'Professional Summary'}</h3>
+                  <p id="cv-summary" style="font-size:0.88rem; line-height:1.6;"></p>
+                </div>
+
+                <!-- Work Experience -->
+                <div class="cv-section" style="margin-bottom: 20px;">
+                  <h3 class="cv-sec-title">${locale === 'ar' ? 'الخبرة المهنية' : 'Work Experience'}</h3>
+                  <div id="cv-experience"></div>
+                </div>
+
+                <!-- Education -->
+                <div class="cv-section" style="margin-bottom: 20px;">
+                  <h3 class="cv-sec-title">${locale === 'ar' ? 'التعليم والشهادات' : 'Education & Qualifications'}</h3>
+                  <div id="cv-education"></div>
+                </div>
+
+                <!-- Minimalist/Classic Skills & Languages footer -->
+                <div class="cv-main-skills cv-section">
+                  <h3 class="cv-sec-title">${locale === 'ar' ? 'المهارات واللغات' : 'Skills & Languages'}</h3>
+                  <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px;">
+                    <div>
+                      <h4 style="font-size: 0.85rem; font-weight: 700; color: var(--text-dark); margin-bottom: 4px;">${locale === 'ar' ? 'المهارات الأساسية' : 'Key Skills'}</h4>
+                      <div id="cv-skills-main-list" style="line-height:1.6; font-size:0.85rem;"></div>
+                    </div>
+                    <div>
+                      <h4 style="font-size: 0.85rem; font-weight: 700; color: var(--text-dark); margin-bottom: 4px;">${locale === 'ar' ? 'اللغات' : 'Languages'}</h4>
+                      <div id="cv-langs-main-list" style="line-height:1.6; font-size:0.85rem;"></div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
             </div>
           </div>
         </div>
+
       </div>
     </div>
 
     <script>
-      function addExpField() {
-        const div = document.createElement('div');
-        div.className = 'dynamic-group-box';
-        div.innerHTML = \`
-          <input type="text" class="in-exp-comp form-input" placeholder="${t.company}" style="margin-bottom: 8px;">
-          <input type="text" class="in-exp-role form-input" placeholder="${t.role}" style="margin-bottom: 8px;">
-          <input type="text" class="in-exp-dates form-input" placeholder="${t.dates}" style="margin-bottom: 8px;">
-          <textarea class="in-exp-desc form-input" placeholder="${t.desc}" rows="3"></textarea>
+      let currentStep = 0;
+      const totalSteps = 4;
+      let activeTemplate = 'minimal';
+      let activeColor = 'indigo';
+
+      function switchStep(stepIdx) {
+        currentStep = stepIdx;
+        
+        for (let i = 0; i < totalSteps; i++) {
+          const tab = document.getElementById('tab-step-' + i);
+          const stepDiv = document.getElementById('step-' + i);
+          
+          if (i === stepIdx) {
+            tab.classList.add('active');
+            stepDiv.classList.add('active');
+          } else {
+            tab.classList.remove('active');
+            stepDiv.classList.remove('active');
+          }
+        }
+
+        const btnPrev = document.getElementById('btn-prev-step');
+        const btnNext = document.getElementById('btn-next-step');
+        
+        btnPrev.style.display = stepIdx === 0 ? 'none' : 'block';
+        btnNext.textContent = stepIdx === totalSteps - 1 ? (window.location.pathname.startsWith('/ar') ? '🖨️ طباعة' : '🖨️ Print') : '${t.stepNext}';
+      }
+
+      function nextStep() {
+        if (currentStep < totalSteps - 1) {
+          switchStep(currentStep + 1);
+        } else {
+          window.print();
+        }
+      }
+
+      function prevStep() {
+        if (currentStep > 0) {
+          switchStep(currentStep - 1);
+        }
+      }
+
+      function setTemplate(tplName) {
+        activeTemplate = tplName;
+        const cv = document.getElementById('paper-cv');
+        
+        cv.classList.remove('tpl-minimal', 'tpl-sidebar', 'tpl-classic');
+        cv.classList.add('tpl-' + tplName);
+
+        document.getElementById('btn-tpl-minimal').classList.toggle('active', tplName === 'minimal');
+        document.getElementById('btn-tpl-sidebar').classList.toggle('active', tplName === 'sidebar');
+        document.getElementById('btn-tpl-classic').classList.toggle('active', tplName === 'classic');
+
+        document.getElementById('btn-tpl-minimal').style.background = tplName === 'minimal' ? 'var(--primary)' : 'var(--bg-subtle)';
+        document.getElementById('btn-tpl-minimal').style.color = tplName === 'minimal' ? '#fff' : 'var(--text-body)';
+
+        document.getElementById('btn-tpl-sidebar').style.background = tplName === 'sidebar' ? 'var(--primary)' : 'var(--bg-subtle)';
+        document.getElementById('btn-tpl-sidebar').style.color = tplName === 'sidebar' ? '#fff' : 'var(--text-body)';
+
+        document.getElementById('btn-tpl-classic').style.background = tplName === 'classic' ? 'var(--primary)' : 'var(--bg-subtle)';
+        document.getElementById('btn-tpl-classic').style.color = tplName === 'classic' ? '#fff' : 'var(--text-body)';
+      }
+
+      function setColor(colorName) {
+        activeColor = colorName;
+        const cv = document.getElementById('paper-cv');
+        
+        cv.classList.remove('theme-indigo', 'theme-emerald', 'theme-crimson', 'theme-slate');
+        cv.classList.add('theme-' + colorName);
+
+        ['indigo', 'emerald', 'crimson', 'slate'].forEach(c => {
+          document.getElementById('dot-' + c).classList.toggle('active', c === colorName);
+        });
+      }
+
+      function addExpField(comp = '', role = '', dates = '', desc = '') {
+        const group = document.getElementById('exp-fields-group');
+        const box = document.createElement('div');
+        box.className = 'dynamic-group-box';
+        box.innerHTML = \`
+          <button type="button" class="btn-delete-item" onclick="this.parentElement.remove(); updateLivePreview();"><i class="fa-regular fa-trash-can"></i></button>
+          <input type="text" class="in-exp-comp form-input" placeholder="\${window.location.pathname.startsWith('/ar') ? 'الشركة / جهة العمل' : 'Company'}" value="\${comp}" style="margin-bottom: 8px;">
+          <input type="text" class="in-exp-role form-input" placeholder="\${window.location.pathname.startsWith('/ar') ? 'المسمى الوظيفي' : 'Job Role'}" value="\${role}" style="margin-bottom: 8px;">
+          <input type="text" class="in-exp-dates form-input" placeholder="\${window.location.pathname.startsWith('/ar') ? 'الفترة' : 'Dates'}" value="\${dates}" style="margin-bottom: 8px;">
+          <textarea class="in-exp-desc form-input" placeholder="\${window.location.pathname.startsWith('/ar') ? 'الوصف والإنجازات' : 'Description'}" rows="3">\${desc}</textarea>
         \`;
-        document.getElementById('exp-fields-group').appendChild(div);
+        group.appendChild(box);
         updateLivePreview();
       }
 
-      function addEduField() {
-        const div = document.createElement('div');
-        div.className = 'dynamic-group-box';
-        div.innerHTML = \`
-          <input type="text" class="in-edu-school form-input" placeholder="${t.school}" style="margin-bottom: 8px;">
-          <input type="text" class="in-edu-degree form-input" placeholder="${t.degree}" style="margin-bottom: 8px;">
-          <input type="text" class="in-edu-dates form-input" placeholder="${t.dates}" style="margin-bottom: 8px;">
+      function addEduField(school = '', degree = '', dates = '') {
+        const group = document.getElementById('edu-fields-group');
+        const box = document.createElement('div');
+        box.className = 'dynamic-group-box';
+        box.innerHTML = \`
+          <button type="button" class="btn-delete-item" onclick="this.parentElement.remove(); updateLivePreview();"><i class="fa-regular fa-trash-can"></i></button>
+          <input type="text" class="in-edu-school form-input" placeholder="\${window.location.pathname.startsWith('/ar') ? 'الجامعة / المدرسة' : 'University'}" value="\${school}" style="margin-bottom: 8px;">
+          <input type="text" class="in-edu-degree form-input" placeholder="\${window.location.pathname.startsWith('/ar') ? 'الدرجة والتخصص' : 'Degree & Field'}" value="\${degree}" style="margin-bottom: 8px;">
+          <input type="text" class="in-edu-dates form-input" placeholder="\${window.location.pathname.startsWith('/ar') ? 'الفترة' : 'Dates'}" value="\${dates}" style="margin-bottom: 8px;">
         \`;
-        document.getElementById('edu-fields-group').appendChild(div);
+        group.appendChild(box);
+        updateLivePreview();
+      }
+
+      function loadSampleData() {
+        const isAr = window.location.pathname.startsWith('/ar');
+        
+        if (isAr) {
+          document.getElementById('in-name').value = 'عمر بن عبد العزيز';
+          document.getElementById('in-title').value = 'مدير مشاريع تقنية أول';
+          document.getElementById('in-email').value = 'omar.project@example.com';
+          document.getElementById('in-phone').value = '+90 532 987 65 43';
+          document.getElementById('in-summary').value = 'مدير مشاريع معتمد (PMP) وخبير برمجيات ذو مسيرة مميزة تمتد لـ 8 سنوات في الإشراف على مشاريع التحول الرقمي وتطوير الأنظمة البنكية في أسواق الشرق الأوسط وتركيا.';
+          
+          document.getElementById('exp-fields-group').innerHTML = '';
+          addExpField('شركة التقنية العالمية (إسطنبول)', 'مدير مشاريع تقنية', '٢٠٢٢ - الحالي', 'إدارة فريق من ١٢ مهندساً لتطوير منصة تداول وتدشين البنية الأساسية بنجاح بنسبة رضا عملاء تجاوزت ٩٥٪.');
+          addExpField('بوابة الرياض للحلول الرقمية', 'مطور برمجيات أول', '٢٠١٩ - ٢٠٢٢', 'الإشراف على هندسة النظام الأساسي للموقع وتطوير خدمات الدفع وتقليص زمن استجابة الطلبات بنسبة ٣٠٪.');
+
+          document.getElementById('edu-fields-group').innerHTML = '';
+          addEduField('جامعة الشرق الأوسط التقنية (أنقرة)', 'ماجستير في إدارة الأعمال التقنية', '٢٠٢٠ - ٢٠٢٢');
+          addEduField('جامعة الملك سعود', 'بكالوريوس علوم الحاسب والمعلومات', '٢٠١٤ - ٢٠١٨');
+
+          document.getElementById('in-skills').value = 'إدارة المشاريع (PMP), Agile/Scrum, Python, Node.js, AWS, Kubernetes, حل المشكلات';
+          document.getElementById('in-langs').value = 'العربية (الأم)، الإنجليزية (ممتاز)، التركية (مستوي عملي)';
+        } else {
+          document.getElementById('in-name').value = 'Jonathan Miller';
+          document.getElementById('in-title').value = 'Senior Product Manager';
+          document.getElementById('in-email').value = 'jonathan.miller@example.com';
+          document.getElementById('in-phone').value = '+90 533 111 22 33';
+          document.getElementById('in-summary').value = 'Analytical and results-driven Product Manager with 6+ years of experience delivering SaaS solutions, scaling digital marketplaces, and driving agile software teams.';
+          
+          document.getElementById('exp-fields-group').innerHTML = '';
+          addExpField('Istanbul Tech Hub', 'Senior PM', '2023 - Present', 'Launched and scaled the core recruitment matching product, improving match conversion rate by 22% and driving over $1M ARR.');
+          addExpField('Synergy Labs', 'Product Owner', '2020 - 2023', 'Defined and executed the product roadmap for a multi-tenant logistics portal, managing stakeholders across 4 countries.');
+
+          document.getElementById('edu-fields-group').innerHTML = '';
+          addEduField('Boğaziçi University', 'M.Sc. in Management Information Systems', '2021 - 2023');
+          addEduField('University of Manchester', 'B.Sc. in Computer Science', '2016 - 2020');
+
+          document.getElementById('in-skills').value = 'Product Roadmap, User Research, SQL, Jira, Mixpanel, A/B Testing, Stakeholder Management';
+          document.getElementById('in-langs').value = 'English (Native), Spanish (Fluent), Turkish (Intermediate)';
+        }
+        
         updateLivePreview();
       }
 
       function updateLivePreview() {
-        document.getElementById('cv-name').textContent = document.getElementById('in-name').value;
-        document.getElementById('cv-title').textContent = document.getElementById('in-title').value;
-        document.getElementById('cv-email').innerHTML = '<i class="fa-regular fa-envelope"></i> ' + document.getElementById('in-email').value;
-        document.getElementById('cv-phone').innerHTML = '<i class="fa-solid fa-phone"></i> ' + document.getElementById('in-phone').value;
-        document.getElementById('cv-summary').textContent = document.getElementById('in-summary').value;
+        const nameVal = document.getElementById('in-name').value || '';
+        const titleVal = document.getElementById('in-title').value || '';
+        const emailVal = document.getElementById('in-email').value || '';
+        const phoneVal = document.getElementById('in-phone').value || '';
+        const summaryVal = document.getElementById('in-summary').value || '';
 
-        // Map Experience
+        document.querySelectorAll('.target-cv-name').forEach(el => el.textContent = nameVal);
+        document.querySelectorAll('.target-cv-title').forEach(el => el.textContent = titleVal);
+        
+        document.querySelectorAll('.target-cv-email').forEach(el => {
+          el.innerHTML = emailVal ? '<i class="fa-regular fa-envelope"></i> ' + emailVal : '';
+        });
+        document.querySelectorAll('.target-cv-phone').forEach(el => {
+          el.innerHTML = phoneVal ? '<i class="fa-solid fa-phone"></i> ' + phoneVal : '';
+        });
+
+        document.getElementById('cv-summary').textContent = summaryVal;
+
         const expBoxes = document.querySelectorAll('#exp-fields-group .dynamic-group-box');
         let expHtml = '';
         expBoxes.forEach(box => {
@@ -720,19 +1057,18 @@ aiFeaturesRouter.get('/:locale/resume-builder', (c) => {
 
           if (comp || role) {
             expHtml += \`
-              <div class="cv-item" style="margin-bottom: 16px;">
-                <div style="display: flex; justify-content: space-between; font-weight: 700; color: var(--text-dark);">
+              <div class="cv-item" style="margin-bottom: 14px;">
+                <div style="display: flex; justify-content: space-between; font-weight: 700; color: var(--text-dark); font-size: 0.92rem;">
                   <span>\${role} - \${comp}</span>
-                  <span style="font-weight: 500; font-size: 0.9rem; color: var(--text-muted);">\${dates}</span>
+                  <span style="font-weight: 500; font-size: 0.85rem; color: var(--text-muted);">\${dates}</span>
                 </div>
-                <p style="margin-top: 4px; font-size: 0.95rem;">\${desc}</p>
+                <p style="margin-top: 4px; font-size: 0.86rem; color: #4b5563; line-height: 1.5; white-space: pre-line;">\${desc}</p>
               </div>
             \`;
           }
         });
         document.getElementById('cv-experience').innerHTML = expHtml;
 
-        // Map Education
         const eduBoxes = document.querySelectorAll('#edu-fields-group .dynamic-group-box');
         let eduHtml = '';
         eduBoxes.forEach(box => {
@@ -743,20 +1079,33 @@ aiFeaturesRouter.get('/:locale/resume-builder', (c) => {
           if (school || degree) {
             eduHtml += \`
               <div class="cv-item" style="margin-bottom: 12px;">
-                <div style="display: flex; justify-content: space-between; font-weight: 700; color: var(--text-dark);">
+                <div style="display: flex; justify-content: space-between; font-weight: 700; color: var(--text-dark); font-size: 0.92rem;">
                   <span>\${degree}</span>
-                  <span style="font-weight: 500; font-size: 0.9rem; color: var(--text-muted);">\${dates}</span>
+                  <span style="font-weight: 500; font-size: 0.85rem; color: var(--text-muted);">\${dates}</span>
                 </div>
-                <div style="font-size: 0.95rem; color: var(--text-main);">\${school}</div>
+                <div style="font-size: 0.86rem; color: #4b5563; margin-top: 2px;">\${school}</div>
               </div>
             \`;
           }
         });
         document.getElementById('cv-education').innerHTML = eduHtml;
 
-        // Map Skills & Languages
-        document.getElementById('cv-skills-list').textContent = document.getElementById('in-skills').value;
-        document.getElementById('cv-langs-list').textContent = document.getElementById('in-langs').value;
+        const skillsVal = document.getElementById('in-skills').value || '';
+        const langsVal = document.getElementById('in-langs').value || '';
+
+        const skillsHtml = skillsVal.split(',').map(s => s.trim()).filter(Boolean).map(s => 
+          \`<span style="display: inline-block; background: #f3f4f6; color: #374151; padding: 3px 8px; border-radius: var(--radius-sm); font-size: 0.78rem; margin: 3px; font-weight: 500;">\${s}</span>\`
+        ).join('');
+
+        const langsHtml = langsVal.split(',').map(l => l.trim()).filter(Boolean).map(l => 
+          \`<div style="font-size: 0.82rem; color: #4b5563; margin-bottom: 4px;"><i class="fa-solid fa-circle-chevron-left" style="color:var(--cv-primary); font-size:0.65rem; margin-left: 6px;"></i> \${l}</div>\`
+        ).join('');
+
+        document.getElementById('cv-skills-main-list').innerHTML = skillsHtml;
+        document.getElementById('cv-skills-sidebar-list').innerHTML = skillsHtml;
+        
+        document.getElementById('cv-langs-main-list').innerHTML = langsHtml;
+        document.getElementById('cv-langs-sidebar-list').innerHTML = langsHtml;
       }
 
       document.addEventListener('DOMContentLoaded', () => {
@@ -766,7 +1115,7 @@ aiFeaturesRouter.get('/:locale/resume-builder', (c) => {
   `;
 
   return c.html(renderLayout(c, t.title, html, locale));
-})
+});
 
 // AI Cover Letter Generator Page
 aiFeaturesRouter.get('/:locale/cover-letter-generator', (c) => {
