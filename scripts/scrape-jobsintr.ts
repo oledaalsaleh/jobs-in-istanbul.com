@@ -7,8 +7,21 @@ const isRemote = args.includes('--remote') || args.includes('-r');
 const limitArg = args.find(arg => arg.startsWith('--limit='));
 const limit = limitArg ? parseInt(limitArg.split('=')[1], 10) : 300; // Large limit by default to scrape all jobs
 
-// Monthly plain text sitemaps representing "from two months ago until now" (assuming current date is June 26, 2026)
-const SITEMAP_MONTHS = ['2026-06', '2026-05', '2026-04'];
+// Helper to dynamically get recent months formatted as YYYY-MM
+function getSitemapMonths(count = 3): string[] {
+  const months: string[] = [];
+  const date = new Date();
+  date.setDate(1); // Avoid month transition bugs (e.g. 31st of month)
+  for (let i = 0; i < count; i++) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    months.push(`${year}-${month}`);
+    date.setMonth(date.getMonth() - 1);
+  }
+  return months;
+}
+
+const SITEMAP_MONTHS = getSitemapMonths(3);
 
 async function fetchSitemapUrls(month: string): Promise<string[]> {
   const url = `https://jobsintr.net/jobs-${month}.txt`;

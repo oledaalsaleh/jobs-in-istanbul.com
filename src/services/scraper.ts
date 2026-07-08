@@ -91,6 +91,16 @@ export async function getJobsList(): Promise<string[]> {
     'https://jobsintr.net/jobs/',
     'https://jobsintr.net/wp-sitemap-posts-post-1.xml'
   ];
+
+  // Dynamically add the text sitemaps for the current month and the previous month
+  const date = new Date();
+  date.setDate(1); // Avoid month transition bugs (e.g. 31st of month)
+  for (let i = 0; i < 2; i++) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    sources.push(`https://jobsintr.net/jobs-${year}-${month}.txt`);
+    date.setMonth(date.getMonth() - 1);
+  }
   
   const headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -105,9 +115,18 @@ export async function getJobsList(): Promise<string[]> {
     try {
       const response = await fetch(source, { headers, signal: AbortSignal.timeout(10000) });
       if (!response.ok) continue;
-      const html = await response.text();
-      const urls = extractJobUrls(html);
-      allUrls.push(...urls);
+      const content = await response.text();
+      
+      if (source.endsWith('.txt')) {
+        const urls = content
+          .split(/\s+/)
+          .map(u => u.trim())
+          .filter(u => u.startsWith('http://') || u.startsWith('https://'));
+        allUrls.push(...urls);
+      } else {
+        const urls = extractJobUrls(content);
+        allUrls.push(...urls);
+      }
     } catch (e) {
       console.error(`Failed to crawl list source ${source}:`, e);
     }
