@@ -24,6 +24,9 @@ const fallbackAdvice = {
 
 goldPricesRouter.get('/gold-prices', (c) => {
   const acceptLang = c.req.header('accept-language') || '';
+  if (acceptLang.toLowerCase().startsWith('ur')) {
+    return c.redirect('/ur/gold-prices');
+  }
   if (acceptLang.toLowerCase().startsWith('fa')) {
     return c.redirect('/fa/gold-prices');
   }
@@ -40,8 +43,8 @@ goldPricesRouter.get('/gold-prices', (c) => {
 })
 
 goldPricesRouter.get('/:locale/gold-prices', async (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/gold-prices');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa' && locale !== 'ur') return c.redirect('/ar/gold-prices');
 
   const db = (c.env as any).DB;
   let metals = fallbackGold;
@@ -58,7 +61,7 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
       if (parsed.metals && Array.isArray(parsed.metals) && parsed.metals.length > 0) {
         metals = parsed.metals;
         advice = parsed.advice || fallbackAdvice;
-        lastUpdateStr = new Date(parsed.updatedAt).toLocaleString(locale === 'ar' || locale === 'fa' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
+        lastUpdateStr = new Date(parsed.updatedAt).toLocaleString(locale === 'ar' || locale === 'fa' || locale === 'ur' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
       }
     }
   } catch (err) {
@@ -66,7 +69,7 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
   }
 
   if (!lastUpdateStr) {
-    lastUpdateStr = new Date().toLocaleString(locale === 'ar' || locale === 'fa' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
+    lastUpdateStr = new Date().toLocaleString(locale === 'ar' || locale === 'fa' || locale === 'ur' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
   }
 
   const localizedGoldName = (id: string, defaultName: string) => {
@@ -165,6 +168,23 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
       resultLabel: 'ارزش کل تقریبی:',
       aiTitle: '🤖 تحلیل روزانه بازار و توصیه‌های هوش مصنوعی Gemini',
       textDescription: 'این نرخ‌های طلا به صورت خودکار در طول روز از بازار صنف طلافروشان ترکیه جهت برنامه‌ریزی پس‌انداز و سرمایه‌گذاری شما گردآوری می‌شود.'
+    },
+    ur: {
+      title: 'ترکی میں سونے کی قیمتیں آج',
+      subtitle: 'ترک لیرا (TRY) میں سونے کی لائیو قیمتیں، کیلکولیٹر اور اے آئی جیمنی مارکیٹ تجزیہ رپورٹ۔',
+      lastUpdate: 'آخری اپ ڈیٹ:',
+      colGoldType: 'قیراط / سونے کی قسم',
+      colBuy: 'خرید (TRY)',
+      colSell: 'فروخت (TRY)',
+      converterTitle: '🧮 سونا قیمت کیلکولیٹر',
+      weightLabel: 'وزن / سونے کی مقدار:',
+      typeLabel: 'قیراط / سونے کی قسم:',
+      modeLabel: 'سودے کی قسم:',
+      modeBuy: 'ہم سے سونا خریدیں (خرید ریٹ)',
+      modeSell: 'ہمیں سونا فروخت کریں (فروخت ریٹ)',
+      resultLabel: 'تقریبی کل قیمت:',
+      aiTitle: '🤖 اے آئی جیمنی سونے کی مارکیٹ کی رپورٹ',
+      textDescription: 'یہ قیمتیں استنبول کے بازارِ صرافہ سے براہِ راست حاصل کی جاتی ہیں تاکہ آپ سرمایہ کاری کی منصوبہ بندی کر سکیں۔'
     }
   }[locale];
 
@@ -203,11 +223,11 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
           </div>
           <div style="margin-top: 8px; display: flex; gap: 16px;">
             <div>
-              <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; display: block;">${locale === 'ar' || locale === 'fa' ? (locale === 'ar' ? 'شراء' : 'خرید') : (locale === 'tr' ? 'Alış' : 'Buy')}</span>
+              <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; display: block;">${locale === 'ar' || locale === 'fa' || locale === 'ur' ? (locale === 'ar' ? 'شراء' : (locale === 'fa' ? 'خرید' : 'خرید')) : (locale === 'tr' ? 'Alış' : 'Buy')}</span>
               <span style="font-size: 1.25rem; font-weight: 800; color: var(--text-dark);">${buyPrice} ₺</span>
             </div>
             <div style="border-left: 1px solid var(--border); padding-left: 16px; padding-right: 16px;">
-              <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; display: block;">${locale === 'ar' || locale === 'fa' ? (locale === 'ar' ? 'بيع' : 'فروش') : (locale === 'tr' ? 'Satış' : 'Sell')}</span>
+              <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; display: block;">${locale === 'ar' || locale === 'fa' || locale === 'ur' ? (locale === 'ar' ? 'بيع' : (locale === 'fa' ? 'فروش' : 'فروخت')) : (locale === 'tr' ? 'Satış' : 'Sell')}</span>
               <span style="font-size: 1.25rem; font-weight: 800; color: #b45309;">${sellPrice} ₺</span>
             </div>
           </div>
@@ -598,7 +618,7 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
         const activePrice = mode === 'buy' ? rateObj.buy : rateObj.sell;
         const total = weight * activePrice;
 
-        const formatter = new Intl.NumberFormat(locale === 'ar' || locale === 'fa' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')), {
+        const formatter = new Intl.NumberFormat(locale === 'ar' || locale === 'fa' || locale === 'ur' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')), {
           maximumFractionDigits: 2,
           minimumFractionDigits: 2
         });

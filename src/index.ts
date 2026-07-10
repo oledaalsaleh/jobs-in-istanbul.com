@@ -99,6 +99,9 @@ export default {
     const url = new URL(request.url);
     if (url.pathname === '/' || url.pathname === '') {
       const acceptLang = request.headers.get('accept-language') || '';
+      if (acceptLang.toLowerCase().startsWith('ur')) {
+        return Response.redirect(`${url.origin}/ur`, 302);
+      }
       if (acceptLang.toLowerCase().startsWith('fa')) {
         return Response.redirect(`${url.origin}/fa`, 302);
       }

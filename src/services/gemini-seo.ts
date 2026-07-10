@@ -12,18 +12,20 @@ export interface OptimizedSeoData {
   title_tr: string;
   title_ru: string;
   title_fa: string;
+  title_ur: string;
   description_ar: string;
   description_en: string;
   description_tr: string;
   description_ru: string;
   description_fa: string;
+  description_ur: string;
 }
 
 export async function optimizeSeoWithGemini(
   apiKey: string,
   pageTitle: string,
   pageDescription: string,
-  locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa',
+  locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur',
   retries: number = 3,
   delayMs: number = 3500
 ): Promise<OptimizedSeoData> {
@@ -55,11 +57,13 @@ Return ONLY a valid JSON object matching the following structure. Do not wrap it
   "title_tr": "Turkish title...",
   "title_ru": "Russian title...",
   "title_fa": "Persian title...",
+  "title_ur": "Urdu title...",
   "description_ar": "<p>Arabic description paragraph 1</p><p>...</p>",
   "description_en": "<p>English description paragraph 1</p><p>...</p>",
   "description_tr": "<p>Turkish description paragraph 1</p><p>...</p>",
   "description_ru": "<p>Russian description paragraph 1</p><p>...</p>",
   "description_fa": "<p>Persian description paragraph 1</p><p>...</p>",
+  "description_ur": "<p>Urdu description paragraph 1</p><p>...</p>",
   "correctedTitle": "Polished input title",
   "correctedDesc": "Polished input description"
 }
@@ -117,11 +121,13 @@ Return ONLY a valid JSON object matching the following structure. Do not wrap it
         title_tr: parsed.title_tr || pageTitle,
         title_ru: parsed.title_ru || pageTitle,
         title_fa: parsed.title_fa || pageTitle,
+        title_ur: parsed.title_ur || pageTitle,
         description_ar: parsed.description_ar || pageDescription,
         description_en: parsed.description_en || pageDescription,
         description_tr: parsed.description_tr || pageDescription,
         description_ru: parsed.description_ru || pageDescription,
-        description_fa: parsed.description_fa || pageDescription
+        description_fa: parsed.description_fa || pageDescription,
+        description_ur: parsed.description_ur || pageDescription
       };
     } catch (err: any) {
       if (attempt === retries) {
@@ -143,9 +149,11 @@ Return ONLY a valid JSON object matching the following structure. Do not wrap it
         ? ['istanbul iş ilanları', 'istanbul iş fırsatları', 'türkiyede çalışmak', 'istanbulda iş bulmak', 'gurbetçi iş ilanları']
         : (locale === 'fa'
           ? ['کار در استانبول', 'استخدام ترکیه', 'فرصت های شغلی استانبول', 'کار در ترکیه برای ایرانیان', 'بازار کار ترکیه']
-          : (locale === 'ru'
-            ? ['работа в стамбуле', 'вакансии в турции', 'поиск работы в стамбуле', 'работа для русских', 'разрешение на работу в турции']
-            : ['jobs in istanbul', 'istanbul vacancies', 'work in turkey', 'employment istanbul', 'turkey job listings']))),
+          : (locale === 'ur'
+            ? ['استنبول میں نوکریاں', 'ترکی میں روزگار', 'استنبول جاب بورڈ', 'نوکریاں ترکی', 'ملازمت ترکی']
+            : (locale === 'ru'
+              ? ['работа в стамбуле', 'вакансии в турции', 'поиск работы в стамбуле', 'работа для русских', 'разрешение на работу в турции']
+              : ['jobs in istanbul', 'istanbul vacancies', 'work in turkey', 'employment istanbul', 'turkey job listings'])))),
     seoDescription: pageDescription.substring(0, 150).replace(/<[^>]*>/g, '').trim(),
     correctedTitle: pageTitle,
     correctedDesc: pageDescription,
@@ -154,10 +162,12 @@ Return ONLY a valid JSON object matching the following structure. Do not wrap it
     title_tr: pageTitle,
     title_ru: pageTitle,
     title_fa: pageTitle,
+    title_ur: pageTitle,
     description_ar: fallbackDescHtml,
     description_en: fallbackDescHtml,
     description_tr: fallbackDescHtml,
     description_ru: fallbackDescHtml,
-    description_fa: fallbackDescHtml
+    description_fa: fallbackDescHtml,
+    description_ur: fallbackDescHtml
   };
 }

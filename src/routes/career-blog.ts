@@ -1770,8 +1770,8 @@ function extractFirstImage(content: string): string {
 }
 
 // Helper to get reading time
-function getReadingTime(content: string, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa'): string {
-  if (!content) return locale === 'ar' || locale === 'fa' ? '1 دقیقه مطالعه' : (locale === 'tr' ? '1 dk okuma' : '1 min read');
+function getReadingTime(content: string, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur'): string {
+  if (!content) return locale === 'ar' || locale === 'fa' || locale === 'ur' ? '1 منٹ مطالعہ' : (locale === 'tr' ? '1 dk okuma' : '1 min read');
   const wordsCount = content.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length;
   const min = Math.max(1, Math.round(wordsCount / 200));
   return {
@@ -1779,13 +1779,14 @@ function getReadingTime(content: string, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa
     en: min + ' min read',
     tr: min + ' dk okuma',
     ru: min + ' мин чтения',
-    fa: min + ' دقیقه مطالعه'
+    fa: min + ' دقیقه مطالعه',
+    ur: min + ' منٹ مطالعہ'
   }[locale];
 }
 
 // Helper to get category
-function getCategory(slug: string, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa'): { name: string; color: string } {
-  const maps: Record<string, Partial<Record<'ar' | 'en' | 'tr' | 'ru' | 'fa', string>>> = {
+function getCategory(slug: string, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur'): { name: string; color: string } {
+  const maps: Record<string, Partial<Record<'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur', string>>> = {
     'sgk-health-insurance-turkey-workers': {
       ar: 'الضمان الاجتماعي',
       en: 'Social Security',
@@ -1858,7 +1859,8 @@ function getCategory(slug: string, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa'): { 
     ar: 'إرشاد مهني',
     en: 'Career Guide',
     tr: 'Kariyer Rehberi',
-    fa: 'راهنمای شغلی'
+    fa: 'راهنمای شغلی',
+    ur: 'کیریئر گائیڈ'
   };
 
   const colors: Record<string, string> = {
@@ -1883,8 +1885,8 @@ function getCategory(slug: string, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa'): { 
 
 // Blog List View
 careerBlogRouter.get('/:locale/blog', async (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/blog');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa' && locale !== 'ur') return c.redirect('/ar/blog');
 
   const db = (c.env as any).DB;
   let articles: any[] = seededArticles[locale] || [];
@@ -1946,6 +1948,13 @@ careerBlogRouter.get('/:locale/blog', async (c) => {
       readMore: 'ادامه مطلب ←',
       pubDate: 'تاریخ انتشار:',
       featured: 'مطلب ویژه'
+    },
+    ur: {
+      title: 'کیریئر اور روزگار بلاگ - استنبول',
+      subtitle: 'استنبول میں ملازمت تلاش کرنے، ورک پرمٹ اور زندگی کے بارے میں مفید رہنمائی۔',
+      readMore: 'مزید پڑھیں ←',
+      pubDate: 'تاریخ اشاعت:',
+      featured: 'نمایاں مضمون'
     }
   }[locale];
 
@@ -2154,6 +2163,17 @@ careerBlogRouter.get('/:locale/blog', async (c) => {
         { title: 'کارشناس پشتیبانی مشتریان (فارسی‌زبان)', company: 'Teleperformance', type: 'تمام وقت | دورکاری', salary: 'حقوق ثابت + پاداش' },
         { title: 'طراح ارشد رابط کاربری (UI/UX)', company: 'Trendyol', type: 'تمام وقت | حضوری', salary: 'مزایای کامل رفاهی' }
       ]
+    },
+    ur: {
+      sectionTitle: 'استنبول میں اردو بولنے والوں کے لیے موزوں ملازمتیں',
+      badge: 'سرگرم آسامیاں',
+      browseAll: 'تمام نوکریاں دیکھیں',
+      apply: 'درخواست دیں',
+      roles: [
+        { title: 'برنامه‌نویس ارشد Node.js', company: 'Insider', type: 'تمام وقت | ہائبرڈ', salary: 'پرکشش تنخواہ' },
+        { title: 'کسٹمر سپورٹ نمائندہ (اردو بولنے والا)', company: 'Teleperformance', type: 'تمام وقت | ریموٹ', salary: 'تنخواہ + بونس' },
+        { title: 'UI/UX پروڈکٹ ڈیزائنر', company: 'Trendyol', type: 'تمام وقت | آن سائٹ', salary: 'مکمل مراعات' }
+      ]
     }
   }[locale];
 
@@ -2293,9 +2313,9 @@ careerBlogRouter.get('/:locale/blog', async (c) => {
 
 // Blog Detail View
 careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
   const slug = c.req.param('slug');
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/blog');
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa' && locale !== 'ur') return c.redirect('/ar/blog');
 
   const db = (c.env as any).DB;
   let article = (seededArticles[locale] || []).find((art: any) => art.slug === slug);
@@ -2388,6 +2408,13 @@ careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
       copySuccess: 'لینک مقاله با موفقیت کپی شد!',
       suggested: 'مقالات پیشنهادی دیگر که ممکن است بپسندید',
       readMore: 'ادامه مطلب ←'
+    },
+    ur: {
+      back: '← بلاگ پر واپس جائیں',
+      share: 'مضمون شیئر کریں:',
+      copySuccess: 'لنک کامیابی سے کاپی ہو گیا ہے!',
+      suggested: 'دیگر تجویز کردہ مضامین جو آپ کو پسند آ سکتے ہیں',
+      readMore: 'مزید پڑھیں ←'
     }
   }[locale];
 
@@ -2585,6 +2612,12 @@ careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
       btnRegister: 'Загрузить резюме',
     },
     fa: {
+      title: 'Вы ищете работу в Турции?',
+      desc: 'Зарегистрируйтесь на Стамбульском портале вакансий и получайте уведомления о новых возможностях, как только они будут опубликованы.',
+      btnSearch: 'Посмотреть вакансии',
+      btnRegister: 'Загрузить резюме',
+    },
+    ur: {
       title: 'Вы ищете работу в Турции?',
       desc: 'Зарегистрируйтесь на Стамбульском портале вакансий и получайте уведомления о новых возможностях, как только они будут опубликованы.',
       btnSearch: 'Посмотреть вакансии',

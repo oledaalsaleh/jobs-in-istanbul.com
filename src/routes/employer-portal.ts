@@ -10,8 +10,8 @@ const COOKIE_NAME = 'employer_jwt';
 
 // Employer Login Page
 employerPortalRouter.get('/:locale/employer/login', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/employer/login');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa' && locale !== 'ur') return c.redirect('/ar/employer/login');
 
   const t = {
     ar: {
@@ -63,6 +63,16 @@ employerPortalRouter.get('/:locale/employer/login', (c) => {
       loading: 'در حال ارسال لینک... ⏳',
       successMsg: 'لینک ورود جادویی با موفقیت ارسال شد! لطفاً ایمیل خود را بررسی کنید.',
       devLinkNotice: '🔧 در محیط توسعه، می‌توانید مستقیماً با کلیک بر روی لینک زیر وارد شوید:'
+    },
+    ur: {
+      title: 'آجر (Employer) لاگ ان پورٹل',
+      subtitle: 'اپنی کمپنی کا آفیشل ای میل درج کریں تاکہ نوکریوں اور امیدواروں کے انتظام کے لیے میجک لنک حاصل ہو سکے۔',
+      emailLabel: 'آفیشل کمپنی ای میل',
+      emailPlh: 'company@example.com',
+      submitBtn: 'لاگ ان میجک لنک بھیجیں 🚀',
+      loading: 'لنک بھیجا جا رہا ہے... ⏳',
+      successMsg: 'لاگ ان لنک کامیابی سے بھیج دیا گیا ہے! اپنا ای میل چیک کریں۔',
+      devLinkNotice: '🔧 ڈویلپمنٹ موڈ: آپ براہِ راست لاگ ان کرنے کے لیے نیچے کلک کر سکتے ہیں:'
     }
   }[locale];
 
@@ -182,7 +192,7 @@ employerPortalRouter.post('/api/employer/request-magic', rateLimiter(3, 10), asy
 employerPortalRouter.get('/employer/verify', async (c) => {
   const env: any = c.env;
   const token = c.req.query('token');
-  const locale = (c.req.query('locale') || 'ar') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
+  const locale = (c.req.query('locale') || 'ar') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
 
   if (!token) {
     return c.text('Verification token is missing.', 400);
@@ -225,8 +235,8 @@ employerPortalRouter.get('/employer/logout', (c) => {
 
 // Pricing Mock Packages page
 employerPortalRouter.get('/:locale/employer/pricing', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/employer/pricing');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa' && locale !== 'ur') return c.redirect('/ar/employer/pricing');
 
   const t = {
     ar: {
@@ -298,6 +308,20 @@ employerPortalRouter.get('/:locale/employer/pricing', (c) => {
       sandboxTitle: 'شبیه‌ساز پرداخت (محیط تست)',
       sandboxDesc: 'یک شبیه‌سازی پرداخت سریع برای ارتقای آنی حساب کاربری و فعال‌سازی قابلیت‌های کارفرمای حرفه‌ای است.',
       sandboxSuccess: 'حساب کاربری شما با موفقیت ارتقا یافت! اکنون می‌توانید بدون محدودیت آگهی استخدام ثبت کنید و از سیستم ATS استفاده کنید.'
+    },
+    ur: {
+      title: 'آجروں کے لیے سبسکرپشن پیکجز',
+      subtitle: 'بہترین امیدواروں اور اے ٹی ایس ٹولز تک رسائی کے لیے مناسب ترین پلان منتخب کریں۔',
+      planFree: 'بنیادی مفت پلان',
+      planPro: 'پیشہ ورانہ (Pro) پلان',
+      planEnterprise: 'کارپوریٹ (Enterprise) پلان',
+      priceFree: 'مفت',
+      pricePro: '$99 / ماہانہ',
+      priceEnterprise: '$249 / ماہانہ',
+      btnSelect: 'پلان منتخب کریں 💳',
+      sandboxTitle: 'پیمنٹ سمیلیٹر (ٹیسٹ موڈ)',
+      sandboxDesc: 'فوری اکاؤنٹ اپ گریڈ اور اے ٹی ایس پریمیم فیچرز ایکٹیویٹ کرنے کے لیے ٹیسٹ پیمنٹ کریں۔',
+      sandboxSuccess: 'آپ کا اکاؤنٹ کامیابی سے اپ گریڈ کر دیا گیا ہے! اب آپ لامحدود نوکریاں پوسٹ کر سکتے ہیں۔'
     }
   }[locale];
 
@@ -395,8 +419,8 @@ employerPortalRouter.get('/:locale/employer/pricing', (c) => {
 employerPortalRouter.get('/:locale/employer/dashboard', async (c) => {
   const env: any = c.env;
   const db = env.DB;
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/employer/dashboard');;
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa' && locale !== 'ur') return c.redirect('/ar/employer/dashboard');;
 
   const cookieVal = getCookie(c, COOKIE_NAME);
   if (!cookieVal) {
@@ -572,6 +596,44 @@ employerPortalRouter.get('/:locale/employer/dashboard', async (c) => {
       statusReviewed: 'در حال بررسی',
       statusShortlisted: 'در لیست کوتاه (مصاحبه)',
       statusRejected: 'رد شده'
+    },
+    ur: {
+      title: 'مالکِ ملازم کا ڈیش بورڈ - استنبول جاب بورڈ',
+      welcome: `خوش آمدید، ${employerEmail}`,
+      logout: 'لاگ آؤٹ',
+      postJobTitle: 'نیا اشتہار پوسٹ کریں',
+      activeJobsTitle: 'آپ کی فعال ملازمتیں',
+      noJobs: 'آپ نے ابھی تک کوئی نوکری پوسٹ نہیں کی۔',
+      tblJob: 'ملازمت کا عنوان',
+      tblApplicants: 'امیدوار',
+      viewApplicants: 'امیدوار دیکھیں ({count}) 👥',
+      applicantsFor: 'امیدوار برائے: {job}',
+      noApplicants: 'اس نوکری کے لیے ابھی تک کوئی درخواست موصول نہیں ہوئی۔',
+      tblCandidate: 'امیدوار',
+      tblMatchScore: 'سی وی مطابقت (ATS)',
+      downloadCV: 'سی وی ڈاؤن لوڈ کریں',
+      playVideo: 'تعارفی ویڈیو',
+      postBtn: 'ملازمت شائع کریں 🚀',
+      aiGenBtn: 'اے آئی کے ذریعے تفصیل تیار کریں 🤖',
+      quizPlaceholder: 'مثال:\n1. کیا آپ React میں مہارت رکھتے ہیں؟ [جی ہاں/جی نہیں]\n2. آپ کا کتنا تجربہ ہے؟ [۱-۳ سال/۴+ سال]',
+      pricingLink: 'اکاؤنٹ اپ گریڈ اور پلانز 👑',
+      lblTitleEn: 'نوکری کا عنوان (انگریزی)',
+      lblTitleAr: 'نوکری کا عنوان (عربی/اردو)',
+      lblCompany: 'کمپنی کا نام',
+      lblCategory: 'ملازمت کا شعبہ',
+      lblDistrict: 'استنبول کا ضلع (مثال: Şişli)',
+      lblTransit: 'قریبی ٹرانزیت لائن (میٹرو/میٹربس)',
+      lblJobType: 'ملازمت کی قسم',
+      lblLanguage: 'مطلوبہ زبانیں',
+      lblDesc: 'ملازمت کی تفصیل اور شرائط (HTML فارمیٹ قابلِ قبول ہے)',
+      lblQuizHeader: 'امیدواروں کے لیے اسکریننگ ٹیسٹ سوالات',
+      genQuizBtn: 'اے آئی کے ذریعے خودکار سوالات تیار کریں 🤖',
+      modalVideoTitle: 'امیدوار کی ویڈیو 🎥',
+      transitNone: 'کوئی نہیں',
+      statusApplied: 'موصول شدہ',
+      statusReviewed: 'زیرِ نظر',
+      statusShortlisted: 'منتخب کردہ',
+      statusRejected: 'مسترد شدہ'
     }
   }[locale];
 

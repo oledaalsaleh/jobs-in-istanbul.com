@@ -62,8 +62,8 @@ publicRouter.get('/css/theme.css', (c) => {
 })
 
 // Base layout helper
-export function renderLayout(c: any, title: string, contentHtml: string, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa', seoHtml: string = '') {
-  const isRtl = locale === 'ar' || locale === 'fa';
+export function renderLayout(c: any, title: string, contentHtml: string, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur', seoHtml: string = '') {
+  const isRtl = locale === 'ar' || locale === 'fa' || locale === 'ur';
 
   const translations = {
     ar: {
@@ -275,6 +275,48 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       joinTelegram: 'عضویت در کانال تلگرام ما',
       mobileJoinTelegram: 'کانال تلگرام ما',
       installApp: 'نصب اپلیکیشن موبایل'
+    },
+    ur: {
+      siteName: 'استنبول میں ملازمتیں',
+      tagline: 'استنبول میں بہترین ملازمتیں',
+      findJob: 'ملازمت تلاش کریں',
+      postJob: 'ملازمت کا اشتہار دیں',
+      allJobs: 'تمام ملازمتیں',
+      about: 'ہمارے بارے میں',
+      contact: 'ہم سے رابطہ کریں',
+      copyright: '© ۲۰۲۶ استنبول میں ملازمتیں. جملہ حقوق محفوظ ہیں۔',
+      langLabel: 'اردو',
+      home: 'ہوم',
+      aiTools: 'مصنوعی ذہانت (AI) ٹولز',
+      cvOptimizer: 'اے آئی سی وی آپٹیمائزر',
+      atsScanner: 'اے آئی سی وی اے ٹی ایس اسکینر',
+      coverLetter: 'اے آئی کور لیٹر جنریٹر',
+      interviewPrep: 'اے آئی انٹرویو سمیلیٹر',
+      toolsAndTests: 'ٹولز اور ٹیسٹ',
+      cvBuilder: 'انٹرایکٹو سی وی میکر',
+      workPermit: 'ورک پرمٹ اور شہریت کاؤنٹر',
+      salaryCalc: 'استنبول تنخواہ انڈیکس ۲۰۲۶',
+      turkishTest: 'کاروباری ترکی زبان کا ٹیسٹ',
+      workplaceQuiz: 'ترکی کام کے ماحول کا کوئز',
+      currencyPrices: 'ترکی میں کرنسی کی قیمتیں',
+      goldPrices: 'ترکی میں سونے کی قیمتیں',
+      insights: 'مارکیٹ کے اعداد و شمار',
+      blog: 'کیریئر بلاگ',
+      candidatePortal: 'امیدوار کا پورٹل',
+      employerPortal: 'مالکِ ملازم کا پورٹل',
+      savedJobs: 'پسندیدہ ملازمتیں',
+      darkMode: 'ڈارک موڈ',
+      telegram: 'ٹیلی گرام',
+      platform: 'پلیٹ فارم',
+      smartTools: 'اسمارٹ ٹولز',
+      legal: 'قانونی معلومات',
+      privacy: 'رازداری کی پالیسی',
+      terms: 'شرایط و ضوابط',
+      realOpportunities: 'حقیقی مواقع',
+      footerTagline: 'بین الاقوامی اور اردو بولنے والے ہنرمندوں کو استنبول میں بہترین ملازمتوں سے جوڑنے والا سب سے بڑا پلیٹ فارم۔',
+      joinTelegram: 'ہمارے ٹیلی گرام چینل میں شامل ہوں',
+      mobileJoinTelegram: 'ٹیلی گرام چینل',
+      installApp: 'موبائل ایپ انسٹال کریں'
     }
   };
 
@@ -284,9 +326,9 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
 
   const getLangUrl = (path: string, targetLocale: string) => {
     let cleanPath = path;
-    if (path.startsWith('/ar/') || path.startsWith('/en/') || path.startsWith('/tr/') || path.startsWith('/ru/') || path.startsWith('/fa/')) {
+    if (path.startsWith('/ar/') || path.startsWith('/en/') || path.startsWith('/tr/') || path.startsWith('/ru/') || path.startsWith('/fa/') || path.startsWith('/ur/')) {
       cleanPath = path.substring(3);
-    } else if (path === '/ar' || path === '/en' || path === '/tr' || path === '/ru' || path === '/fa') {
+    } else if (path === '/ar' || path === '/en' || path === '/tr' || path === '/ru' || path === '/fa' || path === '/ur') {
       cleanPath = '';
     }
     if (cleanPath && !cleanPath.startsWith('/')) {
@@ -513,8 +555,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         <!-- Desktop Language Dropdown -->
         <div class="nav-dropdown">
           <a href="#" class="lang-btn" onclick="event.preventDefault()">
-            <img src="${locale === 'ar' ? 'https://flagcdn.com/w20/sa.png' : (locale === 'tr' ? 'https://flagcdn.com/w20/tr.png' : (locale === 'ru' ? 'https://flagcdn.com/w20/ru.png' : (locale === 'fa' ? 'https://flagcdn.com/w20/ir.png' : 'https://flagcdn.com/w20/gb.png')))}" alt="${locale}" style="width: 18px; height: 13px; border-radius: 1px; object-fit: cover;">
-            <span>${locale === 'ar' ? 'العربية' : (locale === 'tr' ? 'Türkçe' : (locale === 'ru' ? 'Русский' : (locale === 'fa' ? 'فارسی' : 'English')))}</span>
+            <img src="${locale === 'ar' ? 'https://flagcdn.com/w20/sa.png' : (locale === 'tr' ? 'https://flagcdn.com/w20/tr.png' : (locale === 'ru' ? 'https://flagcdn.com/w20/ru.png' : (locale === 'fa' ? 'https://flagcdn.com/w20/ir.png' : (locale === 'ur' ? 'https://flagcdn.com/w20/pk.png' : 'https://flagcdn.com/w20/gb.png'))))}" alt="${locale}" style="width: 18px; height: 13px; border-radius: 1px; object-fit: cover;">
+            <span>${locale === 'ar' ? 'العربية' : (locale === 'tr' ? 'Türkçe' : (locale === 'ru' ? 'Русский' : (locale === 'fa' ? 'فارسی' : (locale === 'ur' ? 'اردو' : 'English'))))}</span>
             <i class="fa-solid fa-chevron-down" style="font-size: 0.65rem; opacity: 0.7;"></i>
           </a>
           <div class="nav-dropdown-menu" style="min-width: 140px; padding: 6px 0; ${isRtl ? 'right: auto; left: 50%; transform: translateX(-50%);' : 'left: auto; right: 50%; transform: translateX(50%);'}">
@@ -537,6 +579,10 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
             <a href="${getLangUrl(requestPath, 'fa')}" class="dropdown-item" style="gap: 8px; justify-content: flex-start;">
               <img src="https://flagcdn.com/w20/ir.png" alt="فارسی" style="width: 18px; height: 13px; border-radius: 1px;">
               <span>فارسی</span>
+            </a>
+            <a href="${getLangUrl(requestPath, 'ur')}" class="dropdown-item" style="gap: 8px; justify-content: flex-start;">
+              <img src="https://flagcdn.com/w20/pk.png" alt="اردو" style="width: 18px; height: 13px; border-radius: 1px;">
+              <span>اردو</span>
             </a>
           </div>
         </div>
@@ -620,6 +666,10 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
               <img src="https://flagcdn.com/w20/ir.png" alt="فارسی" style="width: 18px; height: 13px; border-radius: 1px;">
               <span>فارسی</span>
             </a>
+            <a href="${getLangUrl(requestPath, 'ur')}" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px 8px; border-radius:var(--r-md); border:1.5px solid ${locale === 'ur' ? 'var(--primary)' : 'var(--border)'}; background: ${locale === 'ur' ? 'var(--primary-light)' : 'transparent'}; color:${locale === 'ur' ? 'var(--primary)' : 'var(--text-body)'}; font-size:0.8rem; font-weight:700; transition:var(--t-base); text-decoration:none;">
+              <img src="https://flagcdn.com/w20/pk.png" alt="اردو" style="width: 18px; height: 13px; border-radius: 1px;">
+              <span>اردو</span>
+            </a>
           </div>
         </div>
       </nav>
@@ -690,6 +740,18 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         <span style="opacity:.3; font-size:.82rem;">|</span>
         <a href="${getLangUrl(requestPath, 'en')}" style="opacity:.6; font-size:.82rem; display:flex; align-items:center; gap:6px; text-decoration:none; color:inherit;">
           <img src="https://flagcdn.com/w20/gb.png" alt="English" style="width: 16px; height: 11px; border-radius: 1px;"> English
+        </a>
+        <span style="opacity:.3; font-size:.82rem;">|</span>
+        <a href="${getLangUrl(requestPath, 'ru')}" style="opacity:.6; font-size:.82rem; display:flex; align-items:center; gap:6px; text-decoration:none; color:inherit;">
+          <img src="https://flagcdn.com/w20/ru.png" alt="Русский" style="width: 16px; height: 11px; border-radius: 1px;"> Русский
+        </a>
+        <span style="opacity:.3; font-size:.82rem;">|</span>
+        <a href="${getLangUrl(requestPath, 'fa')}" style="opacity:.6; font-size:.82rem; display:flex; align-items:center; gap:6px; text-decoration:none; color:inherit;">
+          <img src="https://flagcdn.com/w20/ir.png" alt="فارسی" style="width: 16px; height: 11px; border-radius: 1px;"> فارسی
+        </a>
+        <span style="opacity:.3; font-size:.82rem;">|</span>
+        <a href="${getLangUrl(requestPath, 'ur')}" style="opacity:.6; font-size:.82rem; display:flex; align-items:center; gap:6px; text-decoration:none; color:inherit;">
+          <img src="https://flagcdn.com/w20/pk.png" alt="اردو" style="width: 16px; height: 11px; border-radius: 1px;"> اردو
         </a>
       </div>
     </div>
@@ -1113,7 +1175,7 @@ publicRouter.get('/', (c) => {
 })
 
 // Homepage for listing jobs
-const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa') => {
+const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur') => {
   const db = c.env.DB;
 
   // Get query parameters
@@ -1306,12 +1368,29 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa') => 
       featuredBadge: 'ویژه',
       applyBtn: 'ثبت درخواست و ارسال رزومه',
       noJobs: 'هیچ شغلی مطابق با فیلترهای جستجوی شما پیدا نشد.'
+    },
+    ur: {
+      heroTitle: 'استنبول میں اپنے کیریئر کا مستقبل تلاش کریں',
+      heroSubtitle: 'اردو بولنے والوں اور بین الاقوامی امیدواروں کے لیے استنبول کے بہترین علاقوں میں ملازمت کے مواقع',
+      searchPlh: 'ملازمت کا عنوان، مہارت یا کلیدی الفاظ...',
+      locPlh: 'تمام اضلاع',
+      allCats: 'تمام کیٹیگریز',
+      filterTitle: 'نتائج فلٹر کریں',
+      jobType: 'ملازمت کی قسم',
+      fullTime: 'فل ٹائم',
+      partTime: 'پارٹ ٹائم',
+      remote: 'ریموٹ (دور سے کام)',
+      internship: 'انٹرنشپ',
+      resultsCount: `کل ${jobs.length} فعال ملازمتیں ملیں`,
+      featuredBadge: 'نمایاں',
+      applyBtn: 'درخواست دیں اور سی وی بھیجیں',
+      noJobs: 'آپ کے فلٹرز کے مطابق کوئی ملازمت نہیں ملی۔'
     }
   }[locale];
 
   // Render Categories HTML
   const categoriesHtml = categories.map((cat: any) => {
-    const name = locale === 'ar' ? cat.name_ar : (locale === 'tr' ? (cat.name_tr || cat.name_en) : (locale === 'fa' ? (cat.name_fa || cat.name_en) : (locale === 'ru' ? (cat.name_ru || cat.name_en) : cat.name_en)));
+    const name = locale === 'ar' ? cat.name_ar : (locale === 'tr' ? (cat.name_tr || cat.name_en) : (locale === 'fa' ? (cat.name_fa || cat.name_en) : (locale === 'ur' ? (cat.name_ur || cat.name_en) : (locale === 'ru' ? (cat.name_ru || cat.name_en) : cat.name_en))));
     const activeClass = queryCategory === cat.id ? 'active' : '';
     return `<a href="/${locale}?category=${cat.id}" class="category-card ${activeClass}">
       <div class="cat-emoji">${cat.icon || '💼'}</div>
@@ -1320,12 +1399,12 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa') => 
   }).join('');
 
   const activeCategoryObj = categories.find((c: any) => c.id === queryCategory || c.slug === queryCategory);
-  const activeCategoryName = activeCategoryObj ? (locale === 'ar' ? activeCategoryObj.name_ar : (locale === 'tr' ? (activeCategoryObj.name_tr || activeCategoryObj.name_en) : (locale === 'fa' ? (activeCategoryObj.name_fa || activeCategoryObj.name_en) : (locale === 'ru' ? (activeCategoryObj.name_ru || activeCategoryObj.name_en) : activeCategoryObj.name_en)))) : '';
+  const activeCategoryName = activeCategoryObj ? (locale === 'ar' ? activeCategoryObj.name_ar : (locale === 'tr' ? (activeCategoryObj.name_tr || activeCategoryObj.name_en) : (locale === 'fa' ? (activeCategoryObj.name_fa || activeCategoryObj.name_en) : (locale === 'ur' ? (activeCategoryObj.name_ur || activeCategoryObj.name_en) : (locale === 'ru' ? (activeCategoryObj.name_ru || activeCategoryObj.name_en) : activeCategoryObj.name_en))))) : '';
 
   // Render Jobs HTML
   const jobsHtml = jobs.length > 0 ? jobs.map((job: any) => {
-    const title = locale === 'ar' ? job.title_ar : (locale === 'tr' ? (job.title_tr || job.title_en) : (locale === 'fa' ? (job.title_fa || job.title_en) : (locale === 'ru' ? (job.title_ru || job.title_en) : job.title_en)));
-    const location = locale === 'ar' ? job.location_ar : (locale === 'tr' ? (job.location_tr || job.location_en) : (locale === 'fa' ? (job.location_fa || job.location_en) : (locale === 'ru' ? (job.location_ru || job.location_en) : job.location_en)));
+    const title = locale === 'ar' ? job.title_ar : (locale === 'tr' ? (job.title_tr || job.title_en) : (locale === 'fa' ? (job.title_fa || job.title_en) : (locale === 'ur' ? (job.title_ur || job.title_en) : (locale === 'ru' ? (job.title_ru || job.title_en) : job.title_en))));
+    const location = locale === 'ar' ? job.location_ar : (locale === 'tr' ? (job.location_tr || job.location_en) : (locale === 'fa' ? (job.location_fa || job.location_en) : (locale === 'ur' ? (job.location_ur || job.location_en) : (locale === 'ru' ? (job.location_ru || job.location_en) : job.location_en))));
     const typeKey = job.jobType === 'full-time' ? 'fullTime' : job.jobType === 'part-time' ? 'partTime' : job.jobType === 'remote' ? 'remote' : 'internship';
     const typeLabel = t[typeKey];
     const isRemote = job.jobType === 'remote';
@@ -1779,16 +1858,22 @@ publicRouter.get(
   (c) => homeHandler(c, 'fa')
 )
 
+publicRouter.get(
+  '/ur',
+  cache({ cacheName: 'istanbul-jobs-ur', cacheControl: 'max-age=60' }),
+  (c) => homeHandler(c, 'ur')
+)
+
 // Detail view for a job
 publicRouter.get(
   '/:locale/jobs/:slug',
   cache({ cacheName: 'istanbul-job-details', cacheControl: 'max-age=300' }),
   async (c) => {
-    const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
+    const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
     const slug = c.req.param('slug');
     const db = (c.env as any).DB;
 
-    if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') {
+    if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa' && locale !== 'ur') {
       return c.redirect('/ar');
     }
 
@@ -1982,6 +2067,21 @@ publicRouter.get(
         remote: 'دورکاری',
         internship: 'کارآموزی',
         featured: 'آگهی ویژه استخدام'
+      },
+      ur: {
+        jobType: 'ملازمت کی قسم',
+        location: 'مقام',
+        published: 'تاریخ اشاعت',
+        salary: 'پیشکش کردہ تنخواہ',
+        applyNow: 'ابھی درخواست دیں',
+        companyDetails: 'کمپنی کے بارے میں',
+        requirements: 'ملازمت کی تفصیلات اور شرائط',
+        backToList: '← ملازمتوں کی فہرست میں واپس جائیں',
+        fullTime: 'فل ٹائم',
+        partTime: 'پارٹ ٹائم',
+        remote: 'ریموٹ',
+        internship: 'انٹرنشپ',
+        featured: 'نمایاں ملازمت'
       }
     }[locale];
 
@@ -1999,8 +2099,8 @@ publicRouter.get(
         </h2>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
           ${relatedJobs.map((relJob: any) => {
-      const relTitle = locale === 'ar' ? relJob.title_ar : (locale === 'tr' ? (relJob.title_tr || relJob.title_en) : (locale === 'fa' ? (relJob.title_fa || relJob.title_en) : (locale === 'ru' ? (relJob.title_ru || relJob.title_en) : relJob.title_en)));
-      const relLocation = locale === 'ar' ? relJob.location_ar : (locale === 'tr' ? (relJob.location_tr || relJob.location_en) : (locale === 'fa' ? (relJob.location_fa || relJob.location_en) : (locale === 'ru' ? (relJob.location_ru || relJob.location_en) : relJob.location_en)));
+      const relTitle = locale === 'ar' ? relJob.title_ar : (locale === 'tr' ? (relJob.title_tr || relJob.title_en) : (locale === 'fa' ? (relJob.title_fa || relJob.title_en) : (locale === 'ur' ? (relJob.title_ur || relJob.title_en) : (locale === 'ru' ? (relJob.title_ru || relJob.title_en) : relJob.title_en))));
+      const relLocation = locale === 'ar' ? relJob.location_ar : (locale === 'tr' ? (relJob.location_tr || relJob.location_en) : (locale === 'fa' ? (relJob.location_fa || relJob.location_en) : (locale === 'ur' ? (relJob.location_ur || relJob.location_en) : (locale === 'ru' ? (relJob.location_ru || relJob.location_en) : relJob.location_en))));
       const relCompany = relatedCompanies[relJob.company] || { name: relJob.company || 'Company' };
       const typeKey = relJob.jobType === 'full-time' ? 'fullTime' : relJob.jobType === 'part-time' ? 'partTime' : relJob.jobType === 'remote' ? 'remote' : 'internship';
       const relTypeLabel = translations[typeKey] || relJob.jobType;
@@ -2397,9 +2497,9 @@ publicRouter.get(
 
 // Submit Job Page
 publicRouter.get('/:locale/submit-job', async (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
 
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') {
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa' && locale !== 'ur') {
     return c.redirect('/ar/submit-job');
   }
 
@@ -2498,6 +2598,22 @@ publicRouter.get('/:locale/submit-job', async (c) => {
       desc: 'شرح وظایف و شرایط احراز شغل به صورت کامل',
       submit: 'انتشار فوری آگهی استخدام',
       successMsg: 'آگهی استخدام شما با موفقیت ثبت شد و بلافاصله در سایت به نمایش درآمد!'
+    },
+    ur: {
+      title: 'ملازمت کا اشتہار پوسٹ کریں',
+      subtitle: 'اپنی کمپنی میں خالی اسامی کا اشتہار دیں اور استنبول میں ہزاروں ہنرمندوں تک پہنچیں',
+      jobTitle: 'ملازمت کا عنوان',
+      compName: 'کمپنی کا نام',
+      category: 'ملازمت کا شعبہ (کیٹیگری)',
+      jobType: 'ملازمت کی قسم',
+      location: 'استنبول میں ضلع / مقام',
+      salary: 'پیشکش کردہ تنخواہ (اختیاری)',
+      applyEmail: 'درخواستیں وصول کرنے کا ای میل',
+      phone: 'رابطہ نمبر (اختیاری)',
+      seoKeywords: 'ایس ای او کلیدی الفاظ (اختیاری - کوما سے الگ کریں)',
+      desc: 'ملازمت کی مکمل تفصیل اور شرائط',
+      submit: 'اشتہار فوری شائع کریں',
+      successMsg: 'آپ کی ملازمت کا اشتہار کامیابی سے پوسٹ کر دیا گیا ہے اور اب یہ سائٹ پر لائیو ہے!'
     }
   }[locale];
 
@@ -3053,8 +3169,8 @@ publicRouter.get('/admin-api/backfill-images', async (c) => {
 
 // About Us Page
 publicRouter.get('/:locale/about', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/about');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa' && locale !== 'ur') return c.redirect('/ar/about');
 
   const t = {
     ar: {
@@ -3161,6 +3277,27 @@ publicRouter.get('/:locale/about', (c) => {
       stat2Lbl: 'کارجوی ماهانه',
       stat3Val: '100%',
       stat3Lbl: 'آگهی‌های تایید شده'
+    },
+    ur: {
+      title: 'ہمارے بارے میں - استنبول میں ملازمتیں',
+      heading: 'ہمارے بارے میں',
+      subtitle: 'استنبول میں ملازمت تلاش کرنے اور بھرتی کے اسمارٹ حل کا سب سے بڑا پلیٹ فارم',
+      missionTitle: 'ہمارا مشن اور مقصد',
+      missionText: 'ہم استنبول میں بین الاقوامی اور اردو بولنے والے ہنرمندوں اور بہترین کمپنیوں کے درمیان فرق کو ختم کرنے کے لیے کوشاں ہیں۔ ہمارا مقصد جدید ٹیکنالوجی اور مصنوعی ذہانت (AI) کے ذریعے ملازمت کی تلاش اور بھرتی کے عمل کو آسان اور قابلِ اعتماد بنانا ہے۔',
+      featureTitle: 'ہمارا پلیٹ فارم کیوں منتخب کریں؟',
+      feat1Title: 'اے آئی ٹولز 🤖',
+      feat1Desc: 'اپنے سی وی کو اپٹیمائز کریں، اے آئی کے ذریعے پروفیشنل کور لیٹر لکھیں اور انٹرویو کی مشق کریں۔',
+      feat2Title: 'فوری اشاعت ⚡',
+      feat2Desc: 'کاروباری اداروں کو اپنی اسامیاں سیکنڈوں میں پوسٹ کرنے اور ہزاروں امیدواروں تک پہنچنے کی سہولت فراہم کرتے ہیں۔',
+      feat3Title: 'شفافیت اور اعتماد 🤝',
+      feat3Desc: 'ہم اشتہارات کی تصدیق کرتے ہیں، تنخواہ کی شفافیت کی وکالت کرتے ہیں اور ایک محفوظ ماحول فراہم کرتے ہیں۔',
+      statsTitle: 'ہمارے اچیومنٹس',
+      stat1Val: '+۵۰۰',
+      stat1Lbl: 'فعال ملازمتیں',
+      stat2Val: '+۱۰ ہزار',
+      stat2Lbl: 'ماہانہ کارجو',
+      stat3Val: '100%',
+      stat3Lbl: 'تصدیق شدہ اشتہارات'
     }
   }[locale];
 
@@ -3218,8 +3355,8 @@ publicRouter.get('/:locale/about', (c) => {
 
 // Contact Us Page
 publicRouter.get('/:locale/contact', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/contact');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa' && locale !== 'ur') return c.redirect('/ar/contact');
 
   const t = {
     ar: {
@@ -3296,6 +3433,21 @@ publicRouter.get('/:locale/contact', (c) => {
       cardEmail: 'پشتیبانی ایمیلی',
       cardPhone: 'واتساپ و تلگرام',
       cardLoc: 'نشانی دفتر مرکزی'
+    },
+    ur: {
+      title: 'ہم سے رابطہ کریں - استنبول میں ملازمتیں',
+      heading: 'ہم سے رابطہ کریں',
+      subtitle: 'ہم آپ کی مدد کے لیے ہمیشہ تیار ہیں۔ کسی بھی سوال یا رہنمائی کے لیے ہم سے رابطہ کریں۔',
+      formTitle: 'ہمیں پیغام بھیجیں',
+      name: 'پورا نام',
+      email: 'ای میل ایڈریس',
+      subject: 'پیغام کا عنوان',
+      message: 'پیغام کا متن',
+      sendBtn: 'پیغام بھیجیں ✉️',
+      successMsg: 'آپ کا پیغام کامیابی سے موصول ہو گیا ہے! ہم جلد ہی آپ سے رابطہ کریں گے۔',
+      cardEmail: 'ای میل سپورٹ',
+      cardPhone: 'واٹس ایپ اور ٹیلی گرام',
+      cardLoc: 'مرکزی دفتر کا پتہ'
     }
   }[locale];
 
@@ -3409,8 +3561,8 @@ publicRouter.get('/:locale/contact', (c) => {
 
 // Privacy Policy Page
 publicRouter.get('/:locale/privacy', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/privacy');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa' && locale !== 'ur') return c.redirect('/ar/privacy');
 
   const t = {
     ar: {
@@ -3482,6 +3634,20 @@ publicRouter.get('/:locale/privacy', (c) => {
       sec3Text: 'ما اقدامات فنی و اداری قوی را برای محافظت از داده‌های شخصی شما مطابق با قانون حفاظت از داده‌های شخصی ترکیه (KVKK) و مقررات عمومی حفاظت از داده‌های اتحادیه اروپا (GDPR) اعمال می‌کنیم. ما هرگز داده‌های شما را نمی‌فروشیم.',
       sec4Title: '۴. حقوق شما بر داده‌ها',
       sec4Text: 'شما در هر زمان حق دسترسی، اصلاح، به‌روزرسانی یا درخواست حذف دائمی داده‌های شخصی خود را از سیستم‌های ما با تماس با تیم پشتیبانی دارید.'
+    },
+    ur: {
+      title: 'رازداری کی پالیسی - استنبول میں ملازمتیں',
+      heading: 'رازداری کی پالیسی',
+      lastUpdated: 'آخری اپ ڈیٹ: جون ۲۰۲۶',
+      intro: 'ہم آپ کے ذاتی ڈیٹا کی حفاظت کے لیے پرعزم ہیں۔ یہ دستاویز واضح کرتی ہے کہ ہم آپ کی معلومات کیسے جمع، استعمال اور محفوظ کرتے ہیں۔',
+      sec1Title: '۱. معلومات کا جمع کرنا',
+      sec1Text: 'ہم وہ ذاتی معلومات جمع کرتے ہیں جو آپ خود فراہم کرتے ہیں (جیسے نام، ای میل، فون، سی وی اور کور لیٹر)۔ اس کے علاوہ سائٹ کے استعمال کو بہتر بنانے کے لیے آئی پی ایڈریس اور کوکیز کا استعمال بھی کیا جاتا ہے۔',
+      sec2Title: '۲. معلومات کا استعمال',
+      sec2Text: 'ہم آپ کی معلومات کو ملازمت کی خدمات فراہم کرنے، رابطہ کرنے، اے آئی ٹولز کو بہتر بنانے اور پلیٹ فارم کی سیکیورٹی برقرار رکھنے کے لیے استعمال کرتے ہیں۔',
+      sec3Title: '۳. ڈیٹا کی حفاظت (KVKK / GDPR)',
+      sec3Text: 'ہم ترکی کے ڈیٹا پروٹیکشن قانون (KVKK) اور یورپی یونین کے قانون (GDPR) کے مطابق سخت سیکیورٹی اقدامات نافذ کرتے ہیں۔ ہم آپ کا ڈیٹا کسی تیسرے فریق کو فروخت نہیں کرتے۔',
+      sec4Title: '۴. آپ کے حقوق',
+      sec4Text: 'آپ کو کسی بھی وقت اپنے ذاتی ڈیٹا تک رسائی، اس میں ترمیم، اپ ڈیٹ یا اسے ہمارے سسٹمز سے مستقل طور پر حذف کروانے کا پورا حق حاصل ہے۔'
     }
   }[locale];
 
@@ -3520,8 +3686,8 @@ publicRouter.get('/:locale/privacy', (c) => {
 
 // Terms & Conditions Page
 publicRouter.get('/:locale/terms', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/terms');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa' && locale !== 'ur') return c.redirect('/ar/terms');
 
   const t = {
     ar: {
@@ -3593,6 +3759,20 @@ publicRouter.get('/:locale/terms', (c) => {
       sec3Text: 'ما صرفاً به عنوان یک بستر انتشار آگهی فعالیت می‌کنیم. ما در قراردادهای کاری بین کارفرما و کارجو دخالتی نداریم و هیچ نتیجه استخدامی را تضمین نمی‌کنیم.',
       sec4Title: '۴. تغییر شرایط',
       sec4Text: 'ما حق به‌روزرسانی و تغییر این شرایط را در هر زمان برای خود محفوظ می‌داریم. تغییرات بلافاصله پس از انتشار در این صفحه اعمال خواهند شد.'
+    },
+    ur: {
+      title: 'شرائط و ضوابط - استنبول میں ملازمتیں',
+      heading: 'شرائط و ضوابط',
+      lastUpdated: 'آخری اپ ڈیٹ: جون ۲۰۲۶',
+      intro: 'براہ کرم ہمارے پلیٹ فارم کو استعمال کرنے سے پہلے ان شرائط کو دھیان سے پڑھ لیں۔ سائٹ کا استعمال ان شرائط کی مکمل قبولیت کی علامت ہے۔',
+      sec1Title: '۱. شرائط کا نفاذ',
+      sec1Text: 'ہمارا پلیٹ فارم ملازمت کے اشتہارات اور کیریئر ٹولز فراہم کرتا ہے۔ آپ کا سائٹ کا استعمال ترکی کے قوانین اور اخلاقی حدود کے مطابق ہونا چاہیے۔',
+      sec2Title: '۲. ملازمت پوسٹ کرنے کے قوانین',
+      sec2Text: 'نوکری کا اشتہار دینے والے مالکان معلومات کی سچائی اور قانونی حیثیت کے ذمہ دار ہیں۔ جعلی اشتہارات یا امیدواروں سے پیسے مانگنا سخت ممنوع ہے۔',
+      sec3Title: '۳. ذمہ داری کی حد',
+      sec3Text: 'ہم صرف ایک اشتہاری پلیٹ فارم ہیں۔ ہم کمپنی اور ملازم کے درمیان کسی بھی معاہدے یا تنازع کے ذمہ دار نہیں ہیں اور نہ ہی ملازمت کی ضمانت دیتے ہیں۔',
+      sec4Title: '۴. شرائط میں تبدیلی',
+      sec4Text: 'ہم کسی بھی وقت ان شرائط کو تبدیل یا اپ ڈیٹ کرنے کا حق محفوظ رکھتے ہیں۔ تبدیلیاں اس صفحے پر پوسٹ ہوتے ہی لاگو ہوں گی۔'
     }
   }[locale];
 
@@ -3631,8 +3811,8 @@ publicRouter.get('/:locale/terms', (c) => {
 
 // PWA Install Landing Page
 publicRouter.get('/:locale/install', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/install');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa' && locale !== 'ur') return c.redirect('/ar/install');
 
   const isRtl = locale === 'ar';
 
@@ -3741,6 +3921,27 @@ publicRouter.get('/:locale/install', (c) => {
       androidStep2: 'بر روی اعلان پاپ‌آپ <strong>"نصب اپلیکیشن"</strong> کلیک کنید.',
       androidStep3: 'یا دکمه سه نقطه بالا را لمس کرده و گزینه <strong>"نصب اپلیکیشن" (Install App)</strong> را انتخاب کنید.',
       btnText: 'انتقال به صفحه اصلی و نصب'
+    },
+    ur: {
+      title: 'ملازمت ایپ انسٹال کریں - استنبول میں ملازمتیں',
+      description: 'اینڈرائیڈ اور آئی فون پر استنبول جابز کی PWA موبائل ایپ انسٹال کرنے کا طریقہ تاکہ آپ ایک کلک میں ملازمتیں تلاش کر سکیں۔',
+      keywords: 'استنبول جابز ایپ, ترکی نوکری ایپ, PWA استنبول, ترکی میں روزگار',
+      heading: 'موبائل ایپ انسٹال کریں',
+      subheading: 'استنبول میں ملازمت کے تازہ ترین مواقع براہِ راست اپنے موبائل کی ہوم اسکرین پر حاصل کریں!',
+      featuresTitle: 'ایپ انسٹال کرنے کے فائدے',
+      feature1: 'بغیر ویب سائٹ کا پتہ ٹائپ کیے فوری اور براہِ راست رسائی',
+      feature2: 'بہت ہلکی ایپ (۱ ایم بی سے کم)، جو فون کی میموری اور بیٹری استعمال نہیں کرتی',
+      feature3: 'انٹرنیٹ سست ہونے کی صورت میں بھی تیز رفتار لوڈنگ اور کارکردگی',
+      feature4: 'نئی ملازمتوں کے بارے میں فوری اپ ڈیٹس اور آسان نیویگیشن',
+      iosTitle: '📱 ایپل ڈیوائسز (iOS)',
+      iosStep1: 'اپنے آئی فون پر <strong>Safari</strong> براؤزر کھولیں اور ہماری سائٹ پر جائیں۔',
+      iosStep2: 'نیچے موجود <strong>شیئر (Share)</strong> بٹن (تیر کا نشان والا مربع) پر کلک کریں۔',
+      iosStep3: 'فہرست میں نیچے جا کر <strong>"Add to Home Screen" (ہوم اسکرین پر شامل کریں)</strong> کا انتخاب کریں۔',
+      androidTitle: '🤖 اینڈرائیڈ ڈیوائسز (Android)',
+      androidStep1: 'اپنے فون پر <strong>Chrome</strong> براؤزر کھولیں اور ہماری سائٹ پر جائیں۔',
+      androidStep2: 'اسکرین پر ظاہر ہونے والے <strong>"ایپ انسٹال کریں"</strong> پاپ اپ پر کلک کریں۔',
+      androidStep3: 'یا اوپر دائیں کونے میں تین نقطوں پر کلک کر کے <strong>"Install App"</strong> منتخب کریں۔',
+      btnText: 'ہوم اسکرین پر جائیں اور انسٹال کریں'
     }
   }[locale];
 

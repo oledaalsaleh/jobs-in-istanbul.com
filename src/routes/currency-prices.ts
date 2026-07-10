@@ -16,6 +16,9 @@ const fallbackPrices = [
 
 currencyPricesRouter.get('/currency-prices', (c) => {
   const acceptLang = c.req.header('accept-language') || '';
+  if (acceptLang.toLowerCase().startsWith('ur')) {
+    return c.redirect('/ur/currency-prices');
+  }
   if (acceptLang.toLowerCase().startsWith('fa')) {
     return c.redirect('/fa/currency-prices');
   }
@@ -32,8 +35,8 @@ currencyPricesRouter.get('/currency-prices', (c) => {
 })
 
 currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/currency-prices');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa' && locale !== 'ur') return c.redirect('/ar/currency-prices');
 
   const db = (c.env as any).DB;
   let prices = fallbackPrices;
@@ -55,7 +58,7 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
       if (parsed.prices && Array.isArray(parsed.prices) && parsed.prices.length > 0) {
         prices = parsed.prices;
         advice = parsed.advice || advice;
-        lastUpdateStr = new Date(parsed.updatedAt).toLocaleString(locale === 'ar' || locale === 'fa' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
+        lastUpdateStr = new Date(parsed.updatedAt).toLocaleString(locale === 'ar' || locale === 'fa' || locale === 'ur' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
       }
     }
   } catch (err) {
@@ -64,7 +67,7 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
 
   // If no timestamp, generate a recent one
   if (!lastUpdateStr) {
-    lastUpdateStr = new Date().toLocaleString(locale === 'ar' || locale === 'fa' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
+    lastUpdateStr = new Date().toLocaleString(locale === 'ar' || locale === 'fa' || locale === 'ur' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
   }
 
   const t = {
@@ -157,12 +160,31 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
       textDescription: 'این نرخ‌ها به صورت خودکار از بازار آزاد استانبول و صرافی‌های بانکی ترکیه جهت برنامه‌ریزی مالی شما گردآوری می‌شود.',
       flagUrl: (code: string) => `https://cdn101.adwimg.com/static/adwhitv2/svg/flags/1x1/${code.toLowerCase() === 'usd' ? 'us' : (code.toLowerCase() === 'eur' ? 'eu' : (code.toLowerCase() === 'gbp' ? 'gb' : code.toLowerCase().substring(0, 2)))}.svg`,
       calcBtn: 'تبدیل و محاسبه ارز'
+    },
+    ur: {
+      title: 'ترکی میں لیر اور کرنسی کی لائیو قیمتیں',
+      subtitle: 'ترک لیرا (TRY) کے مقابلے میں فارن کرنسی ریٹس، کرنسی کنورٹر اور جیمنی اے آئی مارکیٹ رپورٹ۔',
+      lastUpdate: 'آخری اپ ڈیٹ:',
+      colCurrency: 'کرنسی',
+      colBuy: 'خرید (TRY)',
+      colSell: 'فروخت (TRY)',
+      colChange: 'تبدیلی',
+      converterTitle: '🧮 کرنسی کنورٹر',
+      amountLabel: 'رقم:',
+      fromLabel: 'کرنسی سے:',
+      toLabel: 'کرنسی میں:',
+      resultLabel: 'تقریبی رقم:',
+      aiTitle: '🤖 اے آئی جیمنی کرنسی رپورٹ اور تجزیہ',
+      textDescription: 'یہ معلومات استنبول کی اوپن مارکیٹ اور سنٹرل بینک آف ترکی سے خودکار طور پر حاصل کی جاتی ہیں۔',
+      flagUrl: (code: string) => `https://cdn101.adwimg.com/static/adwhitv2/svg/flags/1x1/${code.toLowerCase() === 'usd' ? 'us' : (code.toLowerCase() === 'eur' ? 'eu' : (code.toLowerCase() === 'gbp' ? 'gb' : code.toLowerCase().substring(0, 2)))}.svg`,
+      calcBtn: 'تبدیل کریں'
     }
   }[locale];
 
   // Generate currency select options
   const trCurrencyNames: Record<string, string> = { USD: 'ABD Doları', EUR: 'Euro', SAR: 'Suudi Arabistan Riyali', AED: 'Birleşik Arap Emirlikleri Dirhemi', GBP: 'İngiliz Sterlini', EGP: 'Mısır Lirası' };
   const faCurrencyNames: Record<string, string> = { USD: 'دلار آمریکا', EUR: 'یورو', SAR: 'ریال عربستان', AED: 'درهم امارات', GBP: 'پوند انگلیس', EGP: 'لیره مصر' };
+  const urCurrencyNames: Record<string, string> = { USD: 'امریکی ڈالر', EUR: 'یورو', SAR: 'سعودی ریال', AED: 'اماراتی درہم', GBP: 'برطانوی پاؤنڈ', EGP: 'مصری پاؤنڈ' };
   
 
   // Extract popular currencies for highlights (USD, EUR, SAR)
@@ -173,7 +195,7 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
     const changeVal = parseFloat(p.change?.['1d'] || '0');
     const changeClass = changeVal > 0 ? 'change-up' : (changeVal < 0 ? 'change-down' : '');
     const changeSymbol = changeVal > 0 ? '▲' : (changeVal < 0 ? '▼' : '');
-    const titleText = locale === 'ar' ? p.name : (locale === 'tr' ? (trCurrencyNames[p.code] || p.code) : (locale === 'fa' ? (faCurrencyNames[p.code] || p.code) : p.code));
+    const titleText = locale === 'ar' ? p.name : (locale === 'tr' ? (trCurrencyNames[p.code] || p.code) : (locale === 'fa' ? (faCurrencyNames[p.code] || p.code) : (locale === 'ur' ? (urCurrencyNames[p.code] || p.code) : p.code)));
     
     return `
       <div class="highlight-card">
@@ -186,11 +208,11 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
           </div>
           <div style="margin-top: 8px; display: flex; gap: 16px;">
             <div>
-              <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; display: block;">${locale === 'ar' || locale === 'fa' ? (locale === 'ar' ? 'شراء' : 'خرید') : (locale === 'tr' ? 'Alış' : 'Buy')}</span>
+              <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; display: block;">${locale === 'ar' || locale === 'fa' || locale === 'ur' ? (locale === 'ar' ? 'شراء' : (locale === 'fa' ? 'خرید' : 'خرید')) : (locale === 'tr' ? 'Alış' : 'Buy')}</span>
               <span style="font-size: 1.25rem; font-weight: 800; color: var(--text-dark);">${buyPrice} ₺</span>
             </div>
             <div style="border-left: 1px solid var(--border); padding-left: 16px; padding-right: 16px;">
-              <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; display: block;">${locale === 'ar' || locale === 'fa' ? (locale === 'ar' ? 'بيع' : 'فروش') : (locale === 'tr' ? 'Satış' : 'Sell')}</span>
+              <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; display: block;">${locale === 'ar' || locale === 'fa' || locale === 'ur' ? (locale === 'ar' ? 'بيع' : (locale === 'fa' ? 'فروش' : 'فروخت')) : (locale === 'tr' ? 'Satış' : 'Sell')}</span>
               <span style="font-size: 1.25rem; font-weight: 800; color: var(--primary);">${sellPrice} ₺</span>
             </div>
           </div>

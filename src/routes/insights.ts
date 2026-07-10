@@ -5,8 +5,8 @@ export const insightsRouter = new Hono()
 
 // ─── Istanbul Job Market Insights Page ─────────────────────────────────────
 insightsRouter.get('/:locale/insights', async (c) => {
-  const locale = (c.req.param('locale') || 'ar') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/insights');
+  const locale = (c.req.param('locale') || 'ar') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa' && locale !== 'ur') return c.redirect('/ar/insights');
   const isRtl = locale === 'ar'
 
   const t = {
@@ -194,6 +194,43 @@ insightsRouter.get('/:locale/insights', async (c) => {
       tipText: 'بازار کار در استانبول بسیار متنوع و پویا است. بخش‌های فناوری اطلاعات (IT) و تجارت سریع‌ترین رشد را دارند و تقاضای بالایی برای نامزدهای چندزبانه وجود دارد.',
       monthlyTrend: 'روند ثبت مشاغل در ماه‌های سال',
       month: 'ماه'
+    },
+    ur: {
+      title: 'استنبول جاب مارکیٹ کے اعداد و شمار اور تجزیہ',
+      subtitle: 'استنبول میں خالی اسامیوں، اوسط تنخواہوں اور سب سے زیادہ مانگ والی صنعتوں کا تفصیلی جائزہ۔',
+      totalJobs: 'کل نوکریاں',
+      totalCompanies: 'کمپنیاں',
+      totalCategories: 'کیٹیگریز',
+      jobsByType: 'ملازمت کی قسم کے مطابق',
+      jobsByCategory: 'مقبول ترین شعبے',
+      jobsByDistrict: 'اضلاع کے مطابق تقسیم',
+      jobsByLanguage: 'مطلوبہ زبانیں',
+      featuredVsRegular: 'نمایاں بمقابلہ عام اشتہارات',
+      recentJobs: 'حالیہ پوسٹ کردہ نوکریاں',
+      salaryInsights: 'تنخواہوں کی تفصیلات',
+      jobType: 'ملازمت کی قسم',
+      count: 'تعداد',
+      category: 'شعبہ',
+      district: 'ضلع',
+      language: 'زبان',
+      featured: 'نمایاں',
+      regular: 'عام',
+      fullTime: 'فل ٹائم',
+      partTime: 'پارٹ ٹائم',
+      remote: 'ریموٹ',
+      internship: 'انٹرنشپ',
+      arabic: 'عربی',
+      english: 'انگریزی',
+      both: 'دو لسانی',
+      lastUpdated: 'آخری اپ ڈیٹ',
+      noData: 'کوئی ڈیٹا دستیاب نہیں ہے',
+      viewAllJobs: 'تمام نوکریاں دیکھیں',
+      jobs: 'نوکریاں',
+      jobsPerCategory: 'نوکریاں',
+      tip: 'کیریئر ٹپ',
+      tipText: 'استنبول کی جاب مارکیٹ بہت وسیع ہے۔ آئی ٹی، فنانس اور ٹورزم کے شعبوں میں سب سے زیادہ مواقع موجود ہیں اور چند زبانیں بولنے والوں کو ترجیح دی جاتی ہے۔',
+      monthlyTrend: 'ماہانہ نوکریوں کی اشاعت کا رجحان',
+      month: 'مہینہ'
     }
   }[locale]
 
@@ -773,13 +810,13 @@ Portal Statistics:
           <div class="chart-title"><i class="fa-solid fa-chart-line"></i> ${t.monthlyTrend}</div>
           ${monthlyData.length > 0 ? (() => {
         const maxMonthly = Math.max(...monthlyData.map((m: any) => m.count), 1)
-        const monthNames: Record<string, { ar: string; en: string; tr: string; ru: string; fa: string }> = {
-          '01': { ar: 'يناير', en: 'Jan', tr: 'Oca', ru: 'Янв', fa: 'ژانویه' }, '02': { ar: 'فبراير', en: 'Feb', tr: 'Şub', ru: 'Фев', fa: 'فوریه' },
-          '03': { ar: 'مارس', en: 'Mar', tr: 'Mar', ru: 'Мар', fa: 'مارس' }, '04': { ar: 'أبريل', en: 'Apr', tr: 'Nis', ru: 'Апр', fa: 'آوریل' },
-          '05': { ar: 'مايو', en: 'May', tr: 'May', ru: 'Май', fa: 'می' }, '06': { ar: 'يونيو', en: 'Jun', tr: 'Haz', ru: 'Июн', fa: 'ژوئن' },
-          '07': { ar: 'يوليو', en: 'Jul', tr: 'Tem', ru: 'Июл', fa: 'ژوئیه' }, '08': { ar: 'أغسطس', en: 'Aug', tr: 'Ağu', ru: 'Авг', fa: 'اوت' },
-          '09': { ar: 'سبتمبر', en: 'Sep', tr: 'Eyl', ru: 'Сен', fa: 'سپتامبر' }, '10': { ar: 'أكتوبر', en: 'Oct', tr: 'Eki', ru: 'Окт', fa: 'اکتبر' },
-          '11': { ar: 'نوفمبر', en: 'Nov', tr: 'Kas', ru: 'Ноя', fa: 'نوامبر' }, '12': { ar: 'ديسمبر', en: 'Dec', tr: 'Ara', ru: 'Дек', fa: 'دسامبر' },
+        const monthNames: Record<string, { ar: string; en: string; tr: string; ru: string; fa: string; ur: string }> = {
+          '01': { ar: 'يناير', en: 'Jan', tr: 'Oca', ru: 'Янв', fa: 'ژانویه', ur: 'جنوری' }, '02': { ar: 'فبراير', en: 'Feb', tr: 'Şub', ru: 'Фев', fa: 'فوریه', ur: 'فروری' },
+          '03': { ar: 'مارس', en: 'Mar', tr: 'Mar', ru: 'Мар', fa: 'مارس', ur: 'مارچ' }, '04': { ar: 'أبريل', en: 'Apr', tr: 'Nis', ru: 'Апр', fa: 'آوریل', ur: 'اپریل' },
+          '05': { ar: 'مايو', en: 'May', tr: 'May', ru: 'Май', fa: 'می', ur: 'مئی' }, '06': { ar: 'يونيو', en: 'Jun', tr: 'Haz', ru: 'Июн', fa: 'ژوئن', ur: 'جون' },
+          '07': { ar: 'يوليو', en: 'Jul', tr: 'Tem', ru: 'Июл', fa: 'ژوئیه', ur: 'جولائی' }, '08': { ar: 'أغسطس', en: 'Aug', tr: 'Ağu', ru: 'Авг', fa: 'اوت', ur: 'اگست' },
+          '09': { ar: 'سبتمبر', en: 'Sep', tr: 'Eyl', ru: 'Сен', fa: 'سپتامبر', ur: 'ستمبر' }, '10': { ar: 'أكتوبر', en: 'Oct', tr: 'Eki', ru: 'Окт', fa: 'اکتبر', ur: 'اکتوبر' },
+          '11': { ar: 'نوفمبر', en: 'Nov', tr: 'Kas', ru: 'Ноя', fa: 'نوامبر', ur: 'نومبر' }, '12': { ar: 'ديسمبر', en: 'Dec', tr: 'Ara', ru: 'Дек', fa: 'دسامبر', ur: 'دسمبر' },
         }
         return `
               <div class="trend-chart">

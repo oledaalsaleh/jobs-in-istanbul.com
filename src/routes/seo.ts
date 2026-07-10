@@ -51,12 +51,12 @@ seoRouter.get('/sitemap.xml', async (c) => {
 
   // Static routes
   const staticRoutes = [
-    { ar: '/ar', en: '/en', tr: '/tr', ru: '/ru', fa: '/fa' },
-    { ar: '/ar/submit-job', en: '/en/submit-job', tr: '/tr/submit-job', ru: '/ru/submit-job', fa: '/fa/submit-job' },
-    { ar: '/ar/blog', en: '/en/blog', tr: '/tr/blog', ru: '/ru/blog', fa: '/fa/blog' },
-    { ar: '/ar/currency-prices', en: '/en/currency-prices', tr: '/tr/currency-prices', ru: '/ru/currency-prices', fa: '/fa/currency-prices' },
-    { ar: '/ar/gold-prices', en: '/en/gold-prices', tr: '/tr/gold-prices', ru: '/ru/gold-prices', fa: '/fa/gold-prices' },
-    { ar: '/ar/install', en: '/en/install', tr: '/tr/install', ru: '/ru/install', fa: '/fa/install' }
+    { ar: '/ar', en: '/en', tr: '/tr', ru: '/ru', fa: '/fa', ur: '/ur' },
+    { ar: '/ar/submit-job', en: '/en/submit-job', tr: '/tr/submit-job', ru: '/ru/submit-job', fa: '/fa/submit-job', ur: '/ur/submit-job' },
+    { ar: '/ar/blog', en: '/en/blog', tr: '/tr/blog', ru: '/ru/blog', fa: '/fa/blog', ur: '/ur/blog' },
+    { ar: '/ar/currency-prices', en: '/en/currency-prices', tr: '/tr/currency-prices', ru: '/ru/currency-prices', fa: '/fa/currency-prices', ur: '/ur/currency-prices' },
+    { ar: '/ar/gold-prices', en: '/en/gold-prices', tr: '/tr/gold-prices', ru: '/ru/gold-prices', fa: '/fa/gold-prices', ur: '/ur/gold-prices' },
+    { ar: '/ar/install', en: '/en/install', tr: '/tr/install', ru: '/ru/install', fa: '/fa/install', ur: '/ur/install' }
   ];
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -65,7 +65,7 @@ seoRouter.get('/sitemap.xml', async (c) => {
 
   // 1. Static pages
   for (const route of staticRoutes) {
-    for (const loc of ['ar', 'en', 'tr', 'ru', 'fa'] as const) {
+    for (const loc of ['ar', 'en', 'tr', 'ru', 'fa', 'ur'] as const) {
       xml += `
   <url>
     <loc>${siteUrl}${route[loc]}</loc>
@@ -77,6 +77,7 @@ seoRouter.get('/sitemap.xml', async (c) => {
     <xhtml:link rel="alternate" hreflang="tr" href="${siteUrl}${route.tr}" />
     <xhtml:link rel="alternate" hreflang="ru" href="${siteUrl}${route.ru}" />
     <xhtml:link rel="alternate" hreflang="fa" href="${siteUrl}${route.fa}" />
+    <xhtml:link rel="alternate" hreflang="ur" href="${siteUrl}${route.ur}" />
     <xhtml:link rel="alternate" hreflang="x-default" href="${siteUrl}${route.ar}" />
   </url>`;
     }
@@ -89,7 +90,8 @@ seoRouter.get('/sitemap.xml', async (c) => {
     const trUrl = `${siteUrl}/tr?category=${cat.slug}`;
     const ruUrl = `${siteUrl}/ru?category=${cat.slug}`;
     const faUrl = `${siteUrl}/fa?category=${cat.slug}`;
-    for (const [, url] of [['ar', arUrl], ['en', enUrl], ['tr', trUrl], ['ru', ruUrl], ['fa', faUrl]] as const) {
+    const urUrl = `${siteUrl}/ur?category=${cat.slug}`;
+    for (const [, url] of [['ar', arUrl], ['en', enUrl], ['tr', trUrl], ['ru', ruUrl], ['fa', faUrl], ['ur', urUrl]] as const) {
       xml += `
   <url>
     <loc>${url}</loc>
@@ -101,6 +103,7 @@ seoRouter.get('/sitemap.xml', async (c) => {
     <xhtml:link rel="alternate" hreflang="tr" href="${trUrl}" />
     <xhtml:link rel="alternate" hreflang="ru" href="${ruUrl}" />
     <xhtml:link rel="alternate" hreflang="fa" href="${faUrl}" />
+    <xhtml:link rel="alternate" hreflang="ur" href="${urUrl}" />
   </url>`;
     }
   }
@@ -113,7 +116,8 @@ seoRouter.get('/sitemap.xml', async (c) => {
     const trUrl = `${siteUrl}/tr/jobs/${job.slug}`;
     const ruUrl = `${siteUrl}/ru/jobs/${job.slug}`;
     const faUrl = `${siteUrl}/fa/jobs/${job.slug}`;
-    for (const url of [arUrl, enUrl, trUrl, ruUrl, faUrl]) {
+    const urUrl = `${siteUrl}/ur/jobs/${job.slug}`;
+    for (const url of [arUrl, enUrl, trUrl, ruUrl, faUrl, urUrl]) {
       xml += `
   <url>
     <loc>${url}</loc>
@@ -125,6 +129,7 @@ seoRouter.get('/sitemap.xml', async (c) => {
     <xhtml:link rel="alternate" hreflang="tr" href="${trUrl}" />
     <xhtml:link rel="alternate" hreflang="ru" href="${ruUrl}" />
     <xhtml:link rel="alternate" hreflang="fa" href="${faUrl}" />
+    <xhtml:link rel="alternate" hreflang="ur" href="${urUrl}" />
     <xhtml:link rel="alternate" hreflang="x-default" href="${arUrl}" />
   </url>`;
     }
@@ -155,7 +160,8 @@ seoRouter.get('/sitemap.xml', async (c) => {
     const trUrl = `${siteUrl}/tr/blog/${slug}`;
     const ruUrl = `${siteUrl}/ru/blog/${slug}`;
     const faUrl = `${siteUrl}/fa/blog/${slug}`;
-    for (const url of [arUrl, enUrl, trUrl, ruUrl, faUrl]) {
+    const urUrl = `${siteUrl}/ur/blog/${slug}`;
+    for (const url of [arUrl, enUrl, trUrl, ruUrl, faUrl, urUrl]) {
       xml += `
   <url>
     <loc>${url}</loc>
@@ -167,6 +173,7 @@ seoRouter.get('/sitemap.xml', async (c) => {
     <xhtml:link rel="alternate" hreflang="tr" href="${trUrl}" />
     <xhtml:link rel="alternate" hreflang="ru" href="${ruUrl}" />
     <xhtml:link rel="alternate" hreflang="fa" href="${faUrl}" />
+    <xhtml:link rel="alternate" hreflang="ur" href="${urUrl}" />
     <xhtml:link rel="alternate" hreflang="x-default" href="${arUrl}" />
   </url>`;
     }

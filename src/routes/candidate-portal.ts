@@ -10,8 +10,8 @@ const COOKIE_NAME = 'candidate_jwt';
 
 // Candidate Login
 candidatePortalRouter.get('/:locale/candidate/login', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/candidate/login');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa' && locale !== 'ur') return c.redirect('/ar/candidate/login');
 
   const t = {
     ar: {
@@ -63,6 +63,16 @@ candidatePortalRouter.get('/:locale/candidate/login', (c) => {
       loading: 'در حال ارسال لینک... ⏳',
       successMsg: 'لینک ورود جادویی با موفقیت ارسال شد! لطفاً پوشه پیام‌های دریافتی خود را بررسی کنید.',
       devNotice: '🔧 در محیط توسعه، می‌توانید مستقیماً با کلیک بر روی لینک زیر وارد شوید:'
+    },
+    ur: {
+      title: 'امیدوار کا لاگ ان پورٹل',
+      subtitle: 'اپنا ای میل درج کریں تاکہ درخواستوں کی نگرانی اور اے آئی سی وی تجزیہ کے لیے میجک لنک حاصل ہو سکے۔',
+      emailLabel: 'ذاتی ای میل ایڈریس',
+      emailPlh: 'candidate@example.com',
+      submitBtn: 'لاگ ان میجک لنک بھیجیں 🚀',
+      loading: 'لنک بھیجا جا رہا ہے... ⏳',
+      successMsg: 'لاگ ان میجک لنک کامیابی سے بھیج دیا گیا ہے! براہ کرم اپنا ان باکس چیک کریں۔',
+      devNotice: '🔧 ڈویلپمنٹ موڈ: آپ براہِ راست لاگ ان کرنے کے لیے نیچے کلک کر سکتے ہیں:'
     }
   }[locale];
 
@@ -182,7 +192,7 @@ candidatePortalRouter.post('/api/candidate/request-magic', rateLimiter(3, 10), a
 candidatePortalRouter.get('/candidate/verify', async (c) => {
   const env: any = c.env;
   const token = c.req.query('token');
-  const locale = (c.req.query('locale') || 'ar') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
+  const locale = (c.req.query('locale') || 'ar') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
 
   if (!token) {
     return c.text('Token parameter missing', 400);
@@ -227,8 +237,8 @@ candidatePortalRouter.get('/candidate/logout', (c) => {
 candidatePortalRouter.get('/:locale/candidate/dashboard', async (c) => {
   const env: any = c.env;
   const db = env.DB;
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/candidate/dashboard');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa' && locale !== 'ur') return c.redirect('/ar/candidate/dashboard');
 
   const cookieVal = getCookie(c, COOKIE_NAME);
   if (!cookieVal) {
@@ -344,6 +354,26 @@ candidatePortalRouter.get('/:locale/candidate/dashboard', async (c) => {
       statusReviewed: 'در حال بررسی',
       statusShortlisted: 'دعوت به مصاحبه',
       statusRejected: 'رد شده'
+    },
+    ur: {
+      title: 'امیدوار کا ڈیش بورڈ - استنبول میں نوکریاں',
+      welcome: `خوش آمدید، ${candidateEmail}`,
+      logout: 'لاگ آؤٹ',
+      appsTitle: 'آپ کی بھیجی گئی نوکری کی درخواستیں',
+      noApps: 'آپ نے ابھی تک کسی نوکری کے لیے درخواست نہیں دی۔',
+      tblJob: 'نوکری اور کمپنی',
+      tblDate: 'تاریخ درخواست',
+      tblQuiz: 'ٹیسٹ اسکور',
+      tblStatus: 'درخواست کی حالت',
+      aiMatchingTitle: 'اے آئی کے ذریعے سی وی میچنگ 🤖',
+      aiMatchingDesc: 'اپنا سی وی درج کریں تاکہ تمام فعال نوکریوں کے ساتھ مطابقت دیکھی جا سکے۔',
+      cvPlh: 'سی وی کا متن یہاں پیسٹ کریں...',
+      matchBtn: 'سی وی کی مطابقت جانچیں 🔍',
+      tblMatchScore: 'مطابقت کا فیصد',
+      statusApplied: 'بھیج دیا گیا',
+      statusReviewed: 'زیرِ غور',
+      statusShortlisted: 'انٹرویو کے لیے منتخب',
+      statusRejected: 'مسترد شدہ'
     }
   }[locale];
 
