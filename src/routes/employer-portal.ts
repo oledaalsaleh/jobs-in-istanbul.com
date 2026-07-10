@@ -680,7 +680,7 @@ employerPortalRouter.get('/:locale/employer/dashboard', async (c) => {
 
     // Render Jobs List
     const jobsHtml = jobs.length > 0 ? jobs.map((job: any) => {
-      const title = locale === 'ar' ? job.title_ar : (locale === 'tr' ? (job.title_tr || job.title_en) : job.title_en);
+      const title = locale === 'ar' ? (job.title_ar || job.title_en) : (locale === 'tr' ? (job.title_tr || job.title_en) : job.title_en);
       return `
         <div style="background: var(--bg-site); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
           <div>
@@ -708,7 +708,7 @@ employerPortalRouter.get('/:locale/employer/dashboard', async (c) => {
           <tbody>
             ${applications.map((app: any) => {
               const job = jobs.find((j: any) => j.id === app.jobId);
-              const jobTitle = job ? (locale === 'ar' ? job.title_ar : (locale === 'tr' ? (job.title_tr || job.title_en) : job.title_en)) : 'Unspecified';
+              const jobTitle = job ? (locale === 'ar' ? (job.title_ar || job.title_en) : (locale === 'tr' ? (job.title_tr || job.title_en) : job.title_en)) : 'Unspecified';
               const quizScore = app.quizScore ? app.quizScore : '--';
               const statusSel = (st: string) => app.status === st ? 'selected' : '';
               

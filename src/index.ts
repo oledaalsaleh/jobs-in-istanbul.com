@@ -101,6 +101,11 @@ export default {
     if (url.pathname === '/blog') {
       return Response.redirect(`${url.origin}/ar/blog`, 302);
     }
+    // Redirect /{locale}/jobs (without slug) to /{locale} (homepage shows jobs)
+    const jobsListMatch = url.pathname.match(/^\/(ar|en|tr|ru|fa|ur)\/jobs\/?$/);
+    if (jobsListMatch) {
+      return Response.redirect(`${url.origin}/${jobsListMatch[1]}`, 301);
+    }
     if (url.pathname === '/' || url.pathname === '') {
       const acceptLang = request.headers.get('accept-language') || '';
       if (acceptLang.toLowerCase().startsWith('ur')) {

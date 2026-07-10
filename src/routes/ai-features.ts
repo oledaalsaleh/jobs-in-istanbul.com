@@ -3649,9 +3649,9 @@ aiFeaturesRouter.get('/:locale/workplace-quiz', (c) => {
     <div class="quiz-container">
       <div id="quiz-intro" class="glass-card" style="padding: 40px; border-radius: var(--radius-lg); text-align: center;">
         <div style="font-size: 3.5rem; margin-bottom: 20px;">🇹🇷</div>
-        <h1 class="hero-title-gradient" style="margin-bottom: 12px; font-size: 2.2rem; font-weight: 800;">\${t.title}</h1>
-        <p style="color: var(--text-muted); font-size: 1.05rem; margin-bottom: 30px; line-height: 1.6;">\${t.subtitle}</p>
-        <button onclick="startQuiz()" class="btn-sidebar-apply" style="border: none; max-width: 250px; margin: 0 auto;">\${t.startBtn}</button>
+        <h1 class="hero-title-gradient" style="margin-bottom: 12px; font-size: 2.2rem; font-weight: 800;">${t.title}</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; margin-bottom: 30px; line-height: 1.6;">${t.subtitle}</p>
+        <button onclick="startQuiz()" class="btn-sidebar-apply" style="border: none; max-width: 250px; margin: 0 auto;">${t.startBtn}</button>
       </div>
 
       <div id="quiz-play" class="glass-card" style="padding: 40px; border-radius: var(--radius-lg); display: none;">
@@ -3669,38 +3669,38 @@ aiFeaturesRouter.get('/:locale/workplace-quiz', (c) => {
 
         <div id="feedback-box" style="display: none; padding: 16px; border-radius: var(--radius-md); margin-top: 20px; font-size: 0.9rem; line-height: 1.6;"></div>
 
-        <button id="next-btn" onclick="nextQuestion()" class="btn-sidebar-apply" style="border: none; margin-top: 30px; display: none;">\${t.nextBtn}</button>
+        <button id="next-btn" onclick="nextQuestion()" class="btn-sidebar-apply" style="border: none; margin-top: 30px; display: none;">${t.nextBtn}</button>
       </div>
 
       <div id="quiz-result" class="glass-card" style="padding: 40px; border-radius: var(--radius-lg); text-align: center; display: none;">
         <div style="font-size: 4rem; margin-bottom: 20px;">🏆</div>
-        <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--text-dark); margin-bottom: 24px;">\${locale === 'ar' ? 'اكتمل الاختبار!' : 'Quiz Completed!'}</h2>
+        <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--text-dark); margin-bottom: 24px;">${locale === 'ar' ? 'اكتمل الاختبار!' : 'Quiz Completed!'}</h2>
         
         <div style="margin-bottom: 30px;">
-          <span style="font-size: 1.1rem; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 8px;">\${t.scoreTitle}</span>
+          <span style="font-size: 1.1rem; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 8px;">${t.scoreTitle}</span>
           <span id="final-score" style="font-size: 3.5rem; font-weight: 900; color: var(--primary);">4 / 5</span>
         </div>
 
         <div style="margin-bottom: 40px; background: rgba(0,0,0,0.02); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border);">
-          <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 6px;">\\${t.rankLabel}</span>
+          <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 6px;">${t.rankLabel}</span>
           <div id="final-rank" style="font-size: 1.3rem; font-weight: 800; color: var(--text-dark);">--</div>
         </div>
 
         <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
-          <button onclick="restartQuiz()" class="btn-sidebar-apply" style="border: none; background: var(--bg-subtle); color: var(--text-dark); max-width: 200px; margin: 0;">\\${t.restartBtn}</button>
-          <a href="/\\${locale}" class="btn-sidebar-apply" style="border: none; max-width: 200px; margin: 0; text-decoration: none; display: flex; align-items: center; justify-content: center;">
-            \\${locale === 'ar' ? 'تصفح الوظائف 💼' : 'Browse Jobs 💼'}
+          <button onclick="restartQuiz()" class="btn-sidebar-apply" style="border: none; background: var(--bg-subtle); color: var(--text-dark); max-width: 200px; margin: 0;">${t.restartBtn}</button>
+          <a href="/${locale}" class="btn-sidebar-apply" style="border: none; max-width: 200px; margin: 0; text-decoration: none; display: flex; align-items: center; justify-content: center;">
+            ${locale === 'ar' ? 'تصفح الوظائف 💼' : 'Browse Jobs 💼'}
           </a>
         </div>
       </div>
 
       <!-- Turkish Workplace Vocabulary Cheat Sheet -->
-      <div class="glass-card" style="margin-top: 40px; padding: 40px; border-radius: var(--radius-lg); text-align: \\${locale === 'ar' ? 'right' : 'left'};">
+      <div class="glass-card" style="margin-top: 40px; padding: 40px; border-radius: var(--radius-lg); text-align: ${locale === 'ar' ? 'right' : 'left'};">
         <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--primary); margin-bottom: 8px; display: flex; align-items: center; gap: 10px;">
-          📖 \\${locale === 'ar' ? 'قاموس مصطلحات العمل التركية اليومية' : 'Essential Turkish Workplace Vocabulary'}
+          📖 ${locale === 'ar' ? 'قاموس مصطلحات العمل التركية اليومية' : 'Essential Turkish Workplace Vocabulary'}
         </h2>
         <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px; line-height: 1.5;">
-          \\${locale === 'ar' 
+          ${locale === 'ar' 
             ? 'إليك قائمة بأهم المفردات والعبارات الأكثر استخداماً في المكاتب والشركات التركية مع معانيها باللغتين العربية والإنجليزية لتبدأ يومك بثقة:' 
             : 'Here is a curated list of the most common terms and phrases used in Turkish office environments with their English and Arabic translations to help you get started:'}
         </p>
@@ -3711,7 +3711,7 @@ aiFeaturesRouter.get('/:locale/workplace-quiz', (c) => {
             <div style="display: flex; align-items: center; gap: 8px;">
               <span style="background: var(--primary-light); color: var(--primary); font-weight: 800; padding: 4px 10px; border-radius: var(--r-sm); font-size: 0.9rem; font-family: sans-serif;">Kolay gelsin</span>
             </div>
-            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: \\${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: \\${locale === 'ar' ? 'right' : 'left'};">
+            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: ${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: ${locale === 'ar' ? 'right' : 'left'};">
               <span style="font-weight: 600;">العربية: سهل الله عملك / طاب يومك (تقال لشخص يعمل)</span>
               <span style="color: var(--text-muted); font-size: 0.8rem;">English: May it come easy (said to someone working)</span>
             </div>
@@ -3721,7 +3721,7 @@ aiFeaturesRouter.get('/:locale/workplace-quiz', (c) => {
             <div style="display: flex; align-items: center; gap: 8px;">
               <span style="background: var(--primary-light); color: var(--primary); font-weight: 800; padding: 4px 10px; border-radius: var(--r-sm); font-size: 0.9rem; font-family: sans-serif;">İyi çalışmalar</span>
             </div>
-            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: \\${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: \\${locale === 'ar' ? 'right' : 'left'};">
+            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: ${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: ${locale === 'ar' ? 'right' : 'left'};">
               <span style="font-weight: 600;">العربية: أتمنى لك عملاً موفقاً (تحية رسمية للزملاء)</span>
               <span style="color: var(--text-muted); font-size: 0.8rem;">English: Have a good work / Good day at work</span>
             </div>
@@ -3731,7 +3731,7 @@ aiFeaturesRouter.get('/:locale/workplace-quiz', (c) => {
             <div style="display: flex; align-items: center; gap: 8px;">
               <span style="background: var(--primary-light); color: var(--primary); font-weight: 800; padding: 4px 10px; border-radius: var(--r-sm); font-size: 0.9rem; font-family: sans-serif;">Eline sağlık</span>
             </div>
-            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: \\${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: \\${locale === 'ar' ? 'right' : 'left'};">
+            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: ${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: ${locale === 'ar' ? 'right' : 'left'};">
               <span style="font-weight: 600;">العربية: تسلم يداك (تقال لمن صنع أو أنجز شيئاً يدوياً)</span>
               <span style="color: var(--text-muted); font-size: 0.8rem;">English: Health to your hands (said in appreciation of labor)</span>
             </div>
@@ -3741,7 +3741,7 @@ aiFeaturesRouter.get('/:locale/workplace-quiz', (c) => {
             <div style="display: flex; align-items: center; gap: 8px;">
               <span style="background: var(--primary-light); color: var(--primary); font-weight: 800; padding: 4px 10px; border-radius: var(--r-sm); font-size: 0.9rem; font-family: sans-serif;">Afiyet olsun</span>
             </div>
-            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: \\${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: \\${locale === 'ar' ? 'right' : 'left'};">
+            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: ${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: ${locale === 'ar' ? 'right' : 'left'};">
               <span style="font-weight: 600;">العربية: بالهناء والشفاء / بالعافية (تمني وجبة هنيئة)</span>
               <span style="color: var(--text-muted); font-size: 0.8rem;">English: Enjoy your meal / Bon appetit</span>
             </div>
@@ -3751,7 +3751,7 @@ aiFeaturesRouter.get('/:locale/workplace-quiz', (c) => {
             <div style="display: flex; align-items: center; gap: 8px;">
               <span style="background: var(--primary-light); color: var(--primary); font-weight: 800; padding: 4px 10px; border-radius: var(--r-sm); font-size: 0.9rem; font-family: sans-serif;">Geçmiş olsun</span>
             </div>
-            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: \\${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: \\${locale === 'ar' ? 'right' : 'left'};">
+            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: ${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: ${locale === 'ar' ? 'right' : 'left'};">
               <span style="font-weight: 600;">العربية: سلامتك / أتمنى لك الشفاء العاجل (للمريض أو المصاب)</span>
               <span style="color: var(--text-muted); font-size: 0.8rem;">English: Get well soon / May it pass</span>
             </div>
@@ -3761,7 +3761,7 @@ aiFeaturesRouter.get('/:locale/workplace-quiz', (c) => {
             <div style="display: flex; align-items: center; gap: 8px;">
               <span style="background: var(--primary-light); color: var(--primary); font-weight: 800; padding: 4px 10px; border-radius: var(--r-sm); font-size: 0.9rem; font-family: sans-serif;">Görüşmek üzere</span>
             </div>
-            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: \\${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: \\${locale === 'ar' ? 'right' : 'left'};">
+            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: ${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: ${locale === 'ar' ? 'right' : 'left'};">
               <span style="font-weight: 600;">العربية: إلى اللقاء / أراك لاحقاً</span>
               <span style="color: var(--text-muted); font-size: 0.8rem;">English: See you soon / Goodbye</span>
             </div>
@@ -3771,7 +3771,7 @@ aiFeaturesRouter.get('/:locale/workplace-quiz', (c) => {
             <div style="display: flex; align-items: center; gap: 8px;">
               <span style="background: var(--primary-light); color: var(--primary); font-weight: 800; padding: 4px 10px; border-radius: var(--r-sm); font-size: 0.9rem; font-family: sans-serif;">Rica ederim</span>
             </div>
-            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: \\${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: \\${locale === 'ar' ? 'right' : 'left'};">
+            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: ${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: ${locale === 'ar' ? 'right' : 'left'};">
               <span style="font-weight: 600;">العربية: على الرحب والسعة / العفو (رد على الشكر)</span>
               <span style="color: var(--text-muted); font-size: 0.8rem;">English: You are welcome / Not at all</span>
             </div>
@@ -3781,7 +3781,7 @@ aiFeaturesRouter.get('/:locale/workplace-quiz', (c) => {
             <div style="display: flex; align-items: center; gap: 8px;">
               <span style="background: var(--primary-light); color: var(--primary); font-weight: 800; padding: 4px 10px; border-radius: var(--r-sm); font-size: 0.9rem; font-family: sans-serif;">Toplantı</span>
             </div>
-            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: \\${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: \\${locale === 'ar' ? 'right' : 'left'};">
+            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: ${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: ${locale === 'ar' ? 'right' : 'left'};">
               <span style="font-weight: 600;">العربية: اجتماع عمل</span>
               <span style="color: var(--text-muted); font-size: 0.8rem;">English: Business Meeting</span>
             </div>
@@ -3791,7 +3791,7 @@ aiFeaturesRouter.get('/:locale/workplace-quiz', (c) => {
             <div style="display: flex; align-items: center; gap: 8px;">
               <span style="background: var(--primary-light); color: var(--primary); font-weight: 800; padding: 4px 10px; border-radius: var(--r-sm); font-size: 0.9rem; font-family: sans-serif;">Müşteri</span>
             </div>
-            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: \\${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: \\${locale === 'ar' ? 'right' : 'left'};">
+            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: ${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: ${locale === 'ar' ? 'right' : 'left'};">
               <span style="font-weight: 600;">العربية: عميل / زبون</span>
               <span style="color: var(--text-muted); font-size: 0.8rem;">English: Client / Customer</span>
             </div>
@@ -3801,7 +3801,7 @@ aiFeaturesRouter.get('/:locale/workplace-quiz', (c) => {
             <div style="display: flex; align-items: center; gap: 8px;">
               <span style="background: var(--primary-light); color: var(--primary); font-weight: 800; padding: 4px 10px; border-radius: var(--r-sm); font-size: 0.9rem; font-family: sans-serif;">Maaş</span>
             </div>
-            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: \\${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: \\${locale === 'ar' ? 'right' : 'left'};">
+            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: ${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: ${locale === 'ar' ? 'right' : 'left'};">
               <span style="font-weight: 600;">العربية: راتب شهري</span>
               <span style="color: var(--text-muted); font-size: 0.8rem;">English: Salary</span>
             </div>
@@ -3811,7 +3811,7 @@ aiFeaturesRouter.get('/:locale/workplace-quiz', (c) => {
             <div style="display: flex; align-items: center; gap: 8px;">
               <span style="background: var(--primary-light); color: var(--primary); font-weight: 800; padding: 4px 10px; border-radius: var(--r-sm); font-size: 0.9rem; font-family: sans-serif;">İzin</span>
             </div>
-            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: \\${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: \\${locale === 'ar' ? 'right' : 'left'};">
+            <div style="font-size: 0.88rem; color: var(--text-dark); display: flex; flex-direction: column; gap: 2px; align-items: ${locale === 'ar' ? 'flex-start' : 'flex-end'}; text-align: ${locale === 'ar' ? 'right' : 'left'};">
               <span style="font-weight: 600;">العربية: إجازة / إذن غياب</span>
               <span style="color: var(--text-muted); font-size: 0.8rem;">English: Leave / Permit</span>
             </div>
@@ -3822,7 +3822,7 @@ aiFeaturesRouter.get('/:locale/workplace-quiz', (c) => {
     </div>
 
     <script>
-      const questions = \${JSON.stringify(questions)};
+      const questions = ${JSON.stringify(questions)};
       let currentIdx = 0;
       let score = 0;
       let answered = false;
@@ -3837,7 +3837,7 @@ aiFeaturesRouter.get('/:locale/workplace-quiz', (c) => {
         answered = false;
         const qData = questions[currentIdx];
         
-        document.getElementById('question-index').textContent = \`\${locale === 'ar' ? 'السؤال' : 'Question'} \${currentIdx + 1} \${locale === 'ar' ? 'من' : 'of'} 5\`;
+        document.getElementById('question-index').textContent = \`${locale === 'ar' ? 'السؤال' : 'Question'} \${currentIdx + 1} ${locale === 'ar' ? 'من' : 'of'} 5\`;
         document.getElementById('score-tracker').textContent = \`Score: \${score}\`;
         document.getElementById('progress-fill').style.width = \`\${(currentIdx + 1) * 20}%\`;
 
@@ -3878,9 +3878,9 @@ aiFeaturesRouter.get('/:locale/workplace-quiz', (c) => {
 
         const nextBtn = document.getElementById('next-btn');
         if (currentIdx === questions.length - 1) {
-          nextBtn.textContent = "\${t.finishBtn}";
+          nextBtn.textContent = "${t.finishBtn}";
         } else {
-          nextBtn.textContent = "\${t.nextBtn}";
+          nextBtn.textContent = "${t.nextBtn}";
         }
         nextBtn.style.display = 'block';
       }
@@ -3891,12 +3891,12 @@ aiFeaturesRouter.get('/:locale/workplace-quiz', (c) => {
           box.style.background = '#f0fdf4';
           box.style.border = '1px solid #bbf7d0';
           box.style.color = '#166534';
-          box.innerHTML = \`<strong>\${"\${t.correct}"}</strong><br>\${explanation}\`;
+          box.innerHTML = \`<strong>${t.correct}</strong><br>\${explanation}\`;
         } else {
           box.style.background = '#fef2f2';
           box.style.border = '1px solid #fca5a5';
           box.style.color = '#991b1b';
-          box.innerHTML = \`<strong>\${"\${t.incorrect}"} "\${correctOpt}"</strong><br>\${explanation}\`;
+          box.innerHTML = \`<strong>${t.incorrect} "\${correctOpt}"</strong><br>\${explanation}\`;
         }
         box.style.display = 'block';
       }
@@ -3918,13 +3918,13 @@ aiFeaturesRouter.get('/:locale/workplace-quiz', (c) => {
         
         let rankText = '';
         if (score === 5) {
-          rankText = "\${t.rankG}";
+          rankText = "${t.rankG}";
         } else if (score >= 3) {
-          rankText = "\${t.rankM}";
+          rankText = "${t.rankM}";
         } else if (score >= 1) {
-          rankText = "\${t.rankJ}";
+          rankText = "${t.rankJ}";
         } else {
-          rankText = "\${t.rankN}";
+          rankText = "${t.rankN}";
         }
         document.getElementById('final-rank').textContent = rankText;
       }

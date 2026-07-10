@@ -415,7 +415,7 @@ candidatePortalRouter.get('/:locale/candidate/dashboard', async (c) => {
       }
       return filtered.map((app: any) => {
         const job = jobsMap.get(app.jobId) || { title_ar: 'Job Posting', title_en: 'Job Posting', company: 'Company', slug: '' };
-        const title = locale === 'ar' ? job.title_ar : (locale === 'tr' ? (job.title_tr || job.title_en) : job.title_en);
+        const title = locale === 'ar' ? (job.title_ar || job.title_en) : (locale === 'tr' ? (job.title_tr || job.title_en) : job.title_en);
         const quizText = app.quizScore ? `${app.quizScore}%` : '';
         return `
           <div class="kanban-card" draggable="true" ondragstart="drag(event)" id="app-card-${app.id}" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 12px; box-shadow: var(--shadow-sm); cursor: grab; transition: var(--t-base);">

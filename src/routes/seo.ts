@@ -19,17 +19,38 @@ Sitemap: https://jobs-in-istanbul.com/sitemap.xml
 })
 
 // sitemap.xml handler
-seoRouter.get('/sitemap.xml', async (c) => {
-  const db = (c.env as any).DB;
+// sitemap.xml handler (Sitemap Index)
+seoRouter.get('/sitemap.xml', (c) => {
   const siteUrl = 'https://jobs-in-istanbul.com';
   const now = new Date().toISOString().split('T')[0];
 
-  // Fetch all published jobs
-  const jobRows = await db.prepare(
-    `SELECT slug, updated_at FROM documents WHERE type_id = 'jobs' AND status = 'published' AND is_published = 1`
-  ).all();
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>${siteUrl}/sitemap-static.xml</loc>
+    <lastmod>${now}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>${siteUrl}/sitemap-jobs.xml</loc>
+    <lastmod>${now}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>${siteUrl}/sitemap-blog.xml</loc>
+    <lastmod>${now}</lastmod>
+  </sitemap>
+</sitemapindex>`;
 
-  const jobs = jobRows.results || [];
+  return c.body(xml, 200, {
+    'Content-Type': 'application/xml; charset=utf-8',
+    'Cache-Control': 'public, max-age=3600'
+  });
+})
+
+// sitemap-static.xml handler (Static pages and Category queries)
+seoRouter.get('/sitemap-static.xml', async (c) => {
+  const db = (c.env as any).DB;
+  const siteUrl = 'https://jobs-in-istanbul.com';
+  const now = new Date().toISOString().split('T')[0];
 
   // Fetch all categories
   const catRows = await db.prepare(
@@ -38,17 +59,6 @@ seoRouter.get('/sitemap.xml', async (c) => {
 
   const categories = catRows.results || [];
 
-  // Fetch all blog posts
-  let blogs: any[] = [];
-  try {
-    const blogRows = await db.prepare(
-      `SELECT slug, updated_at FROM documents WHERE type_id = 'blog_post' AND status = 'published' AND is_published = 1`
-    ).all();
-    blogs = blogRows.results || [];
-  } catch (err) {
-    console.error('Sitemap: Failed to query blog posts:', err);
-  }
-
   // Static routes
   const staticRoutes = [
     { ar: '/ar', en: '/en', tr: '/tr', ru: '/ru', fa: '/fa', ur: '/ur' },
@@ -56,7 +66,21 @@ seoRouter.get('/sitemap.xml', async (c) => {
     { ar: '/ar/blog', en: '/en/blog', tr: '/tr/blog', ru: '/ru/blog', fa: '/fa/blog', ur: '/ur/blog' },
     { ar: '/ar/currency-prices', en: '/en/currency-prices', tr: '/tr/currency-prices', ru: '/ru/currency-prices', fa: '/fa/currency-prices', ur: '/ur/currency-prices' },
     { ar: '/ar/gold-prices', en: '/en/gold-prices', tr: '/tr/gold-prices', ru: '/ru/gold-prices', fa: '/fa/gold-prices', ur: '/ur/gold-prices' },
-    { ar: '/ar/install', en: '/en/install', tr: '/tr/install', ru: '/ru/install', fa: '/fa/install', ur: '/ur/install' }
+    { ar: '/ar/install', en: '/en/install', tr: '/tr/install', ru: '/ru/install', fa: '/fa/install', ur: '/ur/install' },
+    { ar: '/ar/cv-optimizer', en: '/en/cv-optimizer', tr: '/tr/cv-optimizer', ru: '/ru/cv-optimizer', fa: '/fa/cv-optimizer', ur: '/ur/cv-optimizer' },
+    { ar: '/ar/salary-calculator', en: '/en/salary-calculator', tr: '/tr/salary-calculator', ru: '/ru/salary-calculator', fa: '/fa/salary-calculator', ur: '/ur/salary-calculator' },
+    { ar: '/ar/resume-builder', en: '/en/resume-builder', tr: '/tr/resume-builder', ru: '/ru/resume-builder', fa: '/fa/resume-builder', ur: '/ur/resume-builder' },
+    { ar: '/ar/cover-letter-generator', en: '/en/cover-letter-generator', tr: '/tr/cover-letter-generator', ru: '/ru/cover-letter-generator', fa: '/fa/cover-letter-generator', ur: '/ur/cover-letter-generator' },
+    { ar: '/ar/work-permit-calculator', en: '/en/work-permit-calculator', tr: '/tr/work-permit-calculator', ru: '/ru/work-permit-calculator', fa: '/fa/work-permit-calculator', ur: '/ur/work-permit-calculator' },
+    { ar: '/ar/turkish-test', en: '/en/turkish-test', tr: '/tr/turkish-test', ru: '/ru/turkish-test', fa: '/fa/turkish-test', ur: '/ur/turkish-test' },
+    { ar: '/ar/interview-prep', en: '/en/interview-prep', tr: '/tr/interview-prep', ru: '/ru/interview-prep', fa: '/fa/interview-prep', ur: '/ur/interview-prep' },
+    { ar: '/ar/ats-scanner', en: '/en/ats-scanner', tr: '/tr/ats-scanner', ru: '/ru/ats-scanner', fa: '/fa/ats-scanner', ur: '/ur/ats-scanner' },
+    { ar: '/ar/workplace-quiz', en: '/en/workplace-quiz', tr: '/tr/workplace-quiz', ru: '/ru/workplace-quiz', fa: '/fa/workplace-quiz', ur: '/ur/workplace-quiz' },
+    { ar: '/ar/insights', en: '/en/insights', tr: '/tr/insights', ru: '/ru/insights', fa: '/fa/insights', ur: '/ur/insights' },
+    { ar: '/ar/about', en: '/en/about', tr: '/tr/about', ru: '/ru/about', fa: '/fa/about', ur: '/ur/about' },
+    { ar: '/ar/contact', en: '/en/contact', tr: '/tr/contact', ru: '/ru/contact', fa: '/fa/contact', ur: '/ur/contact' },
+    { ar: '/ar/privacy', en: '/en/privacy', tr: '/tr/privacy', ru: '/ru/privacy', fa: '/fa/privacy', ur: '/ur/privacy' },
+    { ar: '/ar/terms', en: '/en/terms', tr: '/tr/terms', ru: '/ru/terms', fa: '/fa/terms', ur: '/ur/terms' }
   ];
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -78,7 +102,7 @@ seoRouter.get('/sitemap.xml', async (c) => {
     <xhtml:link rel="alternate" hreflang="ru" href="${siteUrl}${route.ru}" />
     <xhtml:link rel="alternate" hreflang="fa" href="${siteUrl}${route.fa}" />
     <xhtml:link rel="alternate" hreflang="ur" href="${siteUrl}${route.ur}" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="${siteUrl}${route.ar}" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${siteUrl}${route.en}" />
   </url>`;
     }
   }
@@ -104,9 +128,35 @@ seoRouter.get('/sitemap.xml', async (c) => {
     <xhtml:link rel="alternate" hreflang="ru" href="${ruUrl}" />
     <xhtml:link rel="alternate" hreflang="fa" href="${faUrl}" />
     <xhtml:link rel="alternate" hreflang="ur" href="${urUrl}" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${siteUrl}/en?category=${cat.slug}" />
   </url>`;
     }
   }
+
+  xml += `
+</urlset>`;
+
+  return c.body(xml, 200, {
+    'Content-Type': 'application/xml; charset=utf-8',
+    'Cache-Control': 'public, max-age=86400'
+  });
+})
+
+// sitemap-jobs.xml handler (Job posts)
+seoRouter.get('/sitemap-jobs.xml', async (c) => {
+  const db = (c.env as any).DB;
+  const siteUrl = 'https://jobs-in-istanbul.com';
+
+  // Fetch all published jobs
+  const jobRows = await db.prepare(
+    `SELECT slug, updated_at FROM documents WHERE type_id = 'jobs' AND status = 'published' AND is_published = 1`
+  ).all();
+
+  const jobs = jobRows.results || [];
+
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">`;
 
   // 3. Jobs
   for (const job of jobs) {
@@ -130,9 +180,35 @@ seoRouter.get('/sitemap.xml', async (c) => {
     <xhtml:link rel="alternate" hreflang="ru" href="${ruUrl}" />
     <xhtml:link rel="alternate" hreflang="fa" href="${faUrl}" />
     <xhtml:link rel="alternate" hreflang="ur" href="${urUrl}" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="${arUrl}" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${enUrl}" />
   </url>`;
     }
+  }
+
+  xml += `
+</urlset>`;
+
+  return c.body(xml, 200, {
+    'Content-Type': 'application/xml; charset=utf-8',
+    'Cache-Control': 'public, max-age=3600'
+  });
+})
+
+// sitemap-blog.xml handler (Blog posts)
+seoRouter.get('/sitemap-blog.xml', async (c) => {
+  const db = (c.env as any).DB;
+  const siteUrl = 'https://jobs-in-istanbul.com';
+  const now = new Date().toISOString().split('T')[0];
+
+  // Fetch all blog posts
+  let blogs: any[] = [];
+  try {
+    const blogRows = await db.prepare(
+      `SELECT slug, updated_at FROM documents WHERE type_id = 'blog_post' AND status = 'published' AND is_published = 1`
+    ).all();
+    blogs = blogRows.results || [];
+  } catch (err) {
+    console.error('Sitemap: Failed to query blog posts:', err);
   }
 
   // 4. Blog Posts
@@ -149,6 +225,10 @@ seoRouter.get('/sitemap.xml', async (c) => {
     ...staticBlogSlugs,
     ...blogs.map(b => b.slug)
   ]));
+
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">`;
 
   for (const slug of allBlogSlugs) {
     const dbBlog = blogs.find(b => b.slug === slug);
@@ -174,7 +254,7 @@ seoRouter.get('/sitemap.xml', async (c) => {
     <xhtml:link rel="alternate" hreflang="ru" href="${ruUrl}" />
     <xhtml:link rel="alternate" hreflang="fa" href="${faUrl}" />
     <xhtml:link rel="alternate" hreflang="ur" href="${urUrl}" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="${arUrl}" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${enUrl}" />
   </url>`;
     }
   }
@@ -185,7 +265,7 @@ seoRouter.get('/sitemap.xml', async (c) => {
   return c.body(xml, 200, {
     'Content-Type': 'application/xml; charset=utf-8',
     'Cache-Control': 'public, max-age=86400'
-  })
+  });
 })
 
 // rss.xml handler
@@ -249,7 +329,7 @@ seoRouter.get('/manifest.json', (c) => {
     name: 'Jobs in Istanbul | فرص عمل في إسطنبول',
     short_name: 'Jobs in Istanbul',
     description: 'Premium Job Board for Istanbul - المنصة الرائدة لربط الكفاءات بأفضل فرص العمل في إسطنبول',
-    start_url: '/',
+    start_url: '/ar',
     display: 'standalone',
     background_color: '#ffffff',
     theme_color: '#007bff',
@@ -280,7 +360,9 @@ seoRouter.get('/sw.js', (c) => {
 const ASSETS_TO_CACHE = [
   '/css/theme.css',
   '/favicon.ico',
-  '/icon-192.png'
+  '/icon-192.png',
+  '/icon-512.png',
+  '/manifest.json'
 ];
 
 self.addEventListener('install', (event) => {

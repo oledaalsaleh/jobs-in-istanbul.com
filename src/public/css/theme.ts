@@ -71,7 +71,7 @@ export const themeCss = `
 
 /* ---- Reset ---- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; text-size-adjust: 100%; }
+html { scroll-behavior: smooth; text-size-adjust: 100%; overflow-x: hidden; }
 
 body {
   font-family: var(--font-en);

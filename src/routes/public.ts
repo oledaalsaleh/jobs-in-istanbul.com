@@ -65,6 +65,62 @@ publicRouter.get('/css/theme.css', (c) => {
 export function renderLayout(c: any, title: string, contentHtml: string, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur', seoHtml: string = '') {
   const isRtl = locale === 'ar' || locale === 'fa' || locale === 'ur';
 
+  if (!seoHtml) {
+    let pageType: any = 'home';
+    const path = c.req.path;
+    if (path.includes('/jobs/')) {
+      pageType = 'job';
+    } else if (path.endsWith('/submit-job') || path.includes('/submit-job/')) {
+      pageType = 'submit';
+    } else if (path.includes('/blog/')) {
+      pageType = 'blog_post';
+    } else if (path.endsWith('/blog') || path.endsWith('/blog/')) {
+      pageType = 'blog';
+    } else if (path.includes('/cv-optimizer')) {
+      pageType = 'cv-optimizer';
+    } else if (path.includes('/salary-calculator')) {
+      pageType = 'salary-calculator';
+    } else if (path.includes('/resume-builder')) {
+      pageType = 'resume-builder';
+    } else if (path.includes('/cover-letter-generator')) {
+      pageType = 'cover-letter-generator';
+    } else if (path.includes('/work-permit-calculator')) {
+      pageType = 'work-permit-calculator';
+    } else if (path.includes('/turkish-test')) {
+      pageType = 'turkish-test';
+    } else if (path.includes('/interview-prep')) {
+      pageType = 'interview-prep';
+    } else if (path.includes('/ats-scanner')) {
+      pageType = 'ats-scanner';
+    } else if (path.includes('/workplace-quiz')) {
+      pageType = 'workplace-quiz';
+    } else if (path.includes('/currency-prices')) {
+      pageType = 'currency-prices';
+    } else if (path.includes('/gold-prices')) {
+      pageType = 'gold-prices';
+    } else if (path.includes('/insights')) {
+      pageType = 'insights';
+    } else if (path.includes('/about')) {
+      pageType = 'about';
+    } else if (path.includes('/contact')) {
+      pageType = 'contact';
+    } else if (path.includes('/privacy')) {
+      pageType = 'privacy';
+    } else if (path.includes('/terms')) {
+      pageType = 'terms';
+    } else if (path.includes('/install')) {
+      pageType = 'install';
+    }
+
+    const data: any = { title };
+    if (pageType === 'job' || pageType === 'blog_post') {
+      const parts = path.split('/');
+      data.slug = parts[parts.length - 1];
+    }
+
+    seoHtml = generateMetaTags(locale, pageType, data) + generateJsonLd(locale, pageType, data);
+  }
+
   const translations = {
     ar: {
       siteName: 'فرص عمل في إسطنبول',
@@ -370,7 +426,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  ${c.env?.GOOGLE_SITE_VERIFICATION ? `<meta name="google-site-verification" content="${c.env.GOOGLE_SITE_VERIFICATION}" />` : ''}
+  ${c.env?.GOOGLE_SITE_VERIFICATION && c.env.GOOGLE_SITE_VERIFICATION !== 'ADD_YOUR_GOOGLE_VERIFICATION_CODE_HERE' ? `<meta name="google-site-verification" content="${c.env.GOOGLE_SITE_VERIFICATION}" />` : ''}
   ${c.env?.BING_SITE_VERIFICATION ? `<meta name="msvalidate.01" content="${c.env.BING_SITE_VERIFICATION}" />` : ''}
   ${c.env?.YANDEX_SITE_VERIFICATION ? `<meta name="yandex-verification" content="${c.env.YANDEX_SITE_VERIFICATION}" />` : ''}
   ${seoHtml ? seoHtml : `<title>${title} | ${t.tagline}</title>`}
@@ -413,7 +469,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         </div>
         <div class="logo-text">
           <strong>${t.siteName}</strong>
-          <span>${locale === 'ar' ? 'أفضل الوظائف الشاغرة' : 'Premium Job Board'}</span>
+          <span>${t.tagline}</span>
         </div>
       </a>
 
@@ -1272,10 +1328,67 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
     job.categoryObj = categories.find((c: any) => c.id === job.category) || { name_ar: '', name_en: '' };
   }
 
+  // Pagination logic
+  const totalJobsCount = jobs.length;
+  const itemsPerPage = 15;
+  const totalPages = Math.ceil(totalJobsCount / itemsPerPage) || 1;
+  const currentPage = Math.max(1, Math.min(totalPages, parseInt(c.req.query('page') || '1', 10)));
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedJobs = jobs.slice(startIndex, endIndex);
+
+  // Helper to build pagination links
+  const getPageUrl = (pageNum: number) => {
+    const paramsObj: any = {};
+    if (querySearch) paramsObj.search = querySearch;
+    if (queryCategory) paramsObj.category = queryCategory;
+    if (queryJobType) paramsObj.type = queryJobType;
+    if (queryDistrict) paramsObj.district = queryDistrict;
+    if (queryTransit) paramsObj.transit = queryTransit;
+    paramsObj.page = pageNum.toString();
+    const searchParams = new URLSearchParams(paramsObj);
+    return `/${locale}?${searchParams.toString()}`;
+  };
+
+  let paginationHtml = '';
+  if (totalPages > 1) {
+    paginationHtml = `
+    <style>
+      .pag-num:hover, .btn-pag:hover {
+        border-color: var(--primary) !important;
+        color: var(--primary) !important;
+        transform: translateY(-2px);
+      }
+    </style>
+    <div class="pagination" style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 40px; margin-bottom: 20px;">`;
+    
+    // Previous Page
+    if (currentPage > 1) {
+      paginationHtml += `<a href="${getPageUrl(currentPage - 1)}" class="btn-pag" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: var(--r-sm); border: 1.5px solid var(--border); background: var(--bg-card); color: var(--text-dark); text-decoration: none; font-weight: 700; transition: var(--t-fast);"><i class="fa-solid fa-chevron-${locale === 'ar' ? 'right' : 'left'}"></i></a>`;
+    }
+    
+    // Page Numbers
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === currentPage) {
+        paginationHtml += `<span class="pag-current" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: var(--r-sm); background: var(--primary); color: white; font-weight: 700;">${i}</span>`;
+      } else {
+        paginationHtml += `<a href="${getPageUrl(i)}" class="pag-num" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: var(--r-sm); border: 1.5px solid var(--border); background: var(--bg-card); color: var(--text-dark); text-decoration: none; font-weight: 700; transition: var(--t-fast);">${i}</a>`;
+      }
+    }
+    
+    // Next Page
+    if (currentPage < totalPages) {
+      paginationHtml += `<a href="${getPageUrl(currentPage + 1)}" class="btn-pag" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: var(--r-sm); border: 1.5px solid var(--border); background: var(--bg-card); color: var(--text-dark); text-decoration: none; font-weight: 700; transition: var(--t-fast);"><i class="fa-solid fa-chevron-${locale === 'ar' ? 'left' : 'right'}"></i></a>`;
+    }
+    
+    paginationHtml += `</div>`;
+  }
+
   // Translations
   const t = {
     ar: {
-      heroTitle: 'اعثر على وظيفتك المستقبلية في إسطنبول',
+      heroEyebrow: 'أكثر من 500 وظيفة في إسطنبول الآن',
+      heroTitle: 'اعثر على وظيفتك <span class="gradient-word">المثالية</span><br>في إسطنبول',
       heroSubtitle: 'فرص عمل مميزة للعرب والأجانب في مختلف القطاعات بمدينة إسطنبول الكبرى',
       searchPlh: 'ابحث عن مسمى وظيفي، كلمات مفتاحية...',
       locPlh: 'كل المناطق',
@@ -1286,13 +1399,14 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
       partTime: 'دوام جزئي',
       remote: 'عمل عن بعد',
       internship: 'تدريب عملي',
-      resultsCount: `تم العثور على ${jobs.length} وظيفة شاغرة`,
+      resultsCount: `تم العثور على ${totalJobsCount} وظيفة شاغرة`,
       featuredBadge: 'مميزة',
       applyBtn: 'تقدم الآن',
       noJobs: 'لا توجد وظائف تطابق خيارات البحث الحالية.'
     },
     en: {
-      heroTitle: 'Find Your Next Job in Istanbul',
+      heroEyebrow: 'Over 500 jobs in Istanbul right now',
+      heroTitle: 'Find Your <span class="gradient-word">Dream Job</span><br>in Istanbul',
       heroSubtitle: 'Premium job vacancies for locals and internationals in Istanbul metropolitan area',
       searchPlh: 'Search job title, keywords...',
       locPlh: 'All districts',
@@ -1303,13 +1417,14 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
       partTime: 'Part Time',
       remote: 'Remote',
       internship: 'Internship',
-      resultsCount: `Found ${jobs.length} vacant jobs`,
+      resultsCount: `Found ${totalJobsCount} vacant jobs`,
       featuredBadge: 'Featured',
       applyBtn: 'Apply Now',
       noJobs: 'No jobs match your search filters.'
     },
     tr: {
-      heroTitle: 'İstanbul\'da Gelecekteki İşinizi Bulun',
+      heroEyebrow: 'İstanbul\'da şu anda 500\'den fazla iş ilanı',
+      heroTitle: 'İstanbul\'da <span class="gradient-word">Mükemmel</span><br>İşinizi Bulun',
       heroSubtitle: 'İstanbul metropol bölgesindeki yerli ve uluslararası yetenekler için özel iş ilanları',
       searchPlh: 'İş unvanı, anahtar kelime arayın...',
       locPlh: 'Tüm ilçeler',
@@ -1320,13 +1435,14 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
       partTime: 'Yarı Zamanlı',
       remote: 'Uzaktan (Remote)',
       internship: 'Staj',
-      resultsCount: `${jobs.length} açık iş ilanı bulundu`,
+      resultsCount: `${totalJobsCount} açık iş ilanı bulundu`,
       featuredBadge: 'Öne Çıkan',
       applyBtn: 'Hemen Başvur',
       noJobs: 'Arama kriterlerinize uygun iş ilanı bulunamadı.'
     },
     ru: {
-      heroTitle: 'Найдите свою будущую работу в Стамбуле',
+      heroEyebrow: 'Более 500 вакансий в Стамбуле сейчас',
+      heroTitle: 'Найдите свою <span class="gradient-word">идеальную работу</span><br>в Стамбуле',
       heroSubtitle: 'Отличные вакансии для иностранцев и русскоязычных специалистов в различных секторах Стамбула',
       searchPlh: 'Поиск по названию вакансии, ключевым словам...',
       locPlh: 'Все районы',
@@ -1337,13 +1453,14 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
       partTime: 'Частичная занятость',
       remote: 'Удаленная работа',
       internship: 'Стажировка',
-      resultsCount: `Найдено ${jobs.length} вакансий`,
+      resultsCount: `Найдено ${totalJobsCount} вакансий`,
       featuredBadge: 'Премиум',
       applyBtn: 'Откликнуться',
       noJobs: 'По вашему запросу вакансий не найдено.'
     },
     fa: {
-      heroTitle: 'کار و استخدام آینده خود را در استانبول بیابید',
+      heroEyebrow: 'بیش از ۵۰۰ شغل در استانبول در حال حاضر',
+      heroTitle: 'کار و استخدام <span class="gradient-word">رویایی خود</span> را در استانبول بیابید',
       heroSubtitle: 'فرصت‌های شغلی برتر برای ایرانیان، کارجویان بین‌المللی و فارسی‌زبانان در مناطق مختلف استانبول بزرگ',
       searchPlh: 'عنوان شغلی، مهارت یا کلمات کلیدی...',
       locPlh: 'همه محله‌ها',
@@ -1354,13 +1471,14 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
       partTime: 'پاره وقت',
       remote: 'دورکاری',
       internship: 'کارآموزی',
-      resultsCount: `تعداد ${jobs.length} موقعیت شغلی فعال یافت شد`,
+      resultsCount: `تعداد ${totalJobsCount} موقعیت شغلی فعال یافت شد`,
       featuredBadge: 'ویژه',
       applyBtn: 'ثبت درخواست و ارسال رزومه',
       noJobs: 'هیچ شغلی مطابق با فیلترهای جستجوی شما پیدا نشد.'
     },
     ur: {
-      heroTitle: 'استنبول میں اپنے کیریئر کا مستقبل تلاش کریں',
+      heroEyebrow: 'استنبول میں اس وقت 500 سے زائد ملازمتیں',
+      heroTitle: 'استنبول میں اپنی <span class="gradient-word">مثالی ملازمت</span> تلاش کریں',
       heroSubtitle: 'اردو بولنے والوں اور بین الاقوامی امیدواروں کے لیے استنبول کے بہترین علاقوں میں ملازمت کے مواقع',
       searchPlh: 'ملازمت کا عنوان، مہارت یا کلیدی الفاظ...',
       locPlh: 'تمام اضلاع',
@@ -1371,7 +1489,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
       partTime: 'پارٹ ٹائم',
       remote: 'ریموٹ (دور سے کام)',
       internship: 'انٹرنشپ',
-      resultsCount: `کل ${jobs.length} فعال ملازمتیں ملیں`,
+      resultsCount: `کل ${totalJobsCount} فعال ملازمتیں ملیں`,
       featuredBadge: 'نمایاں',
       applyBtn: 'درخواست دیں اور سی وی بھیجیں',
       noJobs: 'آپ کے فلٹرز کے مطابق کوئی ملازمت نہیں ملی۔'
@@ -1380,7 +1498,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
 
   // Render Categories HTML
   const categoriesHtml = categories.map((cat: any) => {
-    const name = locale === 'ar' ? cat.name_ar : (locale === 'tr' ? (cat.name_tr || cat.name_en) : (locale === 'fa' ? (cat.name_fa || cat.name_en) : (locale === 'ur' ? (cat.name_ur || cat.name_en) : (locale === 'ru' ? (cat.name_ru || cat.name_en) : cat.name_en))));
+    const name = locale === 'ar' ? (cat.name_ar || cat.name_en) : (locale === 'tr' ? (cat.name_tr || cat.name_en) : (locale === 'fa' ? (cat.name_fa || cat.name_en) : (locale === 'ur' ? (cat.name_ur || cat.name_en) : (locale === 'ru' ? (cat.name_ru || cat.name_en) : cat.name_en))));
     const activeClass = queryCategory === cat.id ? 'active' : '';
     return `<a href="/${locale}?category=${cat.id}" class="category-card ${activeClass}">
       <div class="cat-emoji">${cat.icon || '💼'}</div>
@@ -1389,12 +1507,12 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
   }).join('');
 
   const activeCategoryObj = categories.find((c: any) => c.id === queryCategory || c.slug === queryCategory);
-  const activeCategoryName = activeCategoryObj ? (locale === 'ar' ? activeCategoryObj.name_ar : (locale === 'tr' ? (activeCategoryObj.name_tr || activeCategoryObj.name_en) : (locale === 'fa' ? (activeCategoryObj.name_fa || activeCategoryObj.name_en) : (locale === 'ur' ? (activeCategoryObj.name_ur || activeCategoryObj.name_en) : (locale === 'ru' ? (activeCategoryObj.name_ru || activeCategoryObj.name_en) : activeCategoryObj.name_en))))) : '';
+  const activeCategoryName = activeCategoryObj ? (locale === 'ar' ? (activeCategoryObj.name_ar || activeCategoryObj.name_en) : (locale === 'tr' ? (activeCategoryObj.name_tr || activeCategoryObj.name_en) : (locale === 'fa' ? (activeCategoryObj.name_fa || activeCategoryObj.name_en) : (locale === 'ur' ? (activeCategoryObj.name_ur || activeCategoryObj.name_en) : (locale === 'ru' ? (activeCategoryObj.name_ru || activeCategoryObj.name_en) : activeCategoryObj.name_en))))) : '';
 
   // Render Jobs HTML
-  const jobsHtml = jobs.length > 0 ? jobs.map((job: any) => {
-    const title = locale === 'ar' ? job.title_ar : (locale === 'tr' ? (job.title_tr || job.title_en) : (locale === 'fa' ? (job.title_fa || job.title_en) : (locale === 'ur' ? (job.title_ur || job.title_en) : (locale === 'ru' ? (job.title_ru || job.title_en) : job.title_en))));
-    const location = locale === 'ar' ? job.location_ar : (locale === 'tr' ? (job.location_tr || job.location_en) : (locale === 'fa' ? (job.location_fa || job.location_en) : (locale === 'ur' ? (job.location_ur || job.location_en) : (locale === 'ru' ? (job.location_ru || job.location_en) : job.location_en))));
+  const jobsHtml = paginatedJobs.length > 0 ? paginatedJobs.map((job: any) => {
+    const title = locale === 'ar' ? (job.title_ar || job.title_en) : (locale === 'tr' ? (job.title_tr || job.title_en) : (locale === 'fa' ? (job.title_fa || job.title_en) : (locale === 'ur' ? (job.title_ur || job.title_en) : (locale === 'ru' ? (job.title_ru || job.title_en) : job.title_en))));
+    const location = locale === 'ar' ? (job.location_ar || job.location_en) : (locale === 'tr' ? (job.location_tr || job.location_en) : (locale === 'fa' ? (job.location_fa || job.location_en) : (locale === 'ur' ? (job.location_ur || job.location_en) : (locale === 'ru' ? (job.location_ru || job.location_en) : job.location_en))));
     const typeKey = job.jobType === 'full-time' ? 'fullTime' : job.jobType === 'part-time' ? 'partTime' : job.jobType === 'remote' ? 'remote' : 'internship';
     const typeLabel = t[typeKey];
     const isRemote = job.jobType === 'remote';
@@ -1450,18 +1568,15 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
       <div class="container hero-content">
         <div class="hero-eyebrow animate-fadeup">
           <span class="live-dot"></span>
-          ${locale === 'ar' ? 'أكثر من 500 وظيفة في إسطنبول الآن' : 'Over 500 jobs in Istanbul right now'}
+          ${t.heroEyebrow}
         </div>
         <h1 class="hero-title animate-fadeup animate-delay-1">
-          ${locale === 'ar'
-      ? `اعثر على وظيفتك <span class="gradient-word">المثالية</span><br>في إسطنبول`
-      : `Find Your <span class="gradient-word">Dream Job</span><br>in Istanbul`
-    }
+          ${t.heroTitle}
         </h1>
         <p class="hero-subtitle animate-fadeup animate-delay-2">${t.heroSubtitle}</p>
         <div class="hero-stats animate-fadeup animate-delay-3">
           <div class="hero-stat">
-            <div class="hero-stat-value">${jobs.length}+</div>
+            <div class="hero-stat-value">${totalJobsCount}+</div>
             <div class="hero-stat-label">${locale === 'ar' ? 'وظيفة شاغرة' : 'Open Positions'}</div>
           </div>
           <div class="hero-stat-divider"></div>
@@ -1688,29 +1803,36 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
                 <div style="position: absolute; right: -15px; top: -15px; font-size: 90px; opacity: 0.04; color: var(--text-dark); pointer-events: none;">
                   <i class="fa-solid fa-book-open"></i>
                 </div>
-                </span>
-              </div>
-              <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-dark); margin: 0 0 10px 0;">
-                ${locale === 'ar' ? 'أدلة العمل والإقامة بتركيا' : 'Work Permits & Residency'}
-              </h3>
-              <p style="font-size: 0.875rem; color: var(--text-main); line-height: 1.5; margin: 0 0 20px 0;">
-                ${locale === 'ar'
+                <div>
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                    <div class="tool-icon-wrapper" style="width: 48px; height: 48px; border-radius: var(--radius-md); background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem;">
+                      <i class="fa-solid fa-book-open"></i>
+                    </div>
+                    <span class="tag-status" style="font-size: 0.75rem; font-weight: 700; background: #ffedd5; color: #9a3412; padding: 4px 10px; border-radius: var(--r-full);">
+                      ${locale === 'ar' ? 'أدلة مهنية' : 'Career Guides'}
+                    </span>
+                  </div>
+                  <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-dark); margin: 0 0 10px 0;">
+                    ${locale === 'ar' ? 'أدلة العمل والإقامة بتركيا' : 'Work Permits & Residency'}
+                  </h3>
+                  <p style="font-size: 0.875rem; color: var(--text-main); line-height: 1.5; margin: 0 0 20px 0;">
+                    ${locale === 'ar'
       ? 'اعرف إجراءات الحصول على إذن عمل (Çalışma İzni) والإقامة السياحية، ونصائح تحسين ملفك المهني لتخطي اختبارات أنظمة ATS التلقائية.'
       : 'Get legal work permit instructions, residency details, and professional tips to optimize your CV for ATS parsing in Turkey.'}
-              </p>
-            </div>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-              <a href="/${locale}/blog" class="btn-primary" style="font-size: 0.82rem; padding: 8px 12px; text-decoration: none; background: #f97316;">
-                ${locale === 'ar' ? 'أدلة المهنة ←' : 'Read Guides ←'}
-              </a>
-              <a href="/${locale}/turkish-test" class="btn-primary" style="font-size: 0.82rem; padding: 8px 12px; text-decoration: none; background: #14b8a6;">
-                ${locale === 'ar' ? 'اختبار الكفاءة 🎓' : 'Turkish Test 🎓'}
-              </a>
-              <a href="/${locale}/workplace-quiz" class="btn-primary" style="font-size: 0.82rem; padding: 8px 12px; text-decoration: none; background: var(--primary);">
-                ${locale === 'ar' ? 'تدريب سريع ✍️' : 'Quick Quiz ✍️'}
-              </a>
-            </div>
-          </div>
+                  </p>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <a href="/${locale}/blog" class="btn-primary" style="font-size: 0.82rem; padding: 8px 12px; text-decoration: none; background: #f97316;">
+                    ${locale === 'ar' ? 'أدلة المهنة ←' : 'Read Guides ←'}
+                  </a>
+                  <a href="/${locale}/turkish-test" class="btn-primary" style="font-size: 0.82rem; padding: 8px 12px; text-decoration: none; background: #14b8a6;">
+                    ${locale === 'ar' ? 'اختبار الكفاءة 🎓' : 'Turkish Test 🎓'}
+                  </a>
+                  <a href="/${locale}/workplace-quiz" class="btn-primary" style="font-size: 0.82rem; padding: 8px 12px; text-decoration: none; background: var(--primary);">
+                    ${locale === 'ar' ? 'تدريب سريع ✍️' : 'Quick Quiz ✍️'}
+                  </a>
+                </div>
+              </div>
 
         </div>
 
@@ -1803,12 +1925,13 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
 
         <section>
           <div class="jobs-header">
-            <p class="jobs-count"><strong>${jobs.length}</strong> ${locale === 'ar' ? 'وظيفة متاحة' : 'jobs available'}</p>
+            <p class="jobs-count"><strong>${totalJobsCount}</strong> ${locale === 'ar' ? 'وظيفة متاحة' : 'jobs available'}</p>
             ${querySearch || queryCategory || queryJobType || queryDistrict || queryTransit ? `<a href="/${locale}" style="font-size:.82rem; color:var(--danger); font-weight:600;"><i class="fa-solid fa-xmark"></i> ${locale === 'ar' ? 'مسح الفلاتر' : 'Clear filters'}</a>` : ''}
           </div>
           <div class="jobs-list">
             ${jobsHtml}
           </div>
+          ${paginationHtml}
         </section>
       </div>
     </div>
@@ -1888,9 +2011,9 @@ publicRouter.get(
     ).bind(job.company).first();
     const company = compRow ? JSON.parse(compRow.data) : { name: job.company || 'Company', description: '' };
 
-    const title = locale === 'ar' ? job.title_ar : (locale === 'tr' ? (job.title_tr || job.title_en) : job.title_en);
-    const description = locale === 'ar' ? job.description_ar : (locale === 'tr' ? (job.description_tr || job.description_en) : job.description_en);
-    const location = locale === 'ar' ? job.location_ar : (locale === 'tr' ? (job.location_tr || job.location_en) : job.location_en);
+    const title = locale === 'ar' ? (job.title_ar || job.title_en) : (locale === 'tr' ? (job.title_tr || job.title_en) : (locale === 'fa' ? (job.title_fa || job.title_en) : (locale === 'ur' ? (job.title_ur || job.title_en) : (locale === 'ru' ? (job.title_ru || job.title_en) : job.title_en))));
+    const description = locale === 'ar' ? (job.description_ar || job.description_en) : (locale === 'tr' ? (job.description_tr || job.description_en) : (locale === 'fa' ? (job.description_fa || job.description_en) : (locale === 'ur' ? (job.description_ur || job.description_en) : (locale === 'ru' ? (job.description_ru || job.description_en) : job.description_en))));
+    const location = locale === 'ar' ? (job.location_ar || job.location_en) : (locale === 'tr' ? (job.location_tr || job.location_en) : (locale === 'fa' ? (job.location_fa || job.location_en) : (locale === 'ur' ? (job.location_ur || job.location_en) : (locale === 'ru' ? (job.location_ru || job.location_en) : job.location_en))));
 
     const shareUrl = `https://jobs-in-istanbul.com/${locale}/jobs/${job.slug}`;
     const shareText = locale === 'ar'
@@ -2089,8 +2212,8 @@ publicRouter.get(
         </h2>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
           ${relatedJobs.map((relJob: any) => {
-      const relTitle = locale === 'ar' ? relJob.title_ar : (locale === 'tr' ? (relJob.title_tr || relJob.title_en) : (locale === 'fa' ? (relJob.title_fa || relJob.title_en) : (locale === 'ur' ? (relJob.title_ur || relJob.title_en) : (locale === 'ru' ? (relJob.title_ru || relJob.title_en) : relJob.title_en))));
-      const relLocation = locale === 'ar' ? relJob.location_ar : (locale === 'tr' ? (relJob.location_tr || relJob.location_en) : (locale === 'fa' ? (relJob.location_fa || relJob.location_en) : (locale === 'ur' ? (relJob.location_ur || relJob.location_en) : (locale === 'ru' ? (relJob.location_ru || relJob.location_en) : relJob.location_en))));
+      const relTitle = locale === 'ar' ? (relJob.title_ar || relJob.title_en) : (locale === 'tr' ? (relJob.title_tr || relJob.title_en) : (locale === 'fa' ? (relJob.title_fa || relJob.title_en) : (locale === 'ur' ? (relJob.title_ur || relJob.title_en) : (locale === 'ru' ? (relJob.title_ru || relJob.title_en) : relJob.title_en))));
+      const relLocation = locale === 'ar' ? (relJob.location_ar || relJob.location_en) : (locale === 'tr' ? (relJob.location_tr || relJob.location_en) : (locale === 'fa' ? (relJob.location_fa || relJob.location_en) : (locale === 'ur' ? (relJob.location_ur || relJob.location_en) : (locale === 'ru' ? (relJob.location_ru || relJob.location_en) : relJob.location_en))));
       const relCompany = relatedCompanies[relJob.company] || { name: relJob.company || 'Company' };
       const typeKey = relJob.jobType === 'full-time' ? 'fullTime' : relJob.jobType === 'part-time' ? 'partTime' : relJob.jobType === 'remote' ? 'remote' : 'internship';
       const relTypeLabel = translations[typeKey] || relJob.jobType;
