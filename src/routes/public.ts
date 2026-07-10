@@ -448,7 +448,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/theme.css?v=1.0.4">
   
   <!-- Critical inline CSS for zero flash -->
   <style>
@@ -707,7 +707,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
               <i class="fa-solid fa-moon"></i>
             </button>
           </div>
-          <div style="display:flex; gap:8px; width:100%;">
+          <div style="display:flex; gap:8px; width:100%; flex-wrap:wrap;">
             <a href="${getLangUrl(requestPath, 'ar')}" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px 8px; border-radius:var(--r-md); border:1.5px solid ${locale === 'ar' ? 'var(--primary)' : 'var(--border)'}; background: ${locale === 'ar' ? 'var(--primary-light)' : 'transparent'}; color:${locale === 'ar' ? 'var(--primary)' : 'var(--text-body)'}; font-size:0.8rem; font-weight:700; transition:var(--t-base); text-decoration:none;">
               <img src="https://flagcdn.com/w20/sa.png" alt="العربية" style="width: 18px; height: 13px; border-radius: 1px;">
               <span>العربية</span>
