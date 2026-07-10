@@ -16,6 +16,9 @@ const fallbackPrices = [
 
 currencyPricesRouter.get('/currency-prices', (c) => {
   const acceptLang = c.req.header('accept-language') || '';
+  if (acceptLang.toLowerCase().startsWith('fa')) {
+    return c.redirect('/fa/currency-prices');
+  }
   if (acceptLang.toLowerCase().startsWith('ru')) {
     return c.redirect('/ru/currency-prices');
   }
@@ -29,8 +32,8 @@ currencyPricesRouter.get('/currency-prices', (c) => {
 })
 
 currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/currency-prices');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/currency-prices');
 
   const db = (c.env as any).DB;
   let prices = fallbackPrices;
@@ -52,7 +55,7 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
       if (parsed.prices && Array.isArray(parsed.prices) && parsed.prices.length > 0) {
         prices = parsed.prices;
         advice = parsed.advice || advice;
-        lastUpdateStr = new Date(parsed.updatedAt).toLocaleString(locale === 'ar' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
+        lastUpdateStr = new Date(parsed.updatedAt).toLocaleString(locale === 'ar' || locale === 'fa' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
       }
     }
   } catch (err) {
@@ -61,7 +64,7 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
 
   // If no timestamp, generate a recent one
   if (!lastUpdateStr) {
-    lastUpdateStr = new Date().toLocaleString(locale === 'ar' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
+    lastUpdateStr = new Date().toLocaleString(locale === 'ar' || locale === 'fa' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
   }
 
   const t = {
@@ -136,11 +139,30 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
       textDescription: 'Эти курсы валют автоматически обновляются в соответствии со свободным рынком Стамбула и межбанковскими курсами для информирования иностранных специалистов.',
       flagUrl: (code: string) => `https://cdn101.adwimg.com/static/adwhitv2/svg/flags/1x1/${code.toLowerCase() === 'usd' ? 'us' : (code.toLowerCase() === 'eur' ? 'eu' : (code.toLowerCase() === 'gbp' ? 'gb' : code.toLowerCase().substring(0, 2)))}.svg`,
       calcBtn: 'Конвертировать валюту'
+    },
+    fa: {
+      title: 'قیمت لیر و نرخ ارز در ترکیه امروز',
+      subtitle: 'پیگیری لحظه‌ای نرخ ارز در برابر لیر ترکیه (TRY)، ماشین حساب تبدیل ارز و تحلیل روزانه بازار با هوش مصنوعی Gemini.',
+      lastUpdate: 'آخرین به‌روزرسانی:',
+      colCurrency: 'نام ارز',
+      colBuy: 'خرید (TRY)',
+      colSell: 'فروش (TRY)',
+      colChange: 'تغییر روزانه',
+      converterTitle: '🧮 ماشین حساب تبدیل ارز',
+      amountLabel: 'مقدار ارز:',
+      fromLabel: 'از ارز:',
+      toLabel: 'به ارز:',
+      resultLabel: 'ارزش کل تقریبی:',
+      aiTitle: '🤖 تحلیل بازار و توصیه‌های روزانه هوش مصنوعی Gemini',
+      textDescription: 'این نرخ‌ها به صورت خودکار از بازار آزاد استانبول و صرافی‌های بانکی ترکیه جهت برنامه‌ریزی مالی شما گردآوری می‌شود.',
+      flagUrl: (code: string) => `https://cdn101.adwimg.com/static/adwhitv2/svg/flags/1x1/${code.toLowerCase() === 'usd' ? 'us' : (code.toLowerCase() === 'eur' ? 'eu' : (code.toLowerCase() === 'gbp' ? 'gb' : code.toLowerCase().substring(0, 2)))}.svg`,
+      calcBtn: 'تبدیل و محاسبه ارز'
     }
   }[locale];
 
   // Generate currency select options
   const trCurrencyNames: Record<string, string> = { USD: 'ABD Doları', EUR: 'Euro', SAR: 'Suudi Arabistan Riyali', AED: 'Birleşik Arap Emirlikleri Dirhemi', GBP: 'İngiliz Sterlini', EGP: 'Mısır Lirası' };
+  const faCurrencyNames: Record<string, string> = { USD: 'دلار آمریکا', EUR: 'یورو', SAR: 'ریال عربستان', AED: 'درهم امارات', GBP: 'پوند انگلیس', EGP: 'لیره مصر' };
   
 
   // Extract popular currencies for highlights (USD, EUR, SAR)
@@ -151,7 +173,7 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
     const changeVal = parseFloat(p.change?.['1d'] || '0');
     const changeClass = changeVal > 0 ? 'change-up' : (changeVal < 0 ? 'change-down' : '');
     const changeSymbol = changeVal > 0 ? '▲' : (changeVal < 0 ? '▼' : '');
-    const titleText = locale === 'ar' ? p.name : (locale === 'tr' ? (trCurrencyNames[p.code] || p.code) : p.code);
+    const titleText = locale === 'ar' ? p.name : (locale === 'tr' ? (trCurrencyNames[p.code] || p.code) : (locale === 'fa' ? (faCurrencyNames[p.code] || p.code) : p.code));
     
     return `
       <div class="highlight-card">
@@ -164,11 +186,11 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
           </div>
           <div style="margin-top: 8px; display: flex; gap: 16px;">
             <div>
-              <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; display: block;">${locale === 'ar' ? 'شراء' : (locale === 'tr' ? 'Alış' : 'Buy')}</span>
+              <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; display: block;">${locale === 'ar' || locale === 'fa' ? (locale === 'ar' ? 'شراء' : 'خرید') : (locale === 'tr' ? 'Alış' : 'Buy')}</span>
               <span style="font-size: 1.25rem; font-weight: 800; color: var(--text-dark);">${buyPrice} ₺</span>
             </div>
             <div style="border-left: 1px solid var(--border); padding-left: 16px; padding-right: 16px;">
-              <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; display: block;">${locale === 'ar' ? 'بيع' : (locale === 'tr' ? 'Satış' : 'Sell')}</span>
+              <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; display: block;">${locale === 'ar' || locale === 'fa' ? (locale === 'ar' ? 'بيع' : 'فروش') : (locale === 'tr' ? 'Satış' : 'Sell')}</span>
               <span style="font-size: 1.25rem; font-weight: 800; color: var(--primary);">${sellPrice} ₺</span>
             </div>
           </div>

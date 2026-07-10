@@ -10,8 +10,8 @@ const COOKIE_NAME = 'employer_jwt';
 
 // Employer Login Page
 employerPortalRouter.get('/:locale/employer/login', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/employer/login');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/employer/login');
 
   const t = {
     ar: {
@@ -53,6 +53,16 @@ employerPortalRouter.get('/:locale/employer/login', (c) => {
       loading: 'Отправка ссылки... ⏳',
       successMsg: 'Волшебная ссылка отправлена! Пожалуйста, проверьте почту.',
       devLinkNotice: '🔧 В режиме разработки вы можете войти напрямую, нажав ниже:'
+    },
+    fa: {
+      title: 'پورتال کارفرمایان - ورود',
+      subtitle: 'ایمیل تجاری خود را وارد کنید تا لینک جادویی و ایمن ورود برای مدیریت آگهی‌های استخدام و درخواست‌های کارجویان ارسال شود.',
+      emailLabel: 'آدرس ایمیل شرکت / کاری',
+      emailPlh: 'company@example.com',
+      submitBtn: 'ارسال لینک جادویی 🚀',
+      loading: 'در حال ارسال لینک... ⏳',
+      successMsg: 'لینک ورود جادویی با موفقیت ارسال شد! لطفاً ایمیل خود را بررسی کنید.',
+      devLinkNotice: '🔧 در محیط توسعه، می‌توانید مستقیماً با کلیک بر روی لینک زیر وارد شوید:'
     }
   }[locale];
 
@@ -172,7 +182,7 @@ employerPortalRouter.post('/api/employer/request-magic', rateLimiter(3, 10), asy
 employerPortalRouter.get('/employer/verify', async (c) => {
   const env: any = c.env;
   const token = c.req.query('token');
-  const locale = (c.req.query('locale') || 'ar') as 'ar' | 'en' | 'tr' | 'ru';
+  const locale = (c.req.query('locale') || 'ar') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
 
   if (!token) {
     return c.text('Verification token is missing.', 400);
@@ -215,8 +225,8 @@ employerPortalRouter.get('/employer/logout', (c) => {
 
 // Pricing Mock Packages page
 employerPortalRouter.get('/:locale/employer/pricing', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/employer/pricing');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/employer/pricing');
 
   const t = {
     ar: {
@@ -274,6 +284,20 @@ employerPortalRouter.get('/:locale/employer/pricing', (c) => {
       sandboxTitle: 'Имитация оплаты (Sandbox)',
       sandboxDesc: 'Это симуляция процесса оплаты для активации расширенных лимитов работодателя.',
       sandboxSuccess: 'Тариф успешно обновлен! Теперь вы можете публиковать неограниченное количество вакансий и использовать систему ATS.'
+    },
+    fa: {
+      title: 'بسته‌های اشتراک کارفرمایان',
+      subtitle: 'پلان مناسب شرکت خود را انتخاب کنید تا با بهترین کارجویان متخصص در استانبول ارتباط برقرار کرده و ابزارهای غربالگری هوشمند را فعال کنید.',
+      planFree: 'پلان رایگان پایه',
+      planPro: 'پلان حرفه‌ای (Pro)',
+      planEnterprise: 'پلان شرکتی (Enterprise)',
+      priceFree: 'رایگان',
+      pricePro: '۹۹ دلار / ماهانه',
+      priceEnterprise: '۲۴۹ دلار / ماهانه',
+      btnSelect: 'خرید اشتراک 💳',
+      sandboxTitle: 'شبیه‌ساز پرداخت (محیط تست)',
+      sandboxDesc: 'یک شبیه‌سازی پرداخت سریع برای ارتقای آنی حساب کاربری و فعال‌سازی قابلیت‌های کارفرمای حرفه‌ای است.',
+      sandboxSuccess: 'حساب کاربری شما با موفقیت ارتقا یافت! اکنون می‌توانید بدون محدودیت آگهی استخدام ثبت کنید و از سیستم ATS استفاده کنید.'
     }
   }[locale];
 
@@ -371,8 +395,8 @@ employerPortalRouter.get('/:locale/employer/pricing', (c) => {
 employerPortalRouter.get('/:locale/employer/dashboard', async (c) => {
   const env: any = c.env;
   const db = env.DB;
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/employer/dashboard');;
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/employer/dashboard');;
 
   const cookieVal = getCookie(c, COOKIE_NAME);
   if (!cookieVal) {
@@ -510,6 +534,44 @@ employerPortalRouter.get('/:locale/employer/dashboard', async (c) => {
       statusReviewed: 'На рассмотрении',
       statusShortlisted: 'В шорт-листе',
       statusRejected: 'Отклонено'
+    },
+    fa: {
+      title: 'داشبورد مدیریت کارفرمایان - کاریابی در استانبول',
+      welcome: `خوش آمدید، ${employerEmail}`,
+      logout: 'خروج از حساب',
+      postJobTitle: 'ثبت آگهی استخدام جدید',
+      activeJobsTitle: 'آگهی‌های فعال شما',
+      noJobs: 'شما هنوز هیچ آگهی استخدامی ثبت نکرده‌اید.',
+      tblJob: 'عنوان شغلی',
+      tblApplicants: 'متقاضیان',
+      viewApplicants: 'مشاهده کارجویان ({count}) 👥',
+      applicantsFor: 'متقاضیان کار برای: {job}',
+      noApplicants: 'هنوز هیچ درخواستی برای این شغل ارسال نشده است.',
+      tblCandidate: 'کارجو',
+      tblMatchScore: 'انطباق رزومه (ATS)',
+      downloadCV: 'دانلود رزومه',
+      playVideo: 'ویدیو معرفی',
+      postBtn: 'انتشار آگهی استخدام 🚀',
+      aiGenBtn: 'تولید شرح شغل با هوش مصنوعی 🤖',
+      quizPlaceholder: 'مثال:\n1. آیا به React تسلط دارید؟ [بله/خیر]\n2. چند سال سابقه کار دارید؟ [۱-۳/۴+]',
+      pricingLink: 'ارتقای حساب و پلان‌های اشتراک 👑',
+      lblTitleEn: 'عنوان شغلی (انگلیسی)',
+      lblTitleAr: 'عنوان شغلی (عربی/فارسی)',
+      lblCompany: 'نام شرکت',
+      lblCategory: 'دسته‌بندی شغلی',
+      lblDistrict: 'منطقه / محله (مانند: Şişli)',
+      lblTransit: 'نزدیک‌ترین خط ترانزیت (مترو/متروبوس)',
+      lblJobType: 'نوع همکاری',
+      lblLanguage: 'زبان‌های مورد نیاز',
+      lblDesc: 'شرح شغل و نیازمندی‌ها (قالب HTML مجاز است)',
+      lblQuizHeader: 'سوالات غربالگری کارجو (فرم سوال و جواب تعاملی)',
+      genQuizBtn: 'تولید خودکار آزمون با هوش مصنوعی 🤖',
+      modalVideoTitle: 'ویدیو معرفی کارجو 🎥',
+      transitNone: 'ندارد',
+      statusApplied: 'دریافت شده',
+      statusReviewed: 'در حال بررسی',
+      statusShortlisted: 'در لیست کوتاه (مصاحبه)',
+      statusRejected: 'رد شده'
     }
   }[locale];
 

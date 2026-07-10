@@ -6,8 +6,8 @@ export const aiFeaturesRouter = new Hono()
 
 // CV & Cover Letter Optimizer Page
 aiFeaturesRouter.get('/:locale/cv-optimizer', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/cv-optimizer');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/cv-optimizer');
 
   const t = {
     ar: {
@@ -69,6 +69,21 @@ aiFeaturesRouter.get('/:locale/cv-optimizer', (c) => {
       tipsTab: 'Советы по резюме',
       copyBtn: 'Копировать',
       copied: 'Скопировано!'
+    },
+    fa: {
+      title: 'بهینه‌ساز رزومه و انگیزه‌نامه با هوش مصنوعی',
+      subtitle: 'رزومه خود را بهینه‌سازی کنید و انگیزه‌نامه‌های سفارشی و حرفه‌ای متناسب با شغل هدف خود با استفاده از هوش مصنوعی بنویسید.',
+      jobDescPlh: 'شرح وظایف یا شرایط احراز شغل مورد نظر را اینجا وارد کنید...',
+      expPlh: 'مهارت‌ها، تجربیات کاری یا رزومه فعلی خود را اینجا بنویسید یا بچسبانید...',
+      jobDescLabel: 'شرح موقعیت شغلی و نیازمندی‌ها',
+      expLabel: 'تجربیات و رزومه فعلی شما',
+      submitBtn: 'تولید انگیزه‌نامه و بهینه‌سازی 🤖',
+      loading: 'در حال تحلیل نیازمندی‌ها و نگارش انگیزه‌نامه... ⏳',
+      resultsTitle: 'نتایج بهینه‌سازی شده هوش مصنوعی',
+      coverLetterTab: 'انگیزه‌نامه (Cover Letter)',
+      tipsTab: 'نصائح بهینه‌سازی رزومه',
+      copyBtn: 'کپی در حافظه',
+      copied: 'کپی شد!'
     }
   }[locale];
 
@@ -206,7 +221,7 @@ aiFeaturesRouter.post('/api/cv-optimize', rateLimiter(3, 10), async (c) => {
       Your task is to write an impressive cover letter and suggest CV optimization suggestions.
       Output ONLY a clean JSON object with two fields: "coverLetter" and "tips". Do not output markdown code blocks.
       Requirements:
-      - Write the response in the language corresponding to: ${locale === 'ar' ? 'Arabic' : (locale === 'tr' ? 'Turkish' : (locale === 'ru' ? 'Russian' : 'English'))}.
+      - Write the response in the language corresponding to: ${locale === 'ar' ? 'Arabic' : (locale === 'tr' ? 'Turkish' : (locale === 'ru' ? 'Russian' : (locale === 'fa' ? 'Persian (Farsi)' : 'English')))}.
       - The cover letter must be professional, persuasive, and highly tailored to the provided job description using the candidate's experience.
       - The tips must contain 3 to 5 clear, bulleted recommendations to optimize the candidate's resume keywords and structure to match the job.
       
@@ -249,8 +264,8 @@ aiFeaturesRouter.post('/api/cv-optimize', rateLimiter(3, 10), async (c) => {
 
 // Salary Calculator Page
 aiFeaturesRouter.get('/:locale/salary-calculator', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/salary-calculator');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/salary-calculator');
 
   const t = {
     ar: {
@@ -355,6 +370,32 @@ aiFeaturesRouter.get('/:locale/salary-calculator', (c) => {
         'Проверьте, включает ли предложение социальный пакет (частная страховка SGK/Özel и проезд/питание Sodexo/Multinet).',
         'Всегда ведите переговоры о чистой зарплате (Net) после уплаты налогов, а не о брутто-зарплате.',
         'В связи с инфляцией международные компании предлагают оклады, привязанные к USD/EUR или пересматриваемые ежеквартально.'
+      ]
+    },
+    fa: {
+      title: 'تخمین‌گر حقوق و دستمزد استانبول',
+      subtitle: 'محدوده حقوق ماهیانه تخمینی خود را در بازار کار استانبول برای سال ۲۰۲۶ بر اساس تخصص، سابقه کار و زبان‌های تسلط محاسبه کنید.',
+      category: 'حوزه کاری / بخش شغلی',
+      experience: 'سابقه و سطح مهارت',
+      languages: 'زبان‌های تسلط',
+      calcBtn: 'محاسبه حقوق تقریبی 💳',
+      resultTitle: 'حقوق ماهیانه تقریبی (لیره ترکیه - TL)',
+      levelJr: 'مبتدئ / جونیور (۰-۲ سال)',
+      levelMid: 'میان‌رده / میدلول (۳-۵ سال)',
+      levelSr: 'ارشد / سنیور (+۵ سال)',
+      langAr: 'فقط عربی',
+      langEn: 'فقط انگلیسی',
+      langBoth: 'انگلیسی و عربی/ترکی',
+      langAll: 'چندزبانه (ترکی + انگلیسی + عربی/فارسی)',
+      salaryLow: 'حداقل حقوق پایه',
+      salaryAvg: 'میانگین مورد انتظار',
+      salaryHigh: 'حداکثر پتانسیل حقوق',
+      tipsTitle: '💡 نکات مذاکره حقوق در استانبول:',
+      tipsList: [
+        'تسلط به چند زبان (انگلیسی/ترکی/فارسی) یک مزیت بزرگ است و میزان حقوق پیشنهادی را ۱۵٪ تا ۳۰٪ افزایش می‌دهد.',
+        'بررسی کنید که آیا پیشنهاد کاری شامل بیمه درمانی تکمیلی (SGK/Özel) و کمک هزینه غذا/ایاب ذهاب (Sodexo) می‌شود یا خیر.',
+        'همیشه در مورد حقوق خالص (Net) توافق کنید، نه حقوق ناخالص (Gross) قبل از کسر مالیات.',
+        'به دلیل تورم، برخی از شرکت‌های بین‌المللی حقوق خود را به دلار/یورو پرداخت کرده یا تعدیل فصلی اعمال می‌کنند.'
       ]
     }
   }[locale];
@@ -573,8 +614,8 @@ aiFeaturesRouter.get('/:locale/salary-calculator', (c) => {
 
 // Resume Builder Page
 aiFeaturesRouter.get('/:locale/resume-builder', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/resume-builder');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/resume-builder');
 
   const t = {
     ar: {
@@ -704,6 +745,38 @@ aiFeaturesRouter.get('/:locale/resume-builder', (c) => {
       tplClassic: 'Классический представительский',
       stepPrev: 'Назад',
       stepNext: 'Далее'
+    },
+    fa: {
+      title: 'رزومه‌ساز تعاملی و حرفه‌ای',
+      subtitle: 'رزومه کاری خود را در چند گام ساده بسازید، قالب دلخواه را انتخاب کنید و فایل PDF آن را فوراً دانلود کنید.',
+      personalTab: 'اطلاعات فردی',
+      expTab: 'سوابق شغلی',
+      eduTab: 'تحصیلات و دوره‌ها',
+      skillsTab: 'مهارت‌ها و طراحی',
+      fullName: 'نام و نام خانوادگی',
+      jobTitle: 'عنوان شغلی مورد نظر',
+      email: 'آدرس ایمیل',
+      phone: 'شماره تماس',
+      summary: 'خلاصه رزومه / درباره من',
+      company: 'نام شرکت / سازمان',
+      role: 'سمت شغلی',
+      dates: 'دوره زمانی (مثال: ۱۴۰۲ - تاکنون)',
+      desc: 'مسئولیت‌ها و دستاوردهای کلیدی',
+      school: 'دانشگاه / موسسه آموزشی',
+      degree: 'مقطع و رشته تحصیلی',
+      skills: 'مهارت‌های تخصصی (با کاما جدا کنید)',
+      languages: 'زبان‌ها (مثال: فارسی (زبان مادری)، انگلیسی (پیشرفته))',
+      printBtn: '🖨️ چاپ و ذخیره به عنوان PDF',
+      addBtn: 'افزودن بخش جدید +',
+      previewTitle: 'پیش‌نمایش رزومه (کاغذ A4)',
+      loadSampleBtn: '✨ پر کردن با اطلاعات نمونه',
+      tplLabel: 'انتخاب قالب رزومه:',
+      colorLabel: 'رنگ اصلی قالب:',
+      tplMinimal: 'مدرن و ساده (Minimal)',
+      tplSidebar: 'سایدباردار حرفه‌ای',
+      tplClassic: 'کلاسیک شرکتی',
+      stepPrev: 'مرحله قبلی',
+      stepNext: 'مرحله بعدی'
     }
   }[locale];
 
@@ -1265,8 +1338,8 @@ aiFeaturesRouter.get('/:locale/resume-builder', (c) => {
 
 // AI Cover Letter Generator Page
 aiFeaturesRouter.get('/:locale/cover-letter-generator', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/cover-letter-generator');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/cover-letter-generator');
 
   const t = {
     ar: {
@@ -1356,6 +1429,28 @@ aiFeaturesRouter.get('/:locale/cover-letter-generator', (c) => {
       toneTech: 'Технический и детальный',
       copy: 'Копировать',
       copied: 'Скопировано!'
+    },
+    fa: {
+      title: 'نگارش انگیزه‌نامه با هوش مصنوعی',
+      subtitle: 'با استفاده از هوش مصنوعی، انگیزه‌نامه‌های استخدامی متقاعدکننده و حرفه‌ای متناسب با شغل هدف خود ایجاد کنید.',
+      lblJobTitle: 'عنوان شغلی مورد نظر',
+      lblCompany: 'نام شرکت / سازمان',
+      lblTone: 'لحن نگارش انگیزه‌نامه',
+      lblExperience: 'خلاصه سوابق و مهارت‌های شما',
+      lblJobDesc: 'نیازمندی‌ها یا شرح وظایف شغل هدف',
+      plhJobTitle: 'مثال: کارشناس ارشد دیجیتال مارکتینگ',
+      plhCompany: 'مثال: Trendyol Group',
+      plhExperience: 'خلاصه کوتاهی از سوابق تحصیلی، کاری و توانمندی‌های برجسته خود را بنویسید...',
+      plhJobDesc: 'متن شرح وظایف آگهی استخدامی را اینجا بچسبانید تا هوش مصنوعی بر اساس آن بنویسد...',
+      btnGenerate: 'تولید و نگارش انگیزه‌نامه ✨',
+      loading: 'در حال نگارش انگیزه‌نامه توسط هوش مصنوعی... ⏳',
+      resultTitle: 'انگیزه‌نامه تولید شده توسط هوش مصنوعی',
+      toneProf: 'رسمی و اداری (Professional)',
+      toneConf: 'پرانرژی و بااعتماد به نفس',
+      toneFriendly: 'صمیمی و شخصی',
+      toneTech: 'فنی و با جزئیات کامل',
+      copy: 'کپی در حافظه',
+      copied: 'کپی شد!'
     }
   }[locale];
 
@@ -1487,7 +1582,7 @@ aiFeaturesRouter.post('/api/cover-letter-generate', rateLimiter(3, 10), async (c
   const systemPrompt = `
 You are an expert HR copywriter and professional CV designer in Turkey.
 Draft a highly tailored and optimized Cover Letter for a candidate applying for the position: "${jobTitle}" at "${company || 'the target company'}".
-The cover letter should be written in ${locale === 'ar' ? 'Arabic' : (locale === 'tr' ? 'Turkish' : 'English')}.
+The cover letter should be written in ${locale === 'ar' ? 'Arabic' : (locale === 'tr' ? 'Turkish' : (locale === 'fa' ? 'Persian (Farsi)' : 'English'))}.
 The tone of voice must be ${toneInstruction}.
 Do NOT output any markdown tags (like code blocks), conversational intros, or notes. Output ONLY the drafted cover letter text.
 Use placeholders like [Name], [Phone] at the header/footer of the letter for the user to fill in.
@@ -1529,8 +1624,8 @@ ${jobDesc || 'No details provided'}
 
 // Work Permit Eligibility Calculator Page
 aiFeaturesRouter.get('/:locale/work-permit-calculator', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/work-permit-calculator');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/work-permit-calculator');
 
   const t = {
     ar: {
@@ -1668,6 +1763,40 @@ aiFeaturesRouter.get('/:locale/work-permit-calculator', (c) => {
       scoreHigh: 'Отличное соответствие! Ваши данные полностью соответствуют турецкому законодательству для подачи заявки.',
       scoreMid: 'Среднее соответствие. Перед подачей перепроверьте размер предлагаемой зарплаты и количество турецких сотрудников.',
       scoreLow: 'Низкое соответствие. Ваш текущий профиль не соответствует установленным требованиям. Мы рекомендуем проконсультироваться с юристом.'
+    },
+    fa: {
+      title: 'حاسبه‌گر امتیاز اجازه کار و شهروندی ترکیه',
+      subtitle: 'امتیاز و واجد شرایط بودن خود را برای اخذ مجوز کار (Çalışma İzni) یا شهروندی ترکیه طبق آخرین قوانین ۲۰۲۶ محاسبه کنید.',
+      step1: 'اقامت و ویزا',
+      step2: 'تحصیلات و تخصص',
+      step3: 'شرکت و حقوق پیشنهادی',
+      btnNext: 'مرحله بعدی ➔',
+      btnPrev: '⬅ مرحله قبلی',
+      btnCalculate: 'محاسبه امتیاز و شرایط قانونی 📊',
+      lblResidency: 'وضعیت اقامت فعلی شما در ترکیه',
+      resTourist: 'اقامت توریستی (دارای اعتبار بیش از ۶ ماه)',
+      resStudent: 'اقامت دانشجویی',
+      resWork: 'اقامت کاری فعال (تمدید اجازه کار)',
+      resNone: 'بدون اقامت فعال (درخواست از سفارت خارج از ترکیه)',
+      lblEdu: 'آخرین مدرک تحصیلی شما',
+      eduHighSchool: 'دیپلم یا پایین‌تر',
+      eduBachelor: 'مدرک کارشناسی (لیسانس)',
+      eduMaster: 'مدرک کارشناسی ارشد (فوق لیسانس)',
+      eduPhD: 'مدرک دکترا (PhD)',
+      lblEmployeeRatio: 'تعداد کارمندان ترک در شرکت هدف',
+      ratioHint: 'نکته قانونی: قانون کار ترکیه استخدام ۵ کارمند ترک به ازای هر کارمند خارجی را الزامی می‌داند.',
+      lblSalaryRatio: 'حقوق پیشنهادی ناخالص (لیره ترکیه - TL)',
+      lblCategory: 'حوزه کاری شغل هدف',
+      catNormal: 'امور دفتری / فروش / گردشگری و خدمات عمومی',
+      catEngineer: 'مهندسی / برنامه نویس / متخصصین فنی IT',
+      catManager: 'مدیر بخش / مدیر شعبه',
+      catExecutive: 'مدیریت ارشد / C-Level / مدیر عامل',
+      resultTitle: 'گزارش ارزیابی و نقشه راه اقدامات قانونی 📋',
+      eligibilityScore: 'امتیاز نهایی شرایط شما:',
+      lawNotice: 'سلب مسئولیت: این محاسبات بر اساس قانون استخدام ۶۷۳۵ ترکیه انجام شده و مشاوره حقوقی رسمی و دولتی محسوب نمی‌شود.',
+      scoreHigh: 'شرایط شما عالی است! وضعیت رزومه، حقوق پیشنهادی و شرکت با تمام ضوابط اجازه کار ترکیه همخوانی دارد.',
+      scoreMid: 'شرایط متوسط. شانس قبولی وجود دارد اما نسبت نیروهای ترک و حقوق پیشنهادی را مجدداً بسنجید.',
+      scoreLow: 'شرایط ضعیف. معیارهای فعلی شما با حداقل الزامات وزارت کار ترکیه همخوانی ندارد. مشاوره با وکیل توصیه می‌شود.'
     }
   }[locale];
 
@@ -1880,8 +2009,8 @@ aiFeaturesRouter.get('/:locale/work-permit-calculator', (c) => {
 
 // Business Turkish Level Test Page
 aiFeaturesRouter.get('/:locale/turkish-test', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/turkish-test');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/turkish-test');
 
   const t = {
     ar: {
@@ -2011,6 +2140,38 @@ aiFeaturesRouter.get('/:locale/turkish-test', (c) => {
       q5_a: 'Başınız sağ olsun (Примите соболезнования)',
       q5_b: 'Kolay gelsin (Пусть будет легко)',
       q5_c: 'Geçmiş olsun (Поправляйтесь)'
+    },
+    fa: {
+      title: 'آزمون سنجش سطح زبان ترکی تجاری و کاری',
+      subtitle: 'مهارت‌های زبانی، درک مطلب و استفاده خود از اصطلاحات حرفه‌ای را در محیط کار ترکی بسنجید و گواهی‌نامه رایگان دریافت کنید.',
+      btnStart: 'شروع آزمون ⚡',
+      btnSubmit: 'مشاهده نتیجه و دریافت گواهی‌نامه 📊',
+      scoreText: 'امتیاز نهایی شما در آزمون:',
+      certTitle: 'گواهی‌نامه شایستگی زبان ترکی تجاری',
+      certAward: 'اعطا شده به کارجو به عنوان تاییدیه تسلط بر زبان ترکی تجاری با نمره:',
+      certSignature: 'کمیته ارزیابی و آزمون الکترونیکی',
+      certSeal: 'مُهر رسمی پلتفرم',
+      lblQuestion: 'سوال',
+      q1: 'اگر همکار شما بگوید "Kolay gelsin" (خدا قوت)، مناسب‌ترین پاسخ چیست؟',
+      q1_a: 'Teşekkür ederim, sana da (ممنون، برای شما هم همینطور)',
+      q1_b: 'Rica ederim (خواهش می‌کنم)',
+      q1_c: 'Görüşürüz (به امید دیدار)',
+      q2: 'معنی اصطلاح "Mesai" در فرهنگ سازمانی ترکیه چیست؟',
+      q2_a: 'ساعت کاری موظف یا اضافه‌کاری',
+      q2_b: 'تایم استراحت و ناهار',
+      q2_c: 'مرخصی سالانه استحقاقی',
+      q3: 'کدام سند باید برای استعفای رسمی به کارفرما ارائه شود؟',
+      q3_a: 'İstifa dilekçesi (نامه استعفا)',
+      q3_b: 'İzin formu (برگه مرخصی)',
+      q3_c: 'Sağlık raporu (گزارش پزشکی)',
+      q4: 'کدام عبارت برای ابراز تسلیت به یک همکار در محیط کار استفاده می‌شود؟',
+      q4_a: 'Başınız sağ olsun (سرِ سلامت باد / تسلیت می‌گویم)',
+      q4_b: 'Geçmiş olsun (بلا دور باشد)',
+      q4_c: 'Hayırlı olsun (مبارک باشد)',
+      q5: 'معنی اصطلاح "Fatura kesmek" در کسب‌وکار چیست؟',
+      q5_a: 'صدور فاکتور رسمی برای مشتری',
+      q5_b: 'لغو یا ابطال تراکنش',
+      q5_c: 'درخواست تخفیف در خدمات'
     }
   }[locale];
 
@@ -2173,8 +2334,8 @@ aiFeaturesRouter.get('/:locale/turkish-test', (c) => {
 
 // AI Interview Simulator Page
 aiFeaturesRouter.get('/:locale/interview-prep', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/interview-prep');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/interview-prep');
 
   const t = {
     ar: {
@@ -2264,6 +2425,28 @@ aiFeaturesRouter.get('/:locale/interview-prep', (c) => {
       scoreText: 'Общая оценка собеседования:',
       tipsTitle: 'Сильные стороны и области для улучшения:',
       restartBtn: 'Начать новое собеседование 🔄'
+    },
+    fa: {
+      title: 'شبیه‌ساز مصاحبه کاری هوش مصنوعی',
+      subtitle: 'شبیه‌سازی مصاحبه‌های استخدامی واقعی بر اساس شغل هدف شما. به سوالات پاسخ دهید و ارزیابی جامع هوش مصنوعی را دریافت کنید.',
+      btnStart: 'شروع مصاحبه 🎙️',
+      btnSubmit: 'ارسال پاسخ ➔',
+      btnEvaluate: 'دریافت گزارش ارزیابی 📊',
+      lblRole: 'موقعیت شغلی هدف',
+      lblLevel: 'سطح سابقه کار',
+      levelJr: 'مبتدی / تازه فارغ‌التحصیل',
+      levelMid: 'میان‌رده',
+      levelSr: 'ارشد / سنیور',
+      plhRole: 'مثال: برنامه‌نویس وب, حسابدار, کارشناس فروش...',
+      loadingQuestions: 'هوش مصنوعی در حال طراحی سوالات اختصاصی مصاحبه شماست... ⏳',
+      loadingEvaluate: 'هوش مصنوعی در حال تحلیل و تصحیح پاسخ‌های شماست... ⏳',
+      lblQuestion: 'سوال مصاحبه',
+      lblAnswer: 'پاسخ شما',
+      plhAnswer: 'پاسخ کامل خود را اینجا بنویسید...',
+      feedbackTitle: 'گزارش ارزیابی مصاحبه هوش مصنوعی 📋',
+      scoreText: 'امتیاز نهایی مصاحبه:',
+      tipsTitle: 'نقاط قوت و زمینه‌های شایسته بهبود:',
+      restartBtn: 'شروع مجدد مصاحبه 🔄'
     }
   }[locale];
 
@@ -2479,7 +2662,7 @@ aiFeaturesRouter.post('/api/interview-simulate', rateLimiter(3, 10), async (c) =
     const systemPrompt = `
 You are an expert interviewer recruiting candidates in Istanbul.
 Write exactly 3 distinct, highly realistic interview questions for a candidate applying for the position: "${role}" at the level: "${level}".
-The questions must be written in ${locale === 'ar' ? 'Arabic' : 'English'}.
+The questions must be written in ${locale === 'ar' ? 'Arabic' : (locale === 'tr' ? 'Turkish' : (locale === 'ru' ? 'Russian' : (locale === 'fa' ? 'Persian (Farsi)' : 'English')))}.
 Format the output as a simple array or list of questions. One question per line.
 Do NOT write conversational intros, code blocks, or notes. Print ONLY the 3 questions.
 `;
@@ -2511,12 +2694,17 @@ Do NOT write conversational intros, code blocks, or notes. Print ONLY the 3 ques
           `ما هو أصعب تحدي تقني واجهته في عملك السابق كـ "${role}" وكيف تعاملت معه؟`,
           `لماذا ترغب في الانضمام للعمل في مدينة إسطنبول؟`
         ],
+        fa: [
+          `درباره تجربه قبلی خود در نقش "${role}" و اینکه چگونه شما را برای این موقعیت آماده کرده است، توضیح دهید.`,
+          `سخت‌ترین چالش فنی که به عنوان "${role}" با آن مواجه شدید چه بود و چگونه آن را حل کردید؟`,
+          `چرا می‌خواهید در استانبول کار کنید و به تیم ما بپیوندید؟`
+        ],
         en: [
           `Tell me about your previous experience in "${role}" and how it qualifies you for this position.`,
           `What was the most challenging technical problem you faced as a "${role}" and how did you resolve it?`,
           `Why do you want to work in Istanbul and join our team?`
         ]
-      }[locale === 'ar' ? 'ar' : 'en'];
+      }[locale === 'ar' ? 'ar' : (locale === 'fa' ? 'fa' : 'en')];
 
       const finalQuestions = qList.length >= 3 ? qList.slice(0, 3) : fallbacks;
 
@@ -2538,7 +2726,7 @@ Do NOT write conversational intros, code blocks, or notes. Print ONLY the 3 ques
     const systemPrompt = `
 You are an expert recruiter and technical assessor.
 Evaluate the candidate's answers to the interview questions for the role: "${role}" at the level: "${level}".
-The evaluation must be written in ${locale === 'ar' ? 'Arabic' : 'English'}.
+The evaluation must be written in ${locale === 'ar' ? 'Arabic' : (locale === 'tr' ? 'Turkish' : (locale === 'ru' ? 'Russian' : (locale === 'fa' ? 'Persian (Farsi)' : 'English')))}.
 You MUST output a JSON object containing two fields:
 {
   "score": 85,
@@ -2700,8 +2888,8 @@ Return ONLY a valid JSON object matching the following structure. Do not wrap it
 
 // ─── AI CV ATS Scanner UI Page ───────────────────────────────────────────
 aiFeaturesRouter.get('/:locale/ats-scanner', async (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/ats-scanner');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/ats-scanner');
   const db = (c as any).env.DB;
 
   const t = {
@@ -2776,6 +2964,24 @@ aiFeaturesRouter.get('/:locale/ats-scanner', async (c) => {
       missingTitle: '❌ Отсутствующие ключевые слова (Рекомендуется добавить)',
       recTitle: '💡 Советы ИИ по оптимизации резюме',
       noJobs: 'Нет доступных вакансий для анализа.'
+    },
+    fa: {
+      title: '🤖 اسکنر رزومه با سیستم ATS',
+      subtitle: 'رزومه خود را بارگذاری کنید و میزان همخوانی آن با سیستم‌های فیلترینگ استخدامی (ATS) را بر اساس آگهی شغلی مورد نظرتان بسنجید.',
+      selectJob: 'انتخاب آگهی شغلی هدف',
+      selectPlh: '-- یک شغل را از لیست انتخاب کنید --',
+      uploadTitle: 'بارگذاری رزومه (فایل PDF)',
+      uploadDesc: 'فایل رزومه (PDF) خود را به اینجا بکشید یا برای انتخاب کلیک کنید',
+      pasteLabel: 'یا متن رزومه خود را مستقیماً در زیر بچسبانید',
+      pastePlh: 'متن کامل رزومه خود را اینجا وارد کنید...',
+      submitBtn: 'سنجش سازگاری با سیستم ATS ⚡',
+      loading: 'در حال استخراج متن رزومه و تحلیل با هوش مصنوعی... ⏳',
+      resultsTitle: '📊 گزارش تحلیل سازگاری ATS',
+      scoreLabel: 'امتیاز سازگاری رزومه',
+      matchingTitle: '✅ کلمات کلیدی موجود (در رزومه شما یافت شد)',
+      missingTitle: '❌ کلمات کلیدی غایب (پیشنهاد می‌شود اضافه شوند)',
+      recTitle: '💡 توصیه‌های هوش مصنوعی برای بهینه‌سازی رزومه',
+      noJobs: 'هیچ آگهی شغلی برای تحلیل در دسترس نیست.'
     }
   }[locale];
 
@@ -3038,8 +3244,8 @@ aiFeaturesRouter.get('/:locale/ats-scanner', async (c) => {
 
 // Turkish Workplace Language Quiz Page
 aiFeaturesRouter.get('/:locale/workplace-quiz', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/workplace-quiz');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/workplace-quiz');
 
   const t = {
     ar: {
@@ -3105,6 +3311,22 @@ aiFeaturesRouter.get('/:locale/workplace-quiz', (c) => {
       rankN: 'Новичок 🚶‍♂️',
       correct: 'Верно! 🎉',
       incorrect: 'Неверно! Правильный ответ: '
+    },
+    fa: {
+      title: 'آزمون اصطلاحات کاری ترکی و آداب معاشرت اداری',
+      subtitle: 'دانش خود را از عبارات پرکاربرد ترکی در محیط کار و فرهنگ سازمانی شرکت‌های ترکی بسنجید.',
+      startBtn: 'شروع آزمون ✍️',
+      nextBtn: 'سوال بعدی ←',
+      finishBtn: 'مشاهده نتیجه نهایی 🏆',
+      restartBtn: 'تلاش مجدد 🔄',
+      scoreTitle: 'امتیاز نهایی شما:',
+      rankLabel: 'سطح شما در محیط کار:',
+      rankG: 'استاد فرهنگ کار ترکیه 🏆',
+      rankM: 'کارمند حرفه‌ای و باسابقه 💼',
+      rankJ: 'کارآموز تازه وارد 📁',
+      rankN: 'تازه‌کار و بدون تجربه 🚶‍♂️',
+      correct: 'پاسخ صحیح! 🎉',
+      incorrect: 'پاسخ اشتباه! پاسخ صحیح این بود: '
     }
   }[locale];
 

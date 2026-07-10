@@ -22,7 +22,7 @@ interface MetaDataInput {
   canonical?: string;
 }
 
-export function generateMetaTags(locale: 'ar' | 'en' | 'tr' | 'ru', pageType: 'home' | 'job' | 'submit' | 'blog' | 'blog_post', data: MetaDataInput = {}) {
+export function generateMetaTags(locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa', pageType: 'home' | 'job' | 'submit' | 'blog' | 'blog_post', data: MetaDataInput = {}) {
   const siteUrl = 'https://jobs-in-istanbul.com';
 
   const defaults = {
@@ -41,6 +41,10 @@ export function generateMetaTags(locale: 'ar' | 'en' | 'tr' | 'ru', pageType: 'h
     ru: {
       title: 'Работа в Стамбуле | Вакансии для иностранцев и русскоязычных',
       desc: 'Найдите последние вакансии для экспатов и русскоязычных специалистов в Стамбуле. Подайте заявку на работу в сфере IT, продаж и образования сегодня.',
+    },
+    fa: {
+      title: 'کار در استانبول | کاریابی و مشاغل در استانبول ترکیه برای فارسی زبانان',
+      desc: 'جدیدترین فرصت‌های شغلی و استخدام در استانبول ترکیه برای ایرانیان و فارسی زبانان. همین امروز برای مشاغل فنی، فروش و تدریس اقدام کنید.',
     }
   }[locale];
 
@@ -54,17 +58,21 @@ export function generateMetaTags(locale: 'ar' | 'en' | 'tr' | 'ru', pageType: 'h
         ? `${data.title} - وظيفة في إسطنبول لدى ${data.companyName}`
         : (locale === 'ru'
           ? `${data.title} - Работа в Стамбуле в компании ${data.companyName}`
-          : `${data.title} - Job in Istanbul at ${data.companyName}`));
+          : (locale === 'fa'
+            ? `${data.title} - کار در استانبول در ${data.companyName}`
+            : `${data.title} - Job in Istanbul at ${data.companyName}`)));
     desc = data.seoDescription || (data.description ? data.description.substring(0, 160).replace(/<[^>]*>/g, '') : defaults.desc);
   } else if (pageType === 'submit') {
-    title = locale === 'tr' ? 'İstanbul\'da İş İlanı Yayınlayın' : (locale === 'ar' ? 'أعلن عن وظيفة شاغرة في إسطنبول' : (locale === 'ru' ? 'Разместить вакансию в Стамбуле' : 'Post a Job Vacancy in Istanbul'));
+    title = locale === 'tr' ? 'İstanbul\'da İş İlanı Yayınlayın' : (locale === 'ar' ? 'أعلن عن وظيفة شاغرة في إسطنبول' : (locale === 'ru' ? 'Разместить вакансию в Стамбуле' : (locale === 'fa' ? 'ثبت آگهی استخدام در استانبول' : 'Post a Job Vacancy in Istanbul')));
     desc = locale === 'tr'
       ? 'Şirketinizdeki açık pozisyonlar için ilan verin, İstanbul\'daki binlerce nitelikli iş arayana ulaşın.'
       : (locale === 'ar'
         ? 'أعلن عن وظيفة شاغرة في شركتك وقم بالوصول إلى آلاف الكفاءات والباحثين عن عمل في إسطنبول.'
         : (locale === 'ru'
           ? 'Разместите вакансию вашей компании и привлеките тысячи квалифицированных соискателей в Стамбуле.'
-          : 'Post a vacancy in your organization and reach thousands of skilled job seekers in Istanbul.'));
+          : (locale === 'fa'
+            ? 'آگهی استخدام شرکت خود را ثبت کنید و به هزاران کارجوی متخصص در استانبول دسترسی پیدا کنید.'
+            : 'Post a vacancy in your organization and reach thousands of skilled job seekers in Istanbul.')));
   } else if (pageType === 'blog') {
     title = locale === 'tr'
       ? 'Kariyer Blogu - İstanbul | Çalışma İzni ve Ulaşım İpuçları'
@@ -72,14 +80,18 @@ export function generateMetaTags(locale: 'ar' | 'en' | 'tr' | 'ru', pageType: 'h
         ? 'مدونة المهنة - إسطنبول | نصائح التوظيف وإقامة العمل في تركيا'
         : (locale === 'ru'
           ? 'Блог о карьере в Стамбуле | Разрешения на работу и транспорт'
-          : 'Career Blog - Istanbul | Work Permits & Commuting Tips'));
+          : (locale === 'fa'
+            ? 'وبلاگ کاریابی استانبول | راهنمای اجازه کار و قوانین اقامت کاری ترکیه'
+            : 'Career Blog - Istanbul | Work Permits & Commuting Tips')));
     desc = locale === 'tr'
-      ? 'İstanbul\'da çalışmaya dair rehberiniz. ATS özgeçmiş optimizasyonu, çalışma izni yasaları ve ulaşım hakkında ipuçları içeren yazıları okuyun.'
+      ? 'İstanbul\'da çalışmaya dair rehberiniz. ATS özgeçmiş optimizasyonu, çalışma izni yasaları  у транспорт hakkında ipuçları içeren yazıları okuyun.'
       : (locale === 'ar'
         ? 'دليلك المهني الشامل ونواصح التوظيف في إسطنبول. اقرأ حول تعديل السير الذاتية لأنظمة ATS وقوانين إقامة العمل والمواصلات في إسطنبول.'
         : (locale === 'ru'
           ? 'Ваш гид по работе в Стамбуле. Читайте статьи об оптимизации резюме для ATS, законах о разрешениях на работу и транспорте.'
-          : 'Your ultimate guide to working in Istanbul. Read articles on ATS resume optimization, work permit laws, and navigating transportation.'));
+          : (locale === 'fa'
+            ? 'راهنمای جامع شما برای کار در استانبول. مقالاتی در مورد اجازه کار در ترکیه، بهینه‌سازی رزومه برای سیستم‌های ATS و حمل و نقل بخوانید.'
+            : 'Your ultimate guide to working in Istanbul. Read articles on ATS resume optimization, work permit laws, and navigating transportation.')));
   } else if (pageType === 'blog_post') {
     title = locale === 'tr'
       ? `${data.title} | İstanbul Kariyer Blogu`
@@ -87,7 +99,9 @@ export function generateMetaTags(locale: 'ar' | 'en' | 'tr' | 'ru', pageType: 'h
         ? `${data.title} | مدونة المهنة إسطنبول`
         : (locale === 'ru'
           ? `${data.title} | Блог о карьере в Стамбуле`
-          : `${data.title} | Istanbul Career Blog`));
+          : (locale === 'fa'
+            ? `${data.title} | وبلاگ کار در استانبول`
+            : `${data.title} | Istanbul Career Blog`)));
     desc = data.description ? data.description.substring(0, 160).replace(/<[^>]*>/g, '') : defaults.desc;
   }
 
@@ -124,6 +138,7 @@ export function generateMetaTags(locale: 'ar' | 'en' | 'tr' | 'ru', pageType: 'h
   const enUrl = getLocaleUrl('en');
   const trUrl = getLocaleUrl('tr');
   const ruUrl = getLocaleUrl('ru');
+  const faUrl = getLocaleUrl('fa');
 
   let keywordsStr = locale === 'tr'
     ? 'istanbul iş ilanları, türkiye iş fırsatları, istanbulda iş bulmak, türkçe iş ilanları, ingilizce işler, kariyer blogu, çalışma izni türkiye'
@@ -172,6 +187,7 @@ export function generateMetaTags(locale: 'ar' | 'en' | 'tr' | 'ru', pageType: 'h
   <link rel="alternate" hreflang="en" href="${enUrl}">
   <link rel="alternate" hreflang="tr" href="${trUrl}">
   <link rel="alternate" hreflang="ru" href="${ruUrl}">
+  <link rel="alternate" hreflang="fa" href="${faUrl}">
   <link rel="alternate" hreflang="x-default" href="${arUrl}">
 
   <!-- Open Graph / Facebook -->
@@ -295,11 +311,11 @@ function getStreetAddress(locationStr?: string): string {
   return locationStr;
 }
 
-export function generateJsonLd(locale: 'ar' | 'en' | 'tr' | 'ru', pageType: 'home' | 'job' | 'blog' | 'blog_post', data: MetaDataInput = {}) {
+export function generateJsonLd(locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa', pageType: 'home' | 'job' | 'blog' | 'blog_post', data: MetaDataInput = {}) {
   const siteUrl = 'https://jobs-in-istanbul.com';
 
   if (pageType === 'home') {
-    const orgName = locale === 'tr' ? 'İstanbul İş İlanları' : (locale === 'ar' ? 'فرص عمل في إسطنبول' : 'Istanbul Jobs');
+    const orgName = locale === 'tr' ? 'İstanbul İş İlanları' : (locale === 'ar' ? 'فرص عمل في إسطنبول' : (locale === 'fa' ? 'کاریابی استانبول' : 'Istanbul Jobs'));
     const orgSchema = {
       "@context": "https://schema.org",
       "@type": "Organization",
@@ -339,13 +355,13 @@ export function generateJsonLd(locale: 'ar' | 'en' | 'tr' | 'ru', pageType: 'hom
         {
           "@type": "ListItem",
           "position": 1,
-          "name": locale === 'tr' ? 'Ana Sayfa' : (locale === 'ar' ? 'الرئيسية' : 'Home'),
+          "name": locale === 'tr' ? 'Ana Sayfa' : (locale === 'ar' ? 'الرئيسية' : (locale === 'fa' ? 'خانه' : 'Home')),
           "item": `${siteUrl}/${locale}`
         },
         {
           "@type": "ListItem",
           "position": 2,
-          "name": locale === 'tr' ? 'Blog' : (locale === 'ar' ? 'المدونة' : 'Blog'),
+          "name": locale === 'tr' ? 'Blog' : (locale === 'ar' ? 'المدونة' : (locale === 'fa' ? 'وبلاگ' : 'Blog')),
           "item": `${siteUrl}/${locale}/blog`
         }
       ]

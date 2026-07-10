@@ -24,6 +24,9 @@ const fallbackAdvice = {
 
 goldPricesRouter.get('/gold-prices', (c) => {
   const acceptLang = c.req.header('accept-language') || '';
+  if (acceptLang.toLowerCase().startsWith('fa')) {
+    return c.redirect('/fa/gold-prices');
+  }
   if (acceptLang.toLowerCase().startsWith('ru')) {
     return c.redirect('/ru/gold-prices');
   }
@@ -37,8 +40,8 @@ goldPricesRouter.get('/gold-prices', (c) => {
 })
 
 goldPricesRouter.get('/:locale/gold-prices', async (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/gold-prices');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/gold-prices');
 
   const db = (c.env as any).DB;
   let metals = fallbackGold;
@@ -55,7 +58,7 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
       if (parsed.metals && Array.isArray(parsed.metals) && parsed.metals.length > 0) {
         metals = parsed.metals;
         advice = parsed.advice || fallbackAdvice;
-        lastUpdateStr = new Date(parsed.updatedAt).toLocaleString(locale === 'ar' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
+        lastUpdateStr = new Date(parsed.updatedAt).toLocaleString(locale === 'ar' || locale === 'fa' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
       }
     }
   } catch (err) {
@@ -63,7 +66,7 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
   }
 
   if (!lastUpdateStr) {
-    lastUpdateStr = new Date().toLocaleString(locale === 'ar' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
+    lastUpdateStr = new Date().toLocaleString(locale === 'ar' || locale === 'fa' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
   }
 
   const localizedGoldName = (id: string, defaultName: string) => {
@@ -71,7 +74,8 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
       ar: { '1': 'جرام الذهب عيار 24', '12': 'جرام الذهب عيار 22', '11': 'جرام الذهب عيار 21', '2': 'جرام الذهب عيار 18', '3': 'جرام الذهب عيار 14', '4': 'أونصة الذهب', '5': 'الليرة الذهب' },
       en: { '1': '24K Gold Gram', '12': '22K Gold Gram', '11': '21K Gold Gram', '2': '18K Gold Gram', '3': '14K Gold Gram', '4': 'Gold Ounce', '5': 'Gold Lira' },
       tr: { '1': '24 Ayar Altın Gramı', '12': '22 Ayar Altın Gramı', '11': '21 Ayar Altın Gramı', '2': '18 Ayar Altın Gramı', '3': '14 Ayar Altın Gramı', '4': 'Ons Altın', '5': 'Altın Lira' },
-      ru: { '1': 'грамм золота 24 карата', '12': 'грамм золота 22 карата', '11': 'грамм золота 21 карат', '2': 'грамм золота 18 карат', '3': 'грамм золота 14 карат', '4': 'Унция золота', '5': 'Золотая лира' }
+      ru: { '1': 'грамм золота 24 карата', '12': 'грамм золота 22 карата', '11': 'грамм золота 21 карат', '2': 'грамм золота 18 карат', '3': 'грамм золота 14 карат', '4': 'Унция золота', '5': 'Золотая лира' },
+      fa: { '1': 'هر گرم طلای ۲۴ عیار', '12': 'هر گرم طلای ۲۲ عیار', '11': 'هر گرم طلای ۲۱ عیار', '2': 'هر گرم طلای ۱۸ عیار', '3': 'هر گرم طلای ۱۴ عیار', '4': 'هر اونس طلا', '5': 'لیره طلا' }
     };
     return map[locale]?.[id] || defaultName;
   };
@@ -144,6 +148,23 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
       resultLabel: 'Оценочная общая стоимость:',
       aiTitle: '🤖 Анализ рынка и рекомендации Gemini AI',
       textDescription: 'Эти курсы золота автоматически собираются в течение дня с ювелирных рынков Турции для планирования ваших сбережений.'
+    },
+    fa: {
+      title: 'قیمت طلا در ترکیه امروز',
+      subtitle: 'پیگیری لحظه‌ای قیمت طلا به لیره ترکیه (TRY) برای انواع عیارها به همراه ماشین حساب محاسبه ارزش و تحلیل بازار با هوش مصنوعی Gemini.',
+      lastUpdate: 'آخرین به‌روزرسانی:',
+      colGoldType: 'عیار / نوع طلا',
+      colBuy: 'خرید (TRY)',
+      colSell: 'فروش (TRY)',
+      converterTitle: '🧮 ماشین حساب محاسبه قیمت طلا',
+      weightLabel: 'وزن / مقدار طلا:',
+      typeLabel: 'عیار / نوع طلا:',
+      modeLabel: 'نوع تراکنش:',
+      modeBuy: 'خرید طلا از ما (نرخ خرید)',
+      modeSell: 'فروش طلا به ما (نرخ فروش)',
+      resultLabel: 'ارزش کل تقریبی:',
+      aiTitle: '🤖 تحلیل روزانه بازار و توصیه‌های هوش مصنوعی Gemini',
+      textDescription: 'این نرخ‌های طلا به صورت خودکار در طول روز از بازار صنف طلافروشان ترکیه جهت برنامه‌ریزی پس‌انداز و سرمایه‌گذاری شما گردآوری می‌شود.'
     }
   }[locale];
 
@@ -182,11 +203,11 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
           </div>
           <div style="margin-top: 8px; display: flex; gap: 16px;">
             <div>
-              <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; display: block;">${locale === 'ar' ? 'شراء' : (locale === 'tr' ? 'Alış' : 'Buy')}</span>
+              <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; display: block;">${locale === 'ar' || locale === 'fa' ? (locale === 'ar' ? 'شراء' : 'خرید') : (locale === 'tr' ? 'Alış' : 'Buy')}</span>
               <span style="font-size: 1.25rem; font-weight: 800; color: var(--text-dark);">${buyPrice} ₺</span>
             </div>
             <div style="border-left: 1px solid var(--border); padding-left: 16px; padding-right: 16px;">
-              <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; display: block;">${locale === 'ar' ? 'بيع' : (locale === 'tr' ? 'Satış' : 'Sell')}</span>
+              <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; display: block;">${locale === 'ar' || locale === 'fa' ? (locale === 'ar' ? 'بيع' : 'فروش') : (locale === 'tr' ? 'Satış' : 'Sell')}</span>
               <span style="font-size: 1.25rem; font-weight: 800; color: #b45309;">${sellPrice} ₺</span>
             </div>
           </div>
@@ -577,7 +598,7 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
         const activePrice = mode === 'buy' ? rateObj.buy : rateObj.sell;
         const total = weight * activePrice;
 
-        const formatter = new Intl.NumberFormat(locale === 'ar' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')), {
+        const formatter = new Intl.NumberFormat(locale === 'ar' || locale === 'fa' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')), {
           maximumFractionDigits: 2,
           minimumFractionDigits: 2
         });

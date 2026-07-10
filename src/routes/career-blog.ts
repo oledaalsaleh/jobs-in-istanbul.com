@@ -1770,21 +1770,22 @@ function extractFirstImage(content: string): string {
 }
 
 // Helper to get reading time
-function getReadingTime(content: string, locale: 'ar' | 'en' | 'tr' | 'ru'): string {
-  if (!content) return locale === 'ar' ? '1 دقيقة قراءة' : (locale === 'tr' ? '1 dk okuma' : '1 min read');
+function getReadingTime(content: string, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa'): string {
+  if (!content) return locale === 'ar' || locale === 'fa' ? '1 دقیقه مطالعه' : (locale === 'tr' ? '1 dk okuma' : '1 min read');
   const wordsCount = content.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length;
   const min = Math.max(1, Math.round(wordsCount / 200));
   return {
     ar: min + ' دقائق قراءة',
     en: min + ' min read',
     tr: min + ' dk okuma',
-    ru: min + ' мин чтения'
+    ru: min + ' мин чтения',
+    fa: min + ' دقیقه مطالعه'
   }[locale];
 }
 
 // Helper to get category
-function getCategory(slug: string, locale: 'ar' | 'en' | 'tr' | 'ru'): { name: string; color: string } {
-  const maps: Record<string, Record<'ar' | 'en' | 'tr' | 'ru', string>> = {
+function getCategory(slug: string, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa'): { name: string; color: string } {
+  const maps: Record<string, Partial<Record<'ar' | 'en' | 'tr' | 'ru' | 'fa', string>>> = {
     'sgk-health-insurance-turkey-workers': {
       ar: 'الضمان الاجتماعي',
       en: 'Social Security',
@@ -1856,7 +1857,8 @@ function getCategory(slug: string, locale: 'ar' | 'en' | 'tr' | 'ru'): { name: s
   const cat = maps[slug] || {
     ar: 'إرشاد مهني',
     en: 'Career Guide',
-    tr: 'Kariyer Rehberi'
+    tr: 'Kariyer Rehberi',
+    fa: 'راهنمای شغلی'
   };
 
   const colors: Record<string, string> = {
@@ -1874,15 +1876,15 @@ function getCategory(slug: string, locale: 'ar' | 'en' | 'tr' | 'ru'): { name: s
   };
 
   return {
-    name: cat[locale] || cat['en'],
+    name: cat[locale] || cat['en'] || 'Career Guide',
     color: colors[slug] || '#6366f1' // indigo
   };
 }
 
 // Blog List View
 careerBlogRouter.get('/:locale/blog', async (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/blog');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/blog');
 
   const db = (c.env as any).DB;
   let articles: any[] = seededArticles[locale] || [];
@@ -1937,6 +1939,13 @@ careerBlogRouter.get('/:locale/blog', async (c) => {
       readMore: 'Читать дальше ←',
       pubDate: 'Дата публикации:',
       featured: 'Рекомендуемая статья'
+    },
+    fa: {
+      title: 'وبلاگ کاریابی و زندگی در استانبول',
+      subtitle: 'مقالات، راهنماها و توصیه‌های مفید برای اجازه کار، بهینه‌سازی رزومه و راهنمای حمل و نقل در استانبول.',
+      readMore: 'ادامه مطلب ←',
+      pubDate: 'تاریخ انتشار:',
+      featured: 'مطلب ویژه'
     }
   }[locale];
 
@@ -2134,6 +2143,17 @@ careerBlogRouter.get('/:locale/blog', async (c) => {
         { title: 'Arabic Customer Support Specialist', company: 'Teleperformance', type: 'Полный день | Удаленно', salary: 'Оклад + Бонус' },
         { title: 'UI/UX Product Designer', company: 'Trendyol', type: 'Полный день | В офисе', salary: 'Полный соцпакет' }
       ]
+    },
+    fa: {
+      sectionTitle: 'مشاغل پیشنهادی برای ایرانیان و فارسی‌زبانان در استانبول',
+      badge: 'آگهی‌های فعال',
+      browseAll: 'تصفیه و مشاهده همه مشاغل',
+      apply: 'ارسال درخواست',
+      roles: [
+        { title: 'برنامه‌نویس ارشد Node.js', company: 'Insider', type: 'تمام وقت | هیبرید', salary: 'حقوق عالی' },
+        { title: 'کارشناس پشتیبانی مشتریان (فارسی‌زبان)', company: 'Teleperformance', type: 'تمام وقت | دورکاری', salary: 'حقوق ثابت + پاداش' },
+        { title: 'طراح ارشد رابط کاربری (UI/UX)', company: 'Trendyol', type: 'تمام وقت | حضوری', salary: 'مزایای کامل رفاهی' }
+      ]
     }
   }[locale];
 
@@ -2273,9 +2293,9 @@ careerBlogRouter.get('/:locale/blog', async (c) => {
 
 // Blog Detail View
 careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
   const slug = c.req.param('slug');
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/blog');
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/blog');
 
   const db = (c.env as any).DB;
   let article = (seededArticles[locale] || []).find((art: any) => art.slug === slug);
@@ -2302,7 +2322,7 @@ careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
   }
 
   if (!article) {
-    return c.text(locale === 'ar' ? 'المقالة غير موجودة.' : (locale === 'tr' ? 'Yazı bulunamadı.' : 'Article not found.'), 404);
+    return c.text(locale === 'ar' ? 'المقالة غير موجودة.' : (locale === 'tr' ? 'Yazı bulunamadı.' : (locale === 'fa' ? 'مقاله پیدا نشد.' : 'Article not found.')), 404);
   }
 
   const cat = getCategory(article.slug, locale);
@@ -2361,6 +2381,13 @@ careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
       copySuccess: 'Ссылка на статью успешно скопирована!',
       suggested: 'Другие статьи, которые могут вас заинтересовать',
       readMore: 'Читать дальше ←'
+    },
+    fa: {
+      back: '← بازگشت به وبلاگ',
+      share: 'اشتراک‌گذاری مقاله:',
+      copySuccess: 'لینک مقاله با موفقیت کپی شد!',
+      suggested: 'مقالات پیشنهادی دیگر که ممکن است بپسندید',
+      readMore: 'ادامه مطلب ←'
     }
   }[locale];
 
@@ -2552,6 +2579,12 @@ careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
       btnRegister: 'Özgeçmişini Yükle',
     },
     ru: {
+      title: 'Вы ищете работу в Турции?',
+      desc: 'Зарегистрируйтесь на Стамбульском портале вакансий и получайте уведомления о новых возможностях, как только они будут опубликованы.',
+      btnSearch: 'Посмотреть вакансии',
+      btnRegister: 'Загрузить резюме',
+    },
+    fa: {
       title: 'Вы ищете работу в Турции?',
       desc: 'Зарегистрируйтесь на Стамбульском портале вакансий и получайте уведомления о новых возможностях, как только они будут опубликованы.',
       btnSearch: 'Посмотреть вакансии',

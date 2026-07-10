@@ -10,8 +10,8 @@ const COOKIE_NAME = 'candidate_jwt';
 
 // Candidate Login
 candidatePortalRouter.get('/:locale/candidate/login', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/candidate/login');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/candidate/login');
 
   const t = {
     ar: {
@@ -53,6 +53,16 @@ candidatePortalRouter.get('/:locale/candidate/login', (c) => {
       loading: 'Отправка ссылки... ⏳',
       successMsg: 'Волшебная ссылка отправлена! Пожалуйста, проверьте почту.',
       devNotice: '🔧 В режиме разработки вы можете войти напрямую, нажав ниже:'
+    },
+    fa: {
+      title: 'پورتال کارجویان - ورود',
+      subtitle: 'آدرس ایمیل خود را وارد کنید تا لینک جادویی ورود برای پیگیری درخواست‌ها و ارزیابی رزومه توسط هوش مصنوعی ارسال شود.',
+      emailLabel: 'آدرس ایمیل شخصی',
+      emailPlh: 'candidate@example.com',
+      submitBtn: 'ارسال لینک ورود جادویی 🚀',
+      loading: 'در حال ارسال لینک... ⏳',
+      successMsg: 'لینک ورود جادویی با موفقیت ارسال شد! لطفاً پوشه پیام‌های دریافتی خود را بررسی کنید.',
+      devNotice: '🔧 در محیط توسعه، می‌توانید مستقیماً با کلیک بر روی لینک زیر وارد شوید:'
     }
   }[locale];
 
@@ -172,7 +182,7 @@ candidatePortalRouter.post('/api/candidate/request-magic', rateLimiter(3, 10), a
 candidatePortalRouter.get('/candidate/verify', async (c) => {
   const env: any = c.env;
   const token = c.req.query('token');
-  const locale = (c.req.query('locale') || 'ar') as 'ar' | 'en' | 'tr' | 'ru';
+  const locale = (c.req.query('locale') || 'ar') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
 
   if (!token) {
     return c.text('Token parameter missing', 400);
@@ -217,8 +227,8 @@ candidatePortalRouter.get('/candidate/logout', (c) => {
 candidatePortalRouter.get('/:locale/candidate/dashboard', async (c) => {
   const env: any = c.env;
   const db = env.DB;
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/candidate/dashboard');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa') return c.redirect('/ar/candidate/dashboard');
 
   const cookieVal = getCookie(c, COOKIE_NAME);
   if (!cookieVal) {
@@ -314,6 +324,26 @@ candidatePortalRouter.get('/:locale/candidate/dashboard', async (c) => {
       statusReviewed: 'На рассмотрении',
       statusShortlisted: 'Собеседование назначено',
       statusRejected: 'Отклонено'
+    },
+    fa: {
+      title: 'داشبورد کارجویان - کاریابی در استانبول',
+      welcome: `خوش آمدید، ${candidateEmail}`,
+      logout: 'خروج از حساب کاربری',
+      appsTitle: 'درخواست‌های شغلی ارسال شده شما',
+      noApps: 'شما هنوز برای هیچ شغلی درخواست ارسال نکرده‌اید.',
+      tblJob: 'عنوان شغلی و شرکت',
+      tblDate: 'تاریخ ثبت درخواست',
+      tblQuiz: 'نتیجه ارزیابی آزمون',
+      tblStatus: 'وضعیت بررسی درخواست',
+      aiMatchingTitle: 'تطبیق هوشمند رزومه با هوش مصنوعی 🤖',
+      aiMatchingDesc: 'متن رزومه خود را وارد کنید تا درصد همخوانی آن با تمام آگهی‌های شغلی فعال محاسبه شود.',
+      cvPlh: 'متن رزومه خود را اینجا بچسبانید...',
+      matchBtn: 'تطبیق و ارزیابی رزومه 🔍',
+      tblMatchScore: 'درصد انطباق با شغل',
+      statusApplied: 'ارسال شده',
+      statusReviewed: 'در حال بررسی',
+      statusShortlisted: 'دعوت به مصاحبه',
+      statusRejected: 'رد شده'
     }
   }[locale];
 
