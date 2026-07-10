@@ -106,7 +106,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       footerTagline: 'المنصة الرائدة لربط الكفاءات العربية والأجنبية بأفضل فرص العمل في إسطنبول.',
       joinTelegram: 'انضم لقناة التلغرام',
       mobileJoinTelegram: 'انضم لقناتنا على التلغرام',
-      installApp: 'تثبيت التطبيق'
+      installApp: 'تثبيت التطبيق',
+      languages: 'اللغات'
     },
     en: {
       siteName: 'Istanbul Jobs',
@@ -148,7 +149,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       footerTagline: 'The leading platform connecting Arab & international talents with the best job opportunities in Istanbul.',
       joinTelegram: 'Join Telegram Channel',
       mobileJoinTelegram: 'Join Our Telegram',
-      installApp: 'Install App'
+      installApp: 'Install App',
+      languages: 'Languages'
     },
     tr: {
       siteName: 'İstanbul İş İlanları',
@@ -190,7 +192,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       footerTagline: 'Arap ve uluslararası yetenekleri İstanbul\'daki en iyi iş fırsatlarıyla buluşturan lider platform.',
       joinTelegram: 'Telegram Kanalımıza Katılın',
       mobileJoinTelegram: 'Telegram\'a Katılın',
-      installApp: 'Uygulamayı Yükle'
+      installApp: 'Uygulamayı Yükle',
+      languages: 'Diller'
     },
     ru: {
       siteName: 'Работа в Стамбуле',
@@ -232,7 +235,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       footerTagline: 'Ведущая платформа, соединяющая арабские и международные таланты с лучшими вакансиями в Стамбуле.',
       joinTelegram: 'Присоединиться к Telegram',
       mobileJoinTelegram: 'Наш Telegram',
-      installApp: 'Установить приложение'
+      installApp: 'Установить приложение',
+      languages: 'Языки'
     },
     fa: {
       siteName: 'کاریابی در استانبول',
@@ -274,7 +278,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       footerTagline: 'پلتفرم پیشرو برای اتصال متخصصان بین‌المللی و فارسی‌زبان به بهترین فرصت‌های شغلی در استانبول بزرگ.',
       joinTelegram: 'عضویت در کانال تلگرام ما',
       mobileJoinTelegram: 'کانال تلگرام ما',
-      installApp: 'نصب اپلیکیشن موبایل'
+      installApp: 'نصب اپلیکیشن موبایل',
+      languages: 'زبان‌ها'
     },
     ur: {
       siteName: 'استنبول میں ملازمتیں',
@@ -316,7 +321,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       footerTagline: 'بین الاقوامی اور اردو بولنے والے ہنرمندوں کو استنبول میں بہترین ملازمتوں سے جوڑنے والا سب سے بڑا پلیٹ فارم۔',
       joinTelegram: 'ہمارے ٹیلی گرام چینل میں شامل ہوں',
       mobileJoinTelegram: 'ٹیلی گرام چینل',
-      installApp: 'موبائل ایپ انسٹال کریں'
+      installApp: 'موبائل ایپ انسٹال کریں',
+      languages: 'زبانیں'
     }
   };
 
@@ -725,35 +731,19 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           <li><a href="/${locale}/terms">${t.terms}</a></li>
           <li><a href="mailto:info@jobs-in-istanbul.com"><i class="fa-solid fa-envelope" style="margin-inline-end:6px;opacity:.6"></i>info@jobs-in-istanbul.com</a></li>
         </ul>
+        <ul class="footer-links">
+          <li class="footer-col-title">${t.languages}</li>
+          <li><a href="${getLangUrl(requestPath, 'ar')}"><img src="https://flagcdn.com/w20/sa.png" alt="العربية" style="width: 16px; height: 11px; margin-inline-end: 8px; border-radius: 1px; vertical-align: middle;">العربية</a></li>
+          <li><a href="${getLangUrl(requestPath, 'tr')}"><img src="https://flagcdn.com/w20/tr.png" alt="Türkçe" style="width: 16px; height: 11px; margin-inline-end: 8px; border-radius: 1px; vertical-align: middle;">Türkçe</a></li>
+          <li><a href="${getLangUrl(requestPath, 'en')}"><img src="https://flagcdn.com/w20/gb.png" alt="English" style="width: 16px; height: 11px; margin-inline-end: 8px; border-radius: 1px; vertical-align: middle;">English</a></li>
+          <li><a href="${getLangUrl(requestPath, 'ru')}"><img src="https://flagcdn.com/w20/ru.png" alt="Русский" style="width: 16px; height: 11px; margin-inline-end: 8px; border-radius: 1px; vertical-align: middle;">Русский</a></li>
+          <li><a href="${getLangUrl(requestPath, 'fa')}"><img src="https://flagcdn.com/w20/ir.png" alt="فارسی" style="width: 16px; height: 11px; margin-inline-end: 8px; border-radius: 1px; vertical-align: middle;">فارسی</a></li>
+          <li><a href="${getLangUrl(requestPath, 'ur')}"><img src="https://flagcdn.com/w20/pk.png" alt="اردو" style="width: 16px; height: 11px; margin-inline-end: 8px; border-radius: 1px; vertical-align: middle;">اردو</a></li>
+        </ul>
       </div>
     </div>
     <div class="container footer-bottom" style="max-width:1360px">
       <p>${t.copyright}</p>
-      <div style="display:flex; gap:12px; align-items:center;">
-        <a href="${getLangUrl(requestPath, 'ar')}" style="opacity:.6; font-size:.82rem; display:flex; align-items:center; gap:6px; text-decoration:none; color:inherit;">
-          <img src="https://flagcdn.com/w20/sa.png" alt="العربية" style="width: 16px; height: 11px; border-radius: 1px;"> العربية
-        </a>
-        <span style="opacity:.3; font-size:.82rem;">|</span>
-        <a href="${getLangUrl(requestPath, 'tr')}" style="opacity:.6; font-size:.82rem; display:flex; align-items:center; gap:6px; text-decoration:none; color:inherit;">
-          <img src="https://flagcdn.com/w20/tr.png" alt="Türkçe" style="width: 16px; height: 11px; border-radius: 1px;"> Türkçe
-        </a>
-        <span style="opacity:.3; font-size:.82rem;">|</span>
-        <a href="${getLangUrl(requestPath, 'en')}" style="opacity:.6; font-size:.82rem; display:flex; align-items:center; gap:6px; text-decoration:none; color:inherit;">
-          <img src="https://flagcdn.com/w20/gb.png" alt="English" style="width: 16px; height: 11px; border-radius: 1px;"> English
-        </a>
-        <span style="opacity:.3; font-size:.82rem;">|</span>
-        <a href="${getLangUrl(requestPath, 'ru')}" style="opacity:.6; font-size:.82rem; display:flex; align-items:center; gap:6px; text-decoration:none; color:inherit;">
-          <img src="https://flagcdn.com/w20/ru.png" alt="Русский" style="width: 16px; height: 11px; border-radius: 1px;"> Русский
-        </a>
-        <span style="opacity:.3; font-size:.82rem;">|</span>
-        <a href="${getLangUrl(requestPath, 'fa')}" style="opacity:.6; font-size:.82rem; display:flex; align-items:center; gap:6px; text-decoration:none; color:inherit;">
-          <img src="https://flagcdn.com/w20/ir.png" alt="فارسی" style="width: 16px; height: 11px; border-radius: 1px;"> فارسی
-        </a>
-        <span style="opacity:.3; font-size:.82rem;">|</span>
-        <a href="${getLangUrl(requestPath, 'ur')}" style="opacity:.6; font-size:.82rem; display:flex; align-items:center; gap:6px; text-decoration:none; color:inherit;">
-          <img src="https://flagcdn.com/w20/pk.png" alt="اردو" style="width: 16px; height: 11px; border-radius: 1px;"> اردو
-        </a>
-      </div>
     </div>
   </footer>
 
