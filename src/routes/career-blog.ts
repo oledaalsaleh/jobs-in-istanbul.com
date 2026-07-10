@@ -1759,7 +1759,421 @@ const seededArticles: Record<string, any[]> = {
       `
     }
   ],
-  ru: []
+  ru: [
+    {
+      title: 'Разница между туристическим ВНЖ и разрешением на работу в Турции: преимущества, недостатки и процедура смены статуса в 2026 году',
+      slug: 'difference-tourist-residency-work-permit-turkey',
+      summary: 'Подробное сравнение туристического вида на жительство и разрешения на работу в Турции, включая процедуру смены статуса и правила Министерства труда.',
+      publishedAt: '2026-07-09',
+      canonical: 'https://jobs-in-istanbul.com/ru/blog/difference-tourist-residency-work-permit-turkey',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1544027993-37dbfe43562a?q=80&w=1200&fm=webp" alt="Разница между туристическим ВНЖ и разрешением на работу" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+          <p>Понимание разницы между статусами пребывания в Турции является ключевым фактором стабильности для экспатов. Туристический ВНЖ запрещает трудоустройство, тогда как рабочая виза дает полные права и страхование.</p>
+        </div>
+      `
+    },
+    {
+      title: 'Как составить резюме (CV) для турецких компаний? Руководство на 2026 год',
+      slug: 'how-to-write-cv-for-turkish-companies',
+      summary: 'Пошаговое руководство по составлению резюме, подходящего для турецкого рынка труда, включая фото и визовый статус.',
+      publishedAt: '2026-07-09',
+      canonical: 'https://jobs-in-istanbul.com/ru/blog/how-to-write-cv-for-turkish-companies',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?q=80&w=1200&fm=webp" alt="Резюме для турецких компаний" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+          <p>Качественное резюме — первый шаг к получению приглашения на собеседование в Стамбуле. Для иностранцев важно указывать статус ВНЖ и разрешения на работу.</p>
+        </div>
+      `
+    },
+    {
+      title: 'Обязательное медицинское страхование (SGK) в Турции 2026: гид для иностранцев',
+      slug: 'sgk-health-insurance-turkey-workers',
+      summary: 'Особенности государственной медицинской страховки SGK для иностранных работников и их семей.',
+      publishedAt: '2026-07-09',
+      canonical: 'https://jobs-in-istanbul.com/ru/blog/sgk-health-insurance-turkey-workers',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1505751172876-fa1923c5c528?q=80&w=1200&fm=webp" alt="Страхование SGK в Турции" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+          <p>Государственная страховка SGK покрывает лечение в госклиниках для держателя разрешения на работу и членов его семьи.</p>
+        </div>
+      `
+    },
+    {
+      title: 'Открытие банковского счета в Турции для иностранцев 2026: условия, шаги и лучшие банки',
+      slug: 'open-bank-account-turkey-foreigners',
+      summary: 'Как открыть счет в турецких лирах, долларах и евро в турецких банках без больших депозитов.',
+      publishedAt: '2026-07-09',
+      canonical: 'https://jobs-in-istanbul.com/ru/blog/open-bank-account-turkey-foreigners',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1559526324-4b87b5e36e44?q=80&w=1200&fm=webp" alt="Банковский счет в Турции" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+          <p>Счет необходим для получения зарплаты и оплаты счетов. Ziraat Bankası является самым лояльным банком к иностранным клиентам.</p>
+        </div>
+      `
+    },
+    {
+      title: 'Лучшие клиники имплантации зубов в Турции: цены и услуги стоматологии в 2026 году',
+      slug: 'best-dental-implants-clinic-turkey',
+      summary: 'Обзор цен на имплантацию зубов в Стамбуле и советы по выбору стоматологического центра.',
+      publishedAt: '2026-07-09',
+      canonical: 'https://jobs-in-istanbul.com/ru/blog/best-dental-implants-clinic-turkey',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?q=80&w=1200&fm=webp" alt="Имплантация зубов в Турции" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+          <p>Турция — один из лидеров медицинского туризма в стоматологии. Высокое качество и низкие цены привлекают пациентов со всего мира.</p>
+        </div>
+      `
+    },
+    {
+      title: 'Правила получения разрешения на работу и рабочей визы в Турции для иностранцев в 2026 году',
+      slug: 'turkey-work-permit-residency-laws',
+      summary: 'Требования Министерства труда Турции к квотам, капиталу компаний и документам для выдачи рабочих разрешений.',
+      publishedAt: '2026-07-09',
+      canonical: 'https://jobs-in-istanbul.com/ru/blog/turkey-work-permit-residency-laws',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1450133064473-71024230f91b?q=80&w=1200&fm=webp" alt="Законы о работе в Турции" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+          <p>На каждого иностранного сотрудника компания обязана нанимать не менее 5 граждан Турции. Для ИТ-сектора предусмотрены послабления.</p>
+        </div>
+      `
+    },
+    {
+      title: 'Как оптимизировать резюме для прохождения современных систем ATS-фильтрации?',
+      slug: 'optimize-resume-to-pass-ats-systems',
+      summary: 'Советы по подбору ключевых слов, оформлению структуры и форматированию файлов для успешного прохождения алгоритмов ATS.',
+      publishedAt: '2026-07-09',
+      canonical: 'https://jobs-in-istanbul.com/ru/blog/optimize-resume-to-pass-ats-systems',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?q=80&w=1200&fm=webp" alt="Резюме для систем ATS" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+          <p>Системы ATS сканируют резюме на наличие ключевых слов. Избегайте сложных таблиц и графиков, чтобы файл распознался верно.</p>
+        </div>
+      `
+    },
+    {
+      title: 'Советы по транспорту в Стамбуле: как избежать пробок? Руководство для сотрудников',
+      slug: 'avoid-istanbul-traffic-and-transportation-tips',
+      summary: 'Как пользоваться метробусом, метро и паромами для быстрого и дешевого ежедневного проезда на работу.',
+      publishedAt: '2026-07-09',
+      canonical: 'https://jobs-in-istanbul.com/ru/blog/avoid-istanbul-traffic-and-transportation-tips',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1549880338-65ddcdfd017b?q=80&w=1200&fm=webp" alt="Транспорт в Стамбуле" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+          <p>Стамбул известен своими пробками. Метробус и метро — лучшие варианты для передвижения в часы пик между частями города.</p>
+        </div>
+      `
+    },
+    {
+      title: 'Минимальная заработная плата и расходы работодателя в Турции в 2026 году: детальный отчет',
+      slug: 'turkey-minimum-wage-employer-cost-2026',
+      summary: 'Анализ утвержденного размера минимальной чистой зарплаты и социальных отчислений работодателей в 2026 году.',
+      publishedAt: '2026-07-09',
+      canonical: 'https://jobs-in-istanbul.com/ru/blog/turkey-minimum-wage-employer-cost-2026',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?q=80&w=1200&fm=webp" alt="Минимальная зарплата в Турции" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+          <p>В 2026 году чистая минимальная зарплата составляет 28 075,50 лир. Полные затраты работодателя с учетом всех социальных взносов составляют свыше 33 000 лир.</p>
+        </div>
+      `
+    }
+  ],
+  ur: [
+    {
+      title: 'ترکی میں سیاحتی اقامت اور ورک پرمٹ کے درمیان فرق: فوائد، نقصانات اور تبدیلی کے مراحل ۲۰۲۶',
+      slug: 'difference-tourist-residency-work-permit-turkey',
+      summary: 'ترکی میں سیاحتی اقامت اور ورک پرمٹ کے درمیان بنیادی فرق، اور اقامت کی قسم کو تبدیل کرنے کے قانونی طریقے اور مراحل پر تفصیلی گائیڈ۔',
+      publishedAt: '2026-07-09',
+      canonical: 'https://jobs-in-istanbul.com/ur/blog/difference-tourist-residency-work-permit-turkey',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1544027993-37dbfe43562a?q=80&w=1200&fm=webp" alt="ترکی میں سیاحتی اقامت اور ورک پرمٹ" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+          <p>ترکی میں قانونی رہائش کے لیے اقامت کی قسم کو سمجھنا ہر غیر ملکی کے لیے بنیادی قدم ہے۔ ٹورسٹ اقامت صرف سیاحت کے لیے ہے اور اس پر کام کرنا قانوناً جرم ہے، جبکہ ورک پرمٹ آپ کو مکمل قانونی تحفظ اور انشورنس فراہم کرتا ہے۔</p>
+        </div>
+      `
+    },
+    {
+      title: 'ترک کمپنیوں کے لیے پیشہ ورانہ سی وی (CV) کیسے بنائیں؟ مکمل گائیڈ ۲۰۲۶',
+      slug: 'how-to-write-cv-for-turkish-companies',
+      summary: 'کاروباری ترکی کمپنیوں کے لیے موزوں سی وی بنانے، اس میں تصویر شامل کرنے اور ورک پرمٹ کی معلومات فراہم کرنے کا طریقہ۔',
+      publishedAt: '2026-07-09',
+      canonical: 'https://jobs-in-istanbul.com/ur/blog/how-to-write-cv-for-turkish-companies',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?q=80&w=1200&fm=webp" alt="ترک کمپنیوں کے لیے سی وی" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+          <p>ترکی میں ملازمت حاصل کرنے کے لیے ایک اچھی سی وی بنیادی کردار ادا کرتی ہے۔ آجر عام طور پر آپ کی تصویر اور رہائشی ویزہ کی تفصیلات دیکھنے کی توقع کرتے ہیں۔</p>
+        </div>
+      `
+    },
+    {
+      title: 'ترکی میں لازمی ہیلتھ انشورنس (SGK) ۲۰۲۶: غیر ملکیوں کے لیے گائیڈ اور فوائد',
+      slug: 'sgk-health-insurance-turkey-workers',
+      summary: 'سرکاری سماجی تحفظ کی انشورنس (SGK) کے بارے میں تفصیلات اور اس کے تحت غیر ملکی ملازمین کے لیے مفت طبی سہولیات۔',
+      publishedAt: '2026-07-09',
+      canonical: 'https://jobs-in-istanbul.com/ur/blog/sgk-health-insurance-turkey-workers',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1505751172876-fa1923c5c528?q=80&w=1200&fm=webp" alt="ترکی میں انشورنس SGK" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+          <p>ورک پرمٹ کے حامل تمام ملازمین کو لازمی طور پر سرکاری انشورنس (SGK) فراہم کی جاتی ہے، جس کے ذریعے سرکاری ہسپتالوں میں علاج بالکل مفت ہوتا ہے۔</p>
+        </div>
+      `
+    },
+    {
+      title: 'غیر ملکیوں کے لیے ترکی میں بینک اکاؤنٹ کھولنا ۲۰۲۶: مطلوبہ دستاویزات اور بہترین بینک',
+      slug: 'open-bank-account-turkey-foreigners',
+      summary: 'ترکی کے بینکوں میں بغیر کسی پریشانی کے لیر، ڈالر اور یورو اکاؤنٹ کھولنے کا آسان طریقہ کار۔',
+      publishedAt: '2026-07-09',
+      canonical: 'https://jobs-in-istanbul.com/ur/blog/open-bank-account-turkey-foreigners',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1559526324-4b87b5e36e44?q=80&w=1200&fm=webp" alt="ترکی میں بینک اکاؤنٹ" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+          <p>تنخواہ کی وصولی اور روزمرہ کے لین دین کے لیے ترکی میں بینک اکاؤنٹ ہونا ضروری ہے۔ زراعت بینک سب سے آسان اور مقبول انتخاب ہے۔</p>
+        </div>
+      `
+    },
+    {
+      title: 'ترکی میں دانتوں کے علاج اور ایمپلنٹ کے بہترین کلینک: لاگت اور گائیڈ ۲۰۲۶',
+      slug: 'best-dental-implants-clinic-turkey',
+      summary: 'استنبول میں دندان سازی کے بہترین مراکز، ایمپلنٹ کی لاگت اور علاج کے سفر کی منصوبہ بندی۔',
+      publishedAt: '2026-07-09',
+      canonical: 'https://jobs-in-istanbul.com/ur/blog/best-dental-implants-clinic-turkey',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?q=80&w=1200&fm=webp" alt="ترکی میں دانتوں کا علاج" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+          <p>استنبول ہیلتھ ٹورازم کے لیے دنیا بھر میں مشہور ہے۔ کم قیمت اور عالمی معیار کا دندان سازی کا علاج یہاں فراہم کیا جاتا ہے۔</p>
+        </div>
+      `
+    },
+    {
+      title: 'غیر ملکیوں کے لیے ترکی میں ورک پرمٹ اور رہائشی ویزہ کے تازہ ترین قوانین ۲۰۲۶',
+      slug: 'turkey-work-permit-residency-laws',
+      summary: 'وزارتِ محنت ترکی کی طرف سے جاری کردہ ورک پرمٹ حاصل کرنے کی شرائط اور کوٹہ سسٹم کی تفصیلات۔',
+      publishedAt: '2026-07-09',
+      canonical: 'https://jobs-in-istanbul.com/ur/blog/turkey-work-permit-residency-laws',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1450133064473-71024230f91b?q=80&w=1200&fm=webp" alt="ورک پرمٹ قوانین ترکی" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+          <p>ترکی کے قانون کے مطابق آجروں کو ہر غیر ملکی ملازم کے بدلے ۵ ترک شہریوں کو ملازمت دینی پڑتی ہے، جس کی تفصیل یہاں موجود ہے۔</p>
+        </div>
+      `
+    },
+    {
+      title: 'اے ٹی ایس (ATS) فلٹر سسٹمز کو پاس کرنے کے لیے اپنا سی وی کیسے تیار کریں؟',
+      slug: 'optimize-resume-to-pass-ats-systems',
+      summary: 'اپنے سی وی کو جدید اسکریننگ سسٹمز کے مطابق ڈیزائن کرنے اور انٹرویو کال حاصل کرنے کی تجاویز۔',
+      publishedAt: '2026-07-09',
+      canonical: 'https://jobs-in-istanbul.com/ur/blog/optimize-resume-to-pass-ats-systems',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?q=80&w=1200&fm=webp" alt="ATS سسٹم سی وی" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+          <p>اے ٹی ایس سسٹمز سی وی میں سے کلیدی الفاظ تلاش کرتے ہیں۔ ساده فارمیٹ استعمال کریں اور فینسی ڈیزائن سے گریز کریں۔</p>
+        </div>
+      `
+    },
+    {
+      title: 'استنبول ٹریفک سے بچنے اور سفر کرنے کے مفید مشورے: کارپورٹ کارمندوں کے لیے گائیڈ',
+      slug: 'avoid-istanbul-traffic-and-transportation-tips',
+      summary: 'میٹرو، میٹربس اور بحری جہازوں کے ذریعے روزانہ سفر کو آسان بنانے کے طریقے اور نقشے۔',
+      publishedAt: '2026-07-09',
+      canonical: 'https://jobs-in-istanbul.com/ur/blog/avoid-istanbul-traffic-and-transportation-tips',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1549880338-65ddcdfd017b?q=80&w=1200&fm=webp" alt="استنبول ٹریفک اور سفر" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+          <p>استنبول کا سفر مشکل ہو سکتا ہے، لیکن میٹربس کے ذریعے آپ آسانی سے ایشین اور یورپین اطراف کے درمیان ٹریفک جام سے بچ کر سفر کر سکتے ہیں۔</p>
+        </div>
+      `
+    },
+    {
+      title: 'ترکی میں کم از کم تنخواہ اور آجر کی کل لاگت سال ۲۰۲۶: مکمل رپورٹ',
+      slug: 'turkey-minimum-wage-employer-cost-2026',
+      summary: 'سال ۲۰۲۶ کے لیے ترکی میں منظور شدہ کم از کم تنخواہ اور اس پر آجر کو ہونے والے کل اخراجات کا تفصیلی جائزہ۔',
+      publishedAt: '2026-07-09',
+      canonical: 'https://jobs-in-istanbul.com/ur/blog/turkey-minimum-wage-employer-cost-2026',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?q=80&w=1200&fm=webp" alt="کم از کم تنخواہ ترکی" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+          <p>ترکی میں ۲۰۲۶ کے لیے کم از کم نیٹ تنخواہ ۲۸,۰۷۵.۵۰ ترک لیرا ہے، جو تمام قسم کی انشورنسز اور الاؤنسز کو ملا کر آجر کو ۳۳ ہزار سے زیادہ پڑتی ہے۔</p>
+        </div>
+      `
+    }
+  ],
+  fa: [
+    {
+      title: 'تفاوت اقامت توریستی و اجازه کار در ترکیه: مزایا، معایب و نحوه تبدیل اقامت در سال ۲۰۲۶',
+      slug: 'difference-tourist-residency-work-permit-turkey',
+      summary: 'راهنمای جامع و دقیق سال ۲۰۲۶ برای مقایسه اقامت توریستی و مجوز کار در ترکیه، مزایا و معایب هر کدام، به همراه توضیح مراحل تبدیل اقامت و آخرین قوانین اداره کار ترکیه.',
+      publishedAt: '2026-07-09',
+      canonical: 'https://jobs-in-istanbul.com/fa/blog/difference-tourist-residency-work-permit-turkey',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1544027993-37dbfe43562a?q=80&w=1200&fm=webp" alt="تفاوت اقامت توریستی و اجازه کار در ترکیه" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+          <p>درک تفاوت‌های اساسی بین انواع اقامت در جمهوری ترکیه، سنگ بنای استقرار ایمن و موفق برای هر تبعه خارجی است که قصد زندگی در این کشور را دارد. اقامت توریستی کوتاه‌مدت و اجازه کار رسمی هر دو حضور شما را قانونی می‌کنند، اما تفاوت‌های زیادی در حقوق، بیمه و مسیر دریافت شهروندی دارند.</p>
+          <h2>۱. اقامت توریستی (Kısa Dönem İkamet İzni)</h2>
+          <p>این نوع اقامت برای مقاصد گردشگری و سفرهای کوتاه مدت صادر می‌شود و به هیچ وجه حق کار در ترکیه را به شما نمی‌دهد. کار با اقامت توریستی غیرقانونی بوده و جریمه‌های سنگین و خطر دیپورت به همراه دارد.</p>
+          <h2>۲. اجازه کار و اقامت کاری (Çalışma İzni)</h2>
+          <p>مجوز کار که توسط وزارت کار ترکیه صادر می‌شود، به طور خودکار به عنوان مجوز اقامت معتبر نیز عمل می‌کند. این مجوز شامل بیمه درمانی دولتی (SGK) برای شما و خانواده‌تان بوده و سال‌های آن جزو ۵ سال مورد نیاز برای شهروندی ترکیه محاسبه می‌شود.</p>
+        </div>
+      `
+    },
+    {
+      title: 'چگونه یک رزومه (CV) حرفه‌ای برای شرکت‌های ترکیه‌ای بنویسیم؟ راهنمای سال ۲۰۲۶',
+      slug: 'how-to-write-cv-for-turkish-companies',
+      summary: 'راهنمای گام به گام نوشتن و قالب‌بندی رزومه مورد تایید کارفرمایان ترک و نحوه تطبیق آن با سیستم‌های غربالگری خودکار رزومه (ATS).',
+      publishedAt: '2026-07-09',
+      canonical: 'https://jobs-in-istanbul.com/fa/blog/how-to-write-cv-for-turkish-companies',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?q=80&w=1200&fm=webp" alt="نوشتن رزومه برای شرکت‌های ترکی" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+          <p>نوشتن یک رزومه متناسب با استانداردهای بازار کار ترکیه، اولین قدم برای دریافت دعوت‌نامه مصاحبه است. درج عکس رسمی و ذکر وضعیت اقامت و اجازه کار در بخش بالایی رزومه برای اتباع خارجی اهمیت بسیار بالایی دارد.</p>
+        </div>
+      `
+    },
+    {
+      title: 'بیمه درمانی تامین اجتماعی (SGK) در ترکیه ۲۰۲۶: راهنمای کامل برای اتباع خارجی',
+      slug: 'sgk-health-insurance-turkey-workers',
+      summary: 'بیمه درمانی دولتی تامین اجتماعی ترکیه (SGK)، نحوه کارکرد، پوشش خدمات درمانی برای کارمندان خارجی و خانواده آن‌ها.',
+      publishedAt: '2026-07-09',
+      canonical: 'https://jobs-in-istanbul.com/fa/blog/sgk-health-insurance-turkey-workers',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1505751172876-fa1923c5c528?q=80&w=1200&fm=webp" alt="بیمه SGK در ترکیه" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+          <p>بیمه دولتی ترکیه (SGK) یکی از بهترین و جامع‌ترین سیستم‌های بیمه درمانی در منطقه است. تمام کارمندانی که دارای اجازه کار رسمی هستند تحت پوشش این بیمه قرار می‌گیرند و هزینه‌های درمانی آن‌ها در بیمارستان‌های دولتی رایگان خواهد بود.</p>
+        </div>
+      `
+    },
+    {
+      title: 'افتتاح حساب بانکی در ترکیه برای اتباع خارجی ۲۰۲۶: مراحل، نیازمندی‌ها و بهترین بانک‌ها',
+      slug: 'open-bank-account-turkey-foreigners',
+      summary: 'راهنمای گام به گام افتتاح حساب بانکی لیر، دلار و یورو در بانک‌های ترکیه بدون نیاز به سپرده‌های سنگین.',
+      publishedAt: '2026-07-09',
+      canonical: 'https://jobs-in-istanbul.com/fa/blog/open-bank-account-turkey-foreigners',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1559526324-4b87b5e36e44?q=80&w=1200&fm=webp" alt="حساب بانکی در ترکیه" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+          <p>افتتاح حساب بانکی در ترکیه برای پرداخت‌های روزمره و دریافت حقوق الزامی است. بانک‌های زراعت (Ziraat Bankası) و ایش بانک (İş Bankası) بهترین گزینه‌ها برای اتباع خارجی هستند.</p>
+        </div>
+      `
+    },
+    {
+      title: 'بهترین کلینیک‌های ایمپلنت دندان در ترکیه: راهنمای هزینه‌ها و خدمات دندانپزشکی ۲۰۲۶',
+      slug: 'best-dental-implants-clinic-turkey',
+      summary: 'بررسی هزینه‌های ایمپلنت دندان و خدمات دندانپزشکی در استانبول و نحوه انتخاب کلینیک مناسب.',
+      publishedAt: '2026-07-09',
+      canonical: 'https://jobs-in-istanbul.com/fa/blog/best-dental-implants-clinic-turkey',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?q=80&w=1200&fm=webp" alt="ایمپلنت دندان در ترکیه" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+          <p>استانبول به یکی از قطب‌های گردشگری سلامت و دندانپزشکی در جهان تبدیل شده است. هزینه‌های مناسب و کیفیت بالای ایمپلنت در ترکیه، هزاران بیمار خارجی را سالانه به خود جذب می‌کند.</p>
+        </div>
+      `
+    },
+    {
+      title: 'قوانین و مقررات اجازه کار و اقامت کاری در ترکیه برای اتباع خارجی ۲۰۲۶',
+      slug: 'turkey-work-permit-residency-laws',
+      summary: 'آخرین تغییرات قوانین صادر شده توسط وزارت کار ترکیه в отношении получения разрешения на работу.',
+      publishedAt: '2026-07-09',
+      canonical: 'https://jobs-in-istanbul.com/fa/blog/turkey-work-permit-residency-laws',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1450133064473-71024230f91b?q=80&w=1200&fm=webp" alt="قوانین کار در ترکیه" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+          <p>قوانین کار ترکیه تاکید دارند که نسبت استخدامی شرکت‌ها باید ۵ کارمند ترک به ازای ۱ کارمند خارجی باشد. استثنائاتی برای شرکت‌های بین‌المللی و حوزه‌های فناوری وجود دارد.</p>
+        </div>
+      `
+    },
+    {
+      title: 'چگونه رزومه خود را برای عبور از نرم‌افزارهای فیلترینگ خودکار (ATS) بهینه‌سازی کنیم؟',
+      slug: 'optimize-resume-to-pass-ats-systems',
+      summary: 'راهنمای انتخاب کلمات کلیدی، قالب‌بندی استاندارد رزومه و افزایش شانس پذیرش آن در سیستم‌های ATS.',
+      publishedAt: '2026-07-09',
+      canonical: 'https://jobs-in-istanbul.com/fa/blog/optimize-resume-to-pass-ats-systems',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?q=80&w=1200&fm=webp" alt="سیستم های ATS رزومه" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+          <p>سیستم‌های ATS کلمات کلیدی موجود در رزومه شما را با شرح شغل تطبیق می‌دهند. از بکار بردن جداول و تصاویر پیچیده در فایل رزومه خودداری کنید تا توسط سیستم خوانده شود.</p>
+        </div>
+      `
+    },
+    {
+      title: 'راهنمای حمل و نقل در استانبول: چگونه از ترافیک فرار کنیم؟ نکات مهم برای کارمندان',
+      slug: 'avoid-istanbul-traffic-and-transportation-tips',
+      summary: 'راهنمای استفاده از متروبوس، مترو و کشتی‌های مسافربری استانبول برای رفت و آمد روزانه آسان به محل کار.',
+      publishedAt: '2026-07-09',
+      canonical: 'https://jobs-in-istanbul.com/fa/blog/avoid-istanbul-traffic-and-transportation-tips',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1549880338-65ddcdfd017b?q=80&w=1200&fm=webp" alt="ترافیک استانبول" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+          <p>استانبول یکی از پرترافیک‌ترین شهرهای جهان است. متروبوس (Metrobüs) بهترین و سریع‌ترین وسیله برای رفت و آمد بین بخش‌های آسیایی و اروپایی در ساعت‌های اوج شلوغی است.</p>
+        </div>
+      `
+    },
+    {
+      title: 'حداقل حقوق و دستمزد و هزینه کارفرما در ترکیه ۲۰۲۶: محاسبات و جزئیات دقیق قانونی',
+      slug: 'turkey-minimum-wage-employer-cost-2026',
+      summary: 'تحلیل جامع حداقل حقوق خالص و ناخالص تصویب شده برای سال ۲۰۲۶ و هزینه‌های تامین اجتماعی کارفرمایان.',
+      publishedAt: '2026-07-09',
+      canonical: 'https://jobs-in-istanbul.com/fa/blog/turkey-minimum-wage-employer-cost-2026',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?q=80&w=1200&fm=webp" alt="حداقل حقوق در ترکیه" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+          <p>حداقل حقوق خالص کارمندان در ترکیه برای سال ۲۰۲۶ معادل ۲۸,۰۷۵.۵۰ لیر تعیین شده است. این مقدار مبنای محاسبات مالیاتی و بیمه‌ای کارفرمایان قرار می‌گیرد.</p>
+        </div>
+      `
+    }
+  ],
 };;
 
 // Helper to extract first image
