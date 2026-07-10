@@ -80,14 +80,21 @@ body {
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
   overflow-x: hidden;
   width: 100%;
   max-width: 100%;
 }
 body.rtl { font-family: var(--font-ar); direction: rtl; }
+
+.page-wrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
 a { color: inherit; text-decoration: none; transition: var(--t-base); }
 img, svg { max-width: 100%; display: block; }
 button, input, select, textarea { font-family: inherit; outline: none; }

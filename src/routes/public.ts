@@ -448,7 +448,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="/css/theme.css?v=1.0.4">
+  <link rel="stylesheet" href="/css/theme.css?v=1.0.5">
   
   <!-- Critical inline CSS for zero flash -->
   <style>
@@ -457,6 +457,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
   </style>
 </head>
 <body class="${isRtl ? 'rtl' : ''}">
+  <div class="page-wrapper">
 
   <!-- HEADER -->
   <header class="site-header" id="site-header">
@@ -802,6 +803,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       <p>${t.copyright}</p>
     </div>
   </footer>
+  </div>
 
   <style>
     @keyframes slideInLeft  { from { transform: translateX(-100%); } to { transform: translateX(0); } }

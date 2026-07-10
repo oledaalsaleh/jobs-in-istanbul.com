@@ -69,6 +69,16 @@ body.rtl {
   direction: rtl;
 }
 
+.page-wrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 /* Smooth Focus Rings */
 *:focus-visible {
   outline: 2px solid var(--primary);
