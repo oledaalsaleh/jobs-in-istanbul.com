@@ -71,7 +71,7 @@ export const themeCss = `
 
 /* ---- Reset ---- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; text-size-adjust: 100%; overflow-x: hidden; }
+html { scroll-behavior: smooth; text-size-adjust: 100%; overflow-x: hidden; width: 100%; max-width: 100%; }
 
 body {
   font-family: var(--font-en);
@@ -84,6 +84,8 @@ body {
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
 }
 body.rtl { font-family: var(--font-ar); direction: rtl; }
 a { color: inherit; text-decoration: none; transition: var(--t-base); }
@@ -951,6 +953,9 @@ body.dark-mode .site-footer { background: hsl(222, 30%, 5%); }
 }
 @media (max-width: 480px) {
   .hero-stats { display: none; }
+  .hero-title { font-size: 1.7rem; }
+  .hero-subtitle { font-size: 0.95rem; margin-bottom: 24px; }
+  .hero { padding: 48px 0 80px; }
   .footer-inner { flex-direction: column; gap: 36px; }
   .footer-links-group { gap: 36px; }
 }

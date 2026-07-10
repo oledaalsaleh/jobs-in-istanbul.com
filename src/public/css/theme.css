@@ -50,6 +50,8 @@ html {
   scroll-behavior: smooth;
   text-size-adjust: 100%;
   overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
 }
 
 body {
@@ -58,6 +60,8 @@ body {
   color: var(--text-main);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  width: 100%;
+  max-width: 100%;
 }
 
 body.rtl {
@@ -904,5 +908,14 @@ input[type="text"]:focus, input[type="email"]:focus, select:focus, textarea:focu
   
   .footer-links-group {
     gap: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 1.75rem !important;
+  }
+  .rtl .hero-title {
+    font-size: 1.7rem !important;
   }
 }
