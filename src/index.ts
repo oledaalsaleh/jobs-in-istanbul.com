@@ -97,6 +97,10 @@ app.route('/', goldPricesRouter)
 export default {
   async fetch(request: Request, env: any, ctx: any) {
     const url = new URL(request.url);
+    // Redirect /blog to /ar/blog (fix 404)
+    if (url.pathname === '/blog') {
+      return Response.redirect(`${url.origin}/ar/blog`, 302);
+    }
     if (url.pathname === '/' || url.pathname === '') {
       const acceptLang = request.headers.get('accept-language') || '';
       if (acceptLang.toLowerCase().startsWith('ur')) {
@@ -125,10 +129,10 @@ export default {
 
         // 1. Run Web Scraper
         const webResult = await runScraper(
-          { 
-            DB: env.DB, 
-            AI: env.AI, 
-            MEDIA_BUCKET: env.MEDIA_BUCKET, 
+          {
+            DB: env.DB,
+            AI: env.AI,
+            MEDIA_BUCKET: env.MEDIA_BUCKET,
             GEMINI_API_KEY: env.GEMINI_API_KEY,
             TELEGRAM_BOT_TOKEN: env.TELEGRAM_BOT_TOKEN,
             TELEGRAM_CHANNEL_ID: env.TELEGRAM_CHANNEL_ID
@@ -142,10 +146,10 @@ export default {
 
         // 3. Run Telegram Scraper
         const tgResult = await runTelegramScraper(
-          { 
-            DB: env.DB, 
-            AI: env.AI, 
-            MEDIA_BUCKET: env.MEDIA_BUCKET, 
+          {
+            DB: env.DB,
+            AI: env.AI,
+            MEDIA_BUCKET: env.MEDIA_BUCKET,
             GEMINI_API_KEY: env.GEMINI_API_KEY,
             TELEGRAM_BOT_TOKEN: env.TELEGRAM_BOT_TOKEN,
             TELEGRAM_CHANNEL_ID: env.TELEGRAM_CHANNEL_ID
@@ -162,34 +166,34 @@ export default {
             const jobsResult = await db.prepare(
               `SELECT id, slug, data FROM documents WHERE type_id = 'jobs' AND is_published = 1 AND deleted_at IS NULL`
             ).all();
-            
+
             const jobs = jobsResult.results || [];
             let optimizedCount = 0;
-            
+
             for (const row of jobs) {
               if (optimizedCount >= 5) break; // limit to 5 per cron run to respect Gemini rate limits
-              
+
               let jobData: any;
               try {
                 jobData = JSON.parse(row.data);
               } catch (e) {
                 continue;
               }
-              
+
               const hasKeywords = jobData.seoKeywords && (
                 (Array.isArray(jobData.seoKeywords) && jobData.seoKeywords.length > 0) ||
                 (typeof jobData.seoKeywords === 'string' && jobData.seoKeywords.trim().length > 0)
               );
               const hasDescription = jobData.seoDescription && jobData.seoDescription.trim().length > 0;
-              
+
               if (hasKeywords && hasDescription) {
                 continue;
               }
-              
+
               const title = jobData.title_en || jobData.title_ar || 'Job Title';
               const desc = jobData.description_en || jobData.description_ar || 'Job Description';
               const locale = jobData.language === 'ar' ? 'ar' : 'en';
-              
+
               // Call Gemini
               const seoResult = await optimizeSeoWithGemini(
                 env.GEMINI_API_KEY,
@@ -197,7 +201,7 @@ export default {
                 desc,
                 locale
               );
-              
+
               const updatedData = {
                 ...jobData,
                 title_ar: seoResult.title_ar || jobData.title_ar || title,
@@ -207,11 +211,11 @@ export default {
                 seoKeywords: seoResult.keywords || [],
                 seoDescription: seoResult.seoDescription || ''
               };
-              
+
               await db.prepare(
                 `UPDATE documents SET data = ?, title = ?, updated_at = ? WHERE id = ?`
               ).bind(JSON.stringify(updatedData), seoResult.title_en || jobData.title_en || title, Date.now(), row.id).run();
-              
+
               optimizedCount++;
               // Brief pause between Gemini API calls
               await new Promise(r => setTimeout(r, 1000));
