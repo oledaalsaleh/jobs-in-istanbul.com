@@ -452,8 +452,26 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
   
   <!-- Critical inline CSS for zero flash -->
   <style>
+    html, body {
+      width: 100% !important;
+      max-width: 100% !important;
+      overflow-x: hidden !important;
+    }
+    .page-wrapper {
+      width: 100% !important;
+      max-width: 100% !important;
+      overflow-x: hidden !important;
+      position: relative !important;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
     body { font-family: ${isRtl ? "'Cairo', sans-serif" : "'Plus Jakarta Sans', sans-serif"}; }
     .site-header { transform: translateY(0); }
+    @media (max-width: 480px) {
+      .hero-title { font-size: 1.7rem !important; }
+      .hero-subtitle { font-size: 0.95rem !important; margin-bottom: 24px !important; }
+    }
   </style>
 </head>
 <body class="${isRtl ? 'rtl' : ''}">
