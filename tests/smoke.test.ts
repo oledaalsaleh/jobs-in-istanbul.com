@@ -140,6 +140,13 @@ describe('Istanbul Jobs Portal Smoke Tests', () => {
     expect(text).toContain('İstanbul')
   })
 
+  test('GET /ru loads successfully with Russian text', async () => {
+    const res = await app.request('/ru', {}, mockEnv)
+    expect(res.status).toBe(200)
+    const text = await res.text()
+    expect(text).toContain('Стамбуле')
+  })
+
   test('GET /robots.txt serves indexing instructions', async () => {
     const res = await app.request('/robots.txt', {}, mockEnv)
     expect(res.status).toBe(200)

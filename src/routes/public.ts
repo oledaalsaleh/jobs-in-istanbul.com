@@ -1700,6 +1700,12 @@ publicRouter.get(
   (c) => homeHandler(c, 'tr')
 )
 
+publicRouter.get(
+  '/ru',
+  cache({ cacheName: 'istanbul-jobs-ru', cacheControl: 'max-age=60' }),
+  (c) => homeHandler(c, 'ru')
+)
+
 // Detail view for a job
 publicRouter.get(
   '/:locale/jobs/:slug',

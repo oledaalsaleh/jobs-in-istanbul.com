@@ -51,12 +51,12 @@ seoRouter.get('/sitemap.xml', async (c) => {
 
   // Static routes
   const staticRoutes = [
-    { ar: '/ar', en: '/en', tr: '/tr' },
-    { ar: '/ar/submit-job', en: '/en/submit-job', tr: '/tr/submit-job' },
-    { ar: '/ar/blog', en: '/en/blog', tr: '/tr/blog' },
-    { ar: '/ar/currency-prices', en: '/en/currency-prices', tr: '/tr/currency-prices' },
-    { ar: '/ar/gold-prices', en: '/en/gold-prices', tr: '/tr/gold-prices' },
-    { ar: '/ar/install', en: '/en/install', tr: '/tr/install' }
+    { ar: '/ar', en: '/en', tr: '/tr', ru: '/ru' },
+    { ar: '/ar/submit-job', en: '/en/submit-job', tr: '/tr/submit-job', ru: '/ru/submit-job' },
+    { ar: '/ar/blog', en: '/en/blog', tr: '/tr/blog', ru: '/ru/blog' },
+    { ar: '/ar/currency-prices', en: '/en/currency-prices', tr: '/tr/currency-prices', ru: '/ru/currency-prices' },
+    { ar: '/ar/gold-prices', en: '/en/gold-prices', tr: '/tr/gold-prices', ru: '/ru/gold-prices' },
+    { ar: '/ar/install', en: '/en/install', tr: '/tr/install', ru: '/ru/install' }
   ];
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -65,7 +65,7 @@ seoRouter.get('/sitemap.xml', async (c) => {
 
   // 1. Static pages
   for (const route of staticRoutes) {
-    for (const loc of ['ar', 'en', 'tr'] as const) {
+    for (const loc of ['ar', 'en', 'tr', 'ru'] as const) {
       xml += `
   <url>
     <loc>${siteUrl}${route[loc]}</loc>
@@ -75,6 +75,7 @@ seoRouter.get('/sitemap.xml', async (c) => {
     <xhtml:link rel="alternate" hreflang="ar" href="${siteUrl}${route.ar}" />
     <xhtml:link rel="alternate" hreflang="en" href="${siteUrl}${route.en}" />
     <xhtml:link rel="alternate" hreflang="tr" href="${siteUrl}${route.tr}" />
+    <xhtml:link rel="alternate" hreflang="ru" href="${siteUrl}${route.ru}" />
     <xhtml:link rel="alternate" hreflang="x-default" href="${siteUrl}${route.ar}" />
   </url>`;
     }
@@ -85,7 +86,8 @@ seoRouter.get('/sitemap.xml', async (c) => {
     const arUrl = `${siteUrl}/ar?category=${cat.slug}`;
     const enUrl = `${siteUrl}/en?category=${cat.slug}`;
     const trUrl = `${siteUrl}/tr?category=${cat.slug}`;
-    for (const [, url] of [['ar', arUrl], ['en', enUrl], ['tr', trUrl]] as const) {
+    const ruUrl = `${siteUrl}/ru?category=${cat.slug}`;
+    for (const [, url] of [['ar', arUrl], ['en', enUrl], ['tr', trUrl], ['ru', ruUrl]] as const) {
       xml += `
   <url>
     <loc>${url}</loc>
@@ -95,6 +97,7 @@ seoRouter.get('/sitemap.xml', async (c) => {
     <xhtml:link rel="alternate" hreflang="ar" href="${arUrl}" />
     <xhtml:link rel="alternate" hreflang="en" href="${enUrl}" />
     <xhtml:link rel="alternate" hreflang="tr" href="${trUrl}" />
+    <xhtml:link rel="alternate" hreflang="ru" href="${ruUrl}" />
   </url>`;
     }
   }
@@ -105,7 +108,8 @@ seoRouter.get('/sitemap.xml', async (c) => {
     const arUrl = `${siteUrl}/ar/jobs/${job.slug}`;
     const enUrl = `${siteUrl}/en/jobs/${job.slug}`;
     const trUrl = `${siteUrl}/tr/jobs/${job.slug}`;
-    for (const url of [arUrl, enUrl, trUrl]) {
+    const ruUrl = `${siteUrl}/ru/jobs/${job.slug}`;
+    for (const url of [arUrl, enUrl, trUrl, ruUrl]) {
       xml += `
   <url>
     <loc>${url}</loc>
@@ -115,6 +119,7 @@ seoRouter.get('/sitemap.xml', async (c) => {
     <xhtml:link rel="alternate" hreflang="ar" href="${arUrl}" />
     <xhtml:link rel="alternate" hreflang="en" href="${enUrl}" />
     <xhtml:link rel="alternate" hreflang="tr" href="${trUrl}" />
+    <xhtml:link rel="alternate" hreflang="ru" href="${ruUrl}" />
     <xhtml:link rel="alternate" hreflang="x-default" href="${arUrl}" />
   </url>`;
     }
@@ -143,7 +148,8 @@ seoRouter.get('/sitemap.xml', async (c) => {
     const arUrl = `${siteUrl}/ar/blog/${slug}`;
     const enUrl = `${siteUrl}/en/blog/${slug}`;
     const trUrl = `${siteUrl}/tr/blog/${slug}`;
-    for (const url of [arUrl, enUrl, trUrl]) {
+    const ruUrl = `${siteUrl}/ru/blog/${slug}`;
+    for (const url of [arUrl, enUrl, trUrl, ruUrl]) {
       xml += `
   <url>
     <loc>${url}</loc>
@@ -153,6 +159,7 @@ seoRouter.get('/sitemap.xml', async (c) => {
     <xhtml:link rel="alternate" hreflang="ar" href="${arUrl}" />
     <xhtml:link rel="alternate" hreflang="en" href="${enUrl}" />
     <xhtml:link rel="alternate" hreflang="tr" href="${trUrl}" />
+    <xhtml:link rel="alternate" hreflang="ru" href="${ruUrl}" />
     <xhtml:link rel="alternate" hreflang="x-default" href="${arUrl}" />
   </url>`;
     }
