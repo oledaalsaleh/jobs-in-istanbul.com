@@ -62,7 +62,7 @@ publicRouter.get('/css/theme.css', (c) => {
 })
 
 // Base layout helper
-export function renderLayout(c: any, title: string, contentHtml: string, locale: 'ar' | 'en' | 'tr', seoHtml: string = '') {
+export function renderLayout(c: any, title: string, contentHtml: string, locale: 'ar' | 'en' | 'tr' | 'ru', seoHtml: string = '') {
   const isRtl = locale === 'ar';
 
   const translations = {
@@ -191,6 +191,48 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       joinTelegram: 'Telegram Kanalımıza Katılın',
       mobileJoinTelegram: 'Telegram\'a Katılın',
       installApp: 'Uygulamayı Yükle'
+    },
+    ru: {
+      siteName: 'Работа в Стамбуле',
+      tagline: 'Вакансии в Стамбуле',
+      findJob: 'Найти работу',
+      postJob: 'Разместить вакансию',
+      allJobs: 'Все вакансии',
+      about: 'О нас',
+      contact: 'Контакты',
+      copyright: '© 2026 Работа в Стамбуле. Все права защищены.',
+      langLabel: 'Русский',
+      home: 'Главная',
+      aiTools: 'Инструменты ИИ',
+      cvOptimizer: 'Оптимизатор резюме',
+      atsScanner: 'Сканер резюме ATS',
+      coverLetter: 'Генератор сопроводительных писем',
+      interviewPrep: 'Симулятор собеседований',
+      toolsAndTests: 'Инструменты и тесты',
+      cvBuilder: 'Конструктор резюме',
+      workPermit: 'Калькулятор разрешения на работу',
+      salaryCalc: 'Показатель зарплат Стамбула',
+      turkishTest: 'Тест на знание делового турецкого',
+      workplaceQuiz: 'Тест на адаптацию в коллективе',
+      currencyPrices: 'Курсы валют в Турции',
+      goldPrices: 'Цены на золото в Турции',
+      insights: 'Аналитика рынка',
+      blog: 'Блог о карьере',
+      candidatePortal: 'Портал кандидата',
+      employerPortal: 'Портал работодателя',
+      savedJobs: 'Избранное',
+      darkMode: 'Темный режим',
+      telegram: 'Telegram',
+      platform: 'Платформа',
+      smartTools: 'Умные инструменты',
+      legal: 'Юридическая информация',
+      privacy: 'Политика конфиденциальности',
+      terms: 'Условия использования',
+      realOpportunities: 'Реальные возможности',
+      footerTagline: 'Ведущая платформа, соединяющая арабские и международные таланты с лучшими вакансиями в Стамбуле.',
+      joinTelegram: 'Присоединиться к Telegram',
+      mobileJoinTelegram: 'Наш Telegram',
+      installApp: 'Установить приложение'
     }
   };
 
@@ -200,9 +242,9 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
 
   const getLangUrl = (path: string, targetLocale: string) => {
     let cleanPath = path;
-    if (path.startsWith('/ar/') || path.startsWith('/en/') || path.startsWith('/tr/')) {
+    if (path.startsWith('/ar/') || path.startsWith('/en/') || path.startsWith('/tr/') || path.startsWith('/ru/')) {
       cleanPath = path.substring(3);
-    } else if (path === '/ar' || path === '/en' || path === '/tr') {
+    } else if (path === '/ar' || path === '/en' || path === '/tr' || path === '/ru') {
       cleanPath = '';
     }
     if (cleanPath && !cleanPath.startsWith('/')) {
@@ -429,8 +471,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         <!-- Desktop Language Dropdown -->
         <div class="nav-dropdown">
           <a href="#" class="lang-btn" onclick="event.preventDefault()">
-            <img src="${locale === 'ar' ? 'https://flagcdn.com/w20/sa.png' : (locale === 'tr' ? 'https://flagcdn.com/w20/tr.png' : 'https://flagcdn.com/w20/gb.png')}" alt="${locale}" style="width: 18px; height: 13px; border-radius: 1px; object-fit: cover;">
-            <span>${locale === 'ar' ? 'العربية' : (locale === 'tr' ? 'Türkçe' : 'English')}</span>
+            <img src="${locale === 'ar' ? 'https://flagcdn.com/w20/sa.png' : (locale === 'tr' ? 'https://flagcdn.com/w20/tr.png' : (locale === 'ru' ? 'https://flagcdn.com/w20/ru.png' : 'https://flagcdn.com/w20/gb.png'))}" alt="${locale}" style="width: 18px; height: 13px; border-radius: 1px; object-fit: cover;">
+            <span>${locale === 'ar' ? 'العربية' : (locale === 'tr' ? 'Türkçe' : (locale === 'ru' ? 'Русский' : 'English'))}</span>
             <i class="fa-solid fa-chevron-down" style="font-size: 0.65rem; opacity: 0.7;"></i>
           </a>
           <div class="nav-dropdown-menu" style="min-width: 140px; padding: 6px 0; ${isRtl ? 'right: auto; left: 50%; transform: translateX(-50%);' : 'left: auto; right: 50%; transform: translateX(50%);'}">
@@ -445,6 +487,10 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
             <a href="${getLangUrl(requestPath, 'en')}" class="dropdown-item" style="gap: 8px; justify-content: flex-start;">
               <img src="https://flagcdn.com/w20/gb.png" alt="English" style="width: 18px; height: 13px; border-radius: 1px;">
               <span>English</span>
+            </a>
+            <a href="${getLangUrl(requestPath, 'ru')}" class="dropdown-item" style="gap: 8px; justify-content: flex-start;">
+              <img src="https://flagcdn.com/w20/ru.png" alt="Русский" style="width: 18px; height: 13px; border-radius: 1px;">
+              <span>Русский</span>
             </a>
           </div>
         </div>
@@ -519,6 +565,10 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
             <a href="${getLangUrl(requestPath, 'en')}" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px 8px; border-radius:var(--r-md); border:1.5px solid ${locale === 'en' ? 'var(--primary)' : 'var(--border)'}; background: ${locale === 'en' ? 'var(--primary-light)' : 'transparent'}; color:${locale === 'en' ? 'var(--primary)' : 'var(--text-body)'}; font-size:0.8rem; font-weight:700; transition:var(--t-base); text-decoration:none;">
               <img src="https://flagcdn.com/w20/gb.png" alt="English" style="width: 18px; height: 13px; border-radius: 1px;">
               <span>English</span>
+            </a>
+            <a href="${getLangUrl(requestPath, 'ru')}" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px 8px; border-radius:var(--r-md); border:1.5px solid ${locale === 'ru' ? 'var(--primary)' : 'var(--border)'}; background: ${locale === 'ru' ? 'var(--primary-light)' : 'transparent'}; color:${locale === 'ru' ? 'var(--primary)' : 'var(--text-body)'}; font-size:0.8rem; font-weight:700; transition:var(--t-base); text-decoration:none;">
+              <img src="https://flagcdn.com/w20/ru.png" alt="Русский" style="width: 18px; height: 13px; border-radius: 1px;">
+              <span>Русский</span>
             </a>
           </div>
         </div>
@@ -1013,7 +1063,7 @@ publicRouter.get('/', (c) => {
 })
 
 // Homepage for listing jobs
-const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr') => {
+const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru') => {
   const db = c.env.DB;
 
   // Get query parameters
@@ -1087,14 +1137,14 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr') => {
   if (querySearch) {
     const kw = querySearch.toLowerCase();
     jobs = jobs.filter((job: any) =>
-      job.title_ar.toLowerCase().includes(kw) ||
-      job.title_en.toLowerCase().includes(kw) ||
+      (job.title_ar || '').toLowerCase().includes(kw) ||
+      (job.title_en || '').toLowerCase().includes(kw) ||
       (job.title_tr && job.title_tr.toLowerCase().includes(kw)) ||
-      job.description_ar.toLowerCase().includes(kw) ||
-      job.description_en.toLowerCase().includes(kw) ||
+      (job.description_ar || '').toLowerCase().includes(kw) ||
+      (job.description_en || '').toLowerCase().includes(kw) ||
       (job.description_tr && job.description_tr.toLowerCase().includes(kw)) ||
-      job.location_ar.toLowerCase().includes(kw) ||
-      job.location_en.toLowerCase().includes(kw) ||
+      (job.location_ar || '').toLowerCase().includes(kw) ||
+      (job.location_en || '').toLowerCase().includes(kw) ||
       (job.location_tr && job.location_tr.toLowerCase().includes(kw))
     );
   }
@@ -1172,12 +1222,29 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr') => {
       featuredBadge: 'Öne Çıkan',
       applyBtn: 'Hemen Başvur',
       noJobs: 'Arama kriterlerinize uygun iş ilanı bulunamadı.'
+    },
+    ru: {
+      heroTitle: 'Найдите свою будущую работу в Стамбуле',
+      heroSubtitle: 'Отличные вакансии для иностранцев и русскоязычных специалистов в различных секторах Стамбула',
+      searchPlh: 'Поиск по названию вакансии, ключевым словам...',
+      locPlh: 'Все районы',
+      allCats: 'Все категории',
+      filterTitle: 'Фильтр результатов',
+      jobType: 'Тип работы',
+      fullTime: 'Полный день',
+      partTime: 'Частичная занятость',
+      remote: 'Удаленная работа',
+      internship: 'Стажировка',
+      resultsCount: `Найдено ${jobs.length} вакансий`,
+      featuredBadge: 'Премиум',
+      applyBtn: 'Откликнуться',
+      noJobs: 'По вашему запросу вакансий не найдено.'
     }
   }[locale];
 
   // Render Categories HTML
   const categoriesHtml = categories.map((cat: any) => {
-    const name = locale === 'ar' ? cat.name_ar : (locale === 'tr' ? (cat.name_tr || cat.name_en) : cat.name_en);
+    const name = locale === 'ar' ? cat.name_ar : (locale === 'tr' ? (cat.name_tr || cat.name_en) : (locale === 'ru' ? (cat.name_ru || cat.name_en) : cat.name_en));
     const activeClass = queryCategory === cat.id ? 'active' : '';
     return `<a href="/${locale}?category=${cat.id}" class="category-card ${activeClass}">
       <div class="cat-emoji">${cat.icon || '💼'}</div>
@@ -1186,12 +1253,12 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr') => {
   }).join('');
 
   const activeCategoryObj = categories.find((c: any) => c.id === queryCategory || c.slug === queryCategory);
-  const activeCategoryName = activeCategoryObj ? (locale === 'ar' ? activeCategoryObj.name_ar : (locale === 'tr' ? (activeCategoryObj.name_tr || activeCategoryObj.name_en) : activeCategoryObj.name_en)) : '';
+  const activeCategoryName = activeCategoryObj ? (locale === 'ar' ? activeCategoryObj.name_ar : (locale === 'tr' ? (activeCategoryObj.name_tr || activeCategoryObj.name_en) : (locale === 'ru' ? (activeCategoryObj.name_ru || activeCategoryObj.name_en) : activeCategoryObj.name_en))) : '';
 
   // Render Jobs HTML
   const jobsHtml = jobs.length > 0 ? jobs.map((job: any) => {
-    const title = locale === 'ar' ? job.title_ar : (locale === 'tr' ? (job.title_tr || job.title_en) : job.title_en);
-    const location = locale === 'ar' ? job.location_ar : (locale === 'tr' ? (job.location_tr || job.location_en) : job.location_en);
+    const title = locale === 'ar' ? job.title_ar : (locale === 'tr' ? (job.title_tr || job.title_en) : (locale === 'ru' ? (job.title_ru || job.title_en) : job.title_en));
+    const location = locale === 'ar' ? job.location_ar : (locale === 'tr' ? (job.location_tr || job.location_en) : (locale === 'ru' ? (job.location_ru || job.location_en) : job.location_en));
     const typeKey = job.jobType === 'full-time' ? 'fullTime' : job.jobType === 'part-time' ? 'partTime' : job.jobType === 'remote' ? 'remote' : 'internship';
     const typeLabel = t[typeKey];
     const isRemote = job.jobType === 'remote';
@@ -1638,11 +1705,11 @@ publicRouter.get(
   '/:locale/jobs/:slug',
   cache({ cacheName: 'istanbul-job-details', cacheControl: 'max-age=300' }),
   async (c) => {
-    const locale = c.req.param('locale') as 'ar' | 'en' | 'tr';
+    const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
     const slug = c.req.param('slug');
     const db = (c.env as any).DB;
 
-    if (locale !== 'ar' && locale !== 'en' && locale !== 'tr') {
+    if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') {
       return c.redirect('/ar');
     }
 
@@ -1806,6 +1873,21 @@ publicRouter.get(
         remote: 'Uzaktan (Remote)',
         internship: 'Staj',
         featured: 'Öne Çıkan İlan'
+      },
+      ru: {
+        jobType: 'Тип работы',
+        location: 'Расположение',
+        published: 'Опубликовано',
+        salary: 'Ожидаемая зарплата',
+        applyNow: 'Откликнуться сейчас',
+        companyDetails: 'О компании',
+        requirements: 'Описание и требования',
+        backToList: '← Назад к вакансиям',
+        fullTime: 'Полный день',
+        partTime: 'Частичная занятость',
+        remote: 'Удаленно',
+        internship: 'Стажировка',
+        featured: 'Премиум вакансия'
       }
     }[locale];
 
@@ -1823,8 +1905,8 @@ publicRouter.get(
         </h2>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
           ${relatedJobs.map((relJob: any) => {
-      const relTitle = locale === 'ar' ? relJob.title_ar : (locale === 'tr' ? (relJob.title_tr || relJob.title_en) : relJob.title_en);
-      const relLocation = locale === 'ar' ? relJob.location_ar : (locale === 'tr' ? (relJob.location_tr || relJob.location_en) : relJob.location_en);
+      const relTitle = locale === 'ar' ? relJob.title_ar : (locale === 'tr' ? (relJob.title_tr || relJob.title_en) : (locale === 'ru' ? (relJob.title_ru || relJob.title_en) : relJob.title_en));
+      const relLocation = locale === 'ar' ? relJob.location_ar : (locale === 'tr' ? (relJob.location_tr || relJob.location_en) : (locale === 'ru' ? (relJob.location_ru || relJob.location_en) : relJob.location_en));
       const relCompany = relatedCompanies[relJob.company] || { name: relJob.company || 'Company' };
       const typeKey = relJob.jobType === 'full-time' ? 'fullTime' : relJob.jobType === 'part-time' ? 'partTime' : relJob.jobType === 'remote' ? 'remote' : 'internship';
       const relTypeLabel = translations[typeKey] || relJob.jobType;
@@ -2221,9 +2303,9 @@ publicRouter.get(
 
 // Submit Job Page
 publicRouter.get('/:locale/submit-job', async (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr';
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
 
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr') {
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') {
     return c.redirect('/ar/submit-job');
   }
 
@@ -2290,6 +2372,22 @@ publicRouter.get('/:locale/submit-job', async (c) => {
       desc: 'İş Tanımı & Gereksinimler',
       submit: 'İlanı Hemen Yayınla',
       successMsg: 'İş ilanı başarıyla yayınlandı! Şu anda sitede canlı yayında.'
+    },
+    ru: {
+      title: 'Разместить вакансию',
+      subtitle: 'Добавьте детали вакансии, чтобы охватить тысячи соискателей в Стамбуле',
+      jobTitle: 'Название вакансии',
+      compName: 'Название компании',
+      category: 'Категория вакансии',
+      jobType: 'Тип занятости',
+      location: 'Район в Стамбуле',
+      salary: 'Ожидаемая зарплата (необязательно)',
+      applyEmail: 'Эл. почта для откликов',
+      phone: 'Номер телефона (необязательно)',
+      seoKeywords: 'Ключевые слова SEO (через запятую)',
+      desc: 'Описание вакансии и детальные требования',
+      submit: 'Опубликовать мгновенно',
+      successMsg: 'Вакансия успешно опубликована и мгновенно появилась на сайте!'
     }
   }[locale];
 
@@ -2845,8 +2943,8 @@ publicRouter.get('/admin-api/backfill-images', async (c) => {
 
 // About Us Page
 publicRouter.get('/:locale/about', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr') return c.redirect('/ar/about');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/about');
 
   const t = {
     ar: {
@@ -2911,6 +3009,27 @@ publicRouter.get('/:locale/about', (c) => {
       stat2Lbl: 'Aylık Ziyaretçi',
       stat3Val: '100%',
       stat3Lbl: 'Doğrulanmış İlanlar'
+    },
+    ru: {
+      title: 'О нас - Работа в Стамбуле',
+      heading: 'О нас',
+      subtitle: 'Ведущая карьерная платформа и умные решения для трудоустройства в Стамбуле',
+      missionTitle: 'Наша миссия и цель',
+      missionText: 'Мы стремимся сократить разрыв между выдающимися соискателями и ведущими работодателями в Стамбуле. Наша цель — сделать поиск работы легким, доступным и на 100% проверенным благодаря передовым технологиям и интеграции ИИ.',
+      featureTitle: 'Почему выбирают нашу платформу?',
+      feat1Title: 'Инструменты на базе ИИ 🤖',
+      feat1Desc: 'Оптимизируйте резюме, создавайте сопроводительные письма и тренируйтесь с нашим реалистичным ИИ-симулятором собеседований.',
+      feat2Title: 'Мгновенная публикация вакансий ⚡',
+      feat2Desc: 'Работодатели могут публиковать вакансии, которые мгновенно появляются на сайте для охвата тысяч кандидатов.',
+      feat3Title: 'Прозрачность и доверие 🤝',
+      feat3Desc: 'Мы верифицируем вакансии, поддерживаем прозрачность зарплат и обеспечиваем надежный опыт найма для всех.',
+      statsTitle: 'Наши показатели',
+      stat1Val: '500+',
+      stat1Lbl: 'Активных вакансий',
+      stat2Val: '10K+',
+      stat2Lbl: 'Соискателей ежемесячно',
+      stat3Val: '100%',
+      stat3Lbl: 'Проверенных объявлений'
     }
   }[locale];
 
@@ -2968,8 +3087,8 @@ publicRouter.get('/:locale/about', (c) => {
 
 // Contact Us Page
 publicRouter.get('/:locale/contact', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr') return c.redirect('/ar/contact');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/contact');
 
   const t = {
     ar: {
@@ -3016,6 +3135,21 @@ publicRouter.get('/:locale/contact', (c) => {
       cardEmail: 'E-posta Gönderin',
       cardPhone: 'WhatsApp & Destek',
       cardLoc: 'Ofis Adresi'
+    },
+    ru: {
+      title: 'Контакты - Работа в Стамбуле',
+      heading: 'Контакты',
+      subtitle: 'Мы здесь, чтобы ответить на ваши вопросы и помочь вам. Свяжитесь с нами через наши каналы.',
+      formTitle: 'Отправьте нам сообщение',
+      name: 'Полное имя',
+      email: 'Электронная почта',
+      subject: 'Тема письма',
+      message: 'Содержание сообщения',
+      sendBtn: 'Отправить ✉️',
+      successMsg: 'Ваше сообщение успешно отправлено! Мы свяжемся с вами в ближайшее время.',
+      cardEmail: 'Электронная почта',
+      cardPhone: 'WhatsApp и Поддержка',
+      cardLoc: 'Адрес офиса'
     }
   }[locale];
 
@@ -3129,8 +3263,8 @@ publicRouter.get('/:locale/contact', (c) => {
 
 // Privacy Policy Page
 publicRouter.get('/:locale/privacy', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr') return c.redirect('/ar/privacy');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/privacy');
 
   const t = {
     ar: {
@@ -3174,6 +3308,20 @@ publicRouter.get('/:locale/privacy', (c) => {
       sec3Text: 'Kişisel verilerinizi KVKK ve AB Genel Veri Koruma Yönetmeliği (GDPR) ile uyumlu olarak korumak için güçlü teknik ve idari tedbirler uyguluyoruz. Verilerinizi asla satmayız.',
       sec4Title: '4. Veri Haklarınız',
       sec4Text: 'Veri destek ekibimizle iletişime geçerek kişisel verilerinize erişme, bunları düzeltme, güncelleme veya sistemlerimizden kalıcı olarak silinmesini talep etme hakkına her zaman sahipsiniz.'
+    },
+    ru: {
+      title: 'Политика конфиденциальности - Работа в Стамбуле',
+      heading: 'Политика конфиденциальности',
+      lastUpdated: 'Последнее обновление: июнь 2026',
+      intro: 'Мы стремимся защищать вашу конфиденциальность и персональные данные. Эта политика объясняет, как мы собираем, используем и защищаем вашу информацию.',
+      sec1Title: '1. Сбор информации',
+      sec1Text: 'Мы собираем личную информацию, которую вы предоставляете добровольно (например, имя, адрес электронной почты, резюме и сопроводительное письмо при подаче заявок). Мы также автоматически собираем технические данные, такие как IP-адрес и файлы куки.',
+      sec2Title: '2. Использование информации',
+      sec2Text: 'Мы используем вашу информацию для обеспечения работы служб по трудоустройству, связи с вами, оптимизации наших функций ИИ и обеспечения безопасности платформы.',
+      sec3Title: '3. Безопасность данных (KVKK / GDPR)',
+      sec3Text: 'Мы применяем технические и организационные меры для защиты персональных данных в соответствии с турецким законом (KVKK) и регламентом ЕС (GDPR). Мы никогда не продаем ваши данные.',
+      sec4Title: '4. Ваши права на данные',
+      sec4Text: 'Вы имеете право просматривать, изменять, обновлять или запрашивать удаление ваших данных из нашей системы в любое время.'
     }
   }[locale];
 
@@ -3212,8 +3360,8 @@ publicRouter.get('/:locale/privacy', (c) => {
 
 // Terms & Conditions Page
 publicRouter.get('/:locale/terms', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr') return c.redirect('/ar/terms');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/terms');
 
   const t = {
     ar: {
@@ -3257,6 +3405,20 @@ publicRouter.get('/:locale/terms', (c) => {
       sec3Text: 'Yalnızca bir ilan mecrası olarak faaliyet gösteriyoruz. İş sözleşmelerine dahil olmuyoruz, işe alım sonuçlarını garanti etmiyoruz ve işverenler ile adaylar arasında ortaya çıkabilecek anlaşmazlıklardan sorumlu tutulamayız.',
       sec4Title: '4. Şartların Değiştirilmesi',
       sec4Text: 'Bu şart ve koşulları dilediğimiz zaman değiştirme hakkını saklı tutarız. Güncellemeler bu sayfada yayınlandığı andan itibaren geçerli olur.'
+    },
+    ru: {
+      title: 'Условия использования - Работа в Стамбуле',
+      heading: 'Условия использования',
+      lastUpdated: 'Последнее обновление: июнь 2026',
+      intro: 'Пожалуйста, внимательно ознакомьтесь с настоящими Условиями использования перед использованием нашей платформы. Использование сайта означает согласие с этими условиями.',
+      sec1Title: '1. Принятие Условий',
+      sec1Text: 'Наша платформа предоставляет рекламные услуги по трудоустройству и инструменты карьеры. Использование должно соответствовать моральным принципам и законодательству Турции.',
+      sec2Title: '2. Правила публикации вакансий',
+      sec2Text: 'Работодатели несут полную ответственность за точность вакансий. Спам, мошенничество, нелегальные объявления или требование платы с кандидатов строго запрещены.',
+      sec3Title: '3. Отказ от ответственности',
+      sec3Text: 'Мы выступаем только как площадка объявлений. Мы не участвуем в трудовых договорах и не гарантируем результаты найма, а также не несем ответственности за споры.',
+      sec4Title: '4. Изменение Условий',
+      sec4Text: 'Мы сохраняем право обновлять эти условия в любое время. Изменения вступают в силу с момента публикации на этой странице.'
     }
   }[locale];
 
@@ -3295,8 +3457,8 @@ publicRouter.get('/:locale/terms', (c) => {
 
 // PWA Install Landing Page
 publicRouter.get('/:locale/install', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr') return c.redirect('/ar/install');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/install');
 
   const isRtl = locale === 'ar';
 
@@ -3363,6 +3525,27 @@ publicRouter.get('/:locale/install', (c) => {
       androidStep2: 'Altta beliren <strong>"Uygulamayı Yükle"</strong> bildirimine dokunun.',
       androidStep3: 'Veya sağ üstteki üç noktaya tıklayıp <strong>"Uygulamayı Yükle"</strong> seçeneğini seçin.',
       btnText: 'Ana Sayfaya Git ve Yükle'
+    },
+    ru: {
+      title: 'Установить мобильное приложение Работа в Стамбуле',
+      description: 'Простое руководство по установке приложения PWA Работа в Стамбуле на Android и iOS для просмотра вакансий в одно нажатие.',
+      keywords: 'установить приложение работа в стамбуле, скачать приложение вакансии в турции, pwa стамбул, мобильное приложение для работы в турции',
+      heading: 'Установить приложение Работа в Стамбуле',
+      subheading: 'Ищите и откликайтесь на лучшие вакансии в Стамбуле прямо с главного экрана мобильного телефона!',
+      featuresTitle: 'Преимущества мобильного приложения',
+      feature1: 'Быстрый доступ в одно касание к вакансиям без ввода веб-адреса',
+      feature2: 'Чрезвычайно легкий вес (менее 1 МБ), не разряжает батарею и не занимает память',
+      feature3: 'Работает стабильно и быстро загружается даже при слабом интернет-соединении',
+      feature4: 'Удобная навигация и обновление вакансий в реальном времени',
+      iosTitle: '📱 Устройства Apple (iOS)',
+      iosStep1: 'Откройте браузер <strong>Safari</strong> и перейдите на сайт.',
+      iosStep2: 'Нажмите кнопку <strong>Поделиться (Share)</strong> (иконка квадрата со стрелкой вверх внизу экрана).',
+      iosStep3: 'Прокрутите меню вниз и выберите пункт <strong>"На экран Домой"</strong> (Add to Home Screen).',
+      androidTitle: '🤖 Устройства Android',
+      androidStep1: 'Откройте браузер <strong>Chrome</strong> и перейдите на сайт.',
+      androidStep2: 'Нажмите на всплывающее уведомление <strong>"Установить приложение"</strong>.',
+      androidStep3: 'Или нажмите три точки в углу экрана и выберите <strong>"Установить приложение"</strong>.',
+      btnText: 'На главную и установить'
     }
   }[locale];
 

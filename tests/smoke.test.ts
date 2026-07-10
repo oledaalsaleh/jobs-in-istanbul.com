@@ -378,6 +378,86 @@ describe('Istanbul Jobs Portal Smoke Tests', () => {
       expect(text).toContain('"position":2,"name":"المدونة"')
     })
 
+    test('GET /ar/blog/it-jobs-istanbul-foreigners-guide renders BlogPosting schema and content successfully', async () => {
+      const res = await app.request('/ar/blog/it-jobs-istanbul-foreigners-guide', {}, mockEnv)
+      expect(res.status).toBe(200)
+      const text = await res.text()
+
+      // Content verification
+      expect(text).toContain('وظائف تكنولوجيا المعلومات والبرمجة في إسطنبول')
+      expect(text).toContain('Trendyol')
+      expect(text).toContain('Insider')
+      expect(text).toContain('تصريح العمل للمبرمجين في تركيا')
+
+      // SEO tags verification
+      expect(text).toContain('<title>وظائف تكنولوجيا المعلومات والبرمجة في إسطنبول: الشركات التي توظف أجانب والمؤهلات المطلوبة | مدونة المهنة إسطنبول</title>')
+      expect(text).toContain('href="https://jobs-in-istanbul.com/ar/blog/it-jobs-istanbul-foreigners-guide"')
+
+      // Structured data verification
+      expect(text).toContain('"@type":"BlogPosting"')
+      expect(text).toContain('"headline":"وظائف تكنولوجيا المعلومات والبرمجة في إسطنبول: الشركات التي توظف أجانب والمؤهلات المطلوبة"')
+    })
+
+    test('GET /ar/blog/best-residential-areas-istanbul-near-business-centers renders BlogPosting schema and content successfully', async () => {
+      const res = await app.request('/ar/blog/best-residential-areas-istanbul-near-business-centers', {}, mockEnv)
+      expect(res.status).toBe(200)
+      const text = await res.text()
+
+      // Content verification
+      expect(text).toContain('أفضل مناطق السكن في إسطنبول')
+      expect(text).toContain('مسلك')
+      expect(text).toContain('ليفنت')
+      expect(text).toContain('شيشلي')
+      expect(text).toContain('التأمين الصحي للأجانب في تركيا')
+
+      // SEO tags verification
+      expect(text).toContain('<title>أفضل مناطق السكن في إسطنبول القريبة من مراكز الأعمال: دليل السكن والرعاية الصحية للمغتربين | مدونة المهنة إسطنبول</title>')
+      expect(text).toContain('href="https://jobs-in-istanbul.com/ar/blog/best-residential-areas-istanbul-near-business-centers"')
+
+      // Structured data verification
+      expect(text).toContain('"@type":"BlogPosting"')
+      expect(text).toContain('"headline":"أفضل مناطق السكن في إسطنبول القريبة من مراكز الأعمال: دليل السكن والرعاية الصحية للمغتربين"')
+    })
+
+    test('GET /ar/blog/how-to-write-cv-for-turkish-companies renders BlogPosting schema and content successfully', async () => {
+      const res = await app.request('/ar/blog/how-to-write-cv-for-turkish-companies', {}, mockEnv)
+      expect(res.status).toBe(200)
+      const text = await res.text()
+
+      // Content verification
+      expect(text).toContain('كيف تكتب سيرة ذاتية')
+      expect(text).toContain('Kariyer.net')
+      expect(text).toContain('LinkedIn')
+      expect(text).toContain('نظام الفرز الآلي للسيرة الذاتية ATS')
+
+      // SEO tags verification
+      expect(text).toContain('<title>كيف تكتب سيرة ذاتية (CV) تقبلها الشركات التركية؟ دليل كتابة وتنسيق السيرة الذاتية لعام 2026 | مدونة المهنة إسطنبول</title>')
+      expect(text).toContain('href="https://jobs-in-istanbul.com/ar/blog/how-to-write-cv-for-turkish-companies"')
+
+      // Structured data verification
+      expect(text).toContain('"@type":"BlogPosting"')
+      expect(text).toContain('"headline":"كيف تكتب سيرة ذاتية (CV) تقبلها الشركات التركية؟ دليل كتابة وتنسيق السيرة الذاتية لعام 2026"')
+    })
+
+    test('GET /ar/blog/difference-tourist-residency-work-permit-turkey renders BlogPosting schema and content successfully', async () => {
+      const res = await app.request('/ar/blog/difference-tourist-residency-work-permit-turkey', {}, mockEnv)
+      expect(res.status).toBe(200)
+      const text = await res.text()
+
+      // Content verification
+      expect(text).toContain('الفرق بين الإقامة السياحية وإقامة العمل في تركيا')
+      expect(text).toContain('تحويل الإقامة السياحية إلى إقامة عمل')
+      expect(text).toContain('الحد الأدنى للأجور')
+
+      // SEO tags verification
+      expect(text).toContain('<title>الفرق بين الإقامة السياحية وإقامة العمل في تركيا: الميزات، العيوب، وتحويل نوع الإقامة لعام 2026 | مدونة المهنة إسطنبول</title>')
+      expect(text).toContain('href="https://jobs-in-istanbul.com/ar/blog/difference-tourist-residency-work-permit-turkey"')
+
+      // Structured data verification
+      expect(text).toContain('"@type":"BlogPosting"')
+      expect(text).toContain('"headline":"الفرق بين الإقامة السياحية وإقامة العمل في تركيا: الميزات، العيوب، وتحويل نوع الإقامة لعام 2026"')
+    })
+
     test('GET /en/blog/turkey-work-permit-residency-laws renders English blog post metadata', async () => {
       const res = await app.request('/en/blog/turkey-work-permit-residency-laws', {}, mockEnv)
       expect(res.status).toBe(200)

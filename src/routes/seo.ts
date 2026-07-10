@@ -213,9 +213,10 @@ seoRouter.get('/rss.xml', async (c) => {
   })
 })
 
-// Google Search Console HTML Verification File handler
-seoRouter.get('/google:code.html', (c) => {
-  const code = c.req.param('code');
+// Google Search Console HTML Verification File handler (Regex matching google[code].html)
+seoRouter.get('/:filename{google[0-9a-zA-Z]+\\.html}', (c) => {
+  const filename = c.req.param('filename');
+  const code = filename.substring(6, filename.length - 5);
   return c.text(`google-site-verification: google${code}.html`, 200, {
     'Content-Type': 'text/html; charset=utf-8'
   });

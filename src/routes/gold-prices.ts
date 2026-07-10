@@ -18,11 +18,15 @@ const fallbackGold = [
 const fallbackAdvice = {
   ar: 'تشهد أسعار الذهب تذبذباً اليوم بناءً على تحركات أونصة الذهب عالمياً وسعر صرف الليرة التركية مقابل الدولار. للمستثمرين على المدى المتوسط والطويل، يظل الذهب وسيلة ممتازة لحفظ القيمة والادخار من التضخم، ويُنصح دائماً بالشراء التدريجي.',
   en: 'Gold prices are fluctuating today following global spot rate changes and the USD/TRY exchange rate. For medium-to-long term investors, gold remains an excellent store of value against inflation; gradual accumulation is recommended.',
-  tr: 'Altın fiyatları, küresel spot altın hareketleri ve USD/TRY kurundaki değişimlere bağlı olarak bugün dalgalanma gösteriyor. Orta ve uzun vadeli yatırımcılar için altın, enflasyona karşı mükemmel bir değer koruma aracı olmaya devam etmektedir; kademeli birikim önerilir.'
+  tr: 'Altın fiyatları, küresel spot altın hareketleri ve USD/TRY kurundaki değişimlere bağlı olarak bugün dalgalanma gösteriyor. Orta ve uzun vadeli yatırımcılar için altın, enflasyona karşı mükemmel bir değer koruma aracı olmaya devam etmektedir; kademeli birikim önerilir.',
+  ru: 'Цены на золото сегодня колеблются в зависимости от мировых котировок и курса турецкой лиры к доллару. Для долгосрочных инвесторов золото остается отличным средством сбережения от инфляции.'
 };
 
 goldPricesRouter.get('/gold-prices', (c) => {
   const acceptLang = c.req.header('accept-language') || '';
+  if (acceptLang.toLowerCase().startsWith('ru')) {
+    return c.redirect('/ru/gold-prices');
+  }
   if (acceptLang.toLowerCase().startsWith('tr')) {
     return c.redirect('/tr/gold-prices');
   }
@@ -33,8 +37,8 @@ goldPricesRouter.get('/gold-prices', (c) => {
 })
 
 goldPricesRouter.get('/:locale/gold-prices', async (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr') return c.redirect('/ar/gold-prices');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/gold-prices');
 
   const db = (c.env as any).DB;
   let metals = fallbackGold;
@@ -51,7 +55,7 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
       if (parsed.metals && Array.isArray(parsed.metals) && parsed.metals.length > 0) {
         metals = parsed.metals;
         advice = parsed.advice || fallbackAdvice;
-        lastUpdateStr = new Date(parsed.updatedAt).toLocaleString(locale === 'ar' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : 'en-US'));
+        lastUpdateStr = new Date(parsed.updatedAt).toLocaleString(locale === 'ar' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
       }
     }
   } catch (err) {
@@ -59,14 +63,15 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
   }
 
   if (!lastUpdateStr) {
-    lastUpdateStr = new Date().toLocaleString(locale === 'ar' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : 'en-US'));
+    lastUpdateStr = new Date().toLocaleString(locale === 'ar' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
   }
 
   const localizedGoldName = (id: string, defaultName: string) => {
     const map: Record<string, Record<string, string>> = {
       ar: { '1': 'جرام الذهب عيار 24', '12': 'جرام الذهب عيار 22', '11': 'جرام الذهب عيار 21', '2': 'جرام الذهب عيار 18', '3': 'جرام الذهب عيار 14', '4': 'أونصة الذهب', '5': 'الليرة الذهب' },
       en: { '1': '24K Gold Gram', '12': '22K Gold Gram', '11': '21K Gold Gram', '2': '18K Gold Gram', '3': '14K Gold Gram', '4': 'Gold Ounce', '5': 'Gold Lira' },
-      tr: { '1': '24 Ayar Altın Gramı', '12': '22 Ayar Altın Gramı', '11': '21 Ayar Altın Gramı', '2': '18 Ayar Altın Gramı', '3': '14 Ayar Altın Gramı', '4': 'Ons Altın', '5': 'Altın Lira' }
+      tr: { '1': '24 Ayar Altın Gramı', '12': '22 Ayar Altın Gramı', '11': '21 Ayar Altın Gramı', '2': '18 Ayar Altın Gramı', '3': '14 Ayar Altın Gramı', '4': 'Ons Altın', '5': 'Altın Lira' },
+      ru: { '1': 'грамм золота 24 карата', '12': 'грамм золота 22 карата', '11': 'грамм золота 21 карат', '2': 'грамм золота 18 карат', '3': 'грамм золота 14 карат', '4': 'Унция золота', '5': 'Золотая лира' }
     };
     return map[locale]?.[id] || defaultName;
   };
@@ -122,6 +127,23 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
       resultLabel: 'Tahmini Toplam Değer:',
       aiTitle: '🤖 Gemini AI Günlük Altın Piyasası Analiz ve Tavsiyeleri',
       textDescription: 'Bu altın fiyatları, tasarruf ve yatırım tahminlerinize yardımcı olmak amacıyla gün boyunca resmi Türkiye kuyumcular piyasasından otomatik olarak derlenir.'
+    },
+    ru: {
+      title: 'Цены на золото в Турции сегодня',
+      subtitle: 'Отслеживание цен на золото в реальном времени в турецких лирах (TRY) для всех каратов, включая калькулятор веса и финансовый анализ Gemini AI.',
+      lastUpdate: 'Последнее обновление:',
+      colGoldType: 'Карат / Тип золота',
+      colBuy: 'Покупка (TRY)',
+      colSell: 'Продажа (TRY)',
+      converterTitle: '🧮 Калькулятор стоимости золота',
+      weightLabel: 'Вес / Количество:',
+      typeLabel: 'Тип / Карат:',
+      modeLabel: 'Тип операции:',
+      modeBuy: 'Покупка золота (курс покупки)',
+      modeSell: 'Продажа золота (курс продажи)',
+      resultLabel: 'Оценочная общая стоимость:',
+      aiTitle: '🤖 Анализ рынка и рекомендации Gemini AI',
+      textDescription: 'Эти курсы золота автоматически собираются в течение дня с ювелирных рынков Турции для планирования ваших сбережений.'
     }
   }[locale];
 
@@ -555,7 +577,7 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
         const activePrice = mode === 'buy' ? rateObj.buy : rateObj.sell;
         const total = weight * activePrice;
 
-        const formatter = new Intl.NumberFormat(locale === 'ar' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : 'en-US'), {
+        const formatter = new Intl.NumberFormat(locale === 'ar' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')), {
           maximumFractionDigits: 2,
           minimumFractionDigits: 2
         });

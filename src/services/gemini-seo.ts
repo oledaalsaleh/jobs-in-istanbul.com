@@ -19,7 +19,7 @@ export async function optimizeSeoWithGemini(
   apiKey: string,
   pageTitle: string,
   pageDescription: string,
-  locale: 'ar' | 'en' | 'tr',
+  locale: 'ar' | 'en' | 'tr' | 'ru',
   retries: number = 3,
   delayMs: number = 3500
 ): Promise<OptimizedSeoData> {

@@ -10,8 +10,8 @@ const COOKIE_NAME = 'employer_jwt';
 
 // Employer Login Page
 employerPortalRouter.get('/:locale/employer/login', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en';
-  if (locale !== 'ar' && locale !== 'en') return c.redirect('/ar/employer/login');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/employer/login');
 
   const t = {
     ar: {
@@ -43,6 +43,16 @@ employerPortalRouter.get('/:locale/employer/login', (c) => {
       loading: 'Bağlantı gönderiliyor... ⏳',
       successMsg: 'Sihirli giriş bağlantısı başarıyla gönderildi! Lütfen e-postanızı kontrol edin.',
       devLinkNotice: '🔧 Geliştirme modunda doğrudan aşağıdaki bağlantıya tıklayarak giriş yapabilirsiniz:'
+    },
+    ru: {
+      title: 'Портал работодателя - Вход',
+      subtitle: 'Введите рабочий адрес электронной почты, чтобы получить ссылку для входа и управления откликами.',
+      emailLabel: 'Рабочий адрес электронной почты',
+      emailPlh: 'company@example.com',
+      submitBtn: 'Отправить ссылку 🚀',
+      loading: 'Отправка ссылки... ⏳',
+      successMsg: 'Волшебная ссылка отправлена! Пожалуйста, проверьте почту.',
+      devLinkNotice: '🔧 В режиме разработки вы можете войти напрямую, нажав ниже:'
     }
   }[locale];
 
@@ -162,7 +172,7 @@ employerPortalRouter.post('/api/employer/request-magic', rateLimiter(3, 10), asy
 employerPortalRouter.get('/employer/verify', async (c) => {
   const env: any = c.env;
   const token = c.req.query('token');
-  const locale = (c.req.query('locale') || 'ar') as 'ar' | 'en' | 'tr';
+  const locale = (c.req.query('locale') || 'ar') as 'ar' | 'en' | 'tr' | 'ru';
 
   if (!token) {
     return c.text('Verification token is missing.', 400);
@@ -205,8 +215,8 @@ employerPortalRouter.get('/employer/logout', (c) => {
 
 // Pricing Mock Packages page
 employerPortalRouter.get('/:locale/employer/pricing', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en';
-  if (locale !== 'ar' && locale !== 'en') return c.redirect('/ar/employer/pricing');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/employer/pricing');
 
   const t = {
     ar: {
@@ -250,6 +260,20 @@ employerPortalRouter.get('/:locale/employer/pricing', (c) => {
       sandboxTitle: 'Ödeme Simülasyonu (Sandbox)',
       sandboxDesc: 'Profesyonel işveren hesabı özelliklerini aktifleştirmek için hızlı bir ödeme simülasyonudur.',
       sandboxSuccess: 'Hesabınız başarıyla yükseltildi! Artık sınırsız iş ilanı yayınlayabilir ve ATS sistemini kullanabilirsiniz.'
+    },
+    ru: {
+      title: 'Пакеты подписки для работодателей',
+      subtitle: 'Выберите подходящий план для вашей компании, чтобы связаться с лучшими кандидатами в Стамбуле и активировать инструменты ATS.',
+      planFree: 'Бесплатный базовый тариф',
+      planPro: 'Профессиональный тариф (Pro)',
+      planEnterprise: 'Kurumsal Plan (Enterprise)',
+      priceFree: 'Бесплатно',
+      pricePro: '99 $ / мес',
+      priceEnterprise: '249 $ / мес',
+      btnSelect: 'Подписаться 💳',
+      sandboxTitle: 'Имитация оплаты (Sandbox)',
+      sandboxDesc: 'Это симуляция процесса оплаты для активации расширенных лимитов работодателя.',
+      sandboxSuccess: 'Тариф успешно обновлен! Теперь вы можете публиковать неограниченное количество вакансий и использовать систему ATS.'
     }
   }[locale];
 
@@ -347,8 +371,8 @@ employerPortalRouter.get('/:locale/employer/pricing', (c) => {
 employerPortalRouter.get('/:locale/employer/dashboard', async (c) => {
   const env: any = c.env;
   const db = env.DB;
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr') return c.redirect('/ar/employer/dashboard');;
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/employer/dashboard');;
 
   const cookieVal = getCookie(c, COOKIE_NAME);
   if (!cookieVal) {
@@ -447,6 +471,45 @@ employerPortalRouter.get('/:locale/employer/dashboard', async (c) => {
       statusReviewed: 'İncelendi',
       statusShortlisted: 'Kısa Listeye Alındı',
       statusRejected: 'Reddedildi'
+    },
+    ru: {
+      title: 'Панель работодателя & ATS',
+      welcome: `Добро пожаловать, ${employerEmail}`,
+      logout: 'Выйти',
+      postJobSec: 'Опубликовать новую вакансию (с помощью ИИ 🤖)',
+      jobsTitle: 'Опубликованные вами вакансии',
+      appsTitle: 'ATS - Отклики и результаты тестов',
+      noJobs: 'Вы еще не опубликовали ни одной вакансии.',
+      noApps: 'Новых откликов пока нет.',
+      tblCandidate: 'Кандидат',
+      tblJob: 'Название вакансии',
+      tblQuiz: 'Результат теста',
+      tblStatus: 'Статус',
+      tblActions: 'Действия',
+      viewLetter: 'Сопроводительное',
+      downloadCV: 'Скачать резюме',
+      playVideo: 'Видео-презентация',
+      postBtn: 'Опубликовать вакансию 🚀',
+      aiGenBtn: 'Создать описание 🤖',
+      quizPlaceholder: 'Пример:\n1. Знаете ли вы React? [Да/Нет]\n2. Сколько лет опыта? [1-3/4+]',
+      pricingLink: 'Тарифные планы и улучшения 👑',
+      lblTitleEn: 'Название вакансии (Английский)',
+      lblTitleAr: 'Название вакансии (Арабский)',
+      lblCompany: 'Название компании',
+      lblCategory: 'Категория',
+      lblDistrict: 'Район (например, Шишли)',
+      lblTransit: 'Линия транспорта',
+      lblJobType: 'Тип занятости',
+      lblLanguage: 'Требуемый язык',
+      lblDesc: 'Описание (Требования)',
+      lblQuizHeader: 'Вопросы для оценки (YAML/JSON Array)',
+      genQuizBtn: 'Создать тест с помощью ИИ 🤖',
+      modalVideoTitle: 'Видео-презентация кандидата 🎥',
+      transitNone: 'Нет',
+      statusApplied: 'Получено',
+      statusReviewed: 'На рассмотрении',
+      statusShortlisted: 'В шорт-листе',
+      statusRejected: 'Отклонено'
     }
   }[locale];
 

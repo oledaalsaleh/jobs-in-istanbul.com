@@ -10,8 +10,8 @@ const COOKIE_NAME = 'candidate_jwt';
 
 // Candidate Login
 candidatePortalRouter.get('/:locale/candidate/login', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr') return c.redirect('/ar/candidate/login');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/candidate/login');
 
   const t = {
     ar: {
@@ -43,6 +43,16 @@ candidatePortalRouter.get('/:locale/candidate/login', (c) => {
       loading: 'Bağlantı gönderiliyor... ⏳',
       successMsg: 'Sihirli giriş bağlantısı gönderildi! Lütfen e-posta gelen kutunuzu kontrol edin.',
       devNotice: '🔧 Geliştirme modunda, doğrudan aşağıdaki bağlantıya tıklayarak giriş yapabilirsiniz:'
+    },
+    ru: {
+      title: 'Портал кандидата - Вход',
+      subtitle: 'Введите адрес электронной почты, чтобы получить волшебную ссылку для входа, отслеживания заявок и ИИ-подбора.',
+      emailLabel: 'Личный адрес электронной почты',
+      emailPlh: 'candidate@example.com',
+      submitBtn: 'Отправить ссылку 🚀',
+      loading: 'Отправка ссылки... ⏳',
+      successMsg: 'Волшебная ссылка отправлена! Пожалуйста, проверьте почту.',
+      devNotice: '🔧 В режиме разработки вы можете войти напрямую, нажав ниже:'
     }
   }[locale];
 
@@ -162,7 +172,7 @@ candidatePortalRouter.post('/api/candidate/request-magic', rateLimiter(3, 10), a
 candidatePortalRouter.get('/candidate/verify', async (c) => {
   const env: any = c.env;
   const token = c.req.query('token');
-  const locale = (c.req.query('locale') || 'ar') as 'ar' | 'en' | 'tr';
+  const locale = (c.req.query('locale') || 'ar') as 'ar' | 'en' | 'tr' | 'ru';
 
   if (!token) {
     return c.text('Token parameter missing', 400);
@@ -207,8 +217,8 @@ candidatePortalRouter.get('/candidate/logout', (c) => {
 candidatePortalRouter.get('/:locale/candidate/dashboard', async (c) => {
   const env: any = c.env;
   const db = env.DB;
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr') return c.redirect('/ar/candidate/dashboard');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/candidate/dashboard');
 
   const cookieVal = getCookie(c, COOKIE_NAME);
   if (!cookieVal) {
@@ -284,6 +294,26 @@ candidatePortalRouter.get('/:locale/candidate/dashboard', async (c) => {
       statusReviewed: 'İncelendi',
       statusShortlisted: 'Mülakat Planlandı',
       statusRejected: 'Reddedildi'
+    },
+    ru: {
+      title: 'Панель кандидата',
+      welcome: `Добро пожаловать, ${candidateEmail}`,
+      logout: 'Выйти',
+      appsTitle: 'Ваши отклики на вакансии',
+      noApps: 'Вы еще не отправили ни одного отклика.',
+      tblJob: 'Вакансия и компания',
+      tblDate: 'Дата отклика',
+      tblQuiz: 'Результат теста',
+      tblStatus: 'Статус отклика',
+      aiMatchingTitle: 'ИИ-Подбор вакансий 🤖',
+      aiMatchingDesc: 'Вставьте текст вашего резюме, чтобы рассчитать процент соответствия всем открытым вакансиям.',
+      cvPlh: 'Вставьте текст вашего резюме сюда...',
+      matchBtn: 'Подобрать вакансии 🔍',
+      tblMatchScore: 'Процент соответствия',
+      statusApplied: 'Получено',
+      statusReviewed: 'На рассмотрении',
+      statusShortlisted: 'Собеседование назначено',
+      statusRejected: 'Отклонено'
     }
   }[locale];
 

@@ -16,6 +16,9 @@ const fallbackPrices = [
 
 currencyPricesRouter.get('/currency-prices', (c) => {
   const acceptLang = c.req.header('accept-language') || '';
+  if (acceptLang.toLowerCase().startsWith('ru')) {
+    return c.redirect('/ru/currency-prices');
+  }
   if (acceptLang.toLowerCase().startsWith('tr')) {
     return c.redirect('/tr/currency-prices');
   }
@@ -26,15 +29,16 @@ currencyPricesRouter.get('/currency-prices', (c) => {
 })
 
 currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr') return c.redirect('/ar/currency-prices');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/currency-prices');
 
   const db = (c.env as any).DB;
   let prices = fallbackPrices;
   let advice = {
     ar: 'تستقر الليرة التركية عند مستويات معينة مقابل الدولار واليورو مع تحركات البنك المركزي التركي للتحكم في التضخم. يُنصح الأجانب والمهتمين بالصرف بمتابعة الفروقات بين أسعار الشراء والبيع والاعتماد على قنوات الصرف الرسمية.',
     en: 'The Turkish Lira maintains stable bands against major currencies under current central bank policy tools aiming to address inflation. Exchange operators and expats are advised to monitor spreads between buy/sell rates and rely on official banking channels.',
-    tr: 'Türk Lirası, enflasyonla mücadeleyi amaçlayan mevcut merkez bankası politika araçları altında döviz karşısında istikrarlı bantlarını koruyor. Döviz bozduracak kişilerin ve yerleşik yabancıların alış/satış marjlarını takip etmeleri ve resmi bankacılık kanallarına güvenmeleri önerilir.'
+    tr: 'Türk Lirası, enflasyonla mücadeleyi amaçlayan mevcut merkez bankası politika araçları altında döviz karşısında istikrarlı bantlarını koruyor. Döviz bozduracak kişilerin ve yerleşik yabancıların alış/satış marjlarını takip etmeleri ve resmi bankacılık kanallarına güvenmeleri önerilir.',
+    ru: 'Турецкая лира сохраняет относительную стабильность по отношению к основным валютам. Иностранцам рекомендуется следить за спредом между покупкой и продажей и совершать обмен в официальных банках.'
   };
   let lastUpdateStr = '';
 
@@ -48,7 +52,7 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
       if (parsed.prices && Array.isArray(parsed.prices) && parsed.prices.length > 0) {
         prices = parsed.prices;
         advice = parsed.advice || advice;
-        lastUpdateStr = new Date(parsed.updatedAt).toLocaleString(locale === 'ar' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : 'en-US'));
+        lastUpdateStr = new Date(parsed.updatedAt).toLocaleString(locale === 'ar' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
       }
     }
   } catch (err) {
@@ -57,7 +61,7 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
 
   // If no timestamp, generate a recent one
   if (!lastUpdateStr) {
-    lastUpdateStr = new Date().toLocaleString(locale === 'ar' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : 'en-US'));
+    lastUpdateStr = new Date().toLocaleString(locale === 'ar' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
   }
 
   const t = {
@@ -114,6 +118,24 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
       textDescription: 'Bu oranlar, finansal planlamalarınıza ve yaşam maliyeti tahminlerinize yardımcı olmak amacıyla gün boyunca resmi Türkiye piyasalarından otomatik olarak güncellenir.',
       flagUrl: (code: string) => `https://cdn101.adwimg.com/static/adwhitv2/svg/flags/1x1/${code.toLowerCase() === 'usd' ? 'us' : (code.toLowerCase() === 'eur' ? 'eu' : (code.toLowerCase() === 'gbp' ? 'gb' : code.toLowerCase().substring(0, 2)))}.svg`,
       aiTitle: '🤖 Gemini AI Günlük Döviz Analiz ve Tavsiyeleri'
+    },
+    ru: {
+      title: 'Курсы валют в Турции сегодня',
+      subtitle: 'Отслеживание курсов валют к турецкой лире (TRY) в реальном времени, конвертер и рыночные рекомендации Gemini AI.',
+      lastUpdate: 'Последнее обновление:',
+      colCurrency: 'Валюта',
+      colBuy: 'Покупка (TRY)',
+      colSell: 'Продажа (TRY)',
+      colChange: 'Изм. за день',
+      converterTitle: '🧮 Конвертер валют',
+      amountLabel: 'Сумма:',
+      fromLabel: 'Из валюты:',
+      toLabel: 'В валюту:',
+      resultLabel: 'Оценочная общая сумма:',
+      aiTitle: '🤖 Анализ рынка и рекомендации Gemini AI',
+      textDescription: 'Эти курсы валют автоматически обновляются в соответствии со свободным рынком Стамбула и межбанковскими курсами для информирования иностранных специалистов.',
+      flagUrl: (code: string) => `https://cdn101.adwimg.com/static/adwhitv2/svg/flags/1x1/${code.toLowerCase() === 'usd' ? 'us' : (code.toLowerCase() === 'eur' ? 'eu' : (code.toLowerCase() === 'gbp' ? 'gb' : code.toLowerCase().substring(0, 2)))}.svg`,
+      calcBtn: 'Конвертировать валюту'
     }
   }[locale];
 

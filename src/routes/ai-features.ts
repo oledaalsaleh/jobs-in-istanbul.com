@@ -6,8 +6,8 @@ export const aiFeaturesRouter = new Hono()
 
 // CV & Cover Letter Optimizer Page
 aiFeaturesRouter.get('/:locale/cv-optimizer', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en';
-  if (locale !== 'ar' && locale !== 'en') return c.redirect('/ar/cv-optimizer');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/cv-optimizer');
 
   const t = {
     ar: {
@@ -39,6 +39,36 @@ aiFeaturesRouter.get('/:locale/cv-optimizer', (c) => {
       tipsTab: 'Resume Optimization Tips',
       copyBtn: 'Copy to Clipboard',
       copied: 'Copied!'
+    },
+    tr: {
+      title: 'Yapay Zeka ile CV ve Ön Yazı Geliştirici',
+      subtitle: 'Workers AI kullanarak özgeçmişinizi optimize edin ve hedef işinize özel profesyonel ön yazılar oluşturun.',
+      jobDescPlh: 'Hedef iş tanımını veya gereksinimlerini buraya yapıştırın...',
+      expPlh: 'Becerilerinizi, deneyiminizi girin veya mevcut CV\'nizi buraya yapıştırın...',
+      jobDescLabel: 'İş Tanımı ve Gereksinimler',
+      expLabel: 'Deneyimleriniz ve Mevcut Özgeçmişiniz',
+      submitBtn: 'Ön Yazı Oluştur ve Optimize Et 🤖',
+      loading: 'İş gereksinimleri analiz ediliyor ve hazırlanıyor... ⏳',
+      resultsTitle: 'Yapay Zeka Optimize Edilmiş Sonuçlar',
+      coverLetterTab: 'Ön Yazı (Cover Letter)',
+      tipsTab: 'Özgeçmiş İpuçları',
+      copyBtn: 'Kopyala',
+      copied: 'Kopyalandı!'
+    },
+    ru: {
+      title: 'ИИ-Улучшение резюме и Сопроводительное письмо',
+      subtitle: 'Оптимизируйте свое резюме с помощью Workers AI и создайте профессиональные сопроводительные письма, адаптированные для вашей цели.',
+      jobDescPlh: 'Вставьте описание вакансии или требования сюда...',
+      expPlh: 'Введите свои навыки, опыт или вставьте текущее резюме сюда...',
+      jobDescLabel: 'Описание вакансии и требования',
+      expLabel: 'Ваш опыт и текущее резюме',
+      submitBtn: 'Создать сопроводительное письмо и оптимизировать 🤖',
+      loading: 'Анализ требований и подготовка... ⏳',
+      resultsTitle: 'Результаты оптимизации ИИ',
+      coverLetterTab: 'Сопроводительное письмо',
+      tipsTab: 'Советы по резюме',
+      copyBtn: 'Копировать',
+      copied: 'Скопировано!'
     }
   }[locale];
 
@@ -176,7 +206,7 @@ aiFeaturesRouter.post('/api/cv-optimize', rateLimiter(3, 10), async (c) => {
       Your task is to write an impressive cover letter and suggest CV optimization suggestions.
       Output ONLY a clean JSON object with two fields: "coverLetter" and "tips". Do not output markdown code blocks.
       Requirements:
-      - Write the response in the language corresponding to: ${locale === 'ar' ? 'Arabic' : 'English'}.
+      - Write the response in the language corresponding to: ${locale === 'ar' ? 'Arabic' : (locale === 'tr' ? 'Turkish' : (locale === 'ru' ? 'Russian' : 'English'))}.
       - The cover letter must be professional, persuasive, and highly tailored to the provided job description using the candidate's experience.
       - The tips must contain 3 to 5 clear, bulleted recommendations to optimize the candidate's resume keywords and structure to match the job.
       
@@ -219,8 +249,8 @@ aiFeaturesRouter.post('/api/cv-optimize', rateLimiter(3, 10), async (c) => {
 
 // Salary Calculator Page
 aiFeaturesRouter.get('/:locale/salary-calculator', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en';
-  if (locale !== 'ar' && locale !== 'en') return c.redirect('/ar/salary-calculator');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/salary-calculator');
 
   const t = {
     ar: {
@@ -273,6 +303,58 @@ aiFeaturesRouter.get('/:locale/salary-calculator', (c) => {
         'Confirm if the offer includes private health insurance (SGK/Özel) and meal card (Sodexo/Multinet) benefits.',
         'Always negotiate the Net Salary (after taxes) rather than the Gross salary.',
         'Due to inflation dynamics, some international companies offer salary indexing or pegging to USD/EUR.'
+      ]
+    },
+    tr: {
+      title: 'İstanbul Maaş Hesaplayıcı',
+      subtitle: 'Uzmanlık alanı, deneyim ve konuştuğunuz dillere göre 2026 yılı İstanbul iş piyasasındaki tahmini aylık maaş aralığınızı hesaplayın.',
+      category: 'Sektör / İş Alanı',
+      experience: 'Deneyim Seviyesi',
+      languages: 'Konuşulan Diller',
+      calcBtn: 'Maaş Tahmini Hesapla 💳',
+      resultTitle: 'Aylık Tahmini Maaş (Türk Lirası - TL)',
+      levelJr: 'Başlangıç (0-2 yıl)',
+      levelMid: 'Orta Seviye (3-5 yıl)',
+      levelSr: 'Kıdemli (5+ yıl)',
+      langAr: 'Sadece Arapça',
+      langEn: 'Sadece İngilizce',
+      langBoth: 'İngilizce ve Arapça/Türkçe',
+      langAll: 'Çok Dilli (Türkçe + İngilizce + Arapça)',
+      salaryLow: 'Minimum Taban',
+      salaryAvg: 'Beklenen Ortalama',
+      salaryHigh: 'Maksimum Potansiyel',
+      tipsTitle: '💡 İstanbul\'da Maaş Pazarlığı İpuçları:',
+      tipsList: [
+        'Çok dilli olmak (Türkçe/İngilizce/Arapça) büyük bir avantajdır ve ortalama teklifleri %15 ila %30 oranında artırır.',
+        'Teklifin özel sağlık sigortası (SGK/Özel) ve yemek kartı (Sodexo/Multinet) gibi yan hakları içerip içermediğini kontrol edin.',
+        'Maaş pazarlığını her zaman Brüt değil, Net Maaş üzerinden yapın.',
+        'Enflasyon dinamikleri nedeniyle, some international companies offer USD/EUR endeksli maaş veya üç ayda bir düzenleme sunmaktadır.'
+      ]
+    },
+    ru: {
+      title: 'Калькулятор зарплат в Стамбуле',
+      subtitle: 'Узнайте примерный диапазон месячной зарплаты на рынке труда Стамбула в 2026 году на основе вашей отрасли, опыта и языков.',
+      category: 'Отрасль / Сфера работы',
+      experience: 'Уровень опыта',
+      languages: 'Языки общения',
+      calcBtn: 'Рассчитать зарплату 💳',
+      resultTitle: 'Оценочная месячная зарплата (в турецких лирах - TL)',
+      levelJr: 'Начинающий (0-2 года)',
+      levelMid: 'Средний уровень (3-5 лет)',
+      levelSr: 'Старший / Kıdemli (5+ лет)',
+      langAr: 'Только арабский',
+      langEn: 'Только английский',
+      langBoth: 'Английский и арабский/турецкий',
+      langAll: 'Два или более языков (турецкий + английский + арабский)',
+      salaryLow: 'Минимальный порог',
+      salaryAvg: 'Среднее ожидание',
+      salaryHigh: 'Максимальный потенциал',
+      tipsTitle: '💡 Советы по переговорам о зарплате в Стамбуле:',
+      tipsList: [
+        'Знание нескольких языков (турецкий/английский/арабский) является большим преимуществом и повышает предложения на 15–30%.',
+        'Проверьте, включает ли предложение социальный пакет (частная страховка SGK/Özel и проезд/питание Sodexo/Multinet).',
+        'Всегда ведите переговоры о чистой зарплате (Net) после уплаты налогов, а не о брутто-зарплате.',
+        'В связи с инфляцией международные компании предлагают оклады, привязанные к USD/EUR или пересматриваемые ежеквартально.'
       ]
     }
   }[locale];
@@ -491,8 +573,8 @@ aiFeaturesRouter.get('/:locale/salary-calculator', (c) => {
 
 // Resume Builder Page
 aiFeaturesRouter.get('/:locale/resume-builder', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en';
-  if (locale !== 'ar' && locale !== 'en') return c.redirect('/ar/resume-builder');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/resume-builder');
 
   const t = {
     ar: {
@@ -558,6 +640,70 @@ aiFeaturesRouter.get('/:locale/resume-builder', (c) => {
       tplClassic: 'Executive Classic',
       stepPrev: 'Back',
       stepNext: 'Next'
+    },
+    tr: {
+      title: 'Profesyonel İnteraktif Özgeçmiş Oluşturucu',
+      subtitle: 'Basit adımlarla öne çıkan bir özgeçmiş oluşturun, şablonları seçin ve anında PDF olarak dışa aktarın.',
+      personalTab: 'Kişisel Bilgiler',
+      expTab: 'Mesleki Deneyim',
+      eduTab: 'Eğitim ve Sertifikalar',
+      skillsTab: 'Beceriler ve Tasarım',
+      fullName: 'Ad Soyad',
+      jobTitle: 'Hedef İş Unvanı',
+      email: 'E-posta Adresi',
+      phone: 'Telefon Numarası',
+      summary: 'Özet Bilgi',
+      company: 'Şirket / Kurum Adı',
+      role: 'İş Unvanı',
+      dates: 'Tarih Aralığı (Örn: 2024 - Mevcut)',
+      desc: 'Başarılar ve sorumluluklar',
+      school: 'Üniversite / Okul Adı',
+      degree: 'Derece ve Bölüm',
+      skills: 'Beceriler (virgülle ayırın)',
+      languages: 'Diller (Örn: Türkçe (Ana Dil), İngilizce (İyi))',
+      printBtn: '🖨️ Yazdır ve PDF Kaydet',
+      addBtn: 'Yeni Öğe Ekle +',
+      previewTitle: 'A4 Canlı Önizleme',
+      loadSampleBtn: '✨ Örnek Veri Doldur',
+      tplLabel: 'Şablon:',
+      colorLabel: 'Tema Rengi:',
+      tplMinimal: 'Modern Minimal',
+      tplSidebar: 'Profesyonel Yan Sütunlu',
+      tplClassic: 'Yönetici Klasiği',
+      stepPrev: 'Geri',
+      stepNext: 'İleri'
+    },
+    ru: {
+      title: 'Интерактивный конструктор профессиональных резюме',
+      subtitle: 'Создайте выдающееся резюме за простые шаги, выберите шаблон и экспортируйте в PDF мгновенно.',
+      personalTab: 'Личные данные',
+      expTab: 'Опыт работы',
+      eduTab: 'Образование',
+      skillsTab: 'Навыки и дизайн',
+      fullName: 'Полное имя',
+      jobTitle: 'Целевая должность',
+      email: 'Электронная почта',
+      phone: 'Номер телефона',
+      summary: 'Профессиональное резюме / О себе',
+      company: 'Компания / Работодатель',
+      role: 'Должность',
+      dates: 'Период (напр. 2024 - н.в.)',
+      desc: 'Обязанности и достижения',
+      school: 'Университет / Школа',
+      degree: 'Степень и специальность',
+      skills: 'Ключевые навыки (через запятую)',
+      languages: 'Языки (напр. Русский (Родной), Турецкий (Разговорный))',
+      printBtn: '🖨️ Печать и экспорт в PDF',
+      addBtn: 'Добавить пункт +',
+      previewTitle: 'Предпросмотр резюме (размер A4)',
+      loadSampleBtn: '✨ Заполнить демо-данными',
+      tplLabel: 'Шаблон:',
+      colorLabel: 'Основной цвет:',
+      tplMinimal: 'Современный минимализм',
+      tplSidebar: 'Профессиональный сайдбар',
+      tplClassic: 'Классический представительский',
+      stepPrev: 'Назад',
+      stepNext: 'Далее'
     }
   }[locale];
 
@@ -1119,8 +1265,8 @@ aiFeaturesRouter.get('/:locale/resume-builder', (c) => {
 
 // AI Cover Letter Generator Page
 aiFeaturesRouter.get('/:locale/cover-letter-generator', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en';
-  if (locale !== 'ar' && locale !== 'en') return c.redirect('/ar/cover-letter-generator');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/cover-letter-generator');
 
   const t = {
     ar: {
@@ -1166,6 +1312,50 @@ aiFeaturesRouter.get('/:locale/cover-letter-generator', (c) => {
       toneTech: 'Technical & Detailed',
       copy: 'Copy to Clipboard',
       copied: 'Copied!'
+    },
+    tr: {
+      title: 'Yapay Zeka Ön Yazı Hazırlayıcı',
+      subtitle: 'Workers AI kullanarak herhangi bir iş başvurusu için son derece özelleştirilmiş, ikna edici bir ön yazı taslağı hazırlayın.',
+      lblJobTitle: 'Hedef İş Unvanı',
+      lblCompany: 'Şirket Adı (İsteğe Bağlı)',
+      lblTone: 'Yazı Tonu',
+      lblExperience: 'Temel Deneyimleriniz ve Becerileriniz',
+      lblJobDesc: 'İş Tanımı (İsteğe Bağlı)',
+      plhJobTitle: 'Örn: Ön Yüz Geliştirici, Muhasebeci...',
+      plhCompany: 'Örn: Acme A.Ş...',
+      plhExperience: 'Özgeçmiş maddelerinizi yapıştırın veya mharatlarınızı buraya girin...',
+      plhJobDesc: 'Ön yazıyı uyarlamak için iş gereksinimlerini yapıştırın...',
+      btnGenerate: 'Ön Yazı Taslağı Oluştur ✨',
+      loading: 'Ön Yazı Hazırlanıyor... ✍️',
+      resultTitle: 'Oluşturulan Ön Yazınız',
+      toneProf: 'Profesyonel ve Resmi',
+      toneConf: 'Kendinden Emin ve Tutkulu',
+      toneFriendly: 'Samimi ve Kişisel',
+      toneTech: 'Teknik ve Detaylı',
+      copy: 'Kopyala',
+      copied: 'Kopyalandı!'
+    },
+    ru: {
+      title: 'ИИ-Генератор сопроводительных писем',
+      subtitle: 'Создайте сопроводительное письмо для любой вакансии с помощью ИИ за секунды.',
+      lblJobTitle: 'Целевая должность',
+      lblCompany: 'Название компании (необязательно)',
+      lblTone: 'Тон письма',
+      lblExperience: 'Ваши ключевые навыки и опыт',
+      lblJobDesc: 'Описание вакансии (необязательно)',
+      plhJobTitle: 'Напр: Frontend-разработчик, Бухгалтер...',
+      plhCompany: 'Напр: Acme Corp...',
+      plhExperience: 'Вставьте пункты вашего резюме или навыки сюда...',
+      plhJobDesc: 'Вставьте описание вакансии для адаптации письма под требования...',
+      btnGenerate: 'Создать сопроводительное письмо ✨',
+      loading: 'Письмо генерируется... ✍️',
+      resultTitle: 'Созданное сопроводительное письмо',
+      toneProf: 'Профессиональный и официальный',
+      toneConf: 'Уверенный и страстный',
+      toneFriendly: 'Дружелюбный и личный',
+      toneTech: 'Технический и детальный',
+      copy: 'Копировать',
+      copied: 'Скопировано!'
     }
   }[locale];
 
@@ -1297,7 +1487,7 @@ aiFeaturesRouter.post('/api/cover-letter-generate', rateLimiter(3, 10), async (c
   const systemPrompt = `
 You are an expert HR copywriter and professional CV designer in Turkey.
 Draft a highly tailored and optimized Cover Letter for a candidate applying for the position: "${jobTitle}" at "${company || 'the target company'}".
-The cover letter should be written in ${locale === 'ar' ? 'Arabic' : 'English'}.
+The cover letter should be written in ${locale === 'ar' ? 'Arabic' : (locale === 'tr' ? 'Turkish' : 'English')}.
 The tone of voice must be ${toneInstruction}.
 Do NOT output any markdown tags (like code blocks), conversational intros, or notes. Output ONLY the drafted cover letter text.
 Use placeholders like [Name], [Phone] at the header/footer of the letter for the user to fill in.
@@ -1339,8 +1529,8 @@ ${jobDesc || 'No details provided'}
 
 // Work Permit Eligibility Calculator Page
 aiFeaturesRouter.get('/:locale/work-permit-calculator', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en';
-  if (locale !== 'ar' && locale !== 'en') return c.redirect('/ar/work-permit-calculator');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/work-permit-calculator');
 
   const t = {
     ar: {
@@ -1410,6 +1600,74 @@ aiFeaturesRouter.get('/:locale/work-permit-calculator', (c) => {
       scoreHigh: 'Excellent eligibility! Your credentials fully align with Turkish labor laws for submission.',
       scoreMid: 'Moderate eligibility. Double-check the offered salary ratio and Turkish employee counts before submitting.',
       scoreLow: 'Low eligibility. Your current profile does not meet the legal threshold. We recommend consulting a licensed Turkish legal advisor.'
+    },
+    tr: {
+      title: 'Çalışma İzni ve Vatandaşlık Hesaplayıcı',
+      subtitle: 'En son 2026 düzenlemelerine göre çalışma izni (Çalışma İzni) veya vatandaşlık için uygunluk puanınızı hesaplayın.',
+      step1: 'Vize ve İkamet',
+      step2: 'Eğitim ve Alan',
+      step3: 'Şirket ve Maaş',
+      btnNext: 'İleri ➔',
+      btnPrev: '⬅ Geri',
+      btnCalculate: 'Uygunluk Hesapla 📊',
+      lblResidency: 'Türkiye\'deki Mevcut İkamet Durumu',
+      resTourist: 'Turistik İkamet İzni (6+ ay geçerli)',
+      resStudent: 'Öğrenci İkamet İzni',
+      resWork: 'Mevcut Çalışma İzni (Yenileme)',
+      resNone: 'Aktif ikamet izni yok (Türkiye Dışında / Kısa Süreli Vize)',
+      lblEdu: 'En Yüksek Eğitim Seviyesi',
+      eduHighSchool: 'Lise veya altı',
+      eduBachelor: 'Lisans Derecesi',
+      eduMaster: 'Yüksek Lisans Derecesi',
+      eduPhD: 'Doktora',
+      lblEmployeeRatio: 'Şirketteki Türk Çalışan Sayısı',
+      ratioHint: 'Not: Türk kanunları, çalıştırılan her 1 yabancı için 5 Türk vatandaşının istihdam edilmesini şart koşar.',
+      lblSalaryRatio: 'Teklif Edilen Maaş (TL cinsinden Brüt/Net)',
+      lblCategory: 'Hedef İş Kategorisi',
+      catNormal: 'Genel Ofis / Satış / Hizmet',
+      catEngineer: 'Mühendis / IT / Özel Teknoloji',
+      catManager: 'Müdür / Şube Müdürü',
+      catExecutive: 'Yönetici / Genel Müdür / C-Level',
+      resultTitle: 'Uygunluk Raporu ve Eylem Planı 📋',
+      eligibilityScore: 'Başvuru Uygunluk Puanınız:',
+      lawNotice: 'Yasal Uyarı: Bu hesaplayıcı sonuçları, 6735 sayılı Türk İş Kanunu ve 2026 güncellemelerine dayanmaktadır. Resmi yasal tavsiye niteliği taşımaz.',
+      scoreHigh: 'Mükemmel uygunluk! Nitelikleriniz, başvuru için Türk iş kanunlarıyla tamamen uyumludur.',
+      scoreMid: 'Orta seviye uygunluk. Başvurmadan önce teklif edilen maaş oranını ve Türk çalışan sayılarını kontrol edin.',
+      scoreLow: 'Düşük uygunluk. Mevcut profiliniz yasal eşiği karşılamıyor. Ruhsatlı bir Türk hukuk danışmanına başvurmanızı öneririz.'
+    },
+    ru: {
+      title: 'Калькулятор разрешения на работу в Турции',
+      subtitle: 'Рассчитайте шансы на получение разрешения на работу (Çalışma İzni) или гражданства на основе правил 2026 года.',
+      step1: 'Виза и проживание',
+      step2: 'Образование и сфера',
+      step3: 'Компания и зарплата',
+      btnNext: 'Далее ➔',
+      btnPrev: '⬅ Назад',
+      btnCalculate: 'Рассчитать шансы 📊',
+      lblResidency: 'Текущий статус проживания в Турции',
+      resTourist: 'Туристический ВНЖ (действителен 6+ месяцев)',
+      resStudent: 'Студенческий ВНЖ',
+      resWork: 'Текущее разрешение на работу (продление)',
+      resNone: 'Нет активного ВНЖ (За пределами Турции / Краткосрочная виза)',
+      lblEdu: 'Наивысший уровень образования',
+      eduHighSchool: 'Средняя школа или ниже',
+      eduBachelor: 'Бакалавриат',
+      eduMaster: 'Магистратура',
+      eduPhD: 'Докторантура / PhD',
+      lblEmployeeRatio: 'Количество турецких сотрудников в компании',
+      ratioHint: 'Примечание: По закону на 1 иностранного сотрудника должно быть трудоустроено 5 граждан Турции.',
+      lblSalaryRatio: 'Предлагаемая зарплата (брутто/нетто в лирах - TL)',
+      lblCategory: 'Целевая категория работы',
+      catNormal: 'Общий офис / Продажи / Гостеприимство',
+      catEngineer: 'Инженер / IT / Специализированные технологии',
+      catManager: 'Менеджер / Руководитель филиала',
+      catExecutive: 'Директор / Генеральный директор / C-Level',
+      resultTitle: 'Отчет об оценке шансов 📋',
+      eligibilityScore: 'Ваш балл соответствия требованиям:',
+      lawNotice: 'Отказ от ответственности: Расчеты основаны на Трудовом кодексе Турции № 6735 и обновлениях 2026 года. Не является официальной юридической консультацией.',
+      scoreHigh: 'Отличное соответствие! Ваши данные полностью соответствуют турецкому законодательству для подачи заявки.',
+      scoreMid: 'Среднее соответствие. Перед подачей перепроверьте размер предлагаемой зарплаты и количество турецких сотрудников.',
+      scoreLow: 'Низкое соответствие. Ваш текущий профиль не соответствует установленным требованиям. Мы рекомендуем проконсультироваться с юристом.'
     }
   }[locale];
 
@@ -1622,8 +1880,8 @@ aiFeaturesRouter.get('/:locale/work-permit-calculator', (c) => {
 
 // Business Turkish Level Test Page
 aiFeaturesRouter.get('/:locale/turkish-test', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en';
-  if (locale !== 'ar' && locale !== 'en') return c.redirect('/ar/turkish-test');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/turkish-test');
 
   const t = {
     ar: {
@@ -1689,6 +1947,70 @@ aiFeaturesRouter.get('/:locale/turkish-test', (c) => {
       q5_a: 'Başınız sağ olsun (My condolences)',
       q5_b: 'Kolay gelsin (May it be easy)',
       q5_c: 'Geçmiş olsun (Get well soon)'
+    },
+    tr: {
+      title: 'İş Türkiyesi Yeterlilik Testi',
+      subtitle: 'Dijital sertifika kazanmak için profesyonel Türkçe terimleri ve iş yeri dilini anlama ve kullanma düzeyinizi test edin.',
+      btnStart: 'Yeterlilik Testini Başlat ⚡',
+      btnSubmit: 'Sonucu ve Sertifikayı Göster 📊',
+      scoreText: 'Final Test Puanınız:',
+      certTitle: 'İş Türkiyesi Yeterlilik Sertifikası',
+      certAward: 'Adayın profesyonel kelime bilgisini başarıyla sergilediği için verilen üstünlük sertifikası. Puan:',
+      certSignature: 'İstanbul İş Portalı Değerlendirme Kurulu',
+      certSeal: 'Onaylı Rozet',
+      lblQuestion: 'Soru',
+      q1: 'İş arkadaşınız size "Kolay gelsin" derse, en uygun ve yaygın yanıt ne olmalıdır?',
+      q1_a: 'Teşekkür ederim, sana da (Teşekkürler, sana da)',
+      q1_b: 'Rica ederim',
+      q1_c: 'Görüşürüz',
+      q2: 'Finansal işlemlerde "Fatura kesmek" ne anlama gelir?',
+      q2_a: 'Müşteri için mali fatura düzenlemek',
+      q2_b: 'Eski bir faturayı iptal etmek',
+      q2_c: 'Faturada indirim uygulamak',
+      q3: 'Mevcut işinizden resmi olarak istifa etmek istiyorsanız, bu dilekçeye ne ad verilir?',
+      q3_a: 'İstifa dilekçesi',
+      q3_b: 'İzin formu',
+      q3_c: 'İş sözleşmesi',
+      q4: 'Türkiye\'deki şirketlerde "Mesai" veya "Fazla Mesai" terimlerinin doğru tanımı nedir?',
+      q4_a: 'Normal çalışma saatleri veya ek çalışma saatleri',
+      q4_b: 'Ev ile ofis arasındaki coğrafi mesafe',
+      q4_c: 'Gün içindeki yemek ve dinlenme araları',
+      q5: 'Yakınını kaybeden bir iş arkadaşınıza başsağlığı dilemek için ne dersiniz?',
+      q5_a: 'Başınız sağ olsun',
+      q5_b: 'Kolay gelsin',
+      q5_c: 'Geçmiş olsun'
+    },
+    ru: {
+      title: 'Тест на знание делового турецкого языка',
+      subtitle: 'Проверьте понимание профессиональных терминов и рабочего сленга в Турции для получения цифрового сертификата.',
+      btnStart: 'Начать тест ⚡',
+      btnSubmit: 'Показать результат и сертификат 📊',
+      scoreText: 'Ваш итоговый балл:',
+      certTitle: 'Сертификат владения деловым турецким языком',
+      certAward: 'Выдан кандидату за демонстрацию профессиональных языковых навыков с оценкой:',
+      certSignature: 'Комитет по оценке Стамбульского портала вакансий',
+      certSeal: 'Подтвержденный статус',
+      lblQuestion: 'Вопрос',
+      q1: 'Если коллега говорит вам "Kolay gelsin" (пусть будет легко), какой ответ наиболее уместен?',
+      q1_a: 'Teşekkür ederim, sana da (Спасибо, и тебе)',
+      q1_b: 'Rica ederim (Пожалуйста)',
+      q1_c: 'Görüşürüz (До встречи)',
+      q2: 'Что означает финансовый термин "Fatura kesmek" в турецких бизнес-операциях?',
+      q2_a: 'Выставить/выписать счет клиенту',
+      q2_b: 'Аннулировать счет',
+      q2_c: 'Сделать скидку по счету',
+      q3: 'Как называется документ, если вы хотите официально уволиться с текущей работы?',
+      q3_a: 'İstifa dilekçesi (Заявление об увольнении)',
+      q3_b: 'İzin formu (Бланк отпуска)',
+      q3_c: 'İş sözleşmesi (Трудовой договор)',
+      q4: 'Каково правильное определение терминов "Mesai" или "Fazla Mesai" в турецких компаниях?',
+      q4_a: 'Рабочее время или сверхурочная работа',
+      q4_b: 'Расстояние между домом и офисом',
+      q4_c: 'Обеденный перерыв и паузы',
+      q5: 'Что правильно сказать коллеге или работодателю, у которого умер близкий родственник?',
+      q5_a: 'Başınız sağ olsun (Примите соболезнования)',
+      q5_b: 'Kolay gelsin (Пусть будет легко)',
+      q5_c: 'Geçmiş olsun (Поправляйтесь)'
     }
   }[locale];
 
@@ -1851,8 +2173,8 @@ aiFeaturesRouter.get('/:locale/turkish-test', (c) => {
 
 // AI Interview Simulator Page
 aiFeaturesRouter.get('/:locale/interview-prep', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en';
-  if (locale !== 'ar' && locale !== 'en') return c.redirect('/ar/interview-prep');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/interview-prep');
 
   const t = {
     ar: {
@@ -1898,6 +2220,50 @@ aiFeaturesRouter.get('/:locale/interview-prep', (c) => {
       scoreText: 'Overall Interview Score:',
       tipsTitle: 'Strengths & Areas of Improvement:',
       restartBtn: 'Start Another Interview 🔄'
+    },
+    tr: {
+      title: 'Yapay Zeka Mülakat Simülatörü',
+      subtitle: 'Uzmanlık alanınızı seçin ve yapay zeka asistanının size gerçek mülakat soruları sormasına izin verin, cevaplarınızı değerlendirin ve detaylı rapor alın.',
+      btnStart: 'Mülakatı Başlat 🎙️',
+      btnSubmit: 'Cevabı Gönder ➔',
+      btnEvaluate: 'Değerlendirme Raporunu Al 📊',
+      lblRole: 'Hedef İş Unvanı / Rolü',
+      lblLevel: 'Deneyim Seviyesi',
+      levelJr: 'Giriş Seviyesi / Yeni Mezun',
+      levelMid: 'Orta Seviye',
+      levelSr: 'Kıdemli / Uzman',
+      plhRole: 'Örn: Ağ Mühendisi, Yönetici Sekreteri, Satış Sorumlusu...',
+      loadingQuestions: 'AI, uzmanlık alanınıza göre mülakat soruları hazırlıyor... ⏳',
+      loadingEvaluate: 'AI, cevaplarınızı inceliyor ve puanlıyor... ⏳',
+      lblQuestion: 'Soru',
+      lblAnswer: 'Cevabınız',
+      plhAnswer: 'Cevabınızı buraya detaylı ve net bir şekilde yazın...',
+      feedbackTitle: 'Yapay Zeka Mülakat Değerlendirme Raporu 📋',
+      scoreText: 'Genel Mülakat Skoru:',
+      tipsTitle: 'Güçlü Yönler ve Geliştirilmesi Gereken Alanlar:',
+      restartBtn: 'Yeni Mülakat Başlat 🔄'
+    },
+    ru: {
+      title: 'Симулятор собеседований с ИИ',
+      subtitle: 'Симулируйте реальные собеседования на основе желаемой должности, отвечайте на вопросы и получайте комплексную оценку с помощью ИИ.',
+      btnStart: 'Начать собеседование 🎙️',
+      btnSubmit: 'Отправить ответ ➔',
+      btnEvaluate: 'Получить отчет об оценке 📊',
+      lblRole: 'Желаемая должность / Роль',
+      lblLevel: 'Уровень опыта',
+      levelJr: 'Начальный уровень / Выпускник',
+      levelMid: 'Средний уровень',
+      levelSr: 'Старший / Эксперт',
+      plhRole: 'Напр: Frontend-разработчик, Бухгалтер, Администратор...',
+      loadingQuestions: 'ИИ создает персонализированные вопросы для собеседования... ⏳',
+      loadingEvaluate: 'ИИ анализирует и оценивает ваши ответы... ⏳',
+      lblQuestion: 'Вопрос',
+      lblAnswer: 'Ваш ответ',
+      plhAnswer: 'Подробно напишите свой ответ здесь...',
+      feedbackTitle: 'Отчет об оценке собеседования с ИИ 📋',
+      scoreText: 'Общая оценка собеседования:',
+      tipsTitle: 'Сильные стороны и области для улучшения:',
+      restartBtn: 'Начать новое собеседование 🔄'
     }
   }[locale];
 
@@ -2334,8 +2700,8 @@ Return ONLY a valid JSON object matching the following structure. Do not wrap it
 
 // ─── AI CV ATS Scanner UI Page ───────────────────────────────────────────
 aiFeaturesRouter.get('/:locale/ats-scanner', async (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en';
-  if (locale !== 'ar' && locale !== 'en') return c.redirect('/ar/ats-scanner');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/ats-scanner');
   const db = (c as any).env.DB;
 
   const t = {
@@ -2374,6 +2740,42 @@ aiFeaturesRouter.get('/:locale/ats-scanner', async (c) => {
       missingTitle: '❌ Missing Keywords (Recommended to add)',
       recTitle: '💡 AI CV Optimization Tips & Recommendations',
       noJobs: 'No job listings available for analysis.'
+    },
+    tr: {
+      title: '🤖 Yapay Zeka Özgeçmiş ATS Tarayıcı',
+      subtitle: 'Özgeçmişinizi yükleyin ve hedef iş için başvuru takip sistemleri (ATS) ile uyumluluğunu kontrol edin ve anında optimizasyon ipuçları alın.',
+      selectJob: 'Hedef İş İlanını Seçin',
+      selectPlh: '-- Listeden bir iş seçin --',
+      uploadTitle: 'Özgeçmişinizi Yükleyin (PDF Dosyası)',
+      uploadDesc: 'Özgeçmişinizi (PDF) sürükleyip buraya bırakın veya dosyalara göz atmak için tıklayın',
+      pasteLabel: 'Veya özgeçmiş metninizi doğrudan aşağıya yapıştırın',
+      pastePlh: 'Özgeçmişinizin tüm metin içeriğini buraya yapıştırın...',
+      submitBtn: 'Uyumluluğu Analiz Et ⚡',
+      loading: 'Metin çıkarılıyor ve AI ile analiz ediliyor... ⏳',
+      resultsTitle: '📊 ATS Uyumluluk Raporu',
+      scoreLabel: 'Uyumluluk Skoru',
+      matchingTitle: '✅ Eşleşen Anahtar Kelimeler (Özgeçmişinizde var)',
+      missingTitle: '❌ Eksik Anahtar Kelimeler (Eklenmesi önerilir)',
+      recTitle: '💡 Yapay Zeka Özgeçmiş İpuçları ve Önerileri',
+      noJobs: 'Analiz için uygun iş ilanı bulunmamaktadır.'
+    },
+    ru: {
+      title: '🤖 Сканер резюме ИИ ATS',
+      subtitle: 'Загрузите свое резюме и проверьте его совместимость с системами отслеживания кандидатов (ATS) для желаемой работы, с мгновенными советами по оптимизации.',
+      selectJob: 'Выберите целевую вакансию',
+      selectPlh: '-- Выберите работу из списка --',
+      uploadTitle: 'Загрузите ваше резюме (PDF-файл)',
+      uploadDesc: 'Перетащите сюда файл резюме (PDF) или нажмите для обзора файлов',
+      pasteLabel: 'Или вставьте текст резюме напрямую ниже',
+      pastePlh: 'Вставьте полный текстовый контент вашего резюме здесь...',
+      submitBtn: 'Анализировать совместимость ⚡',
+      loading: 'Извлечение текста и анализ с помощью ИИ... ⏳',
+      resultsTitle: '📊 Отчет о совместимости ATS',
+      scoreLabel: 'Оценка совместимости',
+      matchingTitle: '✅ Соответствующие ключевые слова (Есть в вашем резюме)',
+      missingTitle: '❌ Отсутствующие ключевые слова (Рекомендуется добавить)',
+      recTitle: '💡 Советы ИИ по оптимизации резюме',
+      noJobs: 'Нет доступных вакансий для анализа.'
     }
   }[locale];
 
@@ -2636,8 +3038,8 @@ aiFeaturesRouter.get('/:locale/ats-scanner', async (c) => {
 
 // Turkish Workplace Language Quiz Page
 aiFeaturesRouter.get('/:locale/workplace-quiz', (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en';
-  if (locale !== 'ar' && locale !== 'en') return c.redirect('/ar/workplace-quiz');
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/workplace-quiz');
 
   const t = {
     ar: {
@@ -2671,6 +3073,38 @@ aiFeaturesRouter.get('/:locale/workplace-quiz', (c) => {
       rankN: 'Absolute Novice 🚶‍♂️',
       correct: 'Correct Answer! 🎉',
       incorrect: 'Incorrect! The correct answer is: '
+    },
+    tr: {
+      title: 'İş Yeri Kültür ve Dil Testi',
+      subtitle: 'Uyumunuzu artırmak ve olası yanlış anlaşılmaları önlemek için İstanbul iş hayatında günlük olarak kullanılan temel Türkçe kalıpları test edin.',
+      startBtn: 'Testi Başlat ✍️',
+      nextBtn: 'Sıradaki Soru ←',
+      finishBtn: 'Sonucu Gör 🏆',
+      restartBtn: 'Yeniden Dene 🔄',
+      scoreTitle: 'Final Skorunuz:',
+      rankLabel: 'Ofis Dereceniz:',
+      rankG: 'İstanbul Ofis Gurusu 🏆',
+      rankM: 'Profesyonel Çalışan 💼',
+      rankJ: 'Ofis Stajyeri 📁',
+      rankN: 'Yeni Başlayan 🚶‍♂️',
+      correct: 'Doğru Cevap! 🎉',
+      incorrect: 'Yanlış Cevap! ❌ Doğru Cevap: '
+    },
+    ru: {
+      title: 'Тест на знание культуры турецкого офиса',
+      subtitle: 'Проверьте свои знания повседневных турецких фраз и корпоративной культуры для успешной интеграции и предотвращения недоразумений.',
+      startBtn: 'Начать тест ✍️',
+      nextBtn: 'Следующий вопрос ←',
+      finishBtn: 'Показать результат 🏆',
+      restartBtn: 'Попробовать снова 🔄',
+      scoreTitle: 'Ваш итоговый балл:',
+      rankLabel: 'Ваш статус в офисе:',
+      rankG: 'Гуру офиса в Стамбуле 🏆',
+      rankM: 'Профессиональный сотрудник 💼',
+      rankJ: 'Офисный стажер 📁',
+      rankN: 'Новичок 🚶‍♂️',
+      correct: 'Верно! 🎉',
+      incorrect: 'Неверно! Правильный ответ: '
     }
   }[locale];
 

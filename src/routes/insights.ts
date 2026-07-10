@@ -5,8 +5,8 @@ export const insightsRouter = new Hono()
 
 // ─── Istanbul Job Market Insights Page ─────────────────────────────────────
 insightsRouter.get('/:locale/insights', async (c) => {
-  const locale = (c.req.param('locale') || 'ar') as 'ar' | 'en' | 'tr';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr') return c.redirect('/ar/insights');
+  const locale = (c.req.param('locale') || 'ar') as 'ar' | 'en' | 'tr' | 'ru';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru') return c.redirect('/ar/insights');
   const isRtl = locale === 'ar'
 
   const t = {
@@ -120,6 +120,43 @@ insightsRouter.get('/:locale/insights', async (c) => {
       tipText: 'İstanbul iş piyasası oldukça hareketli ve çeşitlidir. Teknoloji ve ticaret en hızlı büyüyen sektörlerdir; çok dilli adaylara olan talep artmaktadır.',
       monthlyTrend: 'Aylara Göre İlanlar',
       month: 'Ay'
+    },
+    ru: {
+      title: 'Аналитика рынка труда в Стамбуле',
+      subtitle: 'Комплексный взгляд на вакансии, зарплаты и секторы в Стамбуле — данные основаны на вакансиях нашего портала',
+      totalJobs: 'Всего вакансий',
+      totalCompanies: 'Компаний',
+      totalCategories: 'Секторов',
+      jobsByType: 'Вакансии по типам занятости',
+      jobsByCategory: 'Популярные отрасли',
+      jobsByDistrict: 'Вакансии по районам',
+      jobsByLanguage: 'Требуемые языки',
+      featuredVsRegular: 'Премиум и обычные',
+      recentJobs: 'Последние опубликованные вакансии',
+      salaryInsights: 'Диапазоны зарплат',
+      jobType: 'Тип работы',
+      count: 'Количество',
+      category: 'Отрасль',
+      district: 'Район',
+      language: 'Язык',
+      featured: 'Премиум',
+      regular: 'Обычная',
+      fullTime: 'Полный день',
+      partTime: 'Частичная занятость',
+      remote: 'Удаленно',
+      internship: 'Стажировка',
+      arabic: 'Арабский',
+      english: 'Английский',
+      both: 'Двуязычные',
+      lastUpdated: 'Последнее обновление',
+      noData: 'Недостаточно данных для анализа',
+      viewAllJobs: 'Посмотреть все вакансии',
+      jobs: 'вакансий',
+      jobsPerCategory: 'вакансий',
+      tip: 'Совет',
+      tipText: 'Рынок труда в Стамбуле разнообразен и полон возможностей. IT и бизнес-сектора растут быстрее всего, с особым спросом на специалистов со знанием нескольких языков.',
+      monthlyTrend: 'Вакансии по месяцам',
+      month: 'Месяц'
     }
   }[locale]
 
@@ -699,13 +736,13 @@ Portal Statistics:
           <div class="chart-title"><i class="fa-solid fa-chart-line"></i> ${t.monthlyTrend}</div>
           ${monthlyData.length > 0 ? (() => {
         const maxMonthly = Math.max(...monthlyData.map((m: any) => m.count), 1)
-        const monthNames: Record<string, { ar: string; en: string; tr: string }> = {
-          '01': { ar: 'يناير', en: 'Jan', tr: 'Oca' }, '02': { ar: 'فبراير', en: 'Feb', tr: 'Şub' },
-          '03': { ar: 'مارس', en: 'Mar', tr: 'Mar' }, '04': { ar: 'أبريل', en: 'Apr', tr: 'Nis' },
-          '05': { ar: 'مايو', en: 'May', tr: 'May' }, '06': { ar: 'يونيو', en: 'Jun', tr: 'Haz' },
-          '07': { ar: 'يوليو', en: 'Jul', tr: 'Tem' }, '08': { ar: 'أغسطس', en: 'Aug', tr: 'Ağu' },
-          '09': { ar: 'سبتمبر', en: 'Sep', tr: 'Eyl' }, '10': { ar: 'أكتوبر', en: 'Oct', tr: 'Eki' },
-          '11': { ar: 'نوفمبر', en: 'Nov', tr: 'Kas' }, '12': { ar: 'ديسمبر', en: 'Dec', tr: 'Ara' },
+        const monthNames: Record<string, { ar: string; en: string; tr: string; ru: string }> = {
+          '01': { ar: 'يناير', en: 'Jan', tr: 'Oca', ru: 'Янв' }, '02': { ar: 'فبراير', en: 'Feb', tr: 'Şub', ru: 'Фев' },
+          '03': { ar: 'مارس', en: 'Mar', tr: 'Mar', ru: 'Мар' }, '04': { ar: 'أبريل', en: 'Apr', tr: 'Nis', ru: 'Апр' },
+          '05': { ar: 'مايو', en: 'May', tr: 'May', ru: 'Май' }, '06': { ar: 'يونيو', en: 'Jun', tr: 'Haz', ru: 'Июн' },
+          '07': { ar: 'يوليو', en: 'Jul', tr: 'Tem', ru: 'Июл' }, '08': { ar: 'أغسطس', en: 'Aug', tr: 'Ağu', ru: 'Авг' },
+          '09': { ar: 'سبتمبر', en: 'Sep', tr: 'Eyl', ru: 'Сен' }, '10': { ar: 'أكتوبر', en: 'Oct', tr: 'Eki', ru: 'Окт' },
+          '11': { ar: 'نوفمبر', en: 'Nov', tr: 'Kas', ru: 'Ноя' }, '12': { ar: 'ديسمبر', en: 'Dec', tr: 'Ara', ru: 'Дек' },
         }
         return `
               <div class="trend-chart">
