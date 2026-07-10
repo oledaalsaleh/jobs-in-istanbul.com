@@ -12,6 +12,7 @@ Disallow: /api/
 Disallow: /auth/
 Disallow: /login
 Disallow: /register
+Disallow: /install
 
 Sitemap: https://jobs-in-istanbul.com/sitemap.xml
 `;
@@ -66,7 +67,6 @@ seoRouter.get('/sitemap-static.xml', async (c) => {
     { ar: '/ar/blog', en: '/en/blog', tr: '/tr/blog', ru: '/ru/blog', fa: '/fa/blog', ur: '/ur/blog' },
     { ar: '/ar/currency-prices', en: '/en/currency-prices', tr: '/tr/currency-prices', ru: '/ru/currency-prices', fa: '/fa/currency-prices', ur: '/ur/currency-prices' },
     { ar: '/ar/gold-prices', en: '/en/gold-prices', tr: '/tr/gold-prices', ru: '/ru/gold-prices', fa: '/fa/gold-prices', ur: '/ur/gold-prices' },
-    { ar: '/ar/install', en: '/en/install', tr: '/tr/install', ru: '/ru/install', fa: '/fa/install', ur: '/ur/install' },
     { ar: '/ar/cv-optimizer', en: '/en/cv-optimizer', tr: '/tr/cv-optimizer', ru: '/ru/cv-optimizer', fa: '/fa/cv-optimizer', ur: '/ur/cv-optimizer' },
     { ar: '/ar/salary-calculator', en: '/en/salary-calculator', tr: '/tr/salary-calculator', ru: '/ru/salary-calculator', fa: '/fa/salary-calculator', ur: '/ur/salary-calculator' },
     { ar: '/ar/resume-builder', en: '/en/resume-builder', tr: '/tr/resume-builder', ru: '/ru/resume-builder', fa: '/fa/resume-builder', ur: '/ur/resume-builder' },
@@ -95,7 +95,7 @@ seoRouter.get('/sitemap-static.xml', async (c) => {
     <loc>${siteUrl}${route[loc]}</loc>
     <lastmod>${now}</lastmod>
     <changefreq>daily</changefreq>
-    <priority>1.0</priority>
+    <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="ar" href="${siteUrl}${route.ar}" />
     <xhtml:link rel="alternate" hreflang="en" href="${siteUrl}${route.en}" />
     <xhtml:link rel="alternate" hreflang="tr" href="${siteUrl}${route.tr}" />
@@ -435,7 +435,7 @@ const serveIcon = async (c: any) => {
       if (!object) {
         object = await bucket.get('public/images/logo.png');
       }
-      
+
       if (object) {
         const headers = new Headers();
         object.writeHttpMetadata(headers);
