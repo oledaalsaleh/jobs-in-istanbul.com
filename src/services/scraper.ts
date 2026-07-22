@@ -33,13 +33,13 @@ export function cleanHtml(html: string): string {
     .replace(/<footer[^>]*>[\s\S]*?<\/footer>/gi, '')
     .replace(/<nav[^>]*>[\s\S]*?<\/nav>/gi, '')
     .replace(/<form[^>]*>[\s\S]*?<\/form>/gi, '');
-  
+
   // Strip all HTML tags
   text = text.replace(/<[^>]+>/g, ' ');
-  
+
   // Normalize whitespaces
   text = text.replace(/\s+/g, ' ').trim();
-  
+
   // Return first 6000 characters to keep it well within context window and save tokens
   return text.substring(0, 6000);
 }
@@ -51,33 +51,33 @@ export function extractJobUrls(html: string): string[] {
   const urls: string[] = [];
   // Regex to match jobsintr.net job posting URL structures
   const regex = /href=["'](https:\/\/jobsintr\.net\/jobs\/[a-zA-Z0-9_-]+(?:\/)?|https:\/\/jobsintr\.net\/job\/[a-zA-Z0-9_-]+(?:\/)?|\/jobs\/[a-zA-Z0-9_-]+(?:\/)?|\/job\/[a-zA-Z0-9_-]+(?:\/)?)/g;
-  
+
   let match;
   while ((match = regex.exec(html)) !== null) {
     let matchedUrl = match[1];
-    
+
     // Resolve relative URLs
     if (matchedUrl.startsWith('/')) {
       matchedUrl = `https://jobsintr.net${matchedUrl}`;
     }
-    
+
     // Normalize trailing slash
     if (matchedUrl.endsWith('/')) {
       matchedUrl = matchedUrl.slice(0, -1);
     }
-    
+
     // Skip listing pages
     if (
-      matchedUrl === 'https://jobsintr.net/jobs' || 
+      matchedUrl === 'https://jobsintr.net/jobs' ||
       matchedUrl === 'https://jobsintr.net/job' ||
       matchedUrl.includes('wp-json')
     ) {
       continue;
     }
-    
+
     urls.push(matchedUrl);
   }
-  
+
   // Deduplicate URLs
   return [...new Set(urls)];
 }
@@ -101,7 +101,7 @@ export async function getJobsList(): Promise<string[]> {
     sources.push(`https://jobsintr.net/jobs-${year}-${month}.txt`);
     date.setMonth(date.getMonth() - 1);
   }
-  
+
   const headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
@@ -116,7 +116,7 @@ export async function getJobsList(): Promise<string[]> {
       const response = await fetch(source, { headers, signal: AbortSignal.timeout(10000) });
       if (!response.ok) continue;
       const content = await response.text();
-      
+
       if (source.endsWith('.txt')) {
         const urls = content
           .split(/\s+/)
@@ -407,7 +407,7 @@ export function decodeCloudflareEmails(html: string): string {
 export async function getOrCreateCompany(db: D1Database, companyName: string): Promise<string> {
   const cleanName = (companyName || '').trim() || 'Unspecified Company';
   const slug = cleanName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-  
+
   const existing = await db.prepare(
     `SELECT id FROM documents WHERE type_id = 'companies' AND slug = ?`
   ).bind(slug).first<{ id: string }>();
@@ -538,10 +538,10 @@ export async function saveJobToDb(
 
   const categorySlug = ((rawData.category_slug || rawData.categorySlug || rawData.category || 'general') as string).trim();
   const categoryId = resolveCategory(categorySlug);
-  
+
   const nowMs = Date.now();
   const jobId = `job-scraped-${nowMs}-${Math.random().toString(36).substring(2, 7)}`;
-  
+
   // Reused title_en from above
   const title_ar = ((rawData.title_ar || rawData.titleAr || title_en || 'وظيفة شاغرة') as string).trim();
 
@@ -581,6 +581,12 @@ export async function saveJobToDb(
   let finalDescEn = description_en;
   let finalTitleTr = rawData.title_tr || rawData.titleTr || title_en;
   let finalDescTr = description_tr;
+  let finalTitleRu = title_en;
+  let finalDescRu = description_en;
+  let finalTitleFa = title_en;
+  let finalDescFa = description_en;
+  let finalTitleUr = title_en;
+  let finalDescUr = description_en;
 
   if (geminiApiKey) {
     try {
@@ -606,6 +612,24 @@ export async function saveJobToDb(
       if (seoResult.description_tr) {
         finalDescTr = seoResult.description_tr;
       }
+      if (seoResult.title_ru) {
+        finalTitleRu = seoResult.title_ru;
+      }
+      if (seoResult.description_ru) {
+        finalDescRu = seoResult.description_ru;
+      }
+      if (seoResult.title_fa) {
+        finalTitleFa = seoResult.title_fa;
+      }
+      if (seoResult.description_fa) {
+        finalDescFa = seoResult.description_fa;
+      }
+      if (seoResult.title_ur) {
+        finalTitleUr = seoResult.title_ur;
+      }
+      if (seoResult.description_ur) {
+        finalDescUr = seoResult.description_ur;
+      }
     } catch (e) {
       console.error('Gemini SEO auto-optimization failed:', e);
     }
@@ -615,10 +639,16 @@ export async function saveJobToDb(
     title_ar,
     title_en: finalTitleEn,
     title_tr: finalTitleTr,
+    title_ru: finalTitleRu,
+    title_fa: finalTitleFa,
+    title_ur: finalTitleUr,
     slug,
     description_ar,
     description_en: finalDescEn,
     description_tr: finalDescTr,
+    description_ru: finalDescRu,
+    description_fa: finalDescFa,
+    description_ur: finalDescUr,
     company: companyId,
     category: categoryId,
     location_ar,
@@ -669,14 +699,14 @@ export async function saveJobToDb(
  * Scraper coordinator function
  */
 export async function runScraper(
-  env: { 
-    DB: D1Database; 
-    AI: any; 
-    MEDIA_BUCKET?: any; 
-    GEMINI_API_KEY?: string; 
-    TELEGRAM_BOT_TOKEN?: string; 
+  env: {
+    DB: D1Database;
+    AI: any;
+    MEDIA_BUCKET?: any;
+    GEMINI_API_KEY?: string;
+    TELEGRAM_BOT_TOKEN?: string;
     TELEGRAM_CHANNEL_ID?: string;
-  }, 
+  },
   limit: number = 5
 ): Promise<{ scraped: number; processed: number; errors: number; details: string[] }> {
   const details: string[] = [];
@@ -720,11 +750,11 @@ export async function runScraper(
         if (!response.ok) {
           throw new Error(`HTTP Error ${response.status}`);
         }
-        
+
         const html = await response.text();
         // Decode Cloudflare email protection in HTML
         const decodedHtml = decodeCloudflareEmails(html);
-        
+
         // Extract phone number from buttons if any
         let phoneFromHtml = '';
         const telRegex = /href="tel:([^"]+)"/i;
@@ -766,7 +796,7 @@ export async function runScraper(
           jobJson,
           url
         );
-        
+
         details.push(`[SUCCESS] Inserted job ID ${jobId} successfully.`);
         scrapedCount++;
 

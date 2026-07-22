@@ -1,0 +1,8 @@
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://jobs-in-istanbul.com/en">
+  <meta name="twitter:title" content="Jobs in Istanbul | English Speaking Jobs in Turkey">
+  <meta name="twitter:description" content="Find the latest job opportunities for expats and English-speaking professionals in Istanbul. Apply to tech, sales, and education roles today.">
+  <meta name="twitter:image" content="https://jobs-in-istanbul.com/public/images/og-share.png">
+  <meta name="twitter:site" content="@istanbuljobs">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"Istanbul Jobs","url":"https://jobs-in-istanbul.com/en","logo":"https://jobs-in-istanbul.com/public/images/logo.png","sameAs":["https://www.facebook.com/istanbuljobs","https://twitter.com/istanbuljobs","https://www.linkedin.com/company/istanbuljobs"]}</script>
+          <a href="#" class="social-btn" title="X / Twitter"><i class="fa-brands fa-x-twitter"></i></a>

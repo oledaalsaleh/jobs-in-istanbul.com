@@ -57,14 +57,17 @@ async function run() {
         continue;
       }
 
-      // Check if we need to optimize
+      // Check if we need to optimize or translate
       const hasKeywords = jobData.seoKeywords && (
         (Array.isArray(jobData.seoKeywords) && jobData.seoKeywords.length > 0) ||
         (typeof jobData.seoKeywords === 'string' && jobData.seoKeywords.trim().length > 0)
       );
       const hasDescription = jobData.seoDescription && jobData.seoDescription.trim().length > 0;
+      
+      const hasAllTranslations = jobData.title_ar && jobData.title_en && jobData.title_tr && jobData.title_ru && jobData.title_fa && jobData.title_ur &&
+                                 jobData.description_ar && jobData.description_en && jobData.description_tr && jobData.description_ru && jobData.description_fa && jobData.description_ur;
 
-      if (!force && hasKeywords && hasDescription) {
+      if (!force && hasKeywords && hasDescription && hasAllTranslations) {
         skipped++;
         continue;
       }
@@ -78,7 +81,7 @@ async function run() {
       const desc = jobData.description_en || jobData.description_ar || 'Job Description';
       const locale = jobData.language === 'ar' ? 'ar' : 'en';
 
-      console.log(`🚀 [${processed}/${limit}] Optimizing Job ${row.id}: "${title}"...`);
+      console.log(`🚀 [${processed}/${limit}] Optimizing & Translating Job ${row.id}: "${title}"...`);
 
       try {
         if (processed > 1 && delayMs > 0) {
@@ -97,8 +100,16 @@ async function run() {
           ...jobData,
           title_ar: seoResult.title_ar || jobData.title_ar || title,
           title_en: seoResult.title_en || jobData.title_en || title,
+          title_tr: seoResult.title_tr || jobData.title_tr || title,
+          title_ru: seoResult.title_ru || jobData.title_ru || title,
+          title_fa: seoResult.title_fa || jobData.title_fa || title,
+          title_ur: seoResult.title_ur || jobData.title_ur || title,
           description_ar: seoResult.description_ar || jobData.description_ar || desc,
           description_en: seoResult.description_en || jobData.description_en || desc,
+          description_tr: seoResult.description_tr || jobData.description_tr || desc,
+          description_ru: seoResult.description_ru || jobData.description_ru || desc,
+          description_fa: seoResult.description_fa || jobData.description_fa || desc,
+          description_ur: seoResult.description_ur || jobData.description_ur || desc,
           seoKeywords: seoResult.keywords || [],
           seoDescription: seoResult.seoDescription || ''
         };
@@ -110,7 +121,7 @@ async function run() {
           `UPDATE documents SET data = ?, title = ?, updated_at = ? WHERE id = ?`
         ).bind(updatedDataJson, finalTitleEn, Date.now(), row.id).run();
 
-        console.log(`   ✓ Job ${row.id} optimized successfully.`);
+        console.log(`   ✓ Job ${row.id} optimized and translated successfully.`);
         optimized++;
       } catch (err: any) {
         console.error(`   ❌ Job ${row.id} failed:`, err.message);

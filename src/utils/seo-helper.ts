@@ -20,6 +20,7 @@ interface MetaDataInput {
   seoKeywords?: string[] | string;
   seoDescription?: string;
   canonical?: string;
+  robots?: string;
 }
 
 export function generateMetaTags(
@@ -496,6 +497,7 @@ export function generateMetaTags(
     ur: 'ur_PK'
   };
   const ogLocaleStr = ogLocales[locale] || 'en_US';
+  const robotsStr = data.robots || 'index, follow';
 
   return `
   <!-- Primary Meta Tags -->
@@ -503,7 +505,7 @@ export function generateMetaTags(
   <meta name="title" content="${title}">
   <meta name="description" content="${desc}">
   <meta name="keywords" content="${keywordsStr}">
-  <meta name="robots" content="index, follow">
+  <meta name="robots" content="${robotsStr}">
   <link rel="canonical" href="${canonicalUrl}">
   <link rel="icon" type="image/png" href="${siteUrl}/public/images/logo.png">
   

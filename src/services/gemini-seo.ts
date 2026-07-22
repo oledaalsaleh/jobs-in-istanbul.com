@@ -34,13 +34,19 @@ You are an expert bilingual recruiter, professional translator, and SEO speciali
 Analyze the following webpage job posting title and description, and perform the following tasks:
 1. Extract exactly 5 high-ranking, highly searched SEO keywords for Istanbul job search engines.
 2. Draft an optimized meta description under 160 characters designed for high click-through rates.
-3. Polishing and Translation: Polishing the text for grammar, layout formatting, and spelling errors, and translating it to provide high-quality localized output in Arabic, English, and Turkish:
-   - "title_ar": Corrected and polished title in Arabic. If the input is in English or Turkish, translate it to Arabic.
-   - "title_en": Corrected and polished title in English. If the input is in Arabic or Turkish, translate it to English.
-   - "title_tr": Corrected and polished title in Turkish. If the input is in Arabic or English, translate it to Turkish.
-   - "description_ar": Corrected, clean HTML-formatted description in Arabic (paragraphs separated by <p> tags). If the input is in English or Turkish, translate it to Arabic.
-   - "description_en": Corrected, clean HTML-formatted description in English (paragraphs separated by <p> tags). If the input is in Arabic or Turkish, translate it to English.
-   - "description_tr": Corrected, clean HTML-formatted description in Turkish (paragraphs separated by <p> tags). If the input is in Arabic or English, translate it to Turkish.
+3. Polishing and Translation: Polishing the text for grammar, layout formatting, and spelling errors, and translating it to provide high-quality localized output in Arabic, English, Turkish, Russian, Persian (Farsi), and Urdu:
+   - "title_ar": Corrected and polished title in Arabic. If the input is in another language, translate it to Arabic.
+   - "title_en": Corrected and polished title in English. If the input is in another language, translate it to English.
+   - "title_tr": Corrected and polished title in Turkish. If the input is in another language, translate it to Turkish.
+   - "title_ru": Corrected and polished title in Russian. If the input is in another language, translate it to Russian.
+   - "title_fa": Corrected and polished title in Persian (Farsi). If the input is in another language, translate it to Persian (Farsi).
+   - "title_ur": Corrected and polished title in Urdu. If the input is in another language, translate it to Urdu.
+   - "description_ar": Corrected, clean HTML-formatted description in Arabic (paragraphs separated by <p> tags). If the input is in another language, translate it to Arabic.
+   - "description_en": Corrected, clean HTML-formatted description in English (paragraphs separated by <p> tags). If the input is in another language, translate it to English.
+   - "description_tr": Corrected, clean HTML-formatted description in Turkish (paragraphs separated by <p> tags). If the input is in another language, translate it to Turkish.
+   - "description_ru": Corrected, clean HTML-formatted description in Russian (paragraphs separated by <p> tags). If the input is in another language, translate it to Russian.
+   - "description_fa": Corrected, clean HTML-formatted description in Persian (Farsi) (paragraphs separated by <p> tags). If the input is in another language, translate it to Persian (Farsi).
+   - "description_ur": Corrected, clean HTML-formatted description in Urdu (paragraphs separated by <p> tags). If the input is in another language, translate it to Urdu.
    - "correctedTitle": Polished title in the input language (matching the Locale).
    - "correctedDesc": Polished description in the input language (matching the Locale).
 
@@ -72,7 +78,7 @@ Return ONLY a valid JSON object matching the following structure. Do not wrap it
   let currentDelay = delayMs;
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
       const res = await fetch(url, {
         method: 'POST',
         headers: {

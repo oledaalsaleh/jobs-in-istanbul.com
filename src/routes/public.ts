@@ -118,6 +118,20 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       data.slug = parts[parts.length - 1];
     }
 
+    // Set noindex for private portal/dashboard pages to avoid GSC indexing warnings
+    if (
+      path.includes('/candidate/') ||
+      path.includes('/employer/') ||
+      path.includes('/admin/') ||
+      path.includes('/auth/') ||
+      path.includes('/login') ||
+      path.includes('/register') ||
+      path.includes('/install')
+    ) {
+      data.robots = 'noindex, nofollow, noarchive';
+      data.canonical = `https://jobs-in-istanbul.com${path}`;
+    }
+
     seoHtml = generateMetaTags(locale, pageType, data) + generateJsonLd(locale, pageType, data);
   }
 
@@ -4157,4 +4171,207 @@ publicRouter.get('/:locale/install', (c) => {
 
   return c.html(renderLayout(c, t.title, html, locale, seoHtml));
 });
+
+// Programmatic District SEO Route handler
+publicRouter.get('/:locale/district/:slug', async (c) => {
+  const locale = (c.req.param('locale') || 'ar') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
+  const slug = c.req.param('slug')?.toLowerCase() || '';
+
+  const districtObj = ISTANBUL_DISTRICTS.find(d => 
+    d.en.toLowerCase().replace(/[^a-z0-9]+/g, '-') === slug || 
+    d.en.toLowerCase() === slug
+  );
+
+  if (!districtObj) {
+    return c.redirect(`/${locale}`);
+  }
+
+  const districtNameEn = districtObj.en;
+  const districtNameAr = districtObj.ar;
+  const districtDisplayName = locale === 'ar' ? districtNameAr : districtNameEn;
+
+  const db = (c.env as any).DB;
+  
+  let jobs: any[] = [];
+  try {
+    const jobRows = await db.prepare(
+      `SELECT j.id, j.slug, j.data, j.published_at
+       FROM documents j
+       WHERE j.type_id = 'jobs' AND j.status = 'published' AND j.is_published = 1
+         AND (LOWER(j.data) LIKE ? OR LOWER(j.data) LIKE ?)
+       ORDER BY j.published_at DESC LIMIT 50`
+    ).bind(`%${districtNameEn.toLowerCase()}%`, `%${districtNameAr.toLowerCase()}%`).all();
+    
+    jobs = (jobRows.results || []).map((row: any) => {
+      const parsed = JSON.parse(row.data);
+      return { ...parsed, slug: row.slug, publishedAt: row.published_at };
+    });
+  } catch (err) {
+    console.error('District route DB query error:', err);
+  }
+
+  const titles: Record<string, string> = {
+    ar: `فرص عمل ووظائف في ${districtNameAr} إسطنبول | التقديم المباشر 2026`,
+    en: `Jobs in ${districtNameEn}, Istanbul | Apply Directly 2026`,
+    tr: `${districtNameEn} İstanbul İş İlanları 2026 | Hemen Başvur`,
+    ru: `Работа в Стамбуле, район ${districtNameEn} | Вакансии 2026`,
+    fa: `فرصت‌های شغلی و کار در ${districtNameAr} استانبول`,
+    ur: `استنبول کے علاقے ${districtNameAr} میں جدید ترین ملازمتیں`
+  };
+
+  const descriptions: Record<string, string> = {
+    ar: `استكشف أحدث فرص العمل المتاحة في منطقة ${districtNameAr} بإسطنبول. وظائف في شركات ومؤسسات مرموقة مع روابط التقديم المباشرة ورواتب ممتازة.`,
+    en: `Browse top vacancies and employment opportunities in ${districtNameEn}, Istanbul. Discover active job listings with direct application links.`,
+    tr: `İstanbul ${districtNameEn} bölgesindeki güncel iş ilanlarını inceleyin. Şirketlerin açık pozisyonlarına doğrudan başvurun.`,
+    ru: `Найдите свежие вакансии в районе ${districtNameEn} в Стамбуле. Подавайте заявки прямо сейчас в проверенные компании.`,
+    fa: `جدیدترین آگهی‌های استخدام و فرصت‌های شغلی در منطقه ${districtNameAr} استانبول. ارسال مستقیم رزومه به کارفرمایان.`,
+    ur: `استنبول کے علاقے ${districtNameAr} میں تمام شعبوں کی تازہ ترین نوکریاں دیکھیں۔ فوری درخواست دیں۔`
+  };
+
+  const pageTitle = titles[locale] || titles.en;
+  const pageDesc = descriptions[locale] || descriptions.en;
+
+  const itemListElement = jobs.slice(0, 10).map((job, idx) => ({
+    "@type": "ListItem",
+    "position": idx + 1,
+    "url": `https://jobs-in-istanbul.com/${locale}/jobs/${job.slug}`,
+    "name": job[`title_${locale}`] || job.title_en || job.title_ar
+  }));
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": locale === 'ar' ? `كيف أجد وظيفة في منطقة ${districtNameAr} بإسطنبول؟` : `How to find a job in ${districtNameEn}, Istanbul?`,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": locale === 'ar' 
+            ? `يمكنك تصفح الوظائف المنشورة يومياً في منطقة ${districtNameAr} على منصتنا والتقديم عليها مباشرة بنقرة واحدة.`
+            : `You can browse daily updated job postings in ${districtNameEn} on our portal and apply directly with one click.`
+        }
+      }
+    ]
+  };
+
+  const seoHtml = `
+    <!-- Primary Meta Tags -->
+    <title>${pageTitle}</title>
+    <meta name="title" content="${pageTitle}">
+    <meta name="description" content="${pageDesc}">
+    <meta name="keywords" content="وظائف في ${districtNameAr}, jobs in ${districtNameEn}, ${districtNameEn} iş ilanları, istanbul jobs">
+    <link rel="canonical" href="https://jobs-in-istanbul.com/${locale}/district/${slug}">
+    
+    <!-- Hreflang Tags -->
+    <link rel="alternate" hreflang="ar" href="https://jobs-in-istanbul.com/ar/district/${slug}">
+    <link rel="alternate" hreflang="en" href="https://jobs-in-istanbul.com/en/district/${slug}">
+    <link rel="alternate" hreflang="tr" href="https://jobs-in-istanbul.com/tr/district/${slug}">
+    <link rel="alternate" hreflang="ru" href="https://jobs-in-istanbul.com/ru/district/${slug}">
+    <link rel="alternate" hreflang="fa" href="https://jobs-in-istanbul.com/fa/district/${slug}">
+    <link rel="alternate" hreflang="ur" href="https://jobs-in-istanbul.com/ur/district/${slug}">
+    <link rel="alternate" hreflang="x-default" href="https://jobs-in-istanbul.com/en/district/${slug}">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="${pageTitle}">
+    <meta property="og:description" content="${pageDesc}">
+    <meta property="og:url" content="https://jobs-in-istanbul.com/${locale}/district/${slug}">
+    <meta property="og:image" content="https://jobs-in-istanbul.com/public/images/og-share.png">
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    ${JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": pageTitle,
+      "description": pageDesc,
+      "itemListElement": itemListElement
+    })}
+    </script>
+    <script type="application/ld+json">
+    ${JSON.stringify(faqSchema)}
+    </script>
+  `;
+
+  let jobCardsHtml = '';
+  if (jobs.length === 0) {
+    jobCardsHtml = `
+      <div class="glass-card" style="padding: 40px; text-align: center; border-radius: var(--r-md); margin-top: 20px;">
+        <i class="fa-solid fa-briefcase" style="font-size: 3rem; color: var(--primary); margin-bottom: 16px;"></i>
+        <h3 style="font-size: 1.3rem; font-weight: 700; color: var(--text-heading); margin-bottom: 8px;">
+          ${locale === 'ar' ? `لا توجد وظائف معلنة حالياً بشكل مباشر في ${districtNameAr}` : `No open jobs directly listed in ${districtNameEn} right now`}
+        </h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; max-width: 500px; margin: 0 auto 20px;">
+          ${locale === 'ar' ? 'تصفح باقي الوظائف المتاحة في إسطنبول أو اشترك بالقناة لتصلك التحديثات.' : 'Browse all Istanbul jobs or join our Telegram channel for instant alerts.'}
+        </p>
+        <a href="/${locale}" class="btn btn-primary" style="padding: 10px 24px; border-radius: var(--r-full); font-weight: 700; text-decoration: none;">
+          ${locale === 'ar' ? 'تصفح جميع الوظائف' : 'View All Jobs'}
+        </a>
+      </div>
+    `;
+  } else {
+    jobCardsHtml = jobs.map(job => {
+      const title = job[`title_${locale}`] || job.title_en || job.title_ar;
+      const company = job.company_name || 'Istanbul Employer';
+      const loc = job[`location_${locale}`] || job.location_en || job.location_ar || districtDisplayName;
+      const dateStr = new Date(job.publishedAt).toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric' });
+
+      return `
+        <div class="job-card glass-card" style="padding: 20px; border-radius: var(--r-md); margin-bottom: 16px; display: flex; flex-direction: column; gap: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
+            <div>
+              <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-heading); margin-bottom: 6px;">
+                <a href="/${locale}/jobs/${job.slug}" style="color: inherit; text-decoration: none;">${title}</a>
+              </h3>
+              <div style="display: flex; align-items: center; gap: 12px; font-size: 0.88rem; color: var(--text-muted); flex-wrap: wrap;">
+                <span><i class="fa-solid fa-building" style="color: var(--primary);"></i> ${company}</span>
+                <span><i class="fa-solid fa-location-dot" style="color: var(--accent);"></i> ${loc}</span>
+                <span><i class="fa-regular fa-clock"></i> ${dateStr}</span>
+              </div>
+            </div>
+            <a href="/${locale}/jobs/${job.slug}" class="btn btn-primary" style="padding: 8px 18px; font-size: 0.85rem; font-weight: 700; border-radius: var(--r-full); text-decoration: none; white-space: nowrap;">
+              ${locale === 'ar' ? 'تفاصيل الوظيفة' : 'View Job'}
+            </a>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  const html = `
+    <div class="container" style="padding-top: 30px; padding-bottom: 60px;">
+      <nav style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+        <a href="/${locale}" style="color: var(--primary); text-decoration: none; font-weight: 600;">
+          ${locale === 'ar' ? 'الرئيسية' : 'Home'}
+        </a>
+        <span>/</span>
+        <span style="color: var(--text-heading); font-weight: 700;">${districtDisplayName}</span>
+      </nav>
+
+      <div style="background: linear-gradient(135deg, rgba(0,123,255,0.08) 0%, rgba(13,110,253,0.02) 100%); padding: 30px; border-radius: var(--r-lg); border: 1px solid var(--border); margin-bottom: 30px;">
+        <h1 style="font-size: 1.8rem; font-weight: 900; color: var(--text-heading); margin-bottom: 10px; display: flex; align-items: center; gap: 12px;">
+          <i class="fa-solid fa-location-dot" style="color: var(--primary);"></i>
+          <span>${pageTitle}</span>
+        </h1>
+        <p style="font-size: 1.05rem; color: var(--text-body); max-width: 800px; line-height: 1.6; margin: 0;">
+          ${pageDesc}
+        </p>
+      </div>
+
+      <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="font-size: 1.2rem; font-weight: 800; color: var(--text-heading); margin: 0;">
+          ${locale === 'ar' ? `الوظائف المتاحة في ${districtNameAr} (${jobs.length})` : `Active Job Vacancies in ${districtNameEn} (${jobs.length})`}
+        </h2>
+      </div>
+
+      <div class="district-jobs-list">
+        ${jobCardsHtml}
+      </div>
+    </div>
+  `;
+
+  return c.html(renderLayout(c, pageTitle, html, locale, seoHtml));
+});
+
 

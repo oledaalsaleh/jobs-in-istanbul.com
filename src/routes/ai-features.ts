@@ -3942,3 +3942,587 @@ aiFeaturesRouter.get('/:locale/workplace-quiz', (c) => {
   return c.html(renderLayout(c, t.title, html, locale));
 });
 
+// Interactive Work Permit Eligibility Wizard 2026
+aiFeaturesRouter.get('/:locale/work-permit-eligibility', (c) => {
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa' && locale !== 'ur') {
+    return c.redirect('/ar/work-permit-eligibility');
+  }
+
+  const dict: Record<string, any> = {
+    ar: {
+      title: 'حاسبة واختبار أهلية إذن العمل في تركيا 2026 🇹🇷',
+      subtitle: 'أداة تفاعلية حاسمة لتحليل أهليتك الحصول على إذن العمل أو الإعفاء، وحساب الرسوم والحد الأدنى للأجور بدقة خلال 4 خطوات بسيطة.',
+      step1: '1. الجنسية والوضع القانوني',
+      step2: '2. نوع وملاحية الإقامة',
+      step3: '3. المهنة والدرجة العلمية',
+      step4: '4. حالة الشركة الكفيلة',
+      prevBtn: 'السابق',
+      nextBtn: 'التالي ←',
+      submitBtn: 'عرض التقرير وحساب الأهلية 🎯',
+      restartBtn: 'إعادة الاختبار 🔄',
+      q1Title: 'ما هي جنسيتك ووضعك القانوني الحالي في تركيا؟',
+      q1Syrian: 'سوريا (حامل بطاقة الحماية المؤقتة - الكيمليك 99)',
+      q1Egyptian: 'مصر / العراق / اليمن / فلسطين / الأردن / المغرب العربي',
+      q1OtherArab: 'جنسية عربية أو أجنبية أخرى بإقامة نظامية',
+      q1Overseas: 'خارج تركيا (التقديم عبر السفارة التركية بالخارج)',
+      q2Title: 'ما هو نوع بطاقة الإقامة الحالية والمدة المتبقية بها؟',
+      q2Tourist6: 'إقامة سياحية أو عقارية (متبقي 6 أشهر أو أكثر)',
+      q2TouristLess: 'إقامة سياحية (متبقي أقل من 6 أشهر)',
+      q2Kimlik: 'بطاقة حماية مؤقتة (كيمليك 99 نشطة بنفس ولاية العمل)',
+      q2KimlikDiff: 'بطاقة حماية مؤقتة في ولاية أخرى غير ولاية الشركة',
+      q2None: 'لا أملك بطاقة إقامة حالياً في تركيا',
+      q3Title: 'ما هو مجال عملك أو مسمى الوظيفة المستهدفة؟',
+      q3Tech: 'مهندس / مبرمج / تكنولوجيا المعلومات / مدير مشروع',
+      q3Teacher: 'مدرس / محاضر أكاديمي / معلم لغات',
+      q3Medical: 'طبيب / ممرض / كادر صحي تخصصي',
+      q3CallCenter: 'خدمة عملاء / مبيعات / مراكز اتصال (Call Center)',
+      q3Services: 'عمالة فنية / خدمات عامة / رعاية منزلية',
+      q3Investor: 'مستثمر / تأسيس شركة خاصة',
+      q4Title: 'ما هي حالة الشركة أو المؤسسة الموظِّفة؟',
+      q4Ratio5: 'الشركة تعين 5 عمال أتراك مسجلين مقابل كل أجنبي',
+      q4RatioLess: 'الشركة لا تملك 5 أتراك حالياً (أو شركة ناشئة)',
+      q4NewCo: 'أرغب في تأسيس شركتي الخاصة (رأس مال 500 ألف ليرة)',
+      q4NotSure: 'غير متأكد من حالة الشركة الكفيلة',
+      resultTitle: 'نتيجة تحليل الأهلية والتقرير القانوني 2026',
+      eligibleTitle: '🟢 مؤهل رسمياً للحصول على تصريح العمل / الإعفاء',
+      condTitle: '🟡 مؤهل بشروط مشروطة (يتطلب استيفاء معايير إضافية)',
+      ineligibleTitle: '🔴 غير مؤهل حالياً (يتطلب تعديل الوضع أو التقديم من الخارج)',
+      feeHeader: 'الرسوم والحد الأدنى للأجور المطلوب لعام 2026:',
+      docsHeader: 'الأوراق والمستندات المطلوبة للتقديم:',
+      warningHeader: '⚠️ نقاط هامة لتجنب الرفض:',
+      ctaJobs: 'تصفح الوظائف التي تقدم إذناً للعمل ←',
+      ctaGuide: 'قراءة دليل إذن العمل الشامل 2026 📖',
+      ctaAts: 'افحص سيرتك الذاتية بفاحص ATS 🤖'
+    },
+    en: {
+      title: 'Interactive Work Permit Eligibility Wizard 2026 🇹🇷',
+      subtitle: 'Analyze your legal eligibility for a Turkish Work Permit or e-Devlet Exemption, calculate 2026 official fees, and view required documents in 4 steps.',
+      step1: '1. Nationality & Status',
+      step2: '2. Residency & Validity',
+      step3: '3. Occupation & Degree',
+      step4: '4. Sponsoring Company',
+      prevBtn: 'Previous',
+      nextBtn: 'Next Step →',
+      submitBtn: 'Calculate Eligibility & View Report 🎯',
+      restartBtn: 'Restart Assessment 🔄',
+      q1Title: 'What is your nationality and current legal status in Turkey?',
+      q1Syrian: 'Syrian National (Temporary Protection Kimlik 99 holder)',
+      q1Egyptian: 'Egyptian / Iraqi / Yemeni / Palestinian / Jordanian / Maghreb',
+      q1OtherArab: 'Other Arab or International Expat with valid residency',
+      q1Overseas: 'Outside Turkey (Applying via Turkish Embassy overseas)',
+      q2Title: 'What type of residency card do you hold and its remaining validity?',
+      q2Tourist6: 'Tourist or Real Estate Residency (6+ months validity remaining)',
+      q2TouristLess: 'Tourist Residency (Less than 6 months validity remaining)',
+      q2Kimlik: 'Active Temporary Protection Kimlik 99 (Same province as job)',
+      q2KimlikDiff: 'Kimlik 99 registered in a different province than company',
+      q2None: 'No Turkish residency card currently held',
+      q3Title: 'What is your field of work or target job title?',
+      q3Tech: 'Software Engineer / IT Specialist / Project Manager',
+      q3Teacher: 'Teacher / Academic Lecturer / Language Instructor',
+      q3Medical: 'Doctor / Nurse / Healthcare Professional',
+      q3CallCenter: 'Customer Support / Sales / Call Center Agent',
+      q3Services: 'Skilled Technician / General Services / Home Care',
+      q3Investor: 'Investor / Setting Up a Private Company',
+      q4Title: 'What is the status of your sponsoring company in Turkey?',
+      q4Ratio5: 'Company employs 5+ registered Turkish citizens per foreign worker',
+      q4RatioLess: 'Company currently has fewer than 5 Turkish employees',
+      q4NewCo: 'Planning to establish a new company (500k TRY capital)',
+      q4NotSure: 'Not sure about the sponsoring company\'s status',
+      resultTitle: 'Eligibility Analysis & 2026 Legal Report',
+      eligibleTitle: '🟢 Officially Eligible for Work Permit / Exemption',
+      condTitle: '🟡 Conditionally Eligible (Requires Fulfilling Extra Criteria)',
+      ineligibleTitle: '🔴 Currently Ineligible (Action Required Before Filing)',
+      feeHeader: '2026 Official Fees & Salary Requirements:',
+      docsHeader: 'Required Application Documents:',
+      warningHeader: '⚠️ Key Warning to Avoid Rejection:',
+      ctaJobs: 'Browse Work Permit-Sponsored Jobs ←',
+      ctaGuide: 'Read Full 2026 Work Permit Guide 📖',
+      ctaAts: 'Optimize Resume with ATS Scanner 🤖'
+    },
+    tr: {
+      title: 'Çalışma İzni Uygunluk Değerlendirme Sihirbazı 2026 🇹🇷',
+      subtitle: 'Türkiye çalışma izni veya e-Devlet muafiyet uygunluğunuzu analiz edin, 2026 harç ve asgari ücret katlarını 4 adımda hesaplayın.',
+      step1: '1. Uyruk ve Yasal Durum',
+      step2: '2. İkamet Türü ve Süresi',
+      step3: '3. Meslek ve Eğitim',
+      step4: '4. Sponsor Şirket Durumu',
+      prevBtn: 'Önceki',
+      nextBtn: 'Sonraki Adım →',
+      submitBtn: 'Uygunluğu Hesapla ve Raporla 🎯',
+      restartBtn: 'Yeniden Başlat 🔄',
+      q1Title: 'Türkiye\'deki uyruğunuz ve mevcut yasal durumunuz nedir?',
+      q1Syrian: 'Suriye Uyruklu (Geçici Koruma 99 Kimlik Sahibi)',
+      q1Egyptian: 'Mısır / Irak / Yemen / Filistin / Ürdün / Mağrip',
+      q1OtherArab: 'Diğer Yabancı Ülke Vatandaşı (Geçerli İkametli)',
+      q1Overseas: 'Türkiye Dışında (Yurt Dışı Elçilik Başvurusu)',
+      q2Title: 'Mevcut ikamet kartınızın türü ve kalan geçerlilik süresi nedir?',
+      q2Tourist6: 'Turistik veya Taşınmaz İkameti (6 ay veya daha fazla geçerli)',
+      q2TouristLess: 'Turistik İkamet (6 aydan az geçerlilik kalmış)',
+      q2Kimlik: 'Geçici Koruma Kimliği (Şirket ile aynı ilde kayıtlı)',
+      q2KimlikDiff: 'Farklı bir ilde kayıtlı Geçici Koruma Kimliği',
+      q2None: 'Şu an Türkiye ikamet kartım yok',
+      q3Title: 'Mesleğiniz veya hedeflediğiniz pozisyon nedir?',
+      q3Tech: 'Yazılım Mühendisi / IT Uzmanı / Proje Yöneticisi',
+      q3Teacher: 'Öğretmen / Akademisyen / Dil Eğitmeni',
+      q3Medical: 'Doktor / Hemşire / Sağlık Personeli',
+      q3CallCenter: 'Müşteri Hizmetleri / Satış / Çağrı Merkezi',
+      q3Services: 'Vasıflı Tekniker / Genel Hizmetler / Evde Bakım',
+      q3Investor: 'Yatırımcı / Kendi Şirketini Kurma',
+      q4Title: 'Sponsor olan şirketin mevcut durumu nedir?',
+      q4Ratio5: 'Şirket her yabancı için 5 Türk vatandaşı çalıştırıyor',
+      q4RatioLess: 'Şirkette henüz 5 Türk çalışan yok',
+      q4NewCo: 'Kendi şirketimi kuracağım (500 Bin TL sermaye)',
+      q4NotSure: 'Sponsor şirketin durumundan emin değilim',
+      resultTitle: 'Uygunluk Analizi ve 2026 Yasal Raporu',
+      eligibleTitle: '🟢 Çalışma İzni / Muafiyeti İçin Resmen Uygun',
+      condTitle: '🟡 Koşullu Uygun (Ek Şartların Sağlanması Gerekli)',
+      ineligibleTitle: '🔴 Şu An Uygun Değil (Ön Hazırlık Veya Yurt Dışı Başvurusu Gerekli)',
+      feeHeader: '2026 Resmi Harçlar ve Maaş Katları:',
+      docsHeader: 'Gerekli Başvuru Evrakları:',
+      warningHeader: '⚠️ Reddi Önlemek İçin Kritik Uyarılar:',
+      ctaJobs: 'İzin Sponsorlu İş İlanlarını İncele ←',
+      ctaGuide: '2026 Çalışma İzni Rehberini Oku 📖',
+      ctaAts: 'CV\'ni ATS İle Ücretsiz Tara 🤖'
+    },
+    ru: {
+      title: 'Интерактивный тест на разрешение на работу в Турции 2026 🇹🇷',
+      subtitle: 'Проверьте право на получение разрешения на работу или освобождения e-Devlet, рассчитайте сборы 2026 года за 4 простых шага.',
+      step1: '1. Гражданство и статус',
+      step2: '2. Вид на жительство',
+      step3: '3. Профессия',
+      step4: '4. Статус компании',
+      prevBtn: 'Назад',
+      nextBtn: 'Далее →',
+      submitBtn: 'Рассчитать и показать отчет 🎯',
+      restartBtn: 'Пройти снова 🔄',
+      q1Title: 'Какое у вас гражданство и текущий статус в Турции?',
+      q1Syrian: 'Гражданин Сирии (Временная защита, Кимлик 99)',
+      q1Egyptian: 'Египет / Ирак / Йемен / Палестина / Иордания',
+      q1OtherArab: 'Другое гражданство с действующим ВНЖ',
+      q1Overseas: 'За пределами Турции (подача через посольство)',
+      q2Title: 'Какой у вас тип ВНЖ и оставшийся срок действия?',
+      q2Tourist6: 'Туристический ВНЖ (осталось 6+ месяцев)',
+      q2TouristLess: 'Туристический ВНЖ (осталось менее 6 месяцев)',
+      q2Kimlik: 'Кимлик 99 (зарегистрирован в той же провинции)',
+      q2KimlikDiff: 'Кимлик 99 (зарегистрирован в другой провинции)',
+      q2None: 'Нет действующего ВНЖ в Турции',
+      q3Title: 'Какая у вас специальность или целевая должность?',
+      q3Tech: 'Инженер / IT-специалист / Менеджер проектов',
+      q3Teacher: 'Преподаватель / Учитель языков',
+      q3Medical: 'Врач / Медсестра / Медицинский персонал',
+      q3CallCenter: 'Служба поддержки / Продажи / Колл-центр',
+      q3Services: 'Техник / Общий персонал / Уход',
+      q3Investor: 'Инвестор / Открытие собственной компании',
+      q4Title: 'Каков статус компании-работодателя?',
+      q4Ratio5: 'В компании работает 5 турецких граждан на 1 иностранца',
+      q4RatioLess: 'В компании менее 5 турецких сотрудников',
+      q4NewCo: 'Планирую открыть компанию (уставный капитал 500 тыс. лир)',
+      q4NotSure: 'Не уверен в статусе компании',
+      resultTitle: 'Анализ соответствия и отчет 2026',
+      eligibleTitle: '🟢 Официально подходит для разрешения / освобождения',
+      condTitle: '🟡 Подходит с условиями (требуется выполнение критериев)',
+      ineligibleTitle: '🔴 Не подходит в настоящее время',
+      feeHeader: 'Официальные сборы и зарплатные коэфф. 2026:',
+      docsHeader: 'Необходимые документы:',
+      warningHeader: '⚠️ Важное предупреждение:',
+      ctaJobs: 'Вакансии с разрешением на работу ←',
+      ctaGuide: 'Читать руководство по разрешению 📖',
+      ctaAts: 'Проверить резюме в ATS 🤖'
+    },
+    fa: {
+      title: 'محاسبه‌گر آنلاین واجد شرایط بودن اجازه کار ترکیه 2026 🇹🇷',
+      subtitle: 'تحلیل واجد شرایط بودن برای دریافت اجازه کار یا معافیت e-Devlet و محاسبه هزینه‌های رسمی 2026 در 4 مرحله.',
+      step1: '۱. ملیت و وضعیت قانونی',
+      step2: '۲. نوع اقامت و اعتبار',
+      step3: '۳. شغل و مدرک تحصیلی',
+      step4: '۴. وضعیت شرکت اسپانسر',
+      prevBtn: 'قبلی',
+      nextBtn: 'مرحله بعد →',
+      submitBtn: 'محاسبه و نمایش گزارش 🎯',
+      restartBtn: 'شروع مجدد 🔄',
+      q1Title: 'ملیت و وضعیت قانونی فعلی شما در ترکیه چیست؟',
+      q1Syrian: 'تبعه سوریه (دارنده کیملیک 99 حمایت موقت)',
+      q1Egyptian: 'مصر / عراق / یمن / فلسطین / اردن / مغرب',
+      q1OtherArab: 'سایر اتباع خارجی با اقامت معتبر',
+      q1Overseas: 'خارج از ترکیه (اقدام از طریق سفارت)',
+      q2Title: 'نوع کارت اقامت فعلی و مدت اعتبار باقی‌مانده آن چقدر است؟',
+      q2Tourist6: 'اقامت توریستی یا ملکی (6 ماه یا بیشتر اعتبار)',
+      q2TouristLess: 'اقامت توریستی (کمتر از 6 ماه اعتبار)',
+      q2Kimlik: 'کیملیک 99 فعال (در همان استان محل کار)',
+      q2KimlikDiff: 'کیملیک 99 ثبت شده در استان دیگر',
+      q2None: 'در حال حاضر کارت اقامت ترکیه ندارم',
+      q3Title: 'حوزه کاری یا عنوان شغلی مورد نظر شما چیست؟',
+      q3Tech: 'مهندس نرم‌افزار / متخصص IT / مدیر پروژه',
+      q3Teacher: 'استاد / معلم زبان / مدرس',
+      q3Medical: 'پزشک / پرستار / کادر درمان',
+      q3CallCenter: 'پشتیبانی مشتریان / فروش / کال سنتر',
+      q3Services: 'تکنسین فنی / خدمات عمومی',
+      q3Investor: 'سرمایه‌گذار / ثبت شرکت شخصی',
+      q4Title: 'وضعیت شرکت استخدام‌کننده چیست؟',
+      q4Ratio5: 'شرکت به ازای هر خارجی 5 کارمند ترک استخدام کرده است',
+      q4RatioLess: 'شرکت هنوز 5 کارمند ترک ندارد',
+      q4NewCo: 'قصد ثبت شرکت شخصی دارم (سرمایه 500 هزار لیر)',
+      q4NotSure: 'از وضعیت شرکت مطمئن نیستم',
+      resultTitle: 'نتیجه تحلیل و گزارش قانونی 2026',
+      eligibleTitle: '🟢 واجد شرایط رسمی برای اجازه کار / معافیت',
+      condTitle: '🟡 واجد شرایط مشروط (نیاز به تکمیل مدارک)',
+      ineligibleTitle: '🔴 در حال حاضر ناواجد شرایط',
+      feeHeader: 'هزینه‌های رسمی و ضرایب حقوق 2026:',
+      docsHeader: 'مدارک مورد نیاز برای درخواست:',
+      warningHeader: '⚠️ نکات مهم برای جلوگیری از رد درخواست:',
+      ctaJobs: 'مشاهده مشاغل با اجازه کار ←',
+      ctaGuide: 'راهنمای کامل اجازه کار 📖',
+      ctaAts: 'بررسی رزومه با سیستم ATS 🤖'
+    },
+    ur: {
+      title: 'ترکی ورک پرمٹ اہلیت کیلکولیٹر 2026 🇹🇷',
+      subtitle: 'ترکی میں ورک پرمٹ یا 3 سالہ استثنیٰ کی اہلیت کا تجزیہ کریں اور 2026 کی سرکاری فیسیں معلوم کریں۔',
+      step1: '1. قومیت اور قانونی حیثیت',
+      step2: '2. رہائشی پرمٹ کی مدت',
+      step3: '3. پیشہ اور تعلیم',
+      step4: '4. سپانسر کمپنی کی صورتحال',
+      prevBtn: 'پچھلا',
+      nextBtn: 'اگلا قدم →',
+      submitBtn: 'اہلیت کا تجزیہ اور رپورٹ دیکھیں 🎯',
+      restartBtn: 'دوبارہ شروع کریں 🔄',
+      q1Title: 'ترکی میں آپ کی قومیت اور قانونی حیثیت کیا ہے؟',
+      q1Syrian: 'سیریئن (عارضی تحفظ کیملک 99 ہولڈر)',
+      q1Egyptian: 'مصر / عراق / یمن / فلسطین / اردن',
+      q1OtherArab: 'دیگر قانونی رہائشی پرمٹ ہولڈر',
+      q1Overseas: 'ترکی سے باہر (سفارت خانے کے ذریعے درخواست)',
+      q2Title: 'آپ کے پاس کون سا اقامہ ہے اور اس کی باقی مدت کتنی ہے؟',
+      q2Tourist6: 'ٹورسٹ یا رئیل اسٹیٹ اقامہ (6 ماہ سے زیادہ باقی)',
+      q2TouristLess: 'ٹورسٹ اقامہ (6 ماہ سے کم باقی)',
+      q2Kimlik: 'کیملک 99 (اسی صوبے میں رجسٹرڈ)',
+      q2KimlikDiff: 'کیملک 99 (دوسرے صوبے میں رجسٹرڈ)',
+      q2None: 'فی الحال ترکی کا اقامہ نہیں ہے',
+      q3Title: 'آپ کا پیشہ یا مطلوبہ ملازمت کیا ہے؟',
+      q3Tech: 'سافٹ ویئر انجینئر / آئی ٹی سپیشلسٹ',
+      q3Teacher: 'ٹیچر / لیکچرار / زبان کا معلم',
+      q3Medical: 'ڈاکٹر / نرس / میڈیکل عملہ',
+      q3CallCenter: 'کال سینٹر / کسٹمر سروس / سیلز',
+      q3Services: 'ٹیکنیشن / عام خدمات',
+      q3Investor: 'سرمایہ کار / اپنی کمپنی بنانا',
+      q4Title: 'سپانسر کرنے والی کمپنی کی کیا صورتحال ہے؟',
+      q4Ratio5: 'کمپنی میں ہر غیر ملکی پر 5 ترکی شہری ملازم ہیں',
+      q4RatioLess: 'کمپنی میں ابھی 5 ترکی شہری نہیں ہیں',
+      q4NewCo: 'اپنی نئی کمپنی بنانا (500 ہزار لیرا سرمایہ)',
+      q4NotSure: 'کمپنی کی صورتحال کا علم نہیں ہے',
+      resultTitle: 'اہلیت کا تجزیہ اور 2026 رپورٹ',
+      eligibleTitle: '🟢 ورک پرمٹ کے لیے مکمل اہل',
+      condTitle: '🟡 مشروط طور پر اہل (اضافی شرائط ضروری ہیں)',
+      ineligibleTitle: '🔴 فی الحال نااہل',
+      feeHeader: '2026 سرکاری فیسیں اور تنخواہ کا تناسب:',
+      docsHeader: 'ضروری دستاویزا ت:',
+      warningHeader: '⚠️ درخواست مسترد ہونے سے بچنے کی ہدایات:',
+      ctaJobs: 'ورک پرمٹ والی ملازمتیں دیکھیں ←',
+      ctaGuide: 'ورک پرمٹ گائیڈ پڑھیں 📖',
+      ctaAts: 'سی وی کا اے آئی سے جائزہ لیں 🤖'
+    }
+  };
+
+  const t = dict[locale] || dict.ar;
+
+  const html = `
+    <div class="container" style="padding-top: 30px; padding-bottom: 60px; max-width: 900px;">
+      <nav style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">
+        <a href="/${locale}" style="color: var(--primary); text-decoration: none; font-weight: 600;">Home</a> / <span style="font-weight: 700; color: var(--text-heading);">${t.title}</span>
+      </nav>
+
+      <div class="glass-card" style="padding: 36px; border-radius: 16px; box-shadow: var(--shadow-lg); background: var(--bg-card); border: 1px solid var(--border);">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="font-size: 1.85rem; font-weight: 900; color: var(--text-heading); margin-bottom: 10px;">${t.title}</h1>
+          <p style="color: var(--text-muted); font-size: 1.02rem; max-width: 720px; margin: 0 auto; line-height: 1.6;">${t.subtitle}</p>
+        </div>
+
+        <!-- Wizard Stepper Header -->
+        <div style="display: flex; justify-content: space-between; margin-bottom: 35px; background: rgba(0,0,0,0.03); padding: 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 700; flex-wrap: wrap; gap: 8px;">
+          <div id="step-tab-1" style="color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 4px;">${t.step1}</div>
+          <div id="step-tab-2" style="color: var(--text-muted);">${t.step2}</div>
+          <div id="step-tab-3" style="color: var(--text-muted);">${t.step3}</div>
+          <div id="step-tab-4" style="color: var(--text-muted);">${t.step4}</div>
+        </div>
+
+        <!-- Wizard Form Steps -->
+        <form id="wizard-form" onsubmit="return false;">
+          <!-- Step 1 -->
+          <div id="step-1" class="wizard-step">
+            <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--text-heading); margin-bottom: 20px;">${t.q1Title}</h3>
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+              <label class="wizard-option" style="padding: 16px; border: 2px solid var(--border); border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.2s;">
+                <input type="radio" name="q1" value="syrian" checked>
+                <span style="font-weight: 600;">${t.q1Syrian}</span>
+              </label>
+              <label class="wizard-option" style="padding: 16px; border: 2px solid var(--border); border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.2s;">
+                <input type="radio" name="q1" value="egyptian">
+                <span style="font-weight: 600;">${t.q1Egyptian}</span>
+              </label>
+              <label class="wizard-option" style="padding: 16px; border: 2px solid var(--border); border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.2s;">
+                <input type="radio" name="q1" value="other_expats">
+                <span style="font-weight: 600;">${t.q1OtherArab}</span>
+              </label>
+              <label class="wizard-option" style="padding: 16px; border: 2px solid var(--border); border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.2s;">
+                <input type="radio" name="q1" value="overseas">
+                <span style="font-weight: 600;">${t.q1Overseas}</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div id="step-2" class="wizard-step" style="display: none;">
+            <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--text-heading); margin-bottom: 20px;">${t.q2Title}</h3>
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+              <label class="wizard-option" style="padding: 16px; border: 2px solid var(--border); border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px;">
+                <input type="radio" name="q2" value="tourist_6" checked>
+                <span style="font-weight: 600;">${t.q2Tourist6}</span>
+              </label>
+              <label class="wizard-option" style="padding: 16px; border: 2px solid var(--border); border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px;">
+                <input type="radio" name="q2" value="tourist_less">
+                <span style="font-weight: 600;">${t.q2TouristLess}</span>
+              </label>
+              <label class="wizard-option" style="padding: 16px; border: 2px solid var(--border); border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px;">
+                <input type="radio" name="q2" value="kimlik_same">
+                <span style="font-weight: 600;">${t.q2Kimlik}</span>
+              </label>
+              <label class="wizard-option" style="padding: 16px; border: 2px solid var(--border); border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px;">
+                <input type="radio" name="q2" value="kimlik_diff">
+                <span style="font-weight: 600;">${t.q2KimlikDiff}</span>
+              </label>
+              <label class="wizard-option" style="padding: 16px; border: 2px solid var(--border); border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px;">
+                <input type="radio" name="q2" value="none">
+                <span style="font-weight: 600;">${t.q2None}</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div id="step-3" class="wizard-step" style="display: none;">
+            <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--text-heading); margin-bottom: 20px;">${t.q3Title}</h3>
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+              <label class="wizard-option" style="padding: 16px; border: 2px solid var(--border); border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px;">
+                <input type="radio" name="q3" value="tech" checked>
+                <span style="font-weight: 600;">${t.q3Tech}</span>
+              </label>
+              <label class="wizard-option" style="padding: 16px; border: 2px solid var(--border); border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px;">
+                <input type="radio" name="q3" value="teacher">
+                <span style="font-weight: 600;">${t.q3Teacher}</span>
+              </label>
+              <label class="wizard-option" style="padding: 16px; border: 2px solid var(--border); border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px;">
+                <input type="radio" name="q3" value="medical">
+                <span style="font-weight: 600;">${t.q3Medical}</span>
+              </label>
+              <label class="wizard-option" style="padding: 16px; border: 2px solid var(--border); border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px;">
+                <input type="radio" name="q3" value="callcenter">
+                <span style="font-weight: 600;">${t.q3CallCenter}</span>
+              </label>
+              <label class="wizard-option" style="padding: 16px; border: 2px solid var(--border); border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px;">
+                <input type="radio" name="q3" value="services">
+                <span style="font-weight: 600;">${t.q3Services}</span>
+              </label>
+              <label class="wizard-option" style="padding: 16px; border: 2px solid var(--border); border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px;">
+                <input type="radio" name="q3" value="investor">
+                <span style="font-weight: 600;">${t.q3Investor}</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Step 4 -->
+          <div id="step-4" class="wizard-step" style="display: none;">
+            <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--text-heading); margin-bottom: 20px;">${t.q4Title}</h3>
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+              <label class="wizard-option" style="padding: 16px; border: 2px solid var(--border); border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px;">
+                <input type="radio" name="q4" value="ratio5" checked>
+                <span style="font-weight: 600;">${t.q4Ratio5}</span>
+              </label>
+              <label class="wizard-option" style="padding: 16px; border: 2px solid var(--border); border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px;">
+                <input type="radio" name="q4" value="ratio_less">
+                <span style="font-weight: 600;">${t.q4RatioLess}</span>
+              </label>
+              <label class="wizard-option" style="padding: 16px; border: 2px solid var(--border); border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px;">
+                <input type="radio" name="q4" value="newco">
+                <span style="font-weight: 600;">${t.q4NewCo}</span>
+              </label>
+              <label class="wizard-option" style="padding: 16px; border: 2px solid var(--border); border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px;">
+                <input type="radio" name="q4" value="notsure">
+                <span style="font-weight: 600;">${t.q4NotSure}</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Controls -->
+          <div style="display: flex; justify-content: space-between; margin-top: 35px; border-top: 1px solid var(--border); padding-top: 20px;">
+            <button id="prev-btn" type="button" class="btn" style="display: none; padding: 10px 24px; border-radius: 30px; font-weight: 700; background: var(--bg-card); border: 1px solid var(--border);">${t.prevBtn}</button>
+            <div></div>
+            <button id="next-btn" type="button" class="btn btn-primary" style="padding: 10px 28px; border-radius: 30px; font-weight: 700;">${t.nextBtn}</button>
+            <button id="submit-btn" type="button" class="btn btn-primary" style="display: none; padding: 10px 28px; border-radius: 30px; font-weight: 700;">${t.submitBtn}</button>
+          </div>
+        </form>
+
+        <!-- Results Card -->
+        <div id="results-card" style="display: none; margin-top: 30px; border-top: 2px dashed var(--border); padding-top: 30px;">
+          <h2 style="font-size: 1.5rem; font-weight: 900; color: var(--text-heading); text-align: center; margin-bottom: 24px;">${t.resultTitle}</h2>
+          
+          <div id="status-box" style="padding: 20px; border-radius: 12px; margin-bottom: 24px; text-align: center;"></div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;" class="grid-2-col">
+            <div style="background: rgba(0,123,255,0.04); border: 1px solid var(--border); padding: 20px; border-radius: 12px;">
+              <h4 style="color: var(--primary); font-size: 1.05rem; font-weight: 700; margin-bottom: 12px;">${t.feeHeader}</h4>
+              <div id="fee-details" style="font-size: 0.93rem; line-height: 1.6;"></div>
+            </div>
+            <div style="background: rgba(0,123,255,0.04); border: 1px solid var(--border); padding: 20px; border-radius: 12px;">
+              <h4 style="color: var(--primary); font-size: 1.05rem; font-weight: 700; margin-bottom: 12px;">${t.docsHeader}</h4>
+              <ul id="docs-details" style="margin: 0; padding-inline-start: 18px; font-size: 0.92rem; line-height: 1.6;"></ul>
+            </div>
+          </div>
+
+          <div id="warning-box" style="background: rgba(220,53,69,0.05); border-inline-start: 4px solid var(--danger); padding: 18px; border-radius: 8px; margin-bottom: 30px; display: none;">
+            <h4 style="color: var(--danger); font-size: 1.05rem; font-weight: 700; margin: 0 0 8px 0;">${t.warningHeader}</h4>
+            <div id="warning-details" style="font-size: 0.93rem; line-height: 1.5;"></div>
+          </div>
+
+          <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+            <a href="/${locale}" class="btn btn-primary" style="padding: 10px 24px; border-radius: 30px; font-weight: 700; text-decoration: none;">${t.ctaJobs}</a>
+            <a href="/${locale}/blog/work-permit-turkey-syrians-arabs-2026-guide" class="btn" style="background: var(--bg-card); border: 1px solid var(--border); padding: 10px 24px; border-radius: 30px; font-weight: 700; text-decoration: none; color: var(--text-heading);">${t.ctaGuide}</a>
+            <button onclick="location.reload()" class="btn" style="background: rgba(0,0,0,0.05); border: none; padding: 10px 20px; border-radius: 30px; font-weight: 700;">${t.restartBtn}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let currentStep = 1;
+      const totalSteps = 4;
+
+      const prevBtn = document.getElementById('prev-btn');
+      const nextBtn = document.getElementById('next-btn');
+      const submitBtn = document.getElementById('submit-btn');
+
+      nextBtn.addEventListener('click', () => {
+        if (currentStep < totalSteps) {
+          document.getElementById('step-' + currentStep).style.display = 'none';
+          document.getElementById('step-tab-' + currentStep).style.color = 'var(--text-muted)';
+          document.getElementById('step-tab-' + currentStep).style.borderBottom = 'none';
+
+          currentStep++;
+
+          document.getElementById('step-' + currentStep).style.display = 'block';
+          document.getElementById('step-tab-' + currentStep).style.color = 'var(--primary)';
+          document.getElementById('step-tab-' + currentStep).style.borderBottom = '2px solid var(--primary)';
+
+          prevBtn.style.display = 'block';
+
+          if (currentStep === totalSteps) {
+            nextBtn.style.display = 'none';
+            submitBtn.style.display = 'block';
+          }
+        }
+      });
+
+      prevBtn.addEventListener('click', () => {
+        if (currentStep > 1) {
+          document.getElementById('step-' + currentStep).style.display = 'none';
+          document.getElementById('step-tab-' + currentStep).style.color = 'var(--text-muted)';
+          document.getElementById('step-tab-' + currentStep).style.borderBottom = 'none';
+
+          currentStep--;
+
+          document.getElementById('step-' + currentStep).style.display = 'block';
+          document.getElementById('step-tab-' + currentStep).style.color = 'var(--primary)';
+          document.getElementById('step-tab-' + currentStep).style.borderBottom = '2px solid var(--primary)';
+
+          submitBtn.style.display = 'none';
+          nextBtn.style.display = 'block';
+
+          if (currentStep === 1) {
+            prevBtn.style.display = 'none';
+          }
+        }
+      });
+
+      submitBtn.addEventListener('click', calculateEligibility);
+
+      function calculateEligibility() {
+        const q1 = document.querySelector('input[name="q1"]:checked').value;
+        const q2 = document.querySelector('input[name="q2"]:checked').value;
+        const q3 = document.querySelector('input[name="q3"]:checked').value;
+        const q4 = document.querySelector('input[name="q4"]:checked').value;
+
+        document.getElementById('wizard-form').style.display = 'none';
+        document.getElementById('results-card').style.display = 'block';
+
+        const statusBox = document.getElementById('status-box');
+        const feeDetails = document.getElementById('fee-details');
+        const docsDetails = document.getElementById('docs-details');
+        const warningBox = document.getElementById('warning-box');
+        const warningDetails = document.getElementById('warning-details');
+
+        let isSyrian = (q1 === 'syrian');
+        let isEligible = false;
+        let isCond = false;
+
+        if (isSyrian && (q2 === 'kimlik_same' || q2 === 'tourist_6')) {
+          isEligible = true;
+          statusBox.style.background = '#f0fdf4';
+          statusBox.style.border = '2px solid #22c55e';
+          statusBox.style.color = '#15803d';
+          statusBox.innerHTML = \`<h3 style="margin: 0; font-weight: 800;">${t.eligibleTitle}</h3><p style="margin: 6px 0 0 0;">${locale === 'ar' ? 'تستحق تصريح إعفاء إذن العمل الممتد لـ 3 سنوات عبر منصة e-Devlet!' : 'Eligible for 3-Year e-Devlet Work Permit Exemption!'}</p>\`;
+        } else if (q1 !== 'overseas' && (q2 === 'tourist_6' || q2 === 'kimlik_same') && q4 === 'ratio5') {
+          isEligible = true;
+          statusBox.style.background = '#f0fdf4';
+          statusBox.style.border = '2px solid #22c55e';
+          statusBox.style.color = '#15803d';
+          statusBox.innerHTML = \`<h3 style="margin: 0; font-weight: 800;">${t.eligibleTitle}</h3><p style="margin: 6px 0 0 0;">${locale === 'ar' ? 'مستوفي لشروط التقديم من داخل تركيا بموجب كفالة الشركة!' : 'Eligible for Standard Work Permit via Employer Sponsorship!'}</p>\`;
+        } else {
+          isCond = true;
+          statusBox.style.background = '#fffbeb';
+          statusBox.style.border = '2px solid #f59e0b';
+          statusBox.style.color = '#b45309';
+          statusBox.innerHTML = \`<h3 style="margin: 0; font-weight: 800;">${t.condTitle}</h3><p style="margin: 6px 0 0 0;">${locale === 'ar' ? 'يتطلب استيفاء شرط نسبة الأتراك أو تجديد الإقامة قبل تقديم الملف.' : 'Requires fulfilling 5-to-1 ratio or renewing residency card.'}</p>\`;
+        }
+
+        // Multiplier & Fees
+        let feeText = '';
+        let multiplierText = '';
+        if (q3 === 'tech') multiplierText = '4x Gross Minimum Wage (132,120 TRY)';
+        else if (q3 === 'teacher' || q3 === 'medical') multiplierText = '3x Gross Minimum Wage (99,090 TRY)';
+        else if (q3 === 'callcenter' || q3 === 'services') multiplierText = '2x Gross Minimum Wage (66,060 TRY)';
+        else if (q3 === 'investor') multiplierText = '6.5x Gross Minimum Wage (214,695 TRY)';
+
+        if (isSyrian) {
+          feeText = \`<strong>${locale === 'ar' ? 'رسوم الإعفاء (سنة واحدة):' : 'Exemption Fee (1 Yr):'}</strong> 4,677.90 TRY<br>
+                     <strong>${locale === 'ar' ? 'بدل الورق القيم:' : 'Card Fee:'}</strong> 964 TRY<br>
+                     <strong>${locale === 'ar' ? 'الحد الأدنى للأجر المكتوب:' : 'Min Salary:'}</strong> 28,075 TRY (Net)\`;
+        } else {
+          feeText = \`<strong>${locale === 'ar' ? 'رسم تصريح العمل السنوي:' : 'Annual Permit Fee:'}</strong> 12,574.90 TRY<br>
+                     <strong>${locale === 'ar' ? 'بدل الورق القيم:' : 'Card Fee:'}</strong> 964 TRY<br>
+                     <strong>${locale === 'ar' ? 'مضاعف الأجر المطلوب للمهنة:' : 'Required Salary Multiplier:'}</strong> \${multiplierText}\`;
+        }
+        feeDetails.innerHTML = feeText;
+
+        // Docs Checklist
+        let docsArr = [
+          locale === 'ar' ? 'جواز سفر ساري المفعول لمدة لا تقل عن 6 أشهر' : 'Valid Passport (6+ months validity)',
+          locale === 'ar' ? 'بطاقة الإقامة السارية (سياحية / عقارية / كيمليك 99)' : 'Valid Residency Card (Tourist / Real Estate / Kimlik 99)',
+          locale === 'ar' ? 'عقد عمل موقع بينك وبين الشركة الكفيلة' : 'Signed Employment Contract with Sponsoring Company',
+          locale === 'ar' ? 'الشهادة الدراسية مترجمة ومنوترة (ومعادة للأطباء والمدرسين)' : 'Notarized Degree (Equivalency for Teachers & Doctors)',
+          locale === 'ar' ? 'صورة شخصية خلفية بيضاء مع الرقم الضريبي Vergi No' : 'Biometric Photo & Tax Number (Vergi Numarası)'
+        ];
+        docsDetails.innerHTML = docsArr.map(d => \`<li style="margin-bottom: 4px;">\${d}</li>\`).join('');
+
+        // Warnings
+        if (q2 === 'kimlik_diff') {
+          warningBox.style.display = 'block';
+          warningDetails.innerHTML = locale === 'ar' ? 'بطاقة الكيمليك المسجلة في ولاية أخرى لا تتيح العمل في إسطنبول مباشرة دون نقل القيد أو الحصول على إذن سفر رسمي!' : 'Kimlik registered in another province requires transfer of registration before working in Istanbul!';
+        } else if (q4 === 'ratio_less') {
+          warningBox.style.display = 'block';
+          warningDetails.innerHTML = locale === 'ar' ? 'انخفاض عدد العمال الأتراك عن 5 عمال في الشركة الكفيلة قد يؤدي لرفض طلب إذن العمل!' : 'Fewer than 5 registered Turkish employees in sponsoring firm may cause application rejection!';
+        }
+      }
+    </script>
+  `;
+
+  return c.html(renderLayout(c, t.title, html, locale));
+});
+
+

@@ -101,6 +101,17 @@ export default {
     if (url.pathname === '/blog') {
       return Response.redirect(`${url.origin}/ar/blog`, 302);
     }
+    // Redirect tool routes without locale prefix to preferred language
+    if (url.pathname === '/work-permit-eligibility' || url.pathname === '/cv-optimizer' || url.pathname === '/workplace-quiz' || url.pathname === '/resume-builder') {
+      const acceptLang = request.headers.get('accept-language') || '';
+      let targetLocale = 'ar';
+      if (acceptLang.toLowerCase().startsWith('en')) targetLocale = 'en';
+      else if (acceptLang.toLowerCase().startsWith('tr')) targetLocale = 'tr';
+      else if (acceptLang.toLowerCase().startsWith('ru')) targetLocale = 'ru';
+      else if (acceptLang.toLowerCase().startsWith('fa')) targetLocale = 'fa';
+      else if (acceptLang.toLowerCase().startsWith('ur')) targetLocale = 'ur';
+      return Response.redirect(`${url.origin}/${targetLocale}${url.pathname}`, 302);
+    }
     // Redirect /{locale}/jobs (without slug) to /{locale} (homepage shows jobs)
     const jobsListMatch = url.pathname.match(/^\/(ar|en|tr|ru|fa|ur)\/jobs\/?$/);
     if (jobsListMatch) {
@@ -190,8 +201,10 @@ export default {
                 (typeof jobData.seoKeywords === 'string' && jobData.seoKeywords.trim().length > 0)
               );
               const hasDescription = jobData.seoDescription && jobData.seoDescription.trim().length > 0;
+              const hasAllTranslations = jobData.title_ar && jobData.title_en && jobData.title_tr && jobData.title_ru && jobData.title_fa && jobData.title_ur &&
+                                         jobData.description_ar && jobData.description_en && jobData.description_tr && jobData.description_ru && jobData.description_fa && jobData.description_ur;
 
-              if (hasKeywords && hasDescription) {
+              if (hasKeywords && hasDescription && hasAllTranslations) {
                 continue;
               }
 
@@ -211,8 +224,16 @@ export default {
                 ...jobData,
                 title_ar: seoResult.title_ar || jobData.title_ar || title,
                 title_en: seoResult.title_en || jobData.title_en || title,
+                title_tr: seoResult.title_tr || jobData.title_tr || title,
+                title_ru: seoResult.title_ru || jobData.title_ru || title,
+                title_fa: seoResult.title_fa || jobData.title_fa || title,
+                title_ur: seoResult.title_ur || jobData.title_ur || title,
                 description_ar: seoResult.description_ar || jobData.description_ar || desc,
                 description_en: seoResult.description_en || jobData.description_en || desc,
+                description_tr: seoResult.description_tr || jobData.description_tr || desc,
+                description_ru: seoResult.description_ru || jobData.description_ru || desc,
+                description_fa: seoResult.description_fa || jobData.description_fa || desc,
+                description_ur: seoResult.description_ur || jobData.description_ur || desc,
                 seoKeywords: seoResult.keywords || [],
                 seoDescription: seoResult.seoDescription || ''
               };

@@ -169,12 +169,17 @@ describe('Istanbul Jobs Portal Smoke Tests', () => {
     expect(text).toContain('Sitemap:')
   })
 
-  test('GET /sitemap.xml serves sitemap structure', async () => {
+  test('GET /sitemap.xml serves sitemap index structure', async () => {
     const res = await app.request('/sitemap.xml', {}, mockEnv)
     expect(res.status).toBe(200)
     expect(res.headers.get('Content-Type')).toContain('xml')
     const text = await res.text()
-    expect(text).toContain('<urlset')
+    expect(text).toContain('<sitemapindex')
+
+    const resStatic = await app.request('/sitemap-static.xml', {}, mockEnv)
+    expect(resStatic.status).toBe(200)
+    const textStatic = await resStatic.text()
+    expect(textStatic).toContain('<urlset')
   })
 
   test('GET /ar/cv-optimizer loads AI cv-optimizer page', async () => {
@@ -203,6 +208,13 @@ describe('Istanbul Jobs Portal Smoke Tests', () => {
     expect(res.status).toBe(200)
     const text = await res.text()
     expect(text).toContain('اختبار لغة العمل التركية')
+  })
+
+  test('GET /ar/work-permit-eligibility loads work permit eligibility page', async () => {
+    const res = await app.request('/ar/work-permit-eligibility', {}, mockEnv)
+    expect(res.status).toBe(200)
+    const text = await res.text()
+    expect(text).toContain('إذن العمل في تركيا 2026')
   })
 
   test('GET /ar/currency-prices loads currency prices page', async () => {
@@ -390,7 +402,7 @@ describe('Istanbul Jobs Portal Smoke Tests', () => {
       expect(text).toContain('<title>قوانين إقامة العمل في تركيا للأجانب والبريطانيين ٢٠٢٦ | مدونة المهنة إسطنبول</title>')
       expect(text).toContain('href="https://jobs-in-istanbul.com/ar/blog/turkey-work-permit-residency-laws"')
       expect(text).toContain('hreflang="en" href="https://jobs-in-istanbul.com/en/blog/turkey-work-permit-residency-laws"')
-      expect(text).toContain('hreflang="x-default" href="https://jobs-in-istanbul.com/ar/blog/turkey-work-permit-residency-laws"')
+      expect(text).toContain('hreflang="x-default" href="https://jobs-in-istanbul.com/en/blog/turkey-work-permit-residency-laws"')
 
       // Structured data verification
       expect(text).toContain('"@type":"BlogPosting"')
@@ -489,15 +501,33 @@ describe('Istanbul Jobs Portal Smoke Tests', () => {
       expect(text).toContain('href="https://jobs-in-istanbul.com/en/blog/turkey-work-permit-residency-laws"')
     })
 
-    test('GET /sitemap.xml includes blog lists and blog posts', async () => {
-      const res = await app.request('/sitemap.xml', {}, mockEnv)
-      expect(res.status).toBe(200)
-      const text = await res.text()
+    test('GET /sitemap.xml renders valid sitemapindex and /sitemap-blog.xml contains blog posts', async () => {
+      const resIndex = await app.request('/sitemap.xml', {}, mockEnv)
+      expect(resIndex.status).toBe(200)
+      const textIndex = await resIndex.text()
+      expect(textIndex).toContain('<sitemapindex')
+      expect(textIndex).toContain('sitemap-blog.xml')
+      expect(textIndex).toContain('sitemap-districts.xml')
 
-      expect(text).toContain('<loc>https://jobs-in-istanbul.com/ar/blog</loc>')
-      expect(text).toContain('<loc>https://jobs-in-istanbul.com/en/blog</loc>')
-      expect(text).toContain('<loc>https://jobs-in-istanbul.com/ar/blog/turkey-work-permit-residency-laws</loc>')
-      expect(text).toContain('<loc>https://jobs-in-istanbul.com/en/blog/turkey-work-permit-residency-laws</loc>')
+      const resBlog = await app.request('/sitemap-blog.xml', {}, mockEnv)
+      expect(resBlog.status).toBe(200)
+      const textBlog = await resBlog.text()
+      expect(textBlog).toContain('<loc>https://jobs-in-istanbul.com/ar/blog/turkey-work-permit-residency-laws</loc>')
+      expect(textBlog).toContain('<loc>https://jobs-in-istanbul.com/en/blog/turkey-work-permit-residency-laws</loc>')
+    })
+
+    test('GET /sitemap-districts.xml and /ar/district/fatih render Programmatic District SEO content', async () => {
+      const resDistXml = await app.request('/sitemap-districts.xml', {}, mockEnv)
+      expect(resDistXml.status).toBe(200)
+      const textDistXml = await resDistXml.text()
+      expect(textDistXml).toContain('<loc>https://jobs-in-istanbul.com/ar/district/fatih</loc>')
+
+      const resFatih = await app.request('/ar/district/fatih', {}, mockEnv)
+      expect(resFatih.status).toBe(200)
+      const textFatih = await resFatih.text()
+      expect(textFatih).toContain('فرص عمل ووظائف في الفاتح إسطنبول')
+      expect(textFatih).toContain('"@type":"ItemList"')
+      expect(textFatih).toContain('"@type":"FAQPage"')
     })
   })
 })

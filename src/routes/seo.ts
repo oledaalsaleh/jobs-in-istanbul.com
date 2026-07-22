@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { FAVICON_BASE64 } from '../utils/logo-base64'
+import { ISTANBUL_DISTRICTS } from './public'
 
 export const seoRouter = new Hono()
 
@@ -19,7 +20,6 @@ Sitemap: https://jobs-in-istanbul.com/sitemap.xml
   return c.text(robots)
 })
 
-// sitemap.xml handler
 // sitemap.xml handler (Sitemap Index)
 seoRouter.get('/sitemap.xml', (c) => {
   const siteUrl = 'https://jobs-in-istanbul.com';
@@ -37,6 +37,10 @@ seoRouter.get('/sitemap.xml', (c) => {
   </sitemap>
   <sitemap>
     <loc>${siteUrl}/sitemap-blog.xml</loc>
+    <lastmod>${now}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>${siteUrl}/sitemap-districts.xml</loc>
     <lastmod>${now}</lastmod>
   </sitemap>
 </sitemapindex>`;
@@ -213,6 +217,10 @@ seoRouter.get('/sitemap-blog.xml', async (c) => {
 
   // 4. Blog Posts
   const staticBlogSlugs = [
+    'nursing-jobs-in-istanbul-for-arabs-2026-guide',
+    'working-in-turkey-for-arab-women-2026-guide',
+    'jobs-in-turkey-for-egyptians-2026-guide',
+    'work-permit-turkey-syrians-arabs-2026-guide',
     'sgk-health-insurance-turkey-workers',
     'open-bank-account-turkey-foreigners',
     'best-dental-implants-clinic-turkey',
@@ -459,4 +467,58 @@ const serveIcon = async (c: any) => {
 
 seoRouter.get('/icon-192.png', serveIcon);
 seoRouter.get('/icon-512.png', serveIcon);
+
+// sitemap-districts.xml handler (Programmatic District SEO)
+seoRouter.get('/sitemap-districts.xml', (c) => {
+  const siteUrl = 'https://jobs-in-istanbul.com';
+  const now = new Date().toISOString().split('T')[0];
+  const locales = ['ar', 'en', 'tr', 'ru', 'fa', 'ur'] as const;
+
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">`;
+
+  for (const dist of ISTANBUL_DISTRICTS) {
+    const slug = dist.en.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    for (const loc of locales) {
+      xml += `
+  <url>
+    <loc>${siteUrl}/${loc}/district/${slug}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="${siteUrl}/ar/district/${slug}" />
+    <xhtml:link rel="alternate" hreflang="en" href="${siteUrl}/en/district/${slug}" />
+    <xhtml:link rel="alternate" hreflang="tr" href="${siteUrl}/tr/district/${slug}" />
+    <xhtml:link rel="alternate" hreflang="ru" href="${siteUrl}/ru/district/${slug}" />
+    <xhtml:link rel="alternate" hreflang="fa" href="${siteUrl}/fa/district/${slug}" />
+    <xhtml:link rel="alternate" hreflang="ur" href="${siteUrl}/ur/district/${slug}" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${siteUrl}/en/district/${slug}" />
+  </url>`;
+    }
+  }
+
+  xml += `
+</urlset>`;
+
+  return c.body(xml, 200, {
+    'Content-Type': 'application/xml; charset=utf-8',
+    'Cache-Control': 'public, max-age=86400'
+  });
+});
+
+// IndexNow key verification endpoint (matches any [key].txt)
+seoRouter.get('/:key{[a-zA-Z0-9_-]+\\.txt}', (c) => {
+  const keyParam = c.req.param('key').replace('.txt', '');
+  const envKey = (c.env as any).INDEXNOW_KEY || 'jobs-istanbul-indexnow-2026-key';
+  
+  if (keyParam === envKey || keyParam.startsWith('jobs-istanbul-indexnow')) {
+    return c.text(envKey, 200, {
+      'Content-Type': 'text/plain; charset=utf-8'
+    });
+  }
+
+  return c.text('Not Found', 404);
+});
+
 
