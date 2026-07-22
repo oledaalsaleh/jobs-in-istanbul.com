@@ -227,7 +227,8 @@ seoRouter.get('/sitemap-blog.xml', async (c) => {
     'turkey-work-permit-residency-laws',
     'optimize-resume-to-pass-ats-systems',
     'avoid-istanbul-traffic-and-transportation-tips',
-    'turkey-minimum-wage-employer-cost-2026'
+    'turkey-minimum-wage-employer-cost-2026',
+    'jobs-in-istanbul-vacancies-weekly-update-july-2026'
   ];
   const allBlogSlugs = Array.from(new Set([
     ...staticBlogSlugs,
