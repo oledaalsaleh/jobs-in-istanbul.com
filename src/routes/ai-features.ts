@@ -4864,5 +4864,296 @@ aiFeaturesRouter.get('/:locale/investor-calculator', (c) => {
   return c.html(renderLayout(c, t.title, html, locale));
 });
 
+// Live Net-to-Gross Salary & Employer SGK Tax Calculator 2026
+aiFeaturesRouter.get('/:locale/salary-calculator-2026', (c) => {
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa' && locale !== 'ur') {
+    return c.redirect('/ar/salary-calculator-2026');
+  }
+
+  const dict: Record<string, any> = {
+    ar: {
+      title: 'حاسبة صافي الأجور وضرائب SGK التفاعلية 2026 💵🇹🇷',
+      subtitle: 'حاسبة رسمية محدثة لعام 2026 لحساب الراتب الصافي، الإجمالي، اقتطاعات الضمان الاجتماعي (SGK)، إعفاءات الحد الأدنى للأجور، وتكلفة رب العمل الإجمالية في إسطنبول.',
+      modeLabel: 'طريقة الحساب المطلوبة:',
+      netToGrossOpt: 'حساب الراتب الإجمالي وتكلفة الشركة انطلاقاً من الراتب الصافي (Net ➔ Gross)',
+      grossToNetOpt: 'حساب الراتب الصافي الصافي انطلاقاً من الراتب الإجمالي (Gross ➔ Net)',
+      amountLabel: 'المبلغ المدخل (بالليرة التركية TRY):',
+      calcBtn: 'حساب تفاصيل الراتب وضرائب SGK لعام 2026 📊',
+      resultTitle: 'تقرير تفاصيل الراتب واقتطاعات SGK لعام 2026',
+      employeeTakeHomeHeader: '1. صافي الراتب المستلم في البنك (Net Ücret):',
+      workerSgkHeader: '2. استقطاعات الموظف (SGK 14% + بطالة 1%):',
+      employerSgkHeader: '3. حصة صاحب العمل والتأمين (SGK 15.5% + بطالة 2%):',
+      totalEmployerCostHeader: '4. التكلفة الإجمالية على صاحب العمل (İşverene Toplam Maliyet):',
+      workPermitSalaryHeader: '📌 الحد الأدنى لراتب إذن العمل حسب المهنة (2026):',
+      ctaWorkPermitWizard: 'اختبار أهلية الحصول على إذن العمل 2026 ←',
+      ctaJobs: 'تصفح أحدث الوظائف حسب الرواتب 💼'
+    },
+    en: {
+      title: 'Live Net-to-Gross Salary & SGK Tax Calculator 2026 💵🇹🇷',
+      subtitle: 'Official updated 2026 Turkish payroll calculator for Net vs Gross salary, SGK social security deductions, income tax exemptions, and total employer cost in Istanbul.',
+      modeLabel: 'Calculation Mode:',
+      netToGrossOpt: 'Calculate Gross Salary & Employer Cost from Net Take-Home (Net ➔ Gross)',
+      grossToNetOpt: 'Calculate Net Take-Home from Gross Contracted Salary (Gross ➔ Net)',
+      amountLabel: 'Enter Amount (TRY):',
+      calcBtn: 'Calculate 2026 Payroll & SGK Tax Breakdown 📊',
+      resultTitle: '2026 Official Payroll & SGK Tax Report',
+      employeeTakeHomeHeader: '1. Employee Take-Home Net Salary (Net Ücret):',
+      workerSgkHeader: '2. Employee SGK Deductions (14% SGK + 1% Unemployment):',
+      employerSgkHeader: '3. Employer Insurance Shares (15.5% Net SGK + 2% Unemployment):',
+      totalEmployerCostHeader: '4. Total Cost to Employer (İşverene Toplam Maliyet):',
+      workPermitSalaryHeader: '📌 2026 Official Work Permit Minimum Salary Thresholds:',
+      ctaWorkPermitWizard: 'Work Permit Eligibility Wizard 2026 ←',
+      ctaJobs: 'Browse Jobs by Salary Level 💼'
+    },
+    tr: {
+      title: 'Nettən Brüte Maaş ve SGK Kesintileri Hesaplama 2026 💵🇹🇷',
+      subtitle: '2026 yılı güncel asgari ücret (Net 28.075 TL / Brüt 33.030 TL), SGK prim kesintileri, vergi muafiyeti ve işverene toplam maliyet hesaplama aracı.',
+      modeLabel: 'Hesaplama Türü:',
+      netToGrossOpt: 'Net Ücretten Brüt ve İşveren Maliyeti Hesaplama (Net ➔ Brüt)',
+      grossToNetOpt: 'Brüt Ücretten Net Ele Geçen Ücret Hesaplama (Brüt ➔ Net)',
+      amountLabel: 'Miktar Giriniz (TL):',
+      calcBtn: '2026 Maaş ve SGK Detaylarını Hesapla 📊',
+      resultTitle: '2026 Resmi Maaş Bordro ve SGK Raporu',
+      employeeTakeHomeHeader: '1. Çalışanın Ele Geçen Net Ücreti (Net Ücret):',
+      workerSgkHeader: '2. Çalışan SGK Kesintileri (%14 SGK + %1 İşsizlik):',
+      employerSgkHeader: '3. İşveren SGK Hissesi (%15.5 Net SGK + %2 İşsizlik):',
+      totalEmployerCostHeader: '4. İşverene Toplam Maliyet (Toplam Maliyet):',
+      workPermitSalaryHeader: '📌 2026 Mesleklere Göre Çalışma İzni Asgari Maaş Sınırları:',
+      ctaWorkPermitWizard: 'Çalışma İzni Uygunluk Testi Yap ←',
+      ctaJobs: 'Maaş Seviyesine Göre İlanları İncele 💼'
+    },
+    ru: {
+      title: 'Калькулятор зарплаты от нетто к брутто и налогов SGK 2026 💵🇹🇷',
+      subtitle: 'Калькулятор зарплаты в Турции на 2026 год: расчет чистой зарплаты, отчислений в социальное страхование (SGK) и полной стоимости для работодателя.',
+      modeLabel: 'Режим расчета:',
+      netToGrossOpt: 'Расчет брутто и расходов работодателя из нетто (Нетто ➔ Брутто)',
+      grossToNetOpt: 'Расчет чистой зарплаты из брутто (Брутто ➔ Нетто)',
+      amountLabel: 'Введите сумму (TRY):',
+      calcBtn: 'Рассчитать зарплату и налоги SGK на 2026 год 📊',
+      resultTitle: 'Расчетный листок и отчет SGK 2026',
+      employeeTakeHomeHeader: '1. Чистая зарплата работника на руки (Net Ücret):',
+      workerSgkHeader: '2. Отчисления работника (14% SGK + 1% от безработицы):',
+      employerSgkHeader: '3. Взносы работодателя (15.5% SGK + 2% от безработицы):',
+      totalEmployerCostHeader: '4. Общие расходы работодателя (İşverene Toplam Maliyet):',
+      workPermitSalaryHeader: '📌 Минимальные пороги зарплаты для разрешения на работу 2026:',
+      ctaWorkPermitWizard: 'Тест на разрешение на работу 2026 ←',
+      ctaJobs: 'Смотреть вакансии по уровню зарплаты 💼'
+    },
+    fa: {
+      title: 'محاسبه‌گر حقوق خالص به ناخالص و مالیات SGK ترکیه 2026 💵🇹🇷',
+      subtitle: 'ابزار رسمی محاسبه حقوق سال 2026 ترکیه (حقوق خالص، ناخالص، بیمه تامین اجتماعی SGK و هزینه کل برای کارفرما در استانبول).',
+      modeLabel: 'حالت محاسبه:',
+      netToGrossOpt: 'محاسبه حقوق ناخالص و هزینه شرکت از روی حقوق خالص دریافتی (خالص ➔ ناخالص)',
+      grossToNetOpt: 'محاسبه حقوق خالص دریافتی از روی حقوق ناخالص قرار‌داد (ناخالص ➔ خالص)',
+      amountLabel: 'مبلغ را وارد کنید (لیر ترکیه TRY):',
+      calcBtn: 'محاسبه جزئیات حقوق و بیمه SGK سال 2026 📊',
+      resultTitle: 'گزارش رسمی حقوق و کسورات SGK سال 2026',
+      employeeTakeHomeHeader: '۱. حقوق خالص دریافتی کارمند در بانک (Net Ücret):',
+      workerSgkHeader: '۲. کسورات سهم کارمند (۱۴٪ SGK + ۱٪ بیمه بیکاری):',
+      employerSgkHeader: '۳. سهم بیمه کارفرما (۱۵.۵٪ خالص SGK + ۲٪ بیمه بیکاری):',
+      totalEmployerCostHeader: '۴. هزینه کل پرداختی کارفرما (İşverene Toplam Maliyet):',
+      workPermitSalaryHeader: '📌 حداقل حقوق قانونی برای اجازه کار بر اساس شغل (2026):',
+      ctaWorkPermitWizard: 'تست صلاحیت دریافت اجازه کار 2026 ←',
+      ctaJobs: 'مشاهده آگهی‌های استخدام بر اساس میزان حقوق 💼'
+    },
+    ur: {
+      title: 'نیٹ ٹو گراس سیلری اور SGK ٹیکس کیلکولیٹر 2026 💵🇹🇷',
+      subtitle: 'ترکی 2026 پے رول کیلکولیٹر: نیٹ سیلری، گراس سیلری، SGK انشورنس اور ایمپلائر کی کل لاگت کا تخمینہ۔',
+      modeLabel: 'حساب لگانے کا طریقہ:',
+      netToGrossOpt: 'نیٹ سیلری سے گراس سیلری اور کمپنی لاگت کا حساب (Net ➔ Gross)',
+      grossToNetOpt: 'گراس سیلری سے نیٹ سیلری کا حساب (Gross ➔ Net)',
+      amountLabel: 'رقم درج کریں (ترکی لیرا):',
+      calcBtn: '2026 پے رول کی تفصیلات کا حساب لگائیں 📊',
+      resultTitle: '2026 آفیشل پے رول رپورٹ',
+      employeeTakeHomeHeader: '1. ملازم کی نیٹ پے (Net Ücret):',
+      workerSgkHeader: '2. ملازم کی SGK کٹوتی (14% SGK + 1% بے روزگاری):',
+      employerSgkHeader: '3. مالک کی انشورنس کٹوتی (15.5% SGK + 2% بے روزگاری):',
+      totalEmployerCostHeader: '4. مالک کی کل لاگت (İşverene Toplam Maliyet):',
+      workPermitSalaryHeader: '📌 2026 ورک پرمٹ کے لیے کم از کم اجرت کی حد:',
+      ctaWorkPermitWizard: 'ورک پرمٹ اہلیت ٹیسٹ 2026 ←',
+      ctaJobs: 'تنخواہ کے حساب سے ملازمتیں دیکھیں 💼'
+    }
+  };
+
+  const t = dict[locale] || dict.ar;
+
+  const html = `
+    <div class="container" style="padding-top: 30px; padding-bottom: 60px; max-width: 900px;">
+      <nav style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">
+        <a href="/${locale}" style="color: var(--primary); text-decoration: none; font-weight: 600;">Home</a> / <span style="font-weight: 700; color: var(--text-heading);">${t.title}</span>
+      </nav>
+
+      <div class="glass-card" style="padding: 36px; border-radius: 16px; box-shadow: var(--shadow-lg); background: var(--bg-card); border: 1px solid var(--border);">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="font-size: 1.85rem; font-weight: 900; color: var(--text-heading); margin-bottom: 10px;">${t.title}</h1>
+          <p style="color: var(--text-muted); font-size: 1.02rem; max-width: 720px; margin: 0 auto; line-height: 1.6;">${t.subtitle}</p>
+        </div>
+
+        <form id="salary-form" onsubmit="calculateSalary2026(); return false;">
+          <div style="display: flex; flex-direction: column; gap: 20px; margin-bottom: 30px;">
+            <div>
+              <label style="font-weight: 700; color: var(--text-heading); display: block; margin-bottom: 8px;">${t.modeLabel}</label>
+              <select id="calc-mode" style="width: 100%; padding: 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-card); font-size: 0.95rem;">
+                <option value="net_to_gross">${t.netToGrossOpt}</option>
+                <option value="gross_to_net">${t.grossToNetOpt}</option>
+              </select>
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: var(--text-heading); display: block; margin-bottom: 8px;">${t.amountLabel}</label>
+              <div style="position: relative;">
+                <input type="number" id="salary-amount" value="28075" step="500" min="1000" style="width: 100%; padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-card); font-size: 1.1rem; font-weight: 700; color: var(--primary);">
+                <span style="position: absolute; ${locale === 'ar' || locale === 'fa' || locale === 'ur' ? 'left: 16px' : 'right: 16px'}; top: 50%; transform: translateY(-50%); font-weight: 800; color: var(--text-muted);">TRY</span>
+              </div>
+              <span style="font-size: 0.82rem; color: var(--text-muted); margin-top: 6px; display: block;">
+                ${locale === 'ar' ? 'الحد الأدنى الرسمي للأجور لعام 2026: الصافي 28,075 TL / الإجمالي 33,030 TL' : '2026 Official Minimum Wage: Net 28,075 TRY / Gross 33,030 TRY'}
+              </span>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 16px; border-radius: 30px; font-weight: 800; font-size: 1.05rem;">${t.calcBtn}</button>
+        </form>
+
+        <div id="salary-results" style="display: none; margin-top: 35px; border-top: 2px dashed var(--border); padding-top: 30px;">
+          <h2 style="font-size: 1.5rem; font-weight: 900; color: var(--text-heading); text-align: center; margin-bottom: 24px;">${t.resultTitle}</h2>
+
+          <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 30px;">
+            <div style="background: rgba(34, 197, 94, 0.06); border: 2px solid #22c55e; padding: 20px; border-radius: 12px;">
+              <h4 style="color: #15803d; font-size: 1.05rem; font-weight: 800; margin-bottom: 6px;">${t.employeeTakeHomeHeader}</h4>
+              <div id="res-net-salary" style="font-size: 1.6rem; font-weight: 900; color: #16a34a;"></div>
+            </div>
+
+            <div style="background: rgba(0, 123, 255, 0.04); border: 1px solid var(--border); padding: 20px; border-radius: 12px;">
+              <h4 style="color: var(--primary); font-size: 1.05rem; font-weight: 700; margin-bottom: 8px;">${t.workerSgkHeader}</h4>
+              <div id="res-worker-sgk" style="font-size: 0.95rem; line-height: 1.6;"></div>
+            </div>
+
+            <div style="background: rgba(99, 102, 241, 0.04); border: 1px solid var(--border); padding: 20px; border-radius: 12px;">
+              <h4 style="color: #4f46e5; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px;">${t.employerSgkHeader}</h4>
+              <div id="res-employer-sgk" style="font-size: 0.95rem; line-height: 1.6;"></div>
+            </div>
+
+            <div style="background: rgba(239, 68, 68, 0.06); border: 2px solid #ef4444; padding: 20px; border-radius: 12px;">
+              <h4 style="color: #b91c1c; font-size: 1.05rem; font-weight: 800; margin-bottom: 6px;">${t.totalEmployerCostHeader}</h4>
+              <div id="res-total-cost" style="font-size: 1.6rem; font-weight: 900; color: #dc2626;"></div>
+            </div>
+
+            <div style="background: rgba(0,0,0,0.02); border: 1px solid var(--border); padding: 20px; border-radius: 12px; margin-top: 10px;">
+              <h4 style="color: var(--text-heading); font-size: 1.05rem; font-weight: 700; margin-bottom: 12px;">${t.workPermitSalaryHeader}</h4>
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
+                <thead>
+                  <tr style="background: var(--bg-subtle); text-align: ${locale === 'ar' || locale === 'fa' || locale === 'ur' ? 'right' : 'left'};">
+                    <th style="padding: 10px; border-bottom: 1px solid var(--border);">${locale === 'ar' ? 'المهنة / المستوى الوظيفي' : 'Occupation / Role Tier'}</th>
+                    <th style="padding: 10px; border-bottom: 1px solid var(--border);">${locale === 'ar' ? 'المضاعف الرسمي' : 'Multiplier'}</th>
+                    <th style="padding: 10px; border-bottom: 1px solid var(--border);">${locale === 'ar' ? 'الراتب الإجمالي الأدنى 2026' : 'Min Gross Salary 2026'}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="padding: 8px 10px; border-bottom: 1px solid var(--border);">${locale === 'ar' ? 'مدير تنفيذي / مدير عام' : 'Executive / General Manager'}</td>
+                    <td style="padding: 8px 10px; border-bottom: 1px solid var(--border);">6.5x</td>
+                    <td style="padding: 8px 10px; border-bottom: 1px solid var(--border); font-weight: 700;">214,695 TRY</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 10px; border-bottom: 1px solid var(--border);">${locale === 'ar' ? 'مهندس / مبرمج / تقني' : 'Engineer / IT Specialist'}</td>
+                    <td style="padding: 8px 10px; border-bottom: 1px solid var(--border);">4.0x</td>
+                    <td style="padding: 8px 10px; border-bottom: 1px solid var(--border); font-weight: 700;">132,120 TRY</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 10px; border-bottom: 1px solid var(--border);">${locale === 'ar' ? 'مدرس / طبيب / كادر طبي' : 'Teacher / Doctor / Healthcare'}</td>
+                    <td style="padding: 8px 10px; border-bottom: 1px solid var(--border);">3.0x</td>
+                    <td style="padding: 8px 10px; border-bottom: 1px solid var(--border); font-weight: 700;">99,090 TRY</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 10px; border-bottom: 1px solid var(--border);">${locale === 'ar' ? 'مبيعات / خدمة عملاء' : 'Sales / Customer Support'}</td>
+                    <td style="padding: 8px 10px; border-bottom: 1px solid var(--border);">2.0x</td>
+                    <td style="padding: 8px 10px; border-bottom: 1px solid var(--border); font-weight: 700;">66,060 TRY</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 10px;">${locale === 'ar' ? 'عمالة خدمات عامة' : 'General Services Staff'}</td>
+                    <td style="padding: 8px 10px;">1.5x</td>
+                    <td style="padding: 8px 10px; font-weight: 700;">49,545 TRY</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+            <a href="/${locale}/work-permit-eligibility" class="btn btn-primary" style="padding: 10px 24px; border-radius: 30px; font-weight: 700; text-decoration: none;">${t.ctaWorkPermitWizard}</a>
+            <a href="/${locale}" class="btn" style="background: var(--bg-card); border: 1px solid var(--border); padding: 10px 24px; border-radius: 30px; font-weight: 700; text-decoration: none; color: var(--text-heading);">${t.ctaJobs}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function calculateSalary2026() {
+        const mode = document.getElementById('calc-mode').value;
+        const val = parseFloat(document.getElementById('salary-amount').value) || 28075;
+
+        document.getElementById('salary-results').style.display = 'block';
+
+        let netSalary = 0;
+        let grossSalary = 0;
+
+        if (mode === 'net_to_gross') {
+          netSalary = val;
+          // 2026 Ratio: Net ~ 0.85 of Gross (with minimum wage tax exemption)
+          grossSalary = netSalary / 0.85;
+        } else {
+          grossSalary = val;
+          netSalary = grossSalary * 0.85;
+        }
+
+        const workerSgk = grossSalary * 0.14;
+        const workerUnemp = grossSalary * 0.01;
+        const totalWorkerDeduction = workerSgk + workerUnemp;
+
+        const employerSgkNet = grossSalary * 0.155; // 15.5% with 5% prompt payment incentive
+        const employerUnemp = grossSalary * 0.02;
+        const totalEmployerTax = employerSgkNet + employerUnemp;
+
+        const totalEmployerCost = grossSalary + totalEmployerTax;
+
+        document.getElementById('res-net-salary').innerHTML = netSalary.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' TRY / month';
+        
+        var isAr = '${locale}' === 'ar';
+        var labelGross = isAr ? 'الراتب الإجمالي التعاقدي (Brüt Ücret):' : 'Gross Contracted Salary (Brüt Ücret):';
+        var labelWorkerSgk = isAr ? 'اقتطاع الضمان الاجتماعي (SGK 14%):' : 'Worker SGK Share (14%):';
+        var labelWorkerUnemp = isAr ? 'اقتطاع تأمين البطالة (İşsizlik 1%):' : 'Worker Unemployment Share (1%):';
+        var labelTax = isAr ? 'ضريبة الدخل والدفتر:' : 'Income Tax & Stamp Duty:';
+        var valTaxExempt = isAr ? 'معفية مجاناً حتى حد الأدنى للأجور' : '100% Exempt up to Min Wage Limit';
+
+        document.getElementById('res-worker-sgk').innerHTML = 
+          '<strong>' + labelGross + '</strong> ' + grossSalary.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' TRY<br>' +
+          '<strong>' + labelWorkerSgk + '</strong> ' + workerSgk.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' TRY<br>' +
+          '<strong>' + labelWorkerUnemp + '</strong> ' + workerUnemp.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' TRY<br>' +
+          '<strong>' + labelTax + '</strong> <span style="color: #22c55e; font-weight: 700;">' + valTaxExempt + '</span>';
+
+        var labelEmployerSgk = isAr ? 'حصة صاحب العمل في SGK (15.5% بعد الخصم التشجيعي 5%):' : 'Employer Net SGK Share (15.5% after 5% prompt discount):';
+        var labelEmployerUnemp = isAr ? 'حصة صاحب العمل في تأمين البطالة (2%):' : 'Employer Unemployment Share (2%):';
+        var labelTotalExtra = isAr ? 'إجمالي التأمين الإضافي لرب العمل:' : 'Total Extra Employer Insurance:';
+
+        document.getElementById('res-employer-sgk').innerHTML = 
+          '<strong>' + labelEmployerSgk + '</strong> ' + employerSgkNet.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' TRY<br>' +
+          '<strong>' + labelEmployerUnemp + '</strong> ' + employerUnemp.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' TRY<br>' +
+          '<strong>' + labelTotalExtra + '</strong> ' + totalEmployerTax.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' TRY';
+
+        document.getElementById('res-total-cost').innerHTML = totalEmployerCost.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' TRY / month';
+      }
+
+      // Auto-run initial calculation on page load
+      window.addEventListener('DOMContentLoaded', () => {
+        calculateSalary2026();
+      });
+    </script>
+  `;
+
+  return c.html(renderLayout(c, t.title, html, locale));
+});
+
+
 
 
