@@ -245,6 +245,15 @@ describe('Istanbul Jobs Portal Smoke Tests', () => {
     expect(text).toContain('أسعار العملات في تركيا اليوم')
   })
 
+  test('GET /sitemap-static.xml includes new 2026 tools', async () => {
+    const res = await app.request('/sitemap-static.xml', {}, mockEnv)
+    expect(res.status).toBe(200)
+    const text = await res.text()
+    expect(text).toContain('/ar/salary-calculator-2026')
+    expect(text).toContain('/ar/investor-calculator')
+    expect(text).toContain('/ar/work-permit-eligibility')
+  })
+
   test('GET /currency-prices redirects based on accept-language', async () => {
     const res = await app.request('/currency-prices', {
       headers: { 'Accept-Language': 'en-US,en;q=0.9' }
