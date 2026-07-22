@@ -238,6 +238,13 @@ describe('Istanbul Jobs Portal Smoke Tests', () => {
     expect(text).toContain('وظائف شاغرة في اسطنبول هذا الأسبوع')
   })
 
+  test('GET /ar/blog/job-opportunities-istanbul-monthly-guide-2026 loads monthly guide blog', async () => {
+    const res = await app.request('/ar/blog/job-opportunities-istanbul-monthly-guide-2026', {}, mockEnv)
+    expect(res.status).toBe(200)
+    const text = await res.text()
+    expect(text).toContain('فرص عمل في اسطنبول')
+  })
+
   test('GET /ar/currency-prices loads currency prices page', async () => {
     const res = await app.request('/ar/currency-prices', {}, mockEnv)
     expect(res.status).toBe(200)

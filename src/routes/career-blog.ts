@@ -13,6 +13,138 @@ careerBlogRouter.get('/blog', (c) => {
 const seededArticles: Record<string, any[]> = {
   ar: [
     {
+      title: 'فرص عمل في اسطنبول يوليو 2026: نظرة شاملة على السوق وأبرز القطاعات المفتوحة',
+      slug: 'job-opportunities-istanbul-monthly-guide-2026',
+      summary: 'تقرير وتحديث شهري شامل لفرص العمل والتوظيف في إسطنبول لعام 2026، يستعرض مؤشرات الأجور المحدثة، أحدث القطاعات النشطة موسمياً، أفضل المنصات للبحث، وقالب التحديث الشهري التراكمي لنتائج محركات البحث.',
+      publishedAt: '2026-07-22',
+      canonical: 'https://jobs-in-istanbul.com/ar/blog/job-opportunities-istanbul-monthly-guide-2026',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 28px;">
+            <img src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=1200&fm=webp" alt="فرص عمل في اسطنبول يوليو 2026" style="width: 100%; max-height: 480px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+            <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 8px;">تحديث شهري شامل ومستمر لفرص العمل، مستجدات الأجور، وأكثر القطاعات طلباً للعمالة الأجنبية والعربية في إسطنبول</p>
+          </div>
+
+          <p>أهلاً بكم في التقرير والنشرة الشهرية الشاملة على <strong>مدونة المهنة - إسطنبول</strong>، والتي تُعد المرجع الأول والأساسي المحدث شهرياً للباحثين عن العمل، الموظفين، وأرباب العمل في إسطنبول. نهدف من خلال هذا الدليل إلى تقديم قراءة دقيقة ومستمرة لاتجاهات التوظيف، تغيرات الأجور الرسمية، وأكثر القطاعات حراكاً خلال <strong>شهر يوليو 2026</strong>.</p>
+
+          <h2>أولاً: نظرة عامة على سوق العمل هذا الشهر (تحديث: يوليو 2026)</h2>
+
+          <p>يشهد سوق العمل في تركيا وإسطنبول استقراراً ملحوظاً في القواعد التنظيمية ومستويات الأجور الرسمية لعام 2026، حيث دخلت الضوابط القانونية الجديدة للضمان الاجتماعي وإذن العمل حيز التنفيذ الكامل:</p>
+
+          <div style="background: rgba(0, 123, 255, 0.05); border-inline-start: 4px solid var(--primary); padding: 18px; border-radius: 8px; margin: 24px 0;">
+            <h4 style="margin: 0 0 8px 0; color: var(--primary); font-size: 1.05rem; font-weight: 700;">📊 المؤشرات المحدّثة لسوق العمل في إسطنبول لعام 2026:</h4>
+            <ul style="margin: 0; padding-inline-start: 20px; font-size: 0.95rem; line-height: 1.6;">
+              <li><strong>الحد الأدنى الرسمي للأجور (Net Minimum Wage):</strong> 28,075.50 ليرة تركية صافية شهرياً (الراتب الإجمالي التعاقدي 33,030.00 ليرة).</li>
+              <li><strong>تكلفة الحد الأدنى على صاحب العمل (Employer Total Cost):</strong> 38,810.25 ليرة تركية شهرياً تشمل اقتطاعات SGK وتأمين البطالة.</li>
+              <li><strong>الإعفاء الضريبي لعام 2026:</strong> إعفاء 100% من ضريبة الدخل وضريبة الدمغة (Gelir ve Damga Vergisi İstisnası) على ما يعادل الحد الأدنى للأجور لجميع العاملين المسجلين.</li>
+              <li><strong>تسهيلات إذن العمل للشركات المستثمرة:</strong> إعفاء الشريك الأجنبي من شرط توظيف 5 أتراك في السنة الأولى بشرط رأس مال لا يقل عن 500,000 ليرة.</li>
+            </ul>
+          </div>
+
+          <h2>ثانياً: أبرز القطاعات النشطة هذا الشهر حسب التغيرات الموسمية</h2>
+
+          <p>تتأثر الفرص الوظيفية في إسطنبول بالمواسم الدورية والتوافق مع مواسم السياحة والتعليم والتجارة الخارجية. إليك أبرز القطاعات الأكثر طلباً هذا الشهر:</p>
+
+          <div style="margin: 28px 0;">
+            <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=1200&fm=webp" alt="نشاط السياحة العلاجية والفندقة في اسطنبول" style="width: 100%; max-height: 420px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-sm);">
+            <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 8px;">موسم الذروة الصيفية يشهد ارتفاعاً قياسياً في طلب موظفي مبيعات السياحة العلاجية والترجمة الطبية</p>
+          </div>
+
+          <h3>1. قطاع السياحة العلاجية والخدمات الفندقية (موسم الذروة الصيفي)</h3>
+          <p>مع ارتفاع تدفق السياح والمرضى الدوليين والعرب في أسرّة المستشفيات والعيادات الخاصة خلال فصل الصيف، يرتفع الطلب بشكل استثنائي على:</p>
+          <ul>
+            <li><strong>موظفي الكول سنتر والمبيعات الطبية (Medical Sales):</strong> للعيادات ومراكز زراعة الشعر في مناطق شيشلي، بيليك دوزو، وشيرين إفلر.</li>
+            <li><strong>المترجمين الفوريين ومرافقي المرضى:</strong> للغات العربية، الإنجليزية، والفرنسية.</li>
+            <li><strong>موظفي الفنادق والاستقبال المزدوجي اللغة:</strong> في مناطق الفاتح، تقسيم، وبشيكتاش.</li>
+          </ul>
+
+          <h3>2. قطاع تكنولوجيا المعلومات والبرمجيات (IT & E-Commerce)</h3>
+          <p>تواصل الشركات التقنية في إسطنبول تعزيز فرقها البرمجية لبناء تطبيقات التجارة الإلكترونية وأنظمة إدارة المبيعات (CRM):</p>
+          <ul>
+            <li><strong>مورو الواجهات (Frontend - React / Next.js) والـ Node.js:</strong> برواتب مجزية تتراوح بين 55,000 و 95,000 ليرة تركية.</li>
+            <li><strong>أخصائيو التسويق الرقمي وإدارة الإعلانات (Meta / Google Ads):</strong> لإدارة الحملات الموجهة للأسواق العربية والخليجية.</li>
+          </ul>
+
+          <h3>3. قطاع التجهيز المدرسي والتعليم واللغات (قبل بداية العام الدراسي)</h3>
+          <p>تبدأ المدارس الدولية والأكاديميات في إسطنبول خلال هذا الشهر تحضيرات واستقطاب المعلمين والمعلمات للعام الدراسي الجديد:</p>
+          <ul>
+            <li>معلمو اللغة الإنجليزية، العربية، والرياضيات بالمنهاج الدولي (IB / SAT / American).</li>
+            <li>موظفو التسجيل والتواصل مع أهالي الطلاب في المدارس الخاصة.</li>
+          </ul>
+
+          <h2>ثالثاً: أفضل المنصات والقنوات المعتمدة للبحث عن عمل في إسطنبول</h2>
+
+          <p>لتحقيق أقصى استفادة وتوفير الوقت، يوصى بالاعتماد على القنوات الرسمية التالية المعتمدة للتوظيف في إسطنبول:</p>
+
+          <table style="width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 0.93rem;">
+            <thead>
+              <tr style="background: var(--bg-subtle); text-align: right;">
+                <th style="padding: 12px; border-bottom: 2px solid var(--border);">اسم المنصة / القناة</th>
+                <th style="padding: 12px; border-bottom: 2px solid var(--border);">نوع الوظائف والقطاعات</th>
+                <th style="padding: 12px; border-bottom: 2px solid var(--border);">الميزة الأساسية</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 12px;"><strong>منصة Jobs in Istanbul</strong></td>
+                <td style="padding: 12px;">جميع القطاعات لمتحدثي العربية والأجانب</td>
+                <td style="padding: 12px; color: var(--primary); font-weight: 700;">وظائف محدثة يومياً مع أدوات AI وحاسبات الأجور وإذن العمل</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 12px;"><strong>قناة التلغرام الرسمية للتوظيف</strong></td>
+                <td style="padding: 12px;">إعلانات مباشرة وسريعة من أصحاب العمل</td>
+                <td style="padding: 12px;">تنبيهات فورية للشواغر العاجلة يومياً</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 12px;"><strong>LinkedIn Turkey</strong></td>
+                <td style="padding: 12px;">الوظائف التقنية، الإدارية، والشركات الدولية</td>
+                <td style="padding: 12px;">التواصل المباشر مع مدراء التوظيف (HR)</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 12px;"><strong>Kariyer.net</strong></td>
+                <td style="padding: 12px;">الوظائف المحلية والشركات التركية</td>
+                <td style="padding: 12px;">أكبر قاعدة بيانات شركية في تركيا (تتطلب لغة تركية)</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h2>رابعاً: أخطاء شائعة ونصائح ذهبية للتقديم بفعالية</h2>
+
+          <ol style="line-height: 1.8;">
+            <li><strong>تكييف السيرة الذاتية حسب المتطلبات التركية:</strong> تأكد من تبيان حالة الإقامة القانونية (إقامة عمل، كملك، أو إقامة سياحية) في بداية السيرة الذاتية لأنها أول ما يفحصه قسم الموارد البشرية. يمكن تحسين السيرة مجاناً عبر <a href="/ar/cv-optimizer" style="color: var(--primary); font-weight: 700;">أداة فاحص السيرة الذاتية بالذكاء الاصطناعي</a>.</li>
+            <li><strong>عدم إهمال حساب إذن العمل والضمان:</strong> تأكد دائماً من قدرة الشركة على إصدار إذن عمل رسمي وتسجيلك في SGK لضمان حقوقك العلاجية وحساب سنوات الجنسية. فحص الأهلية عبر <a href="/ar/work-permit-eligibility" style="color: var(--primary); font-weight: 700;">اختبار أهلية إذن العمل 2026</a>.</li>
+            <li><strong>التقديم المبكر:</strong> أغلب الوظائف المعلنة تُغلق خلال أول 48 إلى 72 ساعة من النشر نظراً لكثرة المتقدمين.</li>
+          </ol>
+
+          <h2>خامساً: قالب واستراتيجية التحديث الشهري المستمر (SEO Evergreen Strategy)</h2>
+
+          <p>لضمان الحفاظ على قوة هذا المقال وتراكم ثقة محركات البحث (Domain Authority)، نعتمد بنية رابط ثابتة ومستمرة <code>/blog/job-opportunities-istanbul-monthly-guide-2026</code> حيث نقوم بتحديث الأرقام والقطاعات شهرياً بدل إنشاء صفحات منفصلة بكل شهر، مما يحافظ على قوة الصفحة في نتائج غوغل الأولى.</p>
+
+          <div style="background: rgba(16, 185, 129, 0.08); border-inline-start: 4px solid #10b981; padding: 18px; border-radius: 8px; margin: 24px 0;">
+            <h4 style="margin: 0 0 8px 0; color: #047857; font-size: 1.05rem; font-weight: 700;">📋 قالب التحديث الشهري المتبع بانتظام:</h4>
+            <pre style="background: var(--bg-card); padding: 12px; border-radius: 6px; font-size: 0.85rem; color: var(--text-heading); white-space: pre-wrap; font-family: monospace;">
+# فرص عمل في اسطنبول [اسم الشهر] 2026: نظرة شاملة على السوق وأبرز القطاعات
+
+## نظرة عامة على سوق العمل هذا الشهر
+[تحديث أرقام الحد الأدنى للأجور وتكلفة الشركة والضرائب إن تغيرت]
+
+## أبرز القطاعات النشطة هذا الشهر
+[تحديث الشواغر بحسب الموسمية - مثل: السياحة صيفاً، المدارس في الخريف]
+
+## أفضل المنصات المعتمدة للتقديم
+[جدول القنوات والمنصات المعتمدة]
+
+## أخطاء شائعة ونصائح التقديم
+[نصائح وإرشادات قانونية ومهنية]
+            </pre>
+          </div>
+
+          <hr style="margin: 30px 0; border: none; border-top: 1px solid var(--border);">
+          <p style="font-size: 0.9rem; color: var(--text-muted); text-align: center;">آخر تحديث تحريري: يوليو 2026. يُعاد تحديث ونشر هذا الدليل شهرياً بنسخة جديدة ومحدثة على مدونة المهنة - إسطنبول.</p>
+        </div>
+      `
+    },
+    {
       title: 'وظائف شاغرة في اسطنبول هذا الأسبوع (تحديث: 22 يوليو 2026)',
       slug: 'jobs-in-istanbul-vacancies-weekly-update-july-2026',
       summary: 'رصد أسبوعي شامل لأحدث الوظائف الشاغرة المُعلنة فعلياً في إسطنبول لمتحدثي العربية والأجانب للأسبوع الممتد حتى 22 يوليو 2026، يشمل قطاعات السياحة العلاجية، المبيعات، البرمجة، المطاعم، والمصانع مع النصائح القانونية للتقديم.',
