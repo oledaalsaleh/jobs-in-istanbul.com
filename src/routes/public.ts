@@ -153,6 +153,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       coverLetter: 'توليد رسائل التغطية بالذكاء الاصطناعي',
       interviewPrep: 'محاكي مقابلات التوظيف بالذكاء الاصطناعي',
       toolsAndTests: 'الأدوات والتقييمات',
+      workPermitEligibility: 'اختبار أهلية إذن العمل 2026',
+      investorCalculator: 'حاسبة تأسيس الشركات وتوظيف الأجانب',
       cvBuilder: 'منشئ السيرة الذاتية التفاعلي',
       workPermit: 'حاسبة إذن العمل والجنسية',
       salaryCalc: 'مؤشر رواتب إسطنبول ٢٠٢٦',
@@ -196,6 +198,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       coverLetter: 'AI Cover Letter Generator',
       interviewPrep: 'AI Interview Simulator',
       toolsAndTests: 'Tools & Tests',
+      workPermitEligibility: 'Work Permit Eligibility Wizard 2026',
+      investorCalculator: 'Investor Setup & Hiring Estimator',
       cvBuilder: 'Interactive CV Builder',
       workPermit: 'Work Permit & Citizenship Calculator',
       salaryCalc: 'Istanbul Salary Estimator',
@@ -239,6 +243,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       coverLetter: 'AI Ön Yazı Hazırlayıcı',
       interviewPrep: 'AI Mülakat Simülatörü',
       toolsAndTests: 'Araçlar ve Testler',
+      workPermitEligibility: 'Çalışma İzni Uygunluk Sihirbazı 2026',
+      investorCalculator: 'Yatırımcı Şirket ve İstihdam Hesaplayıcı',
       cvBuilder: 'İnteraktif CV Oluşturucu',
       workPermit: 'Çalışma İzni ve Vatandaşlık Hesaplama',
       salaryCalc: 'İstanbul Maaş Hesaplayıcı',
@@ -282,6 +288,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       coverLetter: 'Генератор сопроводительных писем',
       interviewPrep: 'Симулятор собеседований',
       toolsAndTests: 'Инструменты и тесты',
+      workPermitEligibility: 'Калькулятор разрешения на работу 2026',
+      investorCalculator: 'Калькулятор бизнеса и найма',
       cvBuilder: 'Конструктор резюме',
       workPermit: 'Калькулятор разрешения на работу',
       salaryCalc: 'Показатель зарплат Стамбула',
@@ -325,6 +333,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       coverLetter: 'نگارش انگیزه‌نامه با هوش مصنوعی',
       interviewPrep: 'شبیه‌ساز مصاحبه کاری هوش مصنوعی',
       toolsAndTests: 'ابزارها و ارزیابی‌ها',
+      workPermitEligibility: 'محاسبه‌گر اجازه کار ترکیه 2026',
+      investorCalculator: 'محاسبه‌گر ثبت شرکت و استخدام',
       cvBuilder: 'رزومه‌ساز تعاملی حرفه‌ای',
       workPermit: 'محاسبه اجازه کار و شهروندی',
       salaryCalc: 'شاخص حقوق و دستمزد استانبول',
@@ -368,6 +378,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       coverLetter: 'اے آئی کور لیٹر جنریٹر',
       interviewPrep: 'اے آئی انٹرویو سمیلیٹر',
       toolsAndTests: 'ٹولز اور ٹیسٹ',
+      workPermitEligibility: 'ورک پرمٹ اہلیت کیلکولیٹر 2026',
+      investorCalculator: 'انوسٹر کمپنی اور ملازمین کیلکولیٹر',
       cvBuilder: 'انٹرایکٹو سی وی میکر',
       workPermit: 'ورک پرمٹ اور شہریت کاؤنٹر',
       salaryCalc: 'استنبول تنخواہ انڈیکس ۲۰۲۶',
@@ -586,6 +598,14 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           <li class="nav-dropdown">
             <a href="#" class="nav-link" onclick="event.preventDefault()">🛠 ${t.toolsAndTests} ▾</a>
             <div class="nav-dropdown-menu">
+              <a href="/${locale}/work-permit-eligibility" class="dropdown-item">
+                <i class="fa-solid fa-clipboard-check" style="color: #22c55e;"></i>
+                <span style="font-weight: 700; color: var(--primary);">${t.workPermitEligibility}</span>
+              </a>
+              <a href="/${locale}/investor-calculator" class="dropdown-item">
+                <i class="fa-solid fa-building-user" style="color: #6366f1;"></i>
+                <span>${t.investorCalculator}</span>
+              </a>
               <a href="/${locale}/resume-builder" class="dropdown-item">
                 <i class="fa-solid fa-file-invoice" style="color: #eab308;"></i>
                 <span>${t.cvBuilder}</span>
@@ -712,6 +732,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         <a href="/${locale}/interview-prep" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-microphone-lines" style="color: #10b981;"></i> ${t.interviewPrep}</a>
 
         <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-top:14px; margin-bottom:6px; padding-inline-start:16px; letter-spacing:0.05em;">🛠 ${t.toolsAndTests}</div>
+        <a href="/${locale}/work-permit-eligibility" style="padding:10px 16px; border-radius:var(--r-md); color:var(--primary); font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-clipboard-check" style="color: #22c55e;"></i> ${t.workPermitEligibility}</a>
+        <a href="/${locale}/investor-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-building-user" style="color: #6366f1;"></i> ${t.investorCalculator}</a>
         <a href="/${locale}/resume-builder" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-file-invoice" style="color: #eab308;"></i> ${t.cvBuilder}</a>
         <a href="/${locale}/work-permit-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-passport" style="color: #a855f7;"></i> ${t.workPermit}</a>
         <a href="/${locale}/turkish-test" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-graduation-cap" style="color: #14b8a6;"></i> ${t.turkishTest}</a>
@@ -806,6 +828,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         </ul>
         <ul class="footer-links">
           <li class="footer-col-title">${t.smartTools}</li>
+          <li><a href="/${locale}/work-permit-eligibility" style="font-weight: 700; color: #22c55e;"><i class="fa-solid fa-clipboard-check" style="margin-inline-end:6px;"></i>${t.workPermitEligibility}</a></li>
+          <li><a href="/${locale}/investor-calculator">${t.investorCalculator}</a></li>
           <li><a href="/${locale}/cv-optimizer">${t.cvOptimizer}</a></li>
           <li><a href="/${locale}/ats-scanner">${t.atsScanner}</a></li>
           <li><a href="/${locale}/resume-builder">${t.cvBuilder}</a></li>
