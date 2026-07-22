@@ -4525,4 +4525,344 @@ aiFeaturesRouter.get('/:locale/work-permit-eligibility', (c) => {
   return c.html(renderLayout(c, t.title, html, locale));
 });
 
+// Investor Company Setup & Foreign Hiring Estimator 2026
+aiFeaturesRouter.get('/:locale/investor-calculator', (c) => {
+  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa' && locale !== 'ur') {
+    return c.redirect('/ar/investor-calculator');
+  }
+
+  const dict: Record<string, any> = {
+    ar: {
+      title: 'حاسبة تكاليف تأسيس الشركات وتوظيف الأجانب للمستثمرين 2026 🏢🇹🇷',
+      subtitle: 'أداة حاسبة استثمارية متكاملة لحساب رسوم تأسيس شركة (Ltd / A.Ş) في تركيا، استثناءات إذن العمل الشريك، وتكاليف توظيف العمالة الأجنبية والضرائب لعام 2026.',
+      companyTypeLabel: 'نوع الشركة المراد تأسيسها في تركيا:',
+      ltdOpt: 'شركة ذات مسؤولية محدودة (Limited Şirket - Ltd. Şti.)',
+      asOpt: 'شركة مساهمة (Anonim Şirket - A.Ş.)',
+      branchOpt: 'فرع شركة أجنبية (Şube / İrtibat Bürosu)',
+      capitalLabel: 'رأس مال الشركة المقترح (بالليرة التركية TRY):',
+      capitalHint: 'ملاحظة: رأس مال 500,000 TL يمنح الشريك الأجنبي إعفاءً من شرط الـ 5 أتراك لسنة واحدة.',
+      foreignCountLabel: 'عدد الموظفين الأجانب المخطط توظيفهم:',
+      roleLabel: 'المستوى الوظيفي السائد للموظفين الأجانب:',
+      roleExec: 'مدير تنفيذي / مدير عام (مضاعف 6.5 أضعاف الراتب)',
+      roleEng: 'مهندس / مبرمج / تقني (مضاعف 4 أضعاف الراتب)',
+      roleTeacher: 'مدرس / كادر طبي (مضاعف 3 أضعاف الراتب)',
+      roleSales: 'مبيعات / خدمة عملاء (مضاعف ضعفي الراتب)',
+      roleService: 'عمالة خدمات عامة (مضاعف 1.5 ضعف الراتب)',
+      calcBtn: 'حساب التكاليف والتقرير الاستثماري الشامل 📊',
+      resultTitle: 'تقرير التكاليف الاستثمارية والتراخيص 2026',
+      setupCostHeader: '1. رسوم التأسيس والتسجيل الابتدائي (مرة واحدة):',
+      monthlyCostHeader: '2. التكاليف التشغيلية الشهرية والضرائب التقديرية:',
+      workPermitHeader: '3. ميزانية أذونات العمل والرواتب السنوية (2026):',
+      exemptionStatusHeader: '4. وضع إعفاء الشريك الأجنبي من شرط 5 أتراك:',
+      checklistHeader: '📋 مستندات وخطوات التأسيس الرسمية:',
+      ctaEmployerPortal: 'أضف وظيفة مجانية في بوابة أصحاب العمل ←',
+      ctaGuide: 'قراءة دليل تأسيس الشركات 2026 📖'
+    },
+    en: {
+      title: 'Investor Company Setup & Foreign Hiring Estimator 2026 🏢🇹🇷',
+      subtitle: 'Comprehensive 2026 investment calculator for company incorporation in Turkey (Ltd / A.Ş), work permit partner exemption rules, and foreign employee SGK tax budgets.',
+      companyTypeLabel: 'Target Company Structure in Turkey:',
+      ltdOpt: 'Limited Liability Company (Limited Şirket - Ltd. Şti.)',
+      asOpt: 'Joint Stock Company (Anonim Şirket - A.Ş.)',
+      branchOpt: 'Foreign Company Branch / Liaison Office',
+      capitalLabel: 'Proposed Paid-Up Capital (TRY):',
+      capitalHint: 'Note: 500,000 TRY capital waives the 5 Turkish employee rule for foreign partner for 1st year.',
+      foreignCountLabel: 'Number of Foreign Employees to Hire:',
+      roleLabel: 'Predominant Job Tier for Foreign Workers:',
+      roleExec: 'Executive / General Manager (6.5x Min Wage Multiplier)',
+      roleEng: 'Engineer / IT Specialist (4x Min Wage Multiplier)',
+      roleTeacher: 'Teacher / Healthcare Staff (3x Min Wage Multiplier)',
+      roleSales: 'Sales / Customer Support (2x Min Wage Multiplier)',
+      roleService: 'General Services Staff (1.5x Min Wage Multiplier)',
+      calcBtn: 'Calculate Budget & Generate Investor Report 📊',
+      resultTitle: '2026 Investor Cost & Compliance Report',
+      setupCostHeader: '1. Initial Incorporation & Trade Registry Fees (One-Time):',
+      monthlyCostHeader: '2. Estimated Monthly Operational & Tax Costs:',
+      workPermitHeader: '3. Annual Work Permits & Payroll Budget (2026):',
+      exemptionStatusHeader: '4. Foreign Partner 5-to-1 Exemption Status:',
+      checklistHeader: '📋 Legal Incorporation Steps & Checklist:',
+      ctaEmployerPortal: 'Post Job Listing on Employer Portal ←',
+      ctaGuide: 'Read Full 2026 Business Setup Guide 📖'
+    },
+    tr: {
+      title: 'Yatırımcı Şirket Kuruluşu ve Yabancı İstihdam Maliyet Hesaplama 2026 🏢🇹🇷',
+      subtitle: 'Türkiye\'de şirket kuruluşu (Ltd / A.Ş), ortak çalışma izni muafiyet kuralları ve yabancı personel SGK maliyet hesaplama aracı.',
+      companyTypeLabel: 'Kurulacak Şirket Türü:',
+      ltdOpt: 'Limited Şirket (Ltd. Şti.)',
+      asOpt: 'Anonim Şirket (A.Ş.)',
+      branchOpt: 'Yabancı Şirket Şubesi / İrtibat Bürosu',
+      capitalLabel: 'Öngörülen Sermaye (TL):',
+      capitalHint: 'Not: 500.000 TL sermaye, yabancı ortak için 1 yıl boyunca 5 Türk çalışan şartını kaldırır.',
+      foreignCountLabel: 'İstihdam Edilecek Yabancı Personel Sayısı:',
+      roleLabel: 'Yabancı Personelin Meslek Seviyesi:',
+      roleExec: 'Üst Düzey Yönetici (Asgari Ücretin 6.5 Katı)',
+      roleEng: 'Mühendis / Yazılımcı (Asgari Ücretin 4 Katı)',
+      roleTeacher: 'Öğretmen / Sağlık Personeli (Asgari Ücretin 3 Katı)',
+      roleSales: 'Satış / Müşteri Hizmetleri (Asgari Ücretin 2 Katı)',
+      roleService: 'Genel Hizmetler (Asgari Ücretin 1.5 Katı)',
+      calcBtn: 'Maliyeti Hesapla ve Rapor Oluştur 📊',
+      resultTitle: '2026 Yatırım ve Uyumluluk Raporu',
+      setupCostHeader: '1. İlk Kuruluş ve Ticaret Odası Harçları (Tek Seferlik):',
+      monthlyCostHeader: '2. Tahmini Aylık Operasyonel ve Muhasebe Giderleri:',
+      workPermitHeader: '3. Yıllık Çalışma İzni ve Bütçe (2026):',
+      exemptionStatusHeader: '4. Yabancı Ortak 5 Türk Şartı Muafiyet Durumu:',
+      checklistHeader: '📋 Resmi Kuruluş Adımları ve Evraklar:',
+      ctaEmployerPortal: 'İşveren Portalı Ücretsiz İlan Ver ←',
+      ctaGuide: 'Şirket Kuruluş Rehberini Oku 📖'
+    },
+    ru: {
+      title: 'Калькулятор открытия компании и найма иностранцев 2026 🏢🇹🇷',
+      subtitle: 'Расчет стоимости регистрации компании в Турции (Ltd / A.Ş), освобождения партнера от разрешения на работу и налогов SGK на 2026 год.',
+      companyTypeLabel: 'Тип создаваемой компании:',
+      ltdOpt: 'Общество с ограниченной ответственностью (Ltd. Şti.)',
+      asOpt: 'Акционерное общество (A.Ş.)',
+      branchOpt: 'Филиал иностранной компании / Представительство',
+      capitalLabel: 'Уставный капитал (TRY):',
+      capitalHint: 'Капитал от 500 000 TRY освобождает партнера от правила 5 турок на 1 год.',
+      foreignCountLabel: 'Количество иностранных сотрудников:',
+      roleLabel: 'Должностная категория работников:',
+      roleExec: 'Генеральный директор (6.5 коэфф. зарплаты)',
+      roleEng: 'Инженер / IT-специалист (4 коэфф. зарплаты)',
+      roleTeacher: 'Преподаватель / Врач (3 коэфф. зарплаты)',
+      roleSales: 'Продажи / Поддержка (2 коэфф. зарплаты)',
+      roleService: 'Обслуживающий персонал (1.5 коэфф. зарплаты)',
+      calcBtn: 'Рассчитать бюджет и отчет 📊',
+      resultTitle: 'Инвестиционный отчет 2026',
+      setupCostHeader: '1. Единовременные расходы на регистрацию:',
+      monthlyCostHeader: '2. Ежемесячные операционные расходы:',
+      workPermitHeader: '3. Ежегодный бюджет на разрешения на работу (2026):',
+      exemptionStatusHeader: '4. Статус правила 5 турецких сотрудников:',
+      checklistHeader: '📋 Шаги по регистрации компании:',
+      ctaEmployerPortal: 'Опубликовать вакансию на портале ←',
+      ctaGuide: 'Читать руководство по бизнесу 📖'
+    },
+    fa: {
+      title: 'محاسبه‌گر هزینه‌های ثبت شرکت و استخدام اتباع خارجی 2026 🏢🇹🇷',
+      subtitle: 'ابزار جامع سرمایه‌گذاری برای محاسبه هزینه‌های ثبت شرکت (Ltd / A.Ş) در ترکیه، معافیت‌های اجازه کار شریک و مالیات SGK.',
+      companyTypeLabel: 'نوع شرکت مورد نظر در ترکیه:',
+      ltdOpt: 'شرکت با مسئولیت محدود (Limited Şirket - Ltd. Şti.)',
+      asOpt: 'شرکت سهامی (Anonim Şirket - A.Ş.)',
+      branchOpt: 'شعبه شرکت خارجی / دفتر نمایندگی',
+      capitalLabel: 'سرمایه اولیه پیشنهادی (لیر ترکیه TRY):',
+      capitalHint: 'نکته: سرمایه 500 هزار لیر شرط 5 کارمند ترک را برای شریک خارجی به مدت 1 سال لغو می‌کند.',
+      foreignCountLabel: 'تعداد کارمندان خارجی مورد نظر برای استخدام:',
+      roleLabel: 'سطح شغلی اصلی کارمندان خارجی:',
+      roleExec: 'مدیر عامل / مدیر ارشد (ضریب 6.5 برابر حقوق)',
+      roleEng: 'مهندس / متخصص IT (ضریب 4 برابر حقوق)',
+      roleTeacher: 'استاد / کادر درمان (ضریب 3 برابر حقوق)',
+      roleSales: 'فروش / پشتیبانی (ضریب 2 برابر حقوق)',
+      roleService: 'خدمات عمومی (ضریب 1.5 برابر حقوق)',
+      calcBtn: 'محاسبه هزینه‌ها و تولید گزارش 📊',
+      resultTitle: 'گزارش سرمایه‌گذاری و هزینه‌ها 2026',
+      setupCostHeader: '۱. هزینه‌های اولیه ثبت و دفاتر رسمی (یک‌باره):',
+      monthlyCostHeader: '۲. هزینه‌های عملیاتی و مالیاتی ماهانه:',
+      workPermitHeader: '۳. بودجه سالانه اجازه کار و حقوق کارمندان (2026):',
+      exemptionStatusHeader: '۴. وضعیت معافیت شریک خارجی از شرط ۵ کارمند ترک:',
+      checklistHeader: '📋 مراحل قانونی ثبت شرکت:',
+      ctaEmployerPortal: 'ثبت آگهی استخدام در پورتال كارفرمایان ←',
+      ctaGuide: 'راهنمای ثبت شرکت در ترکیه 📖'
+    },
+    ur: {
+      title: 'ترکی میں کمپنی رجسٹریشن اور غیر ملکی ملازمین کے اخراجات 2026 🏢🇹🇷',
+      subtitle: 'ترکی میں کمپنی بنانے (Ltd / A.Ş)، پارٹنر ورک پرمٹ کے قواعد اور غیر ملکی ملازمین کے SGK ٹیکس کا تجزیہ کریں۔',
+      companyTypeLabel: 'کمپنی کی قسم:',
+      ltdOpt: 'لمیٹڈ کمپنی (Limited Şirket - Ltd. Şti.)',
+      asOpt: 'جوائنٹ اسٹاک کمپنی (Anonim Şirket - A.Ş.)',
+      branchOpt: 'غیر ملکی کمپنی کا برانچ آفس',
+      capitalLabel: 'تجویز کردہ سرمایه‌کاری (ترکی لیرا):',
+      capitalHint: 'نوٹ: 500,000 لیرا سرمایہ غیر ملکی پارٹنر کے لیے 1 سال تک 5 ترک ملازمین کی شرط ختم کرتا ہے۔',
+      foreignCountLabel: 'غیر ملکی ملازمین کی تعداد:',
+      roleLabel: 'ملازمین کا کیریئر لیول:',
+      roleExec: 'ایگزیکٹو / جنرل مینیجر (6.5 گنا کم از کم اجرت)',
+      roleEng: 'انجینئر / آئی ٹی سپیشلسٹ (4 گنا کم از کم اجرت)',
+      roleTeacher: 'ٹیچر / میڈیکل عملہ (3 گنا کم از کم اجرت)',
+      roleSales: 'سیلز / کسٹمر سروس (2 گنا کم از کم اجرت)',
+      roleService: 'عام خدمات کا عملہ (1.5 گنا کم از کم اجرت)',
+      calcBtn: 'اخراجات کا حساب لگائیں 📊',
+      resultTitle: '2026 سرمایه‌کاری اور تعمیل رپورٹ',
+      setupCostHeader: '1. ابتدائی رجسٹریشن اور چیمبر فیس (یک وقتی):',
+      monthlyCostHeader: '2. ماہانہ آپریٹنگ اخراجات:',
+      workPermitHeader: '3. سالانہ ورک پرمٹ اور بٹوے کا تخمینہ (2026):',
+      exemptionStatusHeader: '4. غیر ملکی پارٹنر کا استثنیٰ:',
+      checklistHeader: '📋 رجسٹریشن کے قانونی مراحل:',
+      ctaEmployerPortal: 'ایمپلائر پورٹل پر نوکری پوسٹ کریں ←',
+      ctaGuide: 'کمپنی رجسٹریشن گائیڈ پڑھیں 📖'
+    }
+  };
+
+  const t = dict[locale] || dict.ar;
+
+  const html = `
+    <div class="container" style="padding-top: 30px; padding-bottom: 60px; max-width: 900px;">
+      <nav style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">
+        <a href="/${locale}" style="color: var(--primary); text-decoration: none; font-weight: 600;">Home</a> / <span style="font-weight: 700; color: var(--text-heading);">${t.title}</span>
+      </nav>
+
+      <div class="glass-card" style="padding: 36px; border-radius: 16px; box-shadow: var(--shadow-lg); background: var(--bg-card); border: 1px solid var(--border);">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="font-size: 1.85rem; font-weight: 900; color: var(--text-heading); margin-bottom: 10px;">${t.title}</h1>
+          <p style="color: var(--text-muted); font-size: 1.02rem; max-width: 720px; margin: 0 auto; line-height: 1.6;">${t.subtitle}</p>
+        </div>
+
+        <form id="investor-form" onsubmit="calculateInvestorCosts(); return false;">
+          <div style="display: flex; flex-direction: column; gap: 20px; margin-bottom: 30px;">
+            <div>
+              <label style="font-weight: 700; color: var(--text-heading); display: block; margin-bottom: 8px;">${t.companyTypeLabel}</label>
+              <select id="company-type" style="width: 100%; padding: 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-card); font-size: 0.95rem;">
+                <option value="ltd">${t.ltdOpt}</option>
+                <option value="as">${t.asOpt}</option>
+                <option value="branch">${t.branchOpt}</option>
+              </select>
+            </div>
+
+            <div>
+              <label style="font-weight: 700; color: var(--text-heading); display: block; margin-bottom: 4px;">${t.capitalLabel}</label>
+              <input type="number" id="capital-amount" value="500000" step="50000" min="50000" style="width: 100%; padding: 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-card); font-size: 0.95rem;">
+              <span style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px; display: block;">${t.capitalHint}</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;" class="grid-2-col">
+              <div>
+                <label style="font-weight: 700; color: var(--text-heading); display: block; margin-bottom: 8px;">${t.foreignCountLabel}</label>
+                <input type="number" id="foreign-count" value="2" min="0" max="50" style="width: 100%; padding: 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-card); font-size: 0.95rem;">
+              </div>
+              <div>
+                <label style="font-weight: 700; color: var(--text-heading); display: block; margin-bottom: 8px;">${t.roleLabel}</label>
+                <select id="role-tier" style="width: 100%; padding: 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-card); font-size: 0.95rem;">
+                  <option value="exec">${t.roleExec}</option>
+                  <option value="eng" selected>${t.roleEng}</option>
+                  <option value="teacher">${t.roleTeacher}</option>
+                  <option value="sales">${t.roleSales}</option>
+                  <option value="service">${t.roleService}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 16px; border-radius: 30px; font-weight: 800; font-size: 1.05rem;">${t.calcBtn}</button>
+        </form>
+
+        <div id="investor-results" style="display: none; margin-top: 35px; border-top: 2px dashed var(--border); padding-top: 30px;">
+          <h2 style="font-size: 1.5rem; font-weight: 900; color: var(--text-heading); text-align: center; margin-bottom: 24px;">${t.resultTitle}</h2>
+
+          <div style="display: flex; flex-direction: column; gap: 20px; margin-bottom: 30px;">
+            <div style="background: rgba(0,123,255,0.04); border: 1px solid var(--border); padding: 20px; border-radius: 12px;">
+              <h4 style="color: var(--primary); font-size: 1.05rem; font-weight: 700; margin-bottom: 10px;">${t.setupCostHeader}</h4>
+              <div id="setup-cost-details" style="font-size: 0.95rem; line-height: 1.6;"></div>
+            </div>
+
+            <div style="background: rgba(0,123,255,0.04); border: 1px solid var(--border); padding: 20px; border-radius: 12px;">
+              <h4 style="color: var(--primary); font-size: 1.05rem; font-weight: 700; margin-bottom: 10px;">${t.monthlyCostHeader}</h4>
+              <div id="monthly-cost-details" style="font-size: 0.95rem; line-height: 1.6;"></div>
+            </div>
+
+            <div style="background: rgba(0,123,255,0.04); border: 1px solid var(--border); padding: 20px; border-radius: 12px;">
+              <h4 style="color: var(--primary); font-size: 1.05rem; font-weight: 700; margin-bottom: 10px;">${t.workPermitHeader}</h4>
+              <div id="workpermit-cost-details" style="font-size: 0.95rem; line-height: 1.6;"></div>
+            </div>
+
+            <div id="exemption-box" style="padding: 20px; border-radius: 12px;">
+              <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 8px;">${t.exemptionStatusHeader}</h4>
+              <div id="exemption-details" style="font-size: 0.95rem; line-height: 1.5;"></div>
+            </div>
+
+            <div style="background: rgba(0,0,0,0.02); border: 1px solid var(--border); padding: 20px; border-radius: 12px;">
+              <h4 style="color: var(--text-heading); font-size: 1.05rem; font-weight: 700; margin-bottom: 10px;">${t.checklistHeader}</h4>
+              <ul style="margin: 0; padding-inline-start: 20px; font-size: 0.93rem; line-height: 1.6;">
+                <li>${locale === 'ar' ? 'تصديق عقد التأسيس وعقد الإيجار التجاري لدى النوتير (Noter)' : 'Notarization of Articles of Association & Commercial Lease at Notary'}</li>
+                <li>${locale === 'ar' ? 'إيداع رأس المال في بنك تركي وحصول على كتاب البنك (Sermaye Bloke Mektubu)' : 'Depositing paid-up capital in Turkish Bank and getting capital lock letter'}</li>
+                <li>${locale === 'ar' ? 'التسجيل في غرفة تجارة إسطنبول (İTO) والنشر في الجريدة الرسمية (Sicil Gazetesi)' : 'Registration with Istanbul Chamber of Commerce (İTO) and Trade Registry Gazette'}</li>
+                <li>${locale === 'ar' ? 'استخراج التوقيع الإلكتروني (E-İmza) والتسجيل في هيئة الضرائب والضمان الاجتماعي (SGK)' : 'Obtaining E-Signature, Tax Number, and SGK Corporate Portal Account'}</li>
+              </ul>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+            <a href="/${locale}/employer" class="btn btn-primary" style="padding: 10px 24px; border-radius: 30px; font-weight: 700; text-decoration: none;">${t.ctaEmployerPortal}</a>
+            <a href="/${locale}/blog/work-permit-turkey-syrians-arabs-2026-guide" class="btn" style="background: var(--bg-card); border: 1px solid var(--border); padding: 10px 24px; border-radius: 30px; font-weight: 700; text-decoration: none; color: var(--text-heading);">${t.ctaGuide}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function calculateInvestorCosts() {
+        const companyType = document.getElementById('company-type').value;
+        const capital = parseFloat(document.getElementById('capital-amount').value) || 500000;
+        const foreignCount = parseInt(document.getElementById('foreign-count').value) || 0;
+        const roleTier = document.getElementById('role-tier').value;
+
+        document.getElementById('investor-results').style.display = 'block';
+
+        // 1. Setup Costs
+        let setupFee = 0;
+        let setupDesc = '';
+        if (companyType === 'ltd') {
+          setupFee = 28500;
+          setupDesc = '${locale === 'ar' ? 'رسوم النوتير وتدقيق السجل التجاري بغرفة تجارة إسطنبول ITO:' : 'Notary, İTO Trade Chamber, Gazette Publication:'} 28,500 TRY';
+        } else if (companyType === 'as') {
+          setupFee = 45000;
+          setupDesc = '${locale === 'ar' ? 'رسوم التأسيس القانونية والنشر لشركة مساهمة A.Ş:' : 'Incorporation & Legal Gazette for Joint Stock A.Ş:'} 45,000 TRY';
+        } else {
+          setupFee = 35000;
+          setupDesc = '${locale === 'ar' ? 'رسوم ترخيص فرع شركة أجنبية:' : 'Foreign Branch Office Permit & Registration:'} 35,000 TRY';
+        }
+        document.getElementById('setup-cost-details').innerHTML = setupDesc;
+
+        // 2. Monthly Operational & Tax Costs
+        let monthlyCpa = 4500; // Accountant fee
+        let monthlyStoppage = 3500; // Estimated withholding tax
+        let monthlyTotal = monthlyCpa + monthlyStoppage;
+        document.getElementById('monthly-cost-details').innerHTML = \`
+          <strong>${locale === 'ar' ? 'أتعاب المحاسب القانوني (Mali Müşavir):' : 'Certified Accountant (CPA) Monthly Fee:'}</strong> \${monthlyCpa.toLocaleString()} TRY/mo<br>
+          <strong>${locale === 'ar' ? 'ضريبة الإيجار المقتطعة (Stopaj):' : 'Withholding Rent Tax (Stopaj):'}</strong> \${monthlyStoppage.toLocaleString()} TRY/mo<br>
+          <strong>${locale === 'ar' ? 'إجمالي المصاريف الثابتة التقديرية:' : 'Total Estimated Fixed Overhead:'}</strong> <span style="color: var(--primary); font-weight: 800;">\${monthlyTotal.toLocaleString()} TRY/mo</span>
+        \`;
+
+        // 3. Work Permits & Salaries
+        const grossMinWage = 33030; // 2026 Gross Minimum Wage
+        let multiplier = 2.0;
+        if (roleTier === 'exec') multiplier = 6.5;
+        else if (roleTier === 'eng') multiplier = 4.0;
+        else if (roleTier === 'teacher') multiplier = 3.0;
+        else if (roleTier === 'sales') multiplier = 2.0;
+        else if (roleTier === 'service') multiplier = 1.5;
+
+        const grossSalaryPerWorker = grossMinWage * multiplier;
+        const sgkEmployerTaxPerWorker = grossSalaryPerWorker * 0.175; // 15.5% SGK + 2% Unemployment
+        const permitFeePerWorker = 12574.90 + 964;
+
+        const annualPermitTotal = permitFeePerWorker * foreignCount;
+        const monthlyPayrollTotal = (grossSalaryPerWorker + sgkEmployerTaxPerWorker) * foreignCount;
+
+        document.getElementById('workpermit-cost-details').innerHTML = \`
+          <strong>${locale === 'ar' ? 'إجمالي رسوم أذونات العمل السنوية لجميع الموظفين:' : 'Total Annual Work Permit Fees:'}</strong> \${annualPermitTotal.toLocaleString('en-US', {maximumFractionDigits:2})} TRY<br>
+          <strong>${locale === 'ar' ? 'الراتب الإجمالي مع التأمين (SGK) لكل موظف أجنبي:' : 'Gross Salary + Employer SGK Tax per Foreign Worker:'}</strong> \${(grossSalaryPerWorker + sgkEmployerTaxPerWorker).toLocaleString('en-US', {maximumFractionDigits:2})} TRY/mo<br>
+          <strong>${locale === 'ar' ? 'إجمالي الميزانية الشهرية لكادر العمالة الأجنبية:' : 'Total Monthly Foreign Payroll Budget:'}</strong> <span style="color: var(--primary); font-weight: 800;">\${monthlyPayrollTotal.toLocaleString('en-US', {maximumFractionDigits:2})} TRY/mo</span>
+        \`;
+
+        // 4. Exemption Status
+        const exemptionBox = document.getElementById('exemption-box');
+        const exemptionDetails = document.getElementById('exemption-details');
+
+        if (capital >= 500000) {
+          exemptionBox.style.background = '#f0fdf4';
+          exemptionBox.style.border = '2px solid #22c55e';
+          exemptionBox.style.color = '#15803d';
+          exemptionDetails.innerHTML = '${locale === 'ar' ? '🟢 مبروك! بموجب رأس مال 500 ألف ليرةتركية، يتم إعفاء الشريك الأجنبي من شرط توظيف 5 عمال أتراك خلال السنة الأولى من التأسيس!' : '🟢 Congratulations! Capital of 500k+ TRY waives the 5 Turkish employee requirement for the foreign founding partner during the 1st year!'}';
+        } else {
+          exemptionBox.style.background = '#fffbeb';
+          exemptionBox.style.border = '2px solid #f59e0b';
+          exemptionBox.style.color = '#b45309';
+          exemptionDetails.innerHTML = '${locale === 'ar' ? '🟡 تنبيه: رأس مال أقل من 500 ألف ليرة يتطلب توظيف 5 عمال أتراك مسجلين بالضمان (SGK) لمنح الشريك الأجنبي إذن عمل.' : '🟡 Alert: Capital under 500k TRY requires hiring 5 registered Turkish employees to grant the foreign partner a work permit.'}';
+        }
+      }
+    </script>
+  `;
+
+  return c.html(renderLayout(c, t.title, html, locale));
+});
+
+
 

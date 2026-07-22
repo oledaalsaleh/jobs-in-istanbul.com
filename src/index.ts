@@ -102,7 +102,7 @@ export default {
       return Response.redirect(`${url.origin}/ar/blog`, 302);
     }
     // Redirect tool routes without locale prefix to preferred language
-    if (url.pathname === '/work-permit-eligibility' || url.pathname === '/cv-optimizer' || url.pathname === '/workplace-quiz' || url.pathname === '/resume-builder') {
+    if (url.pathname === '/investor-calculator' || url.pathname === '/work-permit-eligibility' || url.pathname === '/cv-optimizer' || url.pathname === '/workplace-quiz' || url.pathname === '/resume-builder') {
       const acceptLang = request.headers.get('accept-language') || '';
       let targetLocale = 'ar';
       if (acceptLang.toLowerCase().startsWith('en')) targetLocale = 'en';

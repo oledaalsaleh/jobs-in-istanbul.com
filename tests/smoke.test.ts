@@ -217,6 +217,13 @@ describe('Istanbul Jobs Portal Smoke Tests', () => {
     expect(text).toContain('إذن العمل في تركيا 2026')
   })
 
+  test('GET /ar/investor-calculator loads investor calculator page', async () => {
+    const res = await app.request('/ar/investor-calculator', {}, mockEnv)
+    expect(res.status).toBe(200)
+    const text = await res.text()
+    expect(text).toContain('تأسيس الشركات وتوظيف الأجانب')
+  })
+
   test('GET /ar/currency-prices loads currency prices page', async () => {
     const res = await app.request('/ar/currency-prices', {}, mockEnv)
     expect(res.status).toBe(200)
