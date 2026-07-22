@@ -13,6 +13,155 @@ careerBlogRouter.get('/blog', (c) => {
 const seededArticles: Record<string, any[]> = {
   ar: [
     {
+      title: 'وظائف شاغرة في اسطنبول هذا الأسبوع (تحديث: 22 يوليو 2026)',
+      slug: 'jobs-in-istanbul-vacancies-weekly-update-july-2026',
+      summary: 'رصد أسبوعي شامل لأحدث الوظائف الشاغرة المُعلنة فعلياً في إسطنبول لمتحدثي العربية والأجانب للأسبوع الممتد حتى 22 يوليو 2026، يشمل قطاعات السياحة العلاجية، المبيعات، البرمجة، المطاعم، والمصانع مع النصائح القانونية للتقديم.',
+      publishedAt: '2026-07-22',
+      canonical: 'https://jobs-in-istanbul.com/ar/blog/jobs-in-istanbul-vacancies-weekly-update-july-2026',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 28px;">
+            <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=1200&fm=webp" alt="وظائف شاغرة في اسطنبول هذا الأسبوع 22 يوليو 2026" style="width: 100%; max-height: 480px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+            <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 8px;">رصد أسبوعي مباشر لأبرز الشواغر والفرص الوظيفية المتاحة لمتحدثي العربية في كافة مناطق إسطنبول</p>
+          </div>
+
+          <p>نرصد لكم أسبوعياً وبشكل دوري ومحدث على <strong>مدونة المهنة - إسطنبول</strong> أبرز الوظائف الشاغرة والفرص المهنية المُعلن عنها فعلياً في مدينة إسطنبول لمتحدثي اللغة العربية والجنسيات العربية والأجنبية المختلفة، لتكونوا أول من يتطلع على الفرص الجديدة المتاحة في السوق التركي فور صدورها. يغطي هذا التحديث الشامل الفرص والشواغر المُعلنة خلال الأسبوع الممتد حتى <strong>22 يوليو 2026</strong>.</p>
+
+          <div style="background: rgba(255, 193, 7, 0.08); border-inline-start: 4px solid #ffc107; padding: 18px; border-radius: 8px; margin: 24px 0;">
+            <h4 style="margin: 0 0 8px 0; color: #b45309; font-size: 1.05rem; font-weight: 700;">⚠️ تنبيه هام وملاحظة أمان وتدقيق:</h4>
+            <p style="margin: 0; font-size: 0.93rem; line-height: 1.6; color: var(--text-body);">الوظائف والشواغر المذكورة أدناه مُعلنة من قِبل أصحاب عمل، شركات، ومؤسسات توظيف متعددة في مختلف مناطق إسطنبول، وتُنشر هنا كملخص إخباري وإرشاد مهني لتسهيل عملية البحث على الباحثين عن عمل. يُنصح دائماً بالتحقق المباشر من تفاصيل العرض، ومقر الشركة، ومصداقية صاحب العمل، وعدم دفع أي رسوم تسجيل مسبقة أو إرسال مستندات حساسة قبل المقابلة الرسمية.</p>
+          </div>
+
+          <h2>أولاً: أبرز الشواغر الوظيفية المتاحة هذا الأسبوع حسب القطاع</h2>
+
+          <p>يشهد سوق العمل في إسطنبول خلال هذا الأسبوع انتعاشاً ملحوظاً في الطلب على الكوادر العربية والمزدوجة اللغة، لا سيما في قطاعات الخدمات الطبية، التسويق الإلكتروني، والحرف المهنية:</p>
+
+          <h3>1. قطاع السياحة العلاجية ومراكز الاتصال (Call Center) - الأكثر طلباً هذا الأسبوع</h3>
+
+          <p>يستمر قطاع السياحة العلاجية (Medikal Turizm) في تصدر قائمة القطاعات الأكثر توظيفاً في إسطنبول نظراً لارتفاع تدفق الزوار العرب والأوروبيين المقيمين لغرض العلاج وزراعة الشعر والتجميل:</p>
+
+          <ul>
+            <li><strong>موظفو مبيعات وتواصل (Medical Call Center Sales):</strong> مطلوب موظفو وموظفات مبيعات هاتفية لعيادة تجميل وزراعة شعر بخبرة لا تقل عن سنة في المجال وإجادة اللغة الإنجليزية، للعمل في مناطق بيليك دوزو (Beylikdüzü)، جمهوريات (Cumhuriyet)، وشيرين إفلر (Şirinevler).</li>
+            <li><strong>مترجمة فوريّة (فرنسي - عربي):</strong> مطلوب مترجمة فوريّة ومرافقة مرضى لعيادة جراحة تجميلية تقع في منطقة كايا شهير (Kayaşehir) بشروط خبرة سابقة وتواصل ممتاز.</li>
+            <li><strong>مساعدة طبيب أسنان (Dental Assistant):</strong> فرصة عمل بدوام كامل لمساعدة طبيب أسنان في مركز طبي متخصص بمنطقة بيليك دوزو / إسنيورت (Esenyurt)، بشرط المعرفة بأساسيات التعقيم ولوازم العيادة.</li>
+            <li><strong>مستشارو مبيعات طبية متعددو اللغات (Medical Sales Consultants):</strong> عيادة أسنان وتجميل في شيشلي تطلب مستشاري مبيعات يتقنون العربية والتركية أو الإنجليزية للتعامل مع المرضى الدوليين.</li>
+          </ul>
+
+          <div style="margin: 28px 0;">
+            <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1200&fm=webp" alt="وظائف مبيعات وتستويق عقاري في اسطنبول 2026" style="width: 100%; max-height: 420px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-sm);">
+            <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 8px;">انتعاش قوي في طلب مندوبي ومسوقي العقارات والتسويق الرقمي في المناطق الاستثمارية بإسطنبول</p>
+          </div>
+
+          <h3>2. قطاع المبيعات والتسويق العقاري والدعم الرقمي</h3>
+
+          <ul>
+            <li><strong>مندوبو مبيعات ميدانية للعقارات (Real Estate Agents):</strong> شركة استثمار عقاري في إسنيورت تطلب مندوبي مبيعات ميدانية بخبرة 4 سنوات في السوق العقاري التركي وإسطنبول تحديداً.</li>
+            <li><strong>موظفات مبيعات أونلاين (Online Sales Associates):</strong> فرصة عمل عن بعد (Remote / Online) لموظفات مبيعات فساتين وأزياء عبر منصات التواصل الاجتماعي ومتاجر التجارة الإلكترونية.</li>
+            <li><strong>موظفو مبيعات بشركات خدمات (Sales Representatives):</strong> شركات سورية ولبنانية في الفاتح وباشاك شهير تطلب موظفي مبيعات براتب ثابت مجزي بالإضافة إلى عمولات مجزية على المبيعات.</li>
+            <li><strong>أخصائي تسويق رقمي وسوشال ميديا (Digital Marketing Specialist):</strong> شركة استشارات في كاغيتهانه (Kağıthane) تطلب أخصائي إدارة حملات إعلانية وتصميم محتوى يتحدث العربية والتركية.</li>
+          </ul>
+
+          <h3>3. قطاع البرمجيات، التصميم والتقنية</h3>
+
+          <div style="margin: 28px 0;">
+            <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1200&fm=webp" alt="وظائف برمجة وتصميم في اسطنبول 2026" style="width: 100%; max-height: 420px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-sm);">
+            <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 8px;">تزايد الطلب على المطورين والتقنيين لبناء الأنظمة الإدارية وتطبيقات الشركات بإسطنبول</p>
+          </div>
+
+          <ul>
+            <li><strong>مطور واجهات أمامية (Frontend Developer – React / Next.js):</strong> مطلوب مطور واجهات لبناء وتطوير أنظمة إدارة علاقات العملاء (CRM) ومنصات تجارة في إسطنبول، بشرط الخبرة في TypeScript و REST APIs.</li>
+            <li><strong>مصمم غرافيك ومحتوى مرئي (Graphic Designer & AI Tools):</strong> مطلوب مصمم بخبرة 3 سنوات يجيد استخدام أدوات الذكاء الاصطناعي (Midjourney, Photoshop AI) في منطقة كابالي تشارشي / الفاتح.</li>
+            <li><strong>فرصة تدريب جامعي إجباري (Stajyer Program):</strong> شركة هندسية تفتح باب التدريب الجامعي الإجباري لطلاب التخصصات الهندسية المختلفة (الكمبيوتر، البرمجيات، والكهرباء).</li>
+          </ul>
+
+          <h3>4. قطاع المطاعم والمخابز والمأكولات والشواغر الحرفية</h3>
+
+          <div style="margin: 28px 0;">
+            <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1200&fm=webp" alt="وظائف مطاعم ومأكولات في اسطنبول 2026" style="width: 100%; max-height: 420px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-sm);">
+            <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 8px;">المطاعم والمخابز الشرقية في إسطنبول تواصل استقطاب الطهاة وصناع المعجنات الماهرين</p>
+          </div>
+
+          <ul>
+            <li><strong>معلم بسطة وعامل مطعم:</strong> مطلوب للعمل الفوري معلم بسطة وجبات سريعة وعامل صالة في منطقة غونغورن (Güngören).</li>
+            <li><strong>معلم معجنات شامية ومخبوزات:</strong> مطعم شرقي في كايا شهير يطلب معلم معجنات شامية وصفائح بخبرة عالية.</li>
+            <li><strong>معلم شاورما وساندويشات:</strong> مطعم وجبات في زيتون بورنو (Zeytinburnu) يطلب معلم شاورما للعمل الفوري.</li>
+            <li><strong>خياط / خياطة فساتين أعراس ومناسبات:</strong> ورشة مشغل أزياء في منطقة الفاتح تطلب خياطين بخبرة ممتازة في الفساتين الشرقية والغربية.</li>
+            <li><strong>حلاق رجالي محترف:</strong> صالون حلاقة رجالي في كاياشهير يطلب حلاقين بخبرة سابقة وسكن متوفر بالقرب من العمل.</li>
+          </ul>
+
+          <h3>5. قطاع المصانع، التعبئة واللوجستيات والمستودعات</h3>
+
+          <div style="margin: 28px 0;">
+            <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1200&fm=webp" alt="وظائف مصانع ومستودعات في اسطنبول 2026" style="width: 100%; max-height: 420px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-sm);">
+            <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 8px;">نشاط واسع في مناطق مارتر وزيتون بورنو لتعبئة النسيج والخدمات اللوجستية</p>
+          </div>
+
+          <ul>
+            <li><strong>عاملات تعبئة وتغليف (إمبلاج):</strong> ورشات نسيج وألبسة في زيتون بورنو تطلب عاملات تعبئة وتغليف براتب ثابت ومواصلات.</li>
+            <li><strong>عمال مستودعات وتنظيم بضائع:</strong> شركة ألبسة وجملة في منطقة مارتر (Merter) تطلب عمال مستودع لنقل وتنظيم الشحنات.</li>
+            <li><strong>موظف عمليات ميدانية ومتابعة سيارات:</strong> شركة تأجير سيارات سياحية في كايا شهير تطلب موظف تسليم ومتابعة ميدانية برخصة قيادة تركية سارية.</li>
+          </ul>
+
+          <h2>ثانياً: تحليل الرواتب وشروط العمل في إسطنبول لعام 2026</h2>
+
+          <p>تختلف مستويات الرواتب في إسطنبول بناءً على القطاع، الخبرة، وطبيعة التكليف القانوني وإذن العمل:</p>
+
+          <table style="width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 0.93rem;">
+            <thead>
+              <tr style="background: var(--bg-subtle); text-align: right;">
+                <th style="padding: 12px; border-bottom: 2px solid var(--border);">القطاع / المهنة</th>
+                <th style="padding: 12px; border-bottom: 2px solid var(--border);">متوسط الراتب الصافي المتوقع 2026</th>
+                <th style="padding: 12px; border-bottom: 2px solid var(--border);">المكافآت والبدلات</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 12px;">مبيعات الكول سنتر والسياحة العلاجية</td>
+                <td style="padding: 12px;">30,000 - 48,000 TL</td>
+                <td style="padding: 12px;">عمولات بالدولار/اليورو على مبيعات المرضى</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 12px;">مبيعات العقارات والتسويق الميداني</td>
+                <td style="padding: 12px;">28,075 - 45,000 TL</td>
+                <td style="padding: 12px;">نسبة مئوية من قيمة الصفقة العقارية</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 12px;">تطوير البرمجيات (Frontend / Next.js)</td>
+                <td style="padding: 12px;">55,000 - 95,000 TL</td>
+                <td style="padding: 12px;">بدل طعام (Sodexo) وتأمين خاص</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 12px;">المطاعم والمهن الحرفية (شاورما، معجنات)</td>
+                <td style="padding: 12px;">32,000 - 50,000 TL</td>
+                <td style="padding: 12px;">وجبات طعام مجانية وسكن في بعض الفرص</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 12px;">عمالة المصانع والتعبئة (إمبلاج)</td>
+                <td style="padding: 12px;">28,075 - 34,000 TL (الحد الأدنى)</td>
+                <td style="padding: 12px;">بدل مواصلات وساعات إضافية (Mesai)</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h2>ثالثاً: نصائح وإرشادات للتقديم بفعالية وأمان</h2>
+
+          <ol style="line-height: 1.8;">
+            <li><strong>عدم الانتظار والتقديم السريع:</strong> المئات من الشواغر المعلنة أسبوعياً تُغلق خلال 3 إلى 5 أيام من تاريخ النشر بسبب إقبال المتقدمين، لذا فإن التقديم المبكر يرفع فرصك في المقابلة.</li>
+            <li><strong>تجهيز السيرة الذاتية بلغتين (عربي - إنجليزي أو تركي):</strong> شركات السياحة العلاجية والعقارات تولي أولوية لمن يملكون سيرة ذاتية منظمة تعكس خبراتهم بدقة. يمكنك استخدام <a href="/ar/cv-optimizer" style="color: var(--primary); font-weight: 700;">أداة تحسين السيرة الذاتية الذكية</a> على موقعنا مجاناً.</li>
+            <li><strong>التحقق من إذن العمل (Çalışma İzni):</strong> تأكد دائماً من قدرة الشركة الكفيلة على استخراج إذن العمل الرسمي والتسجيل في الضمان الاجتماعي (SGK). يمكنك فحص مؤشرات الأهلية مجاناً عبر <a href="/ar/work-permit-eligibility" style="color: var(--primary); font-weight: 700;">اختبار أهلية إذن العمل 2026</a>.</li>
+            <li><strong>الحذر من عمليات الاحتيال المالية:</strong> لا تقم بدفع أي مبالغ مالية تحت مسمى "رسوم توظيف" أو "فتح ملف" لأي جهة غير معتمدة.</li>
+          </ol>
+
+          <h2>رابعاً: متابعة التحديث الأسبوعي المباشر</h2>
+
+          <p>نعمل على تجميع وتحديث هذه القائمة أسبوعياً بحذف الوظائف المنتهية وإضافة الشواغر الجديدة الموثوقة. يمكنك حفظ هذا الرابط ومراجعته دورياً كل أسبوع لتبقى على اطلاع بأحدث التطورات وفرص التوظيف المتاحة في إسطنبول.</p>
+
+          <hr style="margin: 30px 0; border: none; border-top: 1px solid var(--border);">
+          <p style="font-size: 0.9rem; color: var(--text-muted); text-align: center;">آخر تحديث تحريري: 22 يوليو 2026. يُعاد نشر هذا المقال وتحديثه دورياً بالفرص والشواغر الجديدة على مدونة المهنة - إسطنبول.</p>
+        </div>
+      `
+    },
+    {
       title: 'وظائف تمريض في اسطنبول للعرب 2026: الشروط، معادلة الشهادة YÖK، والرواتب الصافية',
       slug: 'nursing-jobs-in-istanbul-for-arabs-2026-guide',
       summary: 'دليل قانوني وطبي شامل لعام 2026 يوضح خطوات الحصول على وظائف التمريض للعرب في إسطنبول، إجراءات معادلة الشهادة عبر مجلس التعليم العالي YÖK، اختبار الكفاءة التركي، رواتب القطاع الخاص والحكومي، وفرص السياحة العلاجية.',
