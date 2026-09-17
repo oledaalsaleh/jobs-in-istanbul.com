@@ -19,6 +19,11 @@ import {
   aktuelAppArticleEn,
   aktuelAppArticleTr
 } from '../data/aktuel-app-article'
+import {
+  istanbulAppArticleAr,
+  istanbulAppArticleEn,
+  istanbulAppArticleTr
+} from '../data/istanbul-app-article'
 
 export const careerBlogRouter = new Hono()
 
@@ -44,6 +49,7 @@ careerBlogRouter.get('/blog', (c) => {
 // Fallback hardcoded seeded articles if the database is empty
 export const seededArticles: Record<string, any[]> = {
   ar: [
+    istanbulAppArticleAr,
     aktuelAppArticleAr,
     quranAppArticleAr,
     {
@@ -2866,6 +2872,7 @@ export const seededArticles: Record<string, any[]> = {
     }
   ],
   en: [
+    istanbulAppArticleEn,
     aktuelAppArticleEn,
     quranAppArticleEn,
     {
@@ -3706,6 +3713,7 @@ export const seededArticles: Record<string, any[]> = {
     }
   ],
   tr: [
+    istanbulAppArticleTr,
     aktuelAppArticleTr,
     quranAppArticleTr,
     {

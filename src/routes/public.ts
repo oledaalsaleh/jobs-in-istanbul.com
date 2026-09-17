@@ -4173,6 +4173,34 @@ publicRouter.get('/public/images/aktuel-app/:filename', async (c) => {
   return c.text('Image not found.', 404);
 });
 
+// Serve Jobs in Istanbul App images from R2 bucket
+publicRouter.get('/public/images/istanbul-app/:filename', async (c) => {
+  const env: any = c.env;
+  const rawFilename = c.req.param('filename');
+  const filename = decodeURIComponent(rawFilename);
+  const key = `public/images/istanbul-app/${filename}`;
+
+  try {
+    const bucket = env.MEDIA_BUCKET;
+    if (bucket) {
+      const object = await bucket.get(key);
+      if (object) {
+        const headers = new Headers();
+        object.writeHttpMetadata(headers);
+        headers.set('etag', object.httpEtag);
+        const contentType = filename.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
+        headers.set('Content-Type', contentType);
+        headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+        return c.body(object.body, 200, Object.fromEntries(headers.entries()));
+      }
+    }
+  } catch (err: any) {
+    console.error('Failed to load istanbul-app image from R2:', err);
+  }
+
+  return c.text('Image not found.', 404);
+});
+
 // Serve logo.png from R2 bucket with fallback to built-in logo and automatic R2 backfill
 publicRouter.get('/public/images/logo.png', async (c) => {
   const env: any = c.env;
