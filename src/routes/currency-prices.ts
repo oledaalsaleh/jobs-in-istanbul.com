@@ -1,18 +1,37 @@
 import { Hono } from 'hono'
 import { renderLayout } from './public'
-
+import { runCurrencyScraper } from '../services/currency-scraper'
+import { safeQuery } from '../utils/db-helper'
 
 export const currencyPricesRouter = new Hono()
 
-// Fallback prices in case D1 cache isn't seeded yet
+// Fallback prices in case D1 and KV caches aren't seeded yet (Updated 2026 accurate spot baselines)
 const fallbackPrices = [
-  { name: 'الدولار الامريكي', code: 'USD', flag: 'us', buy: 46.5911, sell: 46.66, change: { '1d': '0.12' }, lastUpdate: '1782507601' },
-  { name: 'اليورو', code: 'EUR', flag: 'eu', buy: 53.0727, sell: 53.1528, change: { '1d': '-0.05' }, lastUpdate: '1782507902' },
-  { name: 'الريال السعودي', code: 'SAR', flag: 'sa', buy: 12.4135, sell: 12.4176, change: { '1d': '0.08' }, lastUpdate: '1782507302' },
-  { name: 'الدرهم الإماراتي', code: 'AED', flag: 'ae', buy: 12.6732, sell: 12.6912, change: { '1d': '0.01' }, lastUpdate: '1782507302' },
-  { name: 'الجنيه الإسترليني', code: 'GBP', flag: 'gb', buy: 62.4501, sell: 62.5891, change: { '1d': '-0.14' }, lastUpdate: '1782507302' },
-  { name: 'الجنيه المصري', code: 'EGP', flag: 'eg', buy: 0.9521, sell: 0.9634, change: { '1d': '-0.32' }, lastUpdate: '1782507302' }
+  { name: 'الدولار الامريكي', code: 'USD', flag: 'us', buy: 48.28, sell: 48.31, change: { '1d': '0.06' }, lastUpdate: '1788339902' },
+  { name: 'اليورو', code: 'EUR', flag: 'eu', buy: 55.95, sell: 55.99, change: { '1d': '-0.05' }, lastUpdate: '1788339902' },
+  { name: 'الريال السعودي', code: 'SAR', flag: 'sa', buy: 12.86, sell: 12.89, change: { '1d': '0.04' }, lastUpdate: '1788339902' },
+  { name: 'الدرهم الإماراتي', code: 'AED', flag: 'ae', buy: 13.14, sell: 13.17, change: { '1d': '0.01' }, lastUpdate: '1788339902' },
+  { name: 'الجنيه الإسترليني', code: 'GBP', flag: 'gb', buy: 65.25, sell: 65.35, change: { '1d': '-0.12' }, lastUpdate: '1788339902' },
+  { name: 'الجنيه المصري', code: 'EGP', flag: 'eg', buy: 0.945, sell: 0.952, change: { '1d': '-0.08' }, lastUpdate: '1788339902' }
 ];
+
+currencyPricesRouter.post('/admin-api/refresh-currency-prices', async (c) => {
+  try {
+    const prices = await runCurrencyScraper(c.env);
+    return c.json({ success: true, count: prices.length, prices });
+  } catch (err: any) {
+    return c.json({ success: false, error: err.message }, 500);
+  }
+});
+
+currencyPricesRouter.get('/admin-api/refresh-currency-prices', async (c) => {
+  try {
+    const prices = await runCurrencyScraper(c.env);
+    return c.json({ success: true, count: prices.length, prices });
+  } catch (err: any) {
+    return c.json({ success: false, error: err.message }, 500);
+  }
+});
 
 currencyPricesRouter.get('/currency-prices', (c) => {
   const acceptLang = c.req.header('accept-language') || '';
@@ -48,22 +67,39 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
   };
   let lastUpdateStr = '';
 
-  try {
-    const cached = await db.prepare(
-      `SELECT data FROM documents WHERE type_id = 'site_settings' AND id = 'currency-prices-cache'`
-    ).first();
-
-    if (cached) {
-      const parsed = JSON.parse(cached.data);
-      if (parsed.prices && Array.isArray(parsed.prices) && parsed.prices.length > 0) {
-        prices = parsed.prices;
-        advice = parsed.advice || advice;
-        lastUpdateStr = new Date(parsed.updatedAt).toLocaleString(locale === 'ar' || locale === 'fa' || locale === 'ur' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
+  // 1. Try CACHE_KV first (Fastest & most resilient)
+  const envAny = c.env as any;
+  if (envAny?.CACHE_KV) {
+    try {
+      const kvData: any = await envAny.CACHE_KV.get('kv_currency_prices', 'json');
+      if (kvData && Array.isArray(kvData.prices) && kvData.prices.length > 0) {
+        prices = kvData.prices;
+        advice = kvData.advice || advice;
+        lastUpdateStr = new Date(kvData.updatedAt || Date.now()).toLocaleString(locale === 'ar' || locale === 'fa' || locale === 'ur' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
       }
-    }
-  } catch (err) {
-    console.warn('Failed to load cached currency prices from DB, using fallback.', err);
+    } catch (e) {}
   }
+
+  // 2. Try DB if KV had no data
+  if (prices === fallbackPrices && db) {
+    try {
+      const cached = await safeQuery(() => db.prepare(
+        `SELECT data FROM documents WHERE type_id = 'site_settings' AND id = 'currency-prices-cache'`
+      ).first(), 1, 50);
+
+      if (cached) {
+        const parsed = JSON.parse(cached.data);
+        if (parsed.prices && Array.isArray(parsed.prices) && parsed.prices.length > 0) {
+          prices = parsed.prices;
+          advice = parsed.advice || advice;
+          lastUpdateStr = new Date(parsed.updatedAt).toLocaleString(locale === 'ar' || locale === 'fa' || locale === 'ur' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to load cached currency prices from DB, using fallback.', err);
+    }
+  }
+
 
   // If no timestamp, generate a recent one
   if (!lastUpdateStr) {
@@ -636,5 +672,6 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
     ? 'سعر الليرة التركية مقابل العملات في تركيا اليوم | أسعار العملات'
     : (locale === 'tr' ? 'Bugün Türkiye Döviz Fiyatları | Canlı Döviz Kurları' : 'Turkish Lira Exchange Rates Today | Live Currency Prices');
 
+  c.header('Cache-Control', 'public, max-age=300, s-maxage=1800, stale-while-revalidate=3600');
   return c.html(renderLayout(c, seoTitle, html, locale));
 });

@@ -103,6 +103,7 @@ button { cursor: pointer; border: none; background: none; }
 
 /* ---- Layout ---- */
 .container { width: 100%; max-width: 1300px; margin: 0 auto; padding: 0 28px; }
+@media (max-width: 480px) { .container { padding: 0 14px; } }
 main { flex: 1; }
 
 /* ============================================================
@@ -947,24 +948,53 @@ body.dark-mode .site-footer { background: hsl(222, 30%, 5%); }
   .logo-text span { font-size: 0.65rem; }
   .hero { padding: 72px 0 110px; }
   .hero-title { font-size: 2.2rem; }
+  .rtl .hero-title { font-size: 2rem; }
   .hero-stats { gap: 20px; }
   .search-card { flex-direction: column; gap: 10px; }
   .btn-search { padding: 16px; border-radius: var(--r-lg); justify-content: center; }
-  .categories-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+  .categories-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
+  .category-card { padding: 18px 12px 14px; }
+  .cat-emoji { font-size: 2rem; }
   .job-card { grid-template-columns: 1fr; }
   .co-logo { display: none; }
   .job-footer { flex-direction: column; align-items: flex-start; gap: 12px; }
   .btn-apply { width: 100%; justify-content: center; }
   .detail-main { padding: 24px; }
   .container { padding: 0 16px; }
+  /* App promo banner stacked layout */
+  .app-promo-inner { flex-direction: column !important; gap: 16px !important; }
+  .app-promo-qr { display: none !important; }
+  .app-promo-content { max-width: 100% !important; }
 }
 @media (max-width: 480px) {
   .hero-stats { display: none; }
-  .hero-title { font-size: 1.7rem; }
-  .hero-subtitle { font-size: 0.95rem; margin-bottom: 24px; }
-  .hero { padding: 48px 0 80px; }
+  .hero-title { font-size: 1.55rem; line-height: 1.15; }
+  .rtl .hero-title { font-size: 1.45rem; }
+  .hero-eyebrow { font-size: 0.74rem; padding: 4px 12px; margin-bottom: 16px; }
+  .hero-subtitle { font-size: 0.9rem; margin-bottom: 20px; }
+  .hero { padding: 44px 0 76px; }
+  .search-section { margin-top: -40px; margin-bottom: 40px; }
+  .search-card { padding: 12px; gap: 8px; }
+  .search-field-wrap { min-height: 48px; padding: 0 12px; gap: 8px; }
+  .search-field-wrap input { font-size: 0.9rem; }
+  .btn-search { padding: 13px; font-size: 0.9rem; }
+  .jobs-header { flex-wrap: wrap; gap: 8px; }
+  .jobs-count { font-size: 0.82rem; }
+  .job-card { padding: 16px; }
+  .job-card-title { font-size: 0.98rem; }
+  .job-company { font-size: 0.8rem; margin-bottom: 8px; }
+  .job-tags { gap: 4px; margin-bottom: 10px; }
+  .jtag { font-size: 0.72rem; padding: 3px 8px; }
+  .job-footer { padding-top: 10px; }
+  .btn-apply { padding: 10px 16px; font-size: 0.8rem; }
   .footer-inner { flex-direction: column; gap: 36px; }
   .footer-links-group { gap: 36px; }
+  /* chips section compact */
+  .chips-section { margin-bottom: 24px; }
+  .chip { padding: 6px 12px; font-size: 0.78rem; }
+  .sec-title { font-size: 1.3rem; }
+  /* categories toggle button on mobile */
+  #categories-toggle-btn { padding: 12px 16px !important; font-size: 0.92rem !important; }
 }
 
 /* ============================================================

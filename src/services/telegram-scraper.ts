@@ -1,5 +1,5 @@
 import type { D1Database } from '@cloudflare/workers-types';
-import { analyzeJobWithAI, saveJobToDb, cleanHtml } from './scraper';
+import { analyzeJobUnified, saveJobToDb, cleanHtml } from './scraper';
 import { sendTelegramAlert } from './telegram';
 
 /**
@@ -9,6 +9,7 @@ export async function runTelegramScraper(
   env: { 
     DB: D1Database; 
     AI: any; 
+    CACHE_KV?: any;
     MEDIA_BUCKET?: any; 
     GEMINI_API_KEY?: string;
     TELEGRAM_BOT_TOKEN?: string;
@@ -58,17 +59,52 @@ export async function runTelegramScraper(
       return { scraped: 0, processed: 0, errors: 0, details };
     }
 
-    // 1. Fetch all existing job sourceUrls
-    const scrapedJobsResult = await env.DB.prepare(
-      `SELECT json_extract(data, '$.sourceUrl') as sourceUrl FROM documents WHERE type_id = 'jobs'`
-    ).all();
-    const scrapedUrls = new Set(scrapedJobsResult.results.map((r: any) => r.sourceUrl).filter(Boolean));
+    // 1. Fetch all existing job sourceUrls (check CACHE_KV first)
+    let scrapedUrls = new Set<string>();
+    let processedTgIds = new Set<string>();
 
-    // 2. Fetch all processed telegram post IDs
-    const processedTgResult = await env.DB.prepare(
-      `SELECT id FROM documents WHERE type_id = 'scraped_telegram_posts'`
-    ).all();
-    const processedTgIds = new Set(processedTgResult.results.map((r: any) => r.id));
+    if (env.CACHE_KV) {
+      try {
+        const cachedUrls = await env.CACHE_KV.get('kv_scraped_urls', 'json');
+        if (Array.isArray(cachedUrls) && cachedUrls.length > 0) {
+          scrapedUrls = new Set(cachedUrls);
+        }
+        const cachedTgIds = await env.CACHE_KV.get('kv_processed_tg_ids', 'json');
+        if (Array.isArray(cachedTgIds) && cachedTgIds.length > 0) {
+          processedTgIds = new Set(cachedTgIds);
+        }
+      } catch (kvErr) {
+        console.warn('[TG SCRAPER] KV cache read error:', kvErr);
+      }
+    }
+
+    if (scrapedUrls.size === 0 && env.DB) {
+      try {
+        const scrapedJobsResult = await env.DB.prepare(
+          `SELECT json_extract(data, '$.sourceUrl') as sourceUrl FROM documents WHERE type_id = 'jobs'`
+        ).all();
+        scrapedUrls = new Set((scrapedJobsResult.results || []).map((r: any) => r.sourceUrl).filter(Boolean));
+        if (env.CACHE_KV && scrapedUrls.size > 0) {
+          await env.CACHE_KV.put('kv_scraped_urls', JSON.stringify([...scrapedUrls]), { expirationTtl: 86400 }).catch(() => {});
+        }
+      } catch (d1Err: any) {
+        console.warn('[TG SCRAPER] D1 query warning for jobs:', d1Err.message);
+      }
+    }
+
+    if (processedTgIds.size === 0 && env.DB) {
+      try {
+        const processedTgResult = await env.DB.prepare(
+          `SELECT id FROM documents WHERE type_id = 'scraped_telegram_posts'`
+        ).all();
+        processedTgIds = new Set((processedTgResult.results || []).map((r: any) => r.id));
+        if (env.CACHE_KV && processedTgIds.size > 0) {
+          await env.CACHE_KV.put('kv_processed_tg_ids', JSON.stringify([...processedTgIds]), { expirationTtl: 86400 }).catch(() => {});
+        }
+      } catch (d1Err: any) {
+        console.warn('[TG SCRAPER] D1 query warning for processed tg posts:', d1Err.message);
+      }
+    }
 
     // 3. Filter candidates in-memory first
     const unscrapedCandidates = candidates.filter(item => {
@@ -129,8 +165,8 @@ export async function runTelegramScraper(
             throw new Error('Website job page content too short or blocked.');
           }
 
-          details.push(`[AI] Parsing website job: ${websiteJobUrl}`);
-          const jobJson = await analyzeJobWithAI(env.AI, cleanedWebText);
+          details.push(`[AI] Parsing website job with AI: ${websiteJobUrl}`);
+          const jobJson = await analyzeJobUnified(env, cleanedWebText);
 
           // Save the job using website job URL as sourceUrl
           const { jobId, slug } = await saveJobToDb(
@@ -174,6 +210,14 @@ export async function runTelegramScraper(
 
           details.push(`[SUCCESS] Saved job ID ${jobId} from website link.`);
           scrapedCount++;
+
+          // Keep CACHE_KV updated
+          scrapedUrls.add(websiteJobUrl);
+          processedTgIds.add(`tg-${item.postId}`);
+          if (env.CACHE_KV) {
+            env.CACHE_KV.put('kv_scraped_urls', JSON.stringify([...scrapedUrls]), { expirationTtl: 86400 }).catch(() => {});
+            env.CACHE_KV.put('kv_processed_tg_ids', JSON.stringify([...processedTgIds]), { expirationTtl: 86400 }).catch(() => {});
+          }
         } else {
           // Standalone Telegram post (does not link to jobsintr.net)
           // Clean HTML tags from the Telegram post text
@@ -188,8 +232,8 @@ export async function runTelegramScraper(
             continue;
           }
 
-          details.push(`[AI] Parsing standalone Telegram post: ${telegramPostUrl}`);
-          const jobJson = await analyzeJobWithAI(env.AI, cleanMessageText);
+          details.push(`[AI] Parsing standalone Telegram post with AI: ${telegramPostUrl}`);
+          const jobJson = await analyzeJobUnified(env, cleanMessageText);
 
           // Save using Telegram post URL as sourceUrl
           const { jobId, slug } = await saveJobToDb(
@@ -233,6 +277,14 @@ export async function runTelegramScraper(
 
           details.push(`[SUCCESS] Saved job ID ${jobId} from standalone Telegram post.`);
           scrapedCount++;
+
+          // Keep CACHE_KV updated
+          scrapedUrls.add(telegramPostUrl);
+          processedTgIds.add(`tg-${item.postId}`);
+          if (env.CACHE_KV) {
+            env.CACHE_KV.put('kv_scraped_urls', JSON.stringify([...scrapedUrls]), { expirationTtl: 86400 }).catch(() => {});
+            env.CACHE_KV.put('kv_processed_tg_ids', JSON.stringify([...processedTgIds]), { expirationTtl: 86400 }).catch(() => {});
+          }
         }
 
         // Wait 3 seconds between jobs to avoid Gemini API rate limit (429)

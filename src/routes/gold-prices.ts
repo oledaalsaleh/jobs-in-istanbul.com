@@ -1,18 +1,19 @@
 import { Hono } from 'hono'
 import { renderLayout } from './public'
-
+import { runGoldScraper } from '../services/gold-scraper'
+import { safeQuery } from '../utils/db-helper'
 
 export const goldPricesRouter = new Hono()
 
-// Fallback gold prices in case D1 cache isn't seeded yet
+// Fallback gold prices in case D1 and KV caches aren't seeded yet (Updated 2026 accurate spot baselines)
 const fallbackGold = [
-  { id: '1', name: 'جرام الذهب عيار 24', unit: 'جرام', buy: 3129.21, sell: 3130.13, karat: '24', lastUpdate: '1782507602' },
-  { id: '12', name: 'جرام الذهب عيار 22', unit: 'جرام', buy: 2868.45, sell: 2870.21, karat: '22', lastUpdate: '1782507602' },
-  { id: '11', name: 'جرام الذهب عيار 21', unit: 'جرام', buy: 2738.05, sell: 2739.86, karat: '21', lastUpdate: '1782507602' },
-  { id: '2', name: 'جرام الذهب عيار 18', unit: 'جرام', buy: 2346.91, sell: 2348.33, karat: '18', lastUpdate: '1782507602' },
-  { id: '3', name: 'جرام الذهب عيار 14', unit: 'جرام', buy: 1825.21, sell: 1826.94, karat: '14', lastUpdate: '1782507602' },
-  { id: '4', name: 'اونصة الذهب', unit: 'اونصة', buy: 97321.43, sell: 97365.12, karat: null, lastUpdate: '1782507602' },
-  { id: '5', name: 'الليرة الذهب', unit: 'ليرة', buy: 20450.00, sell: 20600.00, karat: null, lastUpdate: '1782507602' }
+  { id: '1', name: 'جرام الذهب عيار 24', unit: 'جرام', buy: 6700.39, sell: 6701.29, karat: '24', lastUpdate: '1788339903' },
+  { id: '12', name: 'جرام الذهب عيار 22', unit: 'جرام', buy: 6141.69, sell: 6142.52, karat: '22', lastUpdate: '1788339903' },
+  { id: '11', name: 'جرام الذهب عيار 21', unit: 'جرام', buy: 5862.84, sell: 5863.63, karat: '21', lastUpdate: '1788339903' },
+  { id: '2', name: 'جرام الذهب عيار 18', unit: 'جرام', buy: 5025.29, sell: 5025.97, karat: '18', lastUpdate: '1788339903' },
+  { id: '3', name: 'جرام الذهب عيار 14', unit: 'جرام', buy: 3908.56, sell: 3909.09, karat: '14', lastUpdate: '1788339903' },
+  { id: '4', name: 'اونصة الذهب', unit: 'اونصة', buy: 208382.12, sell: 208410.05, karat: null, lastUpdate: '1788339903' },
+  { id: '5', name: 'الليرة الذهب', unit: 'ليرة', buy: 43114.66, sell: 43120.49, karat: null, lastUpdate: '1788339903' }
 ];
 
 const fallbackAdvice = {
@@ -21,6 +22,24 @@ const fallbackAdvice = {
   tr: 'Altın fiyatları, küresel spot altın hareketleri ve USD/TRY kurundaki değişimlere bağlı olarak bugün dalgalanma gösteriyor. Orta ve uzun vadeli yatırımcılar için altın, enflasyona karşı mükemmel bir değer koruma aracı olmaya devam etmektedir; kademeli birikim önerilir.',
   ru: 'Цены на золото сегодня колеблются в зависимости от мировых котировок и курса турецкой лиры к доллару. Для долгосрочных инвесторов золото остается отличным средством сбережения от инфляции.'
 };
+
+goldPricesRouter.post('/admin-api/refresh-gold-prices', async (c) => {
+  try {
+    const metals = await runGoldScraper(c.env);
+    return c.json({ success: true, count: metals.length, metals });
+  } catch (err: any) {
+    return c.json({ success: false, error: err.message }, 500);
+  }
+});
+
+goldPricesRouter.get('/admin-api/refresh-gold-prices', async (c) => {
+  try {
+    const metals = await runGoldScraper(c.env);
+    return c.json({ success: true, count: metals.length, metals });
+  } catch (err: any) {
+    return c.json({ success: false, error: err.message }, 500);
+  }
+});
 
 goldPricesRouter.get('/gold-prices', (c) => {
   const acceptLang = c.req.header('accept-language') || '';
@@ -51,22 +70,39 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
   let advice = fallbackAdvice;
   let lastUpdateStr = '';
 
-  try {
-    const cached = await db.prepare(
-      `SELECT data FROM documents WHERE type_id = 'site_settings' AND id = 'gold-prices-cache'`
-    ).first();
-
-    if (cached) {
-      const parsed = JSON.parse(cached.data);
-      if (parsed.metals && Array.isArray(parsed.metals) && parsed.metals.length > 0) {
-        metals = parsed.metals;
-        advice = parsed.advice || fallbackAdvice;
-        lastUpdateStr = new Date(parsed.updatedAt).toLocaleString(locale === 'ar' || locale === 'fa' || locale === 'ur' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
+  // 1. Try CACHE_KV first
+  const envAny = c.env as any;
+  if (envAny?.CACHE_KV) {
+    try {
+      const kvData: any = await envAny.CACHE_KV.get('kv_gold_prices', 'json');
+      if (kvData && Array.isArray(kvData.metals) && kvData.metals.length > 0) {
+        metals = kvData.metals;
+        advice = kvData.advice || fallbackAdvice;
+        lastUpdateStr = new Date(kvData.updatedAt || Date.now()).toLocaleString(locale === 'ar' || locale === 'fa' || locale === 'ur' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
       }
-    }
-  } catch (err) {
-    console.warn('Failed to load cached gold prices from DB, using fallback.', err);
+    } catch (e) {}
   }
+
+  // 2. Try DB if KV had no data
+  if (metals === fallbackGold && db) {
+    try {
+      const cached = await safeQuery(() => db.prepare(
+        `SELECT data FROM documents WHERE type_id = 'site_settings' AND id = 'gold-prices-cache'`
+      ).first(), 1, 50);
+
+      if (cached) {
+        const parsed = JSON.parse(cached.data);
+        if (parsed.metals && Array.isArray(parsed.metals) && parsed.metals.length > 0) {
+          metals = parsed.metals;
+          advice = parsed.advice || fallbackAdvice;
+          lastUpdateStr = new Date(parsed.updatedAt).toLocaleString(locale === 'ar' || locale === 'fa' || locale === 'ur' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to load cached gold prices from DB, using fallback.', err);
+    }
+  }
+
 
   if (!lastUpdateStr) {
     lastUpdateStr = new Date().toLocaleString(locale === 'ar' || locale === 'fa' || locale === 'ur' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
@@ -636,5 +672,6 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
     ? 'أسعار الذهب في تركيا اليوم | عيار 24 و 21 والليرة الذهب بالليرة التركية'
     : (locale === 'tr' ? 'Bugün Türkiye Altın Fiyatları | Canlı Altın Ayarları ve Fiyatları' : 'Gold Prices in Turkey Today | Live Gold Karat & Lira Rates');
 
+  c.header('Cache-Control', 'public, max-age=300, s-maxage=1800, stale-while-revalidate=3600');
   return c.html(renderLayout(c, seoTitle, html, locale));
 });

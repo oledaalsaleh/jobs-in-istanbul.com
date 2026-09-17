@@ -10,6 +10,7 @@ interface MetaDataInput {
   slug?: string;
   image?: string;
   publishedAt?: number;
+  updatedAt?: number;
   companyName?: string;
   companyLogo?: string;
   companyWebsite?: string;
@@ -21,19 +22,22 @@ interface MetaDataInput {
   seoDescription?: string;
   canonical?: string;
   robots?: string;
+  faqs?: Array<{ question: string; answer: string }>;
+  category?: string;
 }
 
 export function generateMetaTags(
-  locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur',
+  locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur' | string,
   pageType: 'home' | 'job' | 'submit' | 'blog' | 'blog_post' |
     'cv-optimizer' | 'salary-calculator' | 'resume-builder' | 'cover-letter-generator' | 'work-permit-calculator' | 'turkish-test' | 'interview-prep' | 'ats-scanner' | 'workplace-quiz' |
+    'salary-calculator-2026' | 'investor-calculator' | 'work-permit-eligibility' |
     'currency-prices' | 'gold-prices' | 'insights' |
     'about' | 'contact' | 'privacy' | 'terms' | 'install',
   data: MetaDataInput = {}
 ) {
   const siteUrl = 'https://jobs-in-istanbul.com';
 
-  const defaults = {
+  const defaultsTable: Record<string, any> = {
     ar: {
       title: 'وظائف في إسطنبول | وظائف لمتحدثي الإنجليزية في تركيا',
       desc: 'ابحث عن أحدث فرص العمل للوافدين والمحترفين المتحدثين باللغة الإنجليزية في إسطنبول. تقدّم للوظائف التقنية، المبيعات، والتعليم اليوم.',
@@ -58,7 +62,8 @@ export function generateMetaTags(
       title: 'استنبول میں ملازمتیں | اردو بولنے والوں کے لیے روزگار کے مواقع',
       desc: 'استنبول ترکی میں اردو بولنے والوں اور تارکینِ وطن کے لیے ملازمت کے تازہ ترین مواقع تلاش کریں۔ آج ہی آئی ٹی، سیلز اور تدریس کی ملازمتوں کے لیے درخواست دیں۔',
     }
-  }[locale];
+  };
+  const defaults = defaultsTable[locale] || defaultsTable['en'];
 
   let title = data.title || defaults.title;
   let desc = data.seoDescription || data.description || defaults.desc;
@@ -274,6 +279,57 @@ export function generateMetaTags(
       fa: 'دانش خود را درباره عبارات و اصطلاحات رایج اداری و کاری زبان ترکی استانبولی محک بزنید تا راحت‌تر با همکاران ارتباط برقرار کنید.',
       ur: 'استنبول کے دفاتری ماحول میں روزمرہ استعمال ہونے والی ترکی زبان کے اہم جملوں کا ٹیسٹ لیں تاکہ کام کاج میں آسانی ہو۔'
     }[locale];
+  } else if (pageType === 'salary-calculator-2026') {
+    title = data.title || {
+      ar: 'حاسبة صافي الأجور وضرائب SGK التفاعلية 2026 💵🇹🇷',
+      en: 'Live Net-to-Gross Salary & SGK Tax Calculator 2026 💵🇹🇷',
+      tr: 'Nettən Brüte Maaş ve SGK Kesintileri Hesaplama 2026 💵🇹🇷',
+      ru: 'Калькулятор зарплаты от нетто к брутто и налогов SGK 2026 💵🇹🇷',
+      fa: 'محاسبه‌گر حقوق خالص به ناخالص و مالیات SGK ترکیه 2026 💵🇹🇷',
+      ur: 'نیٹ ٹو گراس سیلری اور SGK ٹیکس کیلکولیٹر 2026 💵🇹🇷'
+    }[locale];
+    desc = data.seoDescription || data.description || {
+      ar: 'حاسبة رسمية محدثة لعام 2026 لحساب الراتب الصافي، الإجمالي، اقتطاعات الضمان الاجتماعي (SGK)، إعفاءات الحد الأدنى للأجور، وتكلفة رب العمل الإجمالية في إسطنبول.',
+      en: 'Official updated 2026 Turkish payroll calculator for Net vs Gross salary, SGK social security deductions, income tax exemptions, and total employer cost in Istanbul.',
+      tr: '2026 yılı güncel asgari ücret (Net 28.075 TL / Brüt 33.030 TL), SGK prim kesintileri, vergi muafiyeti ve işverene toplam maliyet hesaplama aracı.',
+      ru: 'Калькулятор зарплаты в Турции на 2026 год: расчет чистой зарплаты, отчислений в социальное страхование (SGK) и полной стоимости для работодателя.',
+      fa: 'ابزار رسمی محاسبه حقوق سال 2026 ترکیه (حقوق خالص، ناخالص، بیمه تامین اجتماعی SGK و هزینه کل برای کارفرما در استانبول).',
+      ur: 'ترکی 2026 پے رول کیلکولیٹر: نیٹ سیلری، گراس سیلری، SGK انشورنس اور ایمپلائر کی کل لاگت کا تخمینہ۔'
+    }[locale];
+  } else if (pageType === 'investor-calculator') {
+    title = data.title || {
+      ar: 'حاسبة تكاليف تأسيس الشركات وتوظيف الأجانب للمستثمرين 2026 🏢🇹🇷',
+      en: 'Investor Company Setup & Foreign Hiring Estimator 2026 🏢🇹🇷',
+      tr: 'Yatırımcı Şirket Kuruluşu ve Yabancı İstihdam Maliyet Hesaplama 2026 🏢🇹🇷',
+      ru: 'Калькулятор открытия компании и найма иностранцев 2026 🏢🇹🇷',
+      fa: 'محاسبه‌گر هزینه‌های ثبت شرکت و استخدام اتباع خارجی 2026 🏢🇹🇷',
+      ur: 'ترکی میں کمپنی رجسٹریشن اور غیر ملکی ملازمین کے اخراجات 2026 🏢🇹🇷'
+    }[locale];
+    desc = data.seoDescription || data.description || {
+      ar: 'أداة حاسبة استثمارية متكاملة لحساب رسوم تأسيس شركة (Ltd / A.Ş) في تركيا، استثناءات إذن العمل الشريك، وتكاليف توظيف العمالة الأجنبية والضرائب لعام 2026.',
+      en: 'Comprehensive 2026 investment calculator for company incorporation in Turkey (Ltd / A.Ş), work permit partner exemption rules, and foreign employee SGK tax budgets.',
+      tr: 'Türkiye\'de şirket kuruluşu (Ltd / A.Ş), ortak çalışma izni muafiyet kuralları ve yabancı personel SGK maliyet hesaplama aracı.',
+      ru: 'Расчет стоимости регистрации компании в Турции (Ltd / A.Ş), освобождения партнера от разрешения на работу и налогов SGK на 2026 год.',
+      fa: 'ابزار جامع سرمایه‌گذاری برای محاسبه هزینه‌های ثبت شرکت (Ltd / A.Ş) در ترکیه، معافیت‌های اجازه کار شریک و مالیات SGK.',
+      ur: 'ترکی میں کمپنی بنانے (Ltd / A.Ş)، پارٹنر ورک پرمٹ کے قواعد اور غیر ملکی ملازمین کے SGK ٹیکس کا تجزیہ کریں۔'
+    }[locale];
+  } else if (pageType === 'work-permit-eligibility') {
+    title = data.title || {
+      ar: 'حاسبة واختبار أهلية إذن العمل في تركيا 2026 🇹🇷',
+      en: 'Interactive Work Permit Eligibility Wizard 2026 🇹🇷',
+      tr: 'Çalışma İzni Uygunluk Değerlendirme Sihirbazı 2026 🇹🇷',
+      ru: 'Интерактивный тест на разрешение на работу в Турции 2026 🇹🇷',
+      fa: 'محاسبه‌گر آنلاین واجد شرایط بودن اجازه کار ترکیه 2026 🇹🇷',
+      ur: 'ترکی ورک پرمٹ اہلیت کیلکولیٹر 2026 🇹🇷'
+    }[locale];
+    desc = data.seoDescription || data.description || {
+      ar: 'أداة تفاعلية حاسمة لتحليل أهليتك الحصول على إذن العمل أو الإعفاء، وحساب الرسوم والحد الأدنى للأجور بدقة خلال 4 خطوات بسيطة.',
+      en: 'Analyze your legal eligibility for a Turkish Work Permit or e-Devlet Exemption, calculate 2026 official fees, and view required documents in 4 steps.',
+      tr: 'Türkiye çalışma izni veya e-Devlet muafiyet uygunluğunuzu analiz edin, 2026 harç ve asgari ücret katlarını 4 adımda hesaplayın.',
+      ru: 'Проверьте право на получение разрешения на работу или освобождения e-Devlet, рассчитайте сборы 2026 года за 4 простых шага.',
+      fa: 'تحلیل واجد شرایط بودن برای دریافت اجازه کار یا معافیت e-Devlet и محاسبه هزینه‌های رسمی 2026 در 4 مرحله.',
+      ur: 'ترکی میں ورک پرمٹ یا 3 سالہ استثنیٰ کی اہلیت کا تجزیہ کریں اور 2026 کی سرکاری فیسیں معلوم کریں۔'
+    }[locale];
   } else if (pageType === 'currency-prices') {
     title = data.title || {
       ar: 'أسعار العملات في تركيا اليوم | سعر الليرة التركية مقابل الدولار واليورو',
@@ -423,6 +479,8 @@ export function generateMetaTags(
       canonicalUrl = `${siteUrl}/${locale}/blog/${data.slug}`;
     } else if (data.slug) {
       canonicalUrl = `${siteUrl}/${locale}/${data.slug}`;
+    } else if (pageType === 'home' && data.category) {
+      canonicalUrl = `${siteUrl}/${locale}?category=${data.category}`;
     } else if (pageType !== 'home') {
       canonicalUrl = `${siteUrl}/${locale}/${pageType}`;
     }
@@ -439,6 +497,8 @@ export function generateMetaTags(
       url = `${siteUrl}/${loc}/blog/${data.slug}`;
     } else if (data.slug) {
       url = `${siteUrl}/${loc}/${data.slug}`;
+    } else if (pageType === 'home' && data.category) {
+      url = `${siteUrl}/${loc}?category=${data.category}`;
     } else if (pageType !== 'home') {
       url = `${siteUrl}/${loc}/${pageType}`;
     }
@@ -507,7 +567,7 @@ export function generateMetaTags(
   <meta name="keywords" content="${keywordsStr}">
   <meta name="robots" content="${robotsStr}">
   <link rel="canonical" href="${canonicalUrl}">
-  <link rel="icon" type="image/png" href="${siteUrl}/public/images/logo.png">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
   
   <!-- i18n Multilingual Links -->
   <link rel="alternate" hreflang="ar" href="${arUrl}">
@@ -642,9 +702,10 @@ function getStreetAddress(locationStr?: string): string {
 }
 
 export function generateJsonLd(
-  locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur',
+  locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur' | string,
   pageType: 'home' | 'job' | 'submit' | 'blog' | 'blog_post' |
     'cv-optimizer' | 'salary-calculator' | 'resume-builder' | 'cover-letter-generator' | 'work-permit-calculator' | 'turkish-test' | 'interview-prep' | 'ats-scanner' | 'workplace-quiz' |
+    'salary-calculator-2026' | 'investor-calculator' | 'work-permit-eligibility' |
     'currency-prices' | 'gold-prices' | 'insights' |
     'about' | 'contact' | 'privacy' | 'terms' | 'install',
   data: MetaDataInput = {}
@@ -718,6 +779,11 @@ export function generateJsonLd(
       }
     }
 
+    let modifiedTime = data.updatedAt ? new Date(data.updatedAt).getTime() : Date.now();
+    if (isNaN(modifiedTime)) {
+      modifiedTime = publishedTime;
+    }
+
     const cleanDesc = data.description
       ? data.description.substring(0, 160).replace(/<[^>]*>/g, '')
       : (locale === 'ar' ? 'مقال مهني في إسطنبول' : 'Career article in Istanbul');
@@ -729,7 +795,7 @@ export function generateJsonLd(
       "description": cleanDesc,
       "image": data.image || `${siteUrl}/public/images/og-share.png`,
       "datePublished": new Date(publishedTime).toISOString(),
-      "dateModified": new Date(publishedTime).toISOString(),
+      "dateModified": new Date(modifiedTime).toISOString(),
       "author": {
         "@type": "Organization",
         "name": locale === 'tr' ? 'İstanbul İş İlanları' : (locale === 'ar' ? 'وظائف إسطنبول' : 'Istanbul Jobs'),
@@ -774,9 +840,26 @@ export function generateJsonLd(
       ]
     };
 
+    let faqHtml = '';
+    if (data.faqs && data.faqs.length > 0) {
+      const faqSchema = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": data.faqs.map(faq => ({
+          "@type": "Question",
+          "name": faq.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": faq.answer
+          }
+        }))
+      };
+      faqHtml = `\n    <script type="application/ld+json">${JSON.stringify(faqSchema)}</script>`;
+    }
+
     return `
     <script type="application/ld+json">${JSON.stringify(blogPostingSchema)}</script>
-    <script type="application/ld+json">${JSON.stringify(breadcrumbSchema)}</script>
+    <script type="application/ld+json">${JSON.stringify(breadcrumbSchema)}</script>${faqHtml}
     `;
   }
 
@@ -905,7 +988,8 @@ export function generateJsonLd(
 
   if ([
     'cv-optimizer', 'salary-calculator', 'resume-builder', 'cover-letter-generator',
-    'work-permit-calculator', 'turkish-test', 'interview-prep', 'ats-scanner', 'workplace-quiz'
+    'work-permit-calculator', 'turkish-test', 'interview-prep', 'ats-scanner', 'workplace-quiz',
+    'salary-calculator-2026', 'investor-calculator', 'work-permit-eligibility'
   ].includes(pageType)) {
     const toolNames = ({
       'cv-optimizer': { ar: 'مساعد الذكاء الاصطناعي لتحسين السيرة الذاتية', en: 'AI CV & Cover Letter Optimizer', tr: 'Yapay Zeka ile CV ve Ön Yazı Geliştirici' },
@@ -916,7 +1000,10 @@ export function generateJsonLd(
       'turkish-test': { ar: 'اختبار اللغة التركية المهنية للعمل', en: 'Business Turkish Competency Test', tr: 'Mesleki Türkçe Seviye Testi' },
       'interview-prep': { ar: 'محاكي المقابلات الشخصية بالذكاء الاصطناعي', en: 'AI Job Interview Simulator', tr: 'Yapay Zeka Mülakat Simülatörü' },
       'ats-scanner': { ar: 'فاحص السيرة الذاتية بالذكاء الاصطناعي (ATS Scanner)', en: 'AI CV ATS Scanner', tr: 'Yapay Zeka CV ATS Tarayıcı' },
-      'workplace-quiz': { ar: 'اختبار لغة العمل التركية للمغتربين', en: 'Turkish Workplace Language Quiz', tr: 'İş Yeri Kültür ve Dil Testi' }
+      'workplace-quiz': { ar: 'اختبار لغة العمل التركية للمغتربين', en: 'Turkish Workplace Language Quiz', tr: 'İş Yeri Kültür ve Dil Testi' },
+      'salary-calculator-2026': { ar: 'حاسبة صافي الأجور وضرائب SGK التفاعلية 2026', en: 'Live Net-to-Gross Salary & SGK Tax Calculator 2026', tr: 'Nettən Brüte Maaş ve SGK Kesintileri Hesaplama 2026' },
+      'investor-calculator': { ar: 'حاسبة تكاليف تأسيس الشركات وتوظيف الأجانب للمستثمرين 2026', en: 'Investor Company Setup & Foreign Hiring Estimator 2026', tr: 'Yatırımcı Şirket Kuruluşu ve Yabancı İstihdam Maliyet Hesaplama 2026' },
+      'work-permit-eligibility': { ar: 'حاسبة واختبار أهلية إذن العمل في تركيا 2026', en: 'Interactive Work Permit Eligibility Wizard 2026', tr: 'Çalışma İzni Uygunluk Değerlendirme Sihirbazı 2026' }
     } as Record<string, any>)[pageType] as Record<string, string>;
 
     const toolName = toolNames[locale] || toolNames['en'];

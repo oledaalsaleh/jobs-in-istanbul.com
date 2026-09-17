@@ -11,7 +11,7 @@ workers_dev = true
 binding = "DB"
 database_name = "jobs_db"
 database_id = "82b69dc1-0372-4460-9df9-2218235adc01"
-migrations_dir = "./node_modules/@sonicjs-cms/core/migrations"
+migrations_dir = "./migrations"
 
 # R2 Bucket for media storage
 [[r2_buckets]]
@@ -30,7 +30,7 @@ CORS_ORIGINS = "http://localhost:8787"
 JWT_SECRET = "change-me-in-production-secure-key"
 TURNSTILE_SITE_KEY = "1x00000000000000000000AA"
 TURNSTILE_SECRET_KEY = "1x0000000000000000000000000000000AA"
-GEMINI_API_KEY = "AQ.Ab8RN6JHfL09eLgtayoUqbslfeDfT9x1GR1IjdnLt9O-dSJQ5g"
+GEMINI_API_KEY = "AQ.Ab8RN6JFlMDfvbuyYMN362UPlMX-Jg6_j3rN3bYnrkte-a0ysw"
 BING_SITE_VERIFICATION = "4430C081399901EF9B5BEAA4E9AD98A5"
 GOOGLE_SITE_VERIFICATION = "ADD_YOUR_GOOGLE_VERIFICATION_CODE_HERE"
 
@@ -41,7 +41,7 @@ routes = [
   { pattern = "jobs-in-istanbul.com", custom_domain = true },
   { pattern = "www.jobs-in-istanbul.com", custom_domain = true }
 ]
-vars = { ENVIRONMENT = "production", CORS_ORIGINS = "https://jobs-in-istanbul.com", JWT_SECRET = "secure-jwt-secret-key-istanbul-jobs-2026!", TURNSTILE_SITE_KEY = "1x00000000000000000000AA", TURNSTILE_SECRET_KEY = "1x0000000000000000000000000000000AA", BETTER_AUTH_URL = "https://jobs-in-istanbul.com", GEMINI_API_KEY = "AQ.Ab8RN6JHfL09eLgtayoUqbslfeDfT9x1GR1IjdnLt9O-dSJQ5g", BING_SITE_VERIFICATION = "4430C081399901EF9B5BEAA4E9AD98A5", GOOGLE_SITE_VERIFICATION = "ADD_YOUR_GOOGLE_VERIFICATION_CODE_HERE" }
+vars = { ENVIRONMENT = "production", CORS_ORIGINS = "https://jobs-in-istanbul.com", JWT_SECRET = "secure-jwt-secret-key-istanbul-jobs-2026!", TURNSTILE_SITE_KEY = "1x00000000000000000000AA", TURNSTILE_SECRET_KEY = "1x0000000000000000000000000000000AA", BETTER_AUTH_URL = "https://jobs-in-istanbul.com", GEMINI_API_KEY = "AQ.Ab8RN6JFlMDfvbuyYMN362UPlMX-Jg6_j3rN3bYnrkte-a0ysw", BING_SITE_VERIFICATION = "4430C081399901EF9B5BEAA4E9AD98A5", GOOGLE_SITE_VERIFICATION = "ADD_YOUR_GOOGLE_VERIFICATION_CODE_HERE" }
 
 
 
@@ -49,6 +49,7 @@ vars = { ENVIRONMENT = "production", CORS_ORIGINS = "https://jobs-in-istanbul.co
 binding = "DB"
 database_name = "jobs_db"
 database_id = "82b69dc1-0372-4460-9df9-2218235adc01"
+migrations_dir = "./migrations"
 
 [[env.production.kv_namespaces]]
 binding = "CACHE_KV"
@@ -69,8 +70,9 @@ enabled = true
 binding = "AI"
 
 [triggers]
-crons = ["*/15 * * * *"]
+crons = ["*/30 * * * *"]
 
 [env.production.triggers]
-crons = ["*/15 * * * *"]
+crons = ["*/30 * * * *"]
+
 

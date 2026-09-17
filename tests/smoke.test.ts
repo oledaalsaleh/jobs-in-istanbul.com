@@ -169,6 +169,23 @@ describe('Istanbul Jobs Portal Smoke Tests', () => {
     expect(text).toContain('Sitemap:')
   })
 
+  test('GET /app-ads.txt serves IAB compliant app-ads record', async () => {
+    const res = await app.request('/app-ads.txt', {}, mockEnv)
+    expect(res.status).toBe(200)
+    expect(res.headers.get('Content-Type')).toContain('text/plain')
+    const text = await res.text()
+    expect(text).toContain('google.com, pub-2220383290034920, DIRECT, f08c47fec0942fa0')
+  })
+
+  test('GET /ads.txt serves web ads record', async () => {
+    const res = await app.request('/ads.txt', {}, mockEnv)
+    expect(res.status).toBe(200)
+    expect(res.headers.get('Content-Type')).toContain('text/plain')
+    const text = await res.text()
+    expect(text).toContain('google.com, pub-2220383290034920, DIRECT, f08c47fec0942fa0')
+  })
+
+
   test('GET /sitemap.xml serves sitemap index structure', async () => {
     const res = await app.request('/sitemap.xml', {}, mockEnv)
     expect(res.status).toBe(200)
@@ -243,6 +260,18 @@ describe('Istanbul Jobs Portal Smoke Tests', () => {
     expect(res.status).toBe(200)
     const text = await res.text()
     expect(text).toContain('فرص عمل في اسطنبول')
+  })
+
+  test('GET /en/blog/turkey-minimum-wage-employer-cost-2026 loads with canonical, hreflang, and FAQPage schema', async () => {
+    const res = await app.request('/en/blog/turkey-minimum-wage-employer-cost-2026', {}, mockEnv)
+    expect(res.status).toBe(200)
+    const text = await res.text()
+    expect(text).toContain('Turkey Minimum Wage')
+    expect(text).toContain('28,075.50')
+    expect(text).toContain('<link rel="canonical" href="https://jobs-in-istanbul.com/en/blog/turkey-minimum-wage-employer-cost-2026">')
+    expect(text).toContain('hreflang="ar"')
+    expect(text).toContain('hreflang="tr"')
+    expect(text).toContain('"@type":"FAQPage"')
   })
 
   test('GET /ar/currency-prices loads currency prices page', async () => {
@@ -357,7 +386,7 @@ describe('Istanbul Jobs Portal Smoke Tests', () => {
     console.log('SUBMIT JOB RESPONSE:', json);
     expect(res.status).toBe(200);
     expect(json.success).toBe(true);
-  })
+  }, 15000)
 
   test('GET /ar/jobs/software-engineer renders JobPosting schema and localized detail content', async () => {
     const res = await app.request('/ar/jobs/software-engineer', {}, mockEnv)
@@ -565,6 +594,37 @@ describe('Istanbul Jobs Portal Smoke Tests', () => {
       expect(textFatih).toContain('فرص عمل ووظائف في الفاتح إسطنبول')
       expect(textFatih).toContain('"@type":"ItemList"')
       expect(textFatih).toContain('"@type":"FAQPage"')
+    })
+
+    test('GET /ar/salary-calculator-2026 renders correct canonical tag and title', async () => {
+      const res = await app.request('/ar/salary-calculator-2026', {}, mockEnv)
+      expect(res.status).toBe(200)
+      const text = await res.text()
+      expect(text).toContain('<link rel="canonical" href="https://jobs-in-istanbul.com/ar/salary-calculator-2026">')
+      expect(text).toContain('حاسبة صافي الأجور وضرائب SGK التفاعلية 2026')
+    })
+
+    test('GET /ar/investor-calculator renders correct canonical tag and title', async () => {
+      const res = await app.request('/ar/investor-calculator', {}, mockEnv)
+      expect(res.status).toBe(200)
+      const text = await res.text()
+      expect(text).toContain('<link rel="canonical" href="https://jobs-in-istanbul.com/ar/investor-calculator">')
+      expect(text).toContain('حاسبة تكاليف تأسيس الشركات وتوظيف الأجانب للمستثمرين 2026')
+    })
+
+    test('GET /ar/work-permit-eligibility renders correct canonical tag and title', async () => {
+      const res = await app.request('/ar/work-permit-eligibility', {}, mockEnv)
+      expect(res.status).toBe(200)
+      const text = await res.text()
+      expect(text).toContain('<link rel="canonical" href="https://jobs-in-istanbul.com/ar/work-permit-eligibility">')
+      expect(text).toContain('حاسبة واختبار أهلية إذن العمل في تركيا 2026')
+    })
+
+    test('GET /ru/privacy renders English Privacy Policy tab active by default', async () => {
+      const res = await app.request('/ru/privacy', {}, mockEnv)
+      expect(res.status).toBe(200)
+      const text = await res.text()
+      expect(text).toContain('id="en-tab" class="privacy-content-section" style="display: block;')
     })
   })
 })

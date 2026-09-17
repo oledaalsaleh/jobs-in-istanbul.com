@@ -1,0 +1,37 @@
+const fs = require('fs');
+const path = require('path');
+const { execSync } = require('child_process');
+
+const dir = path.join(__dirname, '../public/images/aktuel-app');
+if (!fs.existsSync(dir)) {
+  console.error(`Directory not found: ${dir}`);
+  process.exit(1);
+}
+
+const files = fs.readdirSync(dir).filter(f => f.endsWith('.jpg') || f.endsWith('.png'));
+
+console.log(`Found ${files.length} Aktuel images to upload to R2...`);
+
+for (const file of files) {
+  const filePath = path.join(dir, file);
+  const ext = path.extname(file).toLowerCase();
+  const contentType = ext === '.png' ? 'image/png' : 'image/jpeg';
+  const r2Key = `public/images/aktuel-app/${file}`;
+
+  console.log(`Uploading local: ${file}...`);
+  try {
+    execSync(`npx.cmd wrangler r2 object put "jobs-media/${r2Key}" --file="${filePath}" --content-type="${contentType}"`, { stdio: 'inherit' });
+  } catch (e) {
+    console.error(`Failed local upload for ${file}:`, e.message);
+  }
+
+  // Also upload remote if wrangler is authenticated
+  console.log(`Uploading remote (production): ${file}...`);
+  try {
+    execSync(`npx.cmd wrangler r2 object put "jobs-media/${r2Key}" --file="${filePath}" --content-type="${contentType}" --remote`, { stdio: 'inherit' });
+  } catch (e) {
+    console.warn(`Remote upload for ${file} skipped or failed:`, e.message);
+  }
+}
+
+console.log('Finished Aktuel image uploads to R2.');

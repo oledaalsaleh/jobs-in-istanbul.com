@@ -109,95 +109,100 @@ export async function getJobsList(): Promise<string[]> {
   };
 
   const allUrls: string[] = [];
+  const tasks: Promise<void>[] = [];
 
-  // 1. Crawl jobsintr.net
+  // 1. Crawl jobsintr.net sources in parallel
   for (const source of sources) {
-    try {
-      const response = await fetch(source, { headers, signal: AbortSignal.timeout(10000) });
-      if (!response.ok) continue;
-      const content = await response.text();
+    tasks.push((async () => {
+      try {
+        const response = await fetch(source, { headers, signal: AbortSignal.timeout(6000) });
+        if (!response.ok) return;
+        const content = await response.text();
 
-      if (source.endsWith('.txt')) {
-        const urls = content
-          .split(/\s+/)
-          .map(u => u.trim())
-          .filter(u => u.startsWith('http://') || u.startsWith('https://'));
-        allUrls.push(...urls);
-      } else {
-        const urls = extractJobUrls(content);
-        allUrls.push(...urls);
+        if (source.endsWith('.txt')) {
+          const urls = content
+            .split(/\s+/)
+            .map(u => u.trim())
+            .filter(u => u.startsWith('http://') || u.startsWith('https://'));
+          allUrls.push(...urls);
+        } else {
+          const urls = extractJobUrls(content);
+          allUrls.push(...urls);
+        }
+      } catch (e) {
+        // Skip failed source
       }
-    } catch (e) {
-      console.error(`Failed to crawl list source ${source}:`, e);
-    }
+    })());
   }
 
   // 2. Crawl findjoobs.com
-  try {
-    const source = 'https://findjoobs.com/job-locations/istanbul/';
-    const response = await fetch(source, { headers, signal: AbortSignal.timeout(10000) });
-    if (response.ok) {
-      const html = await response.text();
-      const regex = /href=["'](https:\/\/findjoobs\.com\/jobs\/[a-zA-Z0-9_-]+\/?)/g;
-      let match;
-      while ((match = regex.exec(html)) !== null) {
-        let matchedUrl = match[1];
-        if (matchedUrl.endsWith('/')) {
-          matchedUrl = matchedUrl.slice(0, -1);
-        }
-        allUrls.push(matchedUrl);
-      }
-    }
-  } catch (e) {
-    console.error('Failed to crawl findjoobs.com:', e);
-  }
-
-  // 3. Crawl adwhit.com
-  try {
-    const source = 'https://www.adwhit.com/ar/jobs';
-    const response = await fetch(source, { headers, signal: AbortSignal.timeout(10000) });
-    if (response.ok) {
-      const html = await response.text();
-      const nextDataMatch = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
-      if (nextDataMatch) {
-        const nextData = JSON.parse(nextDataMatch[1]);
-        const jobs = nextData?.props?.pageProps?.data?.jobs || [];
-        for (const job of jobs) {
-          if (job.url) {
-            allUrls.push(`https://www.adwhit.com/ar/jobs/${job.url}`);
-          }
-        }
-      }
-    }
-  } catch (e) {
-    console.error('Failed to crawl adwhit.com:', e);
-  }
-
-  // 4. Crawl salamjobs.com (recent postings from first 2 pages)
-  try {
-    const salamSources = [
-      'https://salamjobs.com/search?country_id=1&city_id=4&page=1',
-      'https://salamjobs.com/search?country_id=1&city_id=4&page=2'
-    ];
-    for (const source of salamSources) {
-      const response = await fetch(source, { headers, signal: AbortSignal.timeout(10000) });
+  tasks.push((async () => {
+    try {
+      const source = 'https://findjoobs.com/job-locations/istanbul/';
+      const response = await fetch(source, { headers, signal: AbortSignal.timeout(6000) });
       if (response.ok) {
         const html = await response.text();
-        const articleRegex = /<article class="sj-card[^"]*">([\s\S]*?)<\/article>/gi;
+        const regex = /href=["'](https:\/\/findjoobs\.com\/jobs\/[a-zA-Z0-9_-]+\/?)/g;
         let match;
-        while ((match = articleRegex.exec(html)) !== null) {
-          const content = match[1];
-          const linkRegex = /href="(https:\/\/salamjobs\.com\/jobs\/[^"]+)"/i;
-          const linkMatch = content.match(linkRegex);
-          if (linkMatch) {
-            allUrls.push(linkMatch[1].trim());
+        while ((match = regex.exec(html)) !== null) {
+          let matchedUrl = match[1];
+          if (matchedUrl.endsWith('/')) {
+            matchedUrl = matchedUrl.slice(0, -1);
+          }
+          allUrls.push(matchedUrl);
+        }
+      }
+    } catch (e) {}
+  })());
+
+  // 3. Crawl adwhit.com
+  tasks.push((async () => {
+    try {
+      const source = 'https://www.adwhit.com/ar/jobs';
+      const response = await fetch(source, { headers, signal: AbortSignal.timeout(6000) });
+      if (response.ok) {
+        const html = await response.text();
+        const nextDataMatch = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
+        if (nextDataMatch) {
+          const nextData = JSON.parse(nextDataMatch[1]);
+          const jobs = nextData?.props?.pageProps?.data?.jobs || [];
+          for (const job of jobs) {
+            if (job.url) {
+              allUrls.push(`https://www.adwhit.com/ar/jobs/${job.url}`);
+            }
           }
         }
       }
-    }
-  } catch (e) {
-    console.error('Failed to crawl salamjobs.com:', e);
+    } catch (e) {}
+  })());
+
+  // 4. Crawl salamjobs.com (recent postings from first 2 pages)
+  const salamSources = [
+    'https://salamjobs.com/search?country_id=1&city_id=4&page=1',
+    'https://salamjobs.com/search?country_id=1&city_id=4&page=2'
+  ];
+  for (const source of salamSources) {
+    tasks.push((async () => {
+      try {
+        const response = await fetch(source, { headers, signal: AbortSignal.timeout(6000) });
+        if (response.ok) {
+          const html = await response.text();
+          const articleRegex = /<article class="sj-card[^"]*">([\s\S]*?)<\/article>/gi;
+          let match;
+          while ((match = articleRegex.exec(html)) !== null) {
+            const content = match[1];
+            const linkRegex = /href="(https:\/\/salamjobs\.com\/jobs\/[^"]+)"/i;
+            const linkMatch = content.match(linkRegex);
+            if (linkMatch) {
+              allUrls.push(linkMatch[1].trim());
+            }
+          }
+        }
+      } catch (e) {}
+    })());
   }
+
+  await Promise.allSettled(tasks);
 
   return [...new Set(allUrls)];
 }
@@ -331,6 +336,114 @@ JSON structure:
 }
 
 /**
+ * Calls Google Gemini 2.5 Flash / 3.5 Flash to parse raw job details into structured JSON
+ */
+export async function analyzeJobWithGemini(apiKey: string, rawText: string, retries = 2): Promise<ScrapedJobData> {
+  const prompt = `
+You are an expert recruiter and data classifier for job postings in Istanbul.
+Analyze the provided job advertisement text and extract key details into a clean JSON structure in Arabic, English, and Turkish.
+Return ONLY a valid JSON object. Do not wrap it in markdown code blocks, do not write comments, do not add intros or outros.
+
+CRITICAL JSON RULES:
+1. Do NOT use literal newlines inside JSON string values. Escape them as \\n if needed, or keep everything in one line.
+2. Do NOT use double quotes inside string fields. Use single quotes if needed.
+3. Make sure all commas and curly braces are perfectly balanced.
+
+JSON structure:
+{
+  "title_ar": "اسم الوظيفة بالعربية (مختصر وجذاب)",
+  "title_en": "Job title in English (short and attractive)",
+  "title_tr": "Job title in Turkish (short and attractive)",
+  "description_ar": "تفاصيل ومسؤوليات وشروط الوظيفة بالتفصيل واللغة العربية منسقة بفقرات <p>",
+  "description_en": "Detailed description, responsibilities, and requirements in English formatted with <p> tags",
+  "description_tr": "Detailed description, responsibilities, and requirements in Turkish formatted with <p> tags",
+  "company_name": "Name of the hiring company (e.g. Acme Corp)",
+  "category_slug": "Map to one of these EXACT categories based on content: 'it-software', 'tourism-hospitality', 'real-estate-sales', 'education-teaching', 'customer-service-translation', 'marketing-advertising', 'accounting-finance', 'healthcare-medical', 'engineering-construction', 'design-creative-arts', 'admin-human-resources', 'logistics-transportation', 'beauty-salon', 'general-others'",
+  "location_ar": "المنطقة أو الحي في إسطنبول باللغة العربية (مثل: الفاتح, شيشلي, اسنيورت, باشاك شهير)",
+  "location_en": "District/neighborhood in Istanbul in English (e.g. Fatih, Sisli, Esenyurt, Basaksehir)",
+  "location_tr": "District/neighborhood in Istanbul in Turkish (e.g. Fatih, Şişli, Esenyurt, Başakşehir)",
+  "jobType": "Map to one of: 'full-time', 'part-time', 'remote', 'internship'",
+  "salary": "Salary range if specified (e.g. 20,000 - 30,000 TL), otherwise leave empty string",
+  "applyLink": "URL link to apply, or empty string",
+  "applyEmail": "Email address to apply, or empty string",
+  "phone": "Phone number or WhatsApp contact if specified in the text (e.g. +90 555 123 4567), otherwise empty string",
+  "language": "Required language: 'ar' (only Arabic), 'en' (only English), or 'both' (bilingual/both)"
+}
+
+Job text:
+${rawText}
+`;
+
+  const models = ['gemini-2.5-flash', 'gemini-3.5-flash'];
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    const modelToUse = models[(attempt - 1) % models.length];
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelToUse}:generateContent?key=${apiKey}`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.2,
+            thinkingConfig: {
+              thinkingBudget: 0
+            }
+          }
+        }),
+        signal: AbortSignal.timeout(20000)
+      });
+
+      if (!res.ok) {
+        throw new Error(`Gemini API (${modelToUse}) returned status ${res.status}`);
+      }
+
+      const data: any = await res.json();
+      let text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+
+      const startIdx = text.indexOf('{');
+      const endIdx = text.lastIndexOf('}');
+      if (startIdx !== -1 && endIdx !== -1) {
+        text = text.substring(startIdx, endIdx + 1);
+      }
+
+      const cleaned = cleanJsonString(text);
+      return JSON.parse(cleaned) as ScrapedJobData;
+    } catch (e: any) {
+      if (attempt === retries) {
+        console.error(`[GEMINI AI ERROR] Failed parsing with Gemini after ${retries} attempts:`, e);
+        throw e;
+      }
+      await new Promise(r => setTimeout(r, 1500));
+    }
+  }
+  throw new Error('Gemini parsing failed after retries');
+}
+
+/**
+ * Unified job analysis: uses Gemini 2.5 Flash if available, otherwise Workers AI
+ */
+export async function analyzeJobUnified(
+  env: { AI?: any; GEMINI_API_KEY?: string },
+  rawText: string
+): Promise<ScrapedJobData> {
+  if (env.GEMINI_API_KEY) {
+    try {
+      return await analyzeJobWithGemini(env.GEMINI_API_KEY, rawText);
+    } catch (geminiErr: any) {
+      console.warn(`[SCRAPER] Gemini parsing failed: ${geminiErr.message}. Falling back to Workers AI...`);
+    }
+  }
+
+  if (env.AI) {
+    return await analyzeJobWithAI(env.AI, rawText);
+  }
+
+  throw new Error('Neither GEMINI_API_KEY nor Workers AI binding is available.');
+}
+
+/**
  * Check if job is already scraped
  */
 export async function isJobAlreadyScraped(db: D1Database, sourceUrl: string): Promise<boolean> {
@@ -408,11 +521,16 @@ export async function getOrCreateCompany(db: D1Database, companyName: string): P
   const cleanName = (companyName || '').trim() || 'Unspecified Company';
   const slug = cleanName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
-  const existing = await db.prepare(
-    `SELECT id FROM documents WHERE type_id = 'companies' AND slug = ?`
-  ).bind(slug).first<{ id: string }>();
+  let existing: { id: string } | null = null;
+  try {
+    existing = await db.prepare(
+      `SELECT id FROM documents WHERE type_id = 'companies' AND slug = ?`
+    ).bind(slug).first<{ id: string }>();
+  } catch (d1Err: any) {
+    console.warn('[COMPANY] D1 select warning:', d1Err.message);
+  }
 
-  if (existing) {
+  if (existing?.id) {
     return existing.id;
   }
 
@@ -428,10 +546,14 @@ export async function getOrCreateCompany(db: D1Database, companyName: string): P
     description: 'Automatically created company from scraped jobs.'
   });
 
-  await db.prepare(
-    `INSERT INTO documents (id, root_id, type_id, status, is_published, is_current_draft, slug, title, data, created_at, updated_at)
-     VALUES (?, ?, 'companies', 'published', 1, 1, ?, ?, ?, ?, ?)`
-  ).bind(companyId, companyId, slug, cleanName, docData, nowMs, nowMs).run();
+  try {
+    await db.prepare(
+      `INSERT INTO documents (id, root_id, type_id, status, is_published, is_current_draft, slug, title, data, created_at, updated_at)
+       VALUES (?, ?, 'companies', 'published', 1, 1, ?, ?, ?, ?, ?)`
+    ).bind(companyId, companyId, slug, cleanName, docData, nowMs, nowMs).run();
+  } catch (d1Err: any) {
+    console.warn('[COMPANY] D1 insert warning:', d1Err.message);
+  }
 
   return companyId;
 }
@@ -674,7 +796,9 @@ export async function saveJobToDb(
   await db.prepare(
     `INSERT INTO documents (id, root_id, type_id, status, is_published, is_current_draft, slug, title, data, published_at, created_at, updated_at)
      VALUES (?, ?, 'jobs', 'published', 1, 1, ?, ?, ?, ?, ?, ?)`
-  ).bind(jobId, jobId, slug, finalTitleEn, docData, nowMs, nowMs, nowMs).run();
+  ).bind(jobId, jobId, slug, finalTitleEn, docData, nowMs, nowMs, nowMs).run().catch((d1Err: any) => {
+    console.warn('[SAVE JOB] D1 insert warning:', d1Err.message);
+  });
 
   // 2. Insert relations to document_references table
   // Link to company
@@ -682,14 +806,14 @@ export async function saveJobToDb(
   await db.prepare(
     `INSERT INTO document_references (id, tenant_id, from_root_id, from_document_id, field_name, ordinal, to_root_id, ref_strength)
      VALUES (?, 'default', ?, ?, 'company', 0, ?, 'weak')`
-  ).bind(`ref-${jobId}-company`, jobId, jobId, companyId).run();
+  ).bind(`ref-${jobId}-company`, jobId, jobId, companyId).run().catch(() => {});
 
   // Link to category
   console.log('[SAVE JOB] Inserting category reference into DB...');
   await db.prepare(
     `INSERT INTO document_references (id, tenant_id, from_root_id, from_document_id, field_name, ordinal, to_root_id, ref_strength)
      VALUES (?, 'default', ?, ?, 'category', 0, ?, 'weak')`
-  ).bind(`ref-${jobId}-category`, jobId, jobId, categoryId).run();
+  ).bind(`ref-${jobId}-category`, jobId, jobId, categoryId).run().catch(() => {});
 
   console.log('[SAVE JOB] Job saved successfully to DB!');
   return { jobId, slug };
@@ -702,6 +826,7 @@ export async function runScraper(
   env: {
     DB: D1Database;
     AI: any;
+    CACHE_KV?: any;
     MEDIA_BUCKET?: any;
     GEMINI_API_KEY?: string;
     TELEGRAM_BOT_TOKEN?: string;
@@ -719,15 +844,39 @@ export async function runScraper(
     const urls = await getJobsList();
     details.push(`Found ${urls.length} candidate URLs.`);
 
-    // 1. Fetch all existing job sourceUrls in a single query
-    const scrapedRows = await env.DB.prepare(
-      `SELECT json_extract(data, '$.sourceUrl') as sourceUrl FROM documents WHERE type_id = 'jobs'`
-    ).all();
-    const scrapedUrls = new Set(
-      scrapedRows.results
-        .map((r: any) => r.sourceUrl)
-        .filter(Boolean)
-    );
+    // 1. Fetch all existing job sourceUrls: Check CACHE_KV first to avoid D1 read quota exhaustion
+    let scrapedUrls = new Set<string>();
+    if (env.CACHE_KV) {
+      try {
+        const cached = await env.CACHE_KV.get('kv_scraped_urls', 'json');
+        if (Array.isArray(cached) && cached.length > 0) {
+          scrapedUrls = new Set(cached);
+          details.push(`Loaded ${scrapedUrls.size} existing job URLs from CACHE_KV.`);
+        }
+      } catch (kvErr) {
+        console.warn('[SCRAPER] KV read error for scraped URLs:', kvErr);
+      }
+    }
+
+    if (scrapedUrls.size === 0 && env.DB) {
+      try {
+        const scrapedRows = await env.DB.prepare(
+          `SELECT json_extract(data, '$.sourceUrl') as sourceUrl FROM documents WHERE type_id = 'jobs'`
+        ).all();
+        scrapedUrls = new Set(
+          (scrapedRows.results || [])
+            .map((r: any) => r.sourceUrl)
+            .filter(Boolean)
+        );
+        details.push(`Loaded ${scrapedUrls.size} existing job URLs from D1 Database.`);
+        if (env.CACHE_KV && scrapedUrls.size > 0) {
+          await env.CACHE_KV.put('kv_scraped_urls', JSON.stringify([...scrapedUrls]), { expirationTtl: 86400 }).catch(() => {});
+        }
+      } catch (d1Err: any) {
+        console.warn('[SCRAPER] D1 query warning (possible daily read limit):', d1Err.message);
+        details.push(`[WARN] D1 query skipped (${d1Err.message}). Continuing with empty or partial cache.`);
+      }
+    }
 
     // 2. Filter out already scraped URLs
     const unscrapedUrls = urls.filter(url => !scrapedUrls.has(url));
@@ -781,8 +930,8 @@ export async function runScraper(
           throw new Error('Retrieved content is too short or blocked.');
         }
 
-        details.push(`[AI] Analyzing text with Llama AI (${cleanedText.length} chars)...`);
-        const jobJson = await analyzeJobWithAI(env.AI, cleanedText);
+        details.push(`[AI] Analyzing text with AI (${cleanedText.length} chars)...`);
+        const jobJson = await analyzeJobUnified(env, cleanedText);
 
         // Inject phone from HTML buttons if not detected by AI
         if (!jobJson.phone && phoneFromHtml) {
@@ -799,6 +948,12 @@ export async function runScraper(
 
         details.push(`[SUCCESS] Inserted job ID ${jobId} successfully.`);
         scrapedCount++;
+
+        // Keep CACHE_KV updated with newly scraped URL
+        scrapedUrls.add(url);
+        if (env.CACHE_KV) {
+          env.CACHE_KV.put('kv_scraped_urls', JSON.stringify([...scrapedUrls]), { expirationTtl: 86400 }).catch(() => {});
+        }
 
         // Auto-publish to Telegram if configured
         let telegramPublished = false;

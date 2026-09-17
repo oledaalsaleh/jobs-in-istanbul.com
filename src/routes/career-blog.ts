@@ -1,8 +1,40 @@
 import { Hono } from 'hono'
 import { renderLayout } from './public'
+import { safeQuery } from '../utils/db-helper'
 import { generateMetaTags, generateJsonLd } from '../utils/seo-helper'
+import { 
+  quranAppArticleAr, 
+  quranAppArticleEn, 
+  quranAppArticleTr,
+  quranAppArticleUr,
+  quranAppArticleId,
+  quranAppArticleFr,
+  quranAppArticleRu,
+  quranAppArticleFa,
+  quranAppArticleBn,
+  quranAppArticleDe
+} from '../data/quran-app-article'
+import {
+  aktuelAppArticleAr,
+  aktuelAppArticleEn,
+  aktuelAppArticleTr
+} from '../data/aktuel-app-article'
 
 export const careerBlogRouter = new Hono()
+
+// Serve app-ads.txt on blog routes
+careerBlogRouter.get('/blog/app-ads.txt', (c) => {
+  return c.text('google.com, pub-2220383290034920, DIRECT, f08c47fec0942fa0\n', 200, {
+    'Content-Type': 'text/plain; charset=utf-8',
+    'Cache-Control': 'public, max-age=86400'
+  });
+})
+careerBlogRouter.get('/:locale/blog/app-ads.txt', (c) => {
+  return c.text('google.com, pub-2220383290034920, DIRECT, f08c47fec0942fa0\n', 200, {
+    'Content-Type': 'text/plain; charset=utf-8',
+    'Cache-Control': 'public, max-age=86400'
+  });
+})
 
 // Redirect bare /blog to /ar/blog
 careerBlogRouter.get('/blog', (c) => {
@@ -10,8 +42,298 @@ careerBlogRouter.get('/blog', (c) => {
 })
 
 // Fallback hardcoded seeded articles if the database is empty
-const seededArticles: Record<string, any[]> = {
+export const seededArticles: Record<string, any[]> = {
   ar: [
+    aktuelAppArticleAr,
+    quranAppArticleAr,
+    {
+      title: 'دليل رواتب السائقين في إسطنبول 2026: السائق الخاص، السياحي، والتوصيل',
+      slug: 'driver-salary-istanbul-2026',
+      summary: 'دليل محدث لرواتب السائقين في إسطنبول لعام 2026، يشمل سائقي السياحة (Vip Driver)، سائقي الشركات والمصانع، وسائقي تطبيقات التوصيل، مع متطلبات الرخص والشهادات المهنية SRC.',
+      publishedAt: '2026-08-16',
+      canonical: 'https://jobs-in-istanbul.com/ar/blog/driver-salary-istanbul-2026',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 28px;">
+            <img src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=1200&fm=webp" alt="رواتب السائقين في إسطنبول 2026" style="width: 100%; max-height: 480px; object-fit: cover; border-radius: 16px; box-shadow: var(--shadow-md);">
+            <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 8px;">دليل شامل ومحدث لرواتب ومهن القيادة والسياقة في إسطنبول وتركيا لعام 2026</p>
+          </div>
+
+          <p>تُعد مهنة السائق في إسطنبول من أكثر المهن طلباً وحراكاً، نظراً لاتساع المدينة ونشاط قطاعات السياحة، التجارة، والتوصيل السريع. مع تحديثات الحد الأدنى للأجور في تركيا لعام 2026، ارتفعت مستويات الرواتب والبدلات لمختلف فئات السائقين.</p>
+
+          <h2>جدول متوسط رواتب السائقين في إسطنبول لعام 2026</h2>
+          <table style="width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 0.95rem;">
+            <thead>
+              <tr style="background: var(--bg-subtle); text-align: right;">
+                <th style="padding: 12px; border-bottom: 2px solid var(--border);">نوع وظيفة السائق</th>
+                <th style="padding: 12px; border-bottom: 2px solid var(--border);">متوسط الراتب الصافي (Net TRY)</th>
+                <th style="padding: 12px; border-bottom: 2px solid var(--border);">المزايا الإضافية الشائعة</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 12px;"><strong>سائق سياحي VIP (عربي / إنجليزي)</strong></td>
+                <td style="padding: 12px; color: var(--primary); font-weight: 700;">38,000 - 65,000 ليرة</td>
+                <td style="padding: 12px;">إكراميات يومية (Bahşiş) + وجبات + بدل ساعات إضافية</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 12px;"><strong>سائق خاص لعائلة / رجال أعمال</strong></td>
+                <td style="padding: 12px; color: var(--primary); font-weight: 700;">32,000 - 48,000 ليرة</td>
+                <td style="padding: 12px;">تأمين السكن (Lojman) في بعض الحالات + SGK</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 12px;"><strong>سائق توصيل وتوزيع (Courier / Dağıtım)</strong></td>
+                <td style="padding: 12px; color: var(--primary); font-weight: 700;">30,000 - 45,000 ليرة</td>
+                <td style="padding: 12px;">مكافأة لكل طرد + وقود مؤمن + SGK</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 12px;"><strong>سائق حافلة وسيرفيس شركات (Servis Şoförü)</strong></td>
+                <td style="padding: 12px; color: var(--primary); font-weight: 700;">34,000 - 50,000 ليرة</td>
+                <td style="padding: 12px;">دوام صباحي ومسائي محدد + تأمين صحي شامل</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h2>المستندات والمتطلبات القانونية للعمل كسائق في تركيا</h2>
+          <ul>
+            <li><strong>رخصة القيادة التركية (Ehliyet):</strong> إما استبدال الرخصة الأجنبية برخصة تركية أو الحصول عليها مباشرة.</li>
+            <li><strong>شهادة الكفاءة المهنية (SRC 2 / SRC 4):</strong> شهادة إلزامية لنقل الركاب والبضائع تجارياً.</li>
+            <li><strong>تقرير الفحص النفسي الحركي (Psikoteknik Belgesi):</strong> شهادة لياقة تصدر بعد اختبار معتمد.</li>
+            <li><strong>إذن العمل الرسمي (Çalışma İzni):</strong> الصادر عبر الشركة المشغلة.</li>
+          </ul>
+
+          <div style="background: rgba(0, 123, 255, 0.06); border-inline-start: 4px solid var(--primary); padding: 18px; border-radius: 8px; margin: 24px 0;">
+            <h4 style="margin: 0 0 8px 0; color: var(--primary); font-size: 1.05rem; font-weight: 700;">💡 تصفح أحدث وظائف السائقين المتاحة الآن:</h4>
+            <p style="margin: 0; font-size: 0.95rem;">يمكنك تصفح عشرات الشواغر المباشرة عبر قسم <a href="/ar/driver-jobs" style="color: var(--primary); font-weight: 700;">وظائف السائقين في إسطنبول</a> والتواصل المباشر مع أصحاب الشركات.</p>
+          </div>
+        </div>
+      `
+    },
+    {
+      title: 'أفضل وظائف في إسطنبول للعرب بدون لغة تركية لعام 2026',
+      slug: 'jobs-without-turkish-in-turkey-2026',
+      summary: 'دليلك الشامل لأكثر من 10 مجالات وظيفية في إسطنبول لا تتطلب إتقان اللغة التركية، مثل الكول سنتر، السياحة العلاجية، الترجمة، البرمجة، والتسويق الرقمي.',
+      publishedAt: '2026-08-16',
+      canonical: 'https://jobs-in-istanbul.com/ar/blog/jobs-without-turkish-in-turkey-2026',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 28px;">
+            <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=1200&fm=webp" alt="وظائف بدون لغة تركية في اسطنبول" style="width: 100%; max-height: 480px; object-fit: cover; border-radius: 16px; box-shadow: var(--shadow-md);">
+            <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 8px;">فرص العمل المتاحة في إسطنبول التي تعتمد على اللغة العربية أو الإنجليزية</p>
+          </div>
+
+          <p>أحد أكبر الهواجس التي تواجه الوافدين الجدد إلى إسطنبول هو عائق اللغة التركية. لكن سوق العمل في إسطنبول يتميز بوجود قطاعات دولية وعربية عملاقة تبحث حصرياً عن متحدثي اللغة العربية بطلاقة.</p>
+
+          <h2>أبرز القطاعات التي لا تشترط اللغة التركية:</h2>
+          <ol style="line-height: 1.8;">
+            <li><strong>مراكز الاتصال وخدمة العملاء (Call Centers):</strong> كبرى الشركات العالمية والخليجية تتخذ من إسطنبول مقراً لخدمة عملائها في الخليج وشمال إفريقيا برواتب تبدأ من 28,000 إلى 45,000 ليرة + عمولات مجزية.</li>
+            <li><strong>مبيعات السياحة العلاجية (Medical Tourism Sales):</strong> عيادات التجميل وزراعة الشعر وطب الأسنان تعتمد بشكل شبه كامل على مستشاري مبيعات عرب.</li>
+            <li><strong>التسويق العقاري والاستثمار:</strong> استهداف المستثمرين العرب الراغبين بشراء عقارات أو الحصول على الجنسية التركية.</li>
+            <li><strong>البرمجة وتكنولوجيا المعلومات (IT & Tech):</strong> لغة العمل داخل فرق البرمجة هي الإنجليزية بالكامل.</li>
+            <li><strong>المدارس والجامعات الدولية:</strong> وظائف تدريس وإدارة ناطقة بالعربية والإنجليزية.</li>
+            <li><strong>المطاعم والمقاهي العربية:</strong> كبرى السلاسل والمطاعم في الفاتح وباشاك شهير وإيسنيورت.</li>
+          </ol>
+
+          <div style="background: rgba(16, 185, 129, 0.08); border-inline-start: 4px solid #10b981; padding: 18px; border-radius: 8px; margin: 24px 0;">
+            <h4 style="margin: 0 0 8px 0; color: #047857; font-size: 1.05rem; font-weight: 700;">🔍 تصفح الشواغر المفلترة:</h4>
+            <p style="margin: 0; font-size: 0.95rem;">شاهد جميع الإعلانات الحالية عبر <a href="/ar/jobs-without-turkish" style="color: #047857; font-weight: 700;">صفحة وظائف بدون لغة تركية</a> و <a href="/ar/jobs-for-arabs" style="color: #047857; font-weight: 700;">وظائف العرب في إسطنبول</a>.</p>
+          </div>
+        </div>
+      `
+    },
+    {
+      title: 'دليل استخراج إذن وتصريح العمل في تركيا للأجانب 2026: الشروط والخطوات',
+      slug: 'turkey-work-permit-guide-2026',
+      summary: 'كل ما تحتاج معرفته عن إذن العمل التركي (Çalışma İzni) لعام 2026: شرط الـ 5 أتراك والاستثناءات الجديدة، رسوم إذن العمل، الأوراق المطلوبة، وحسابات الضمان الاجتماعي SGK.',
+      publishedAt: '2026-08-16',
+      canonical: 'https://jobs-in-istanbul.com/ar/blog/turkey-work-permit-guide-2026',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 28px;">
+            <img src="https://images.unsplash.com/photo-1450133064473-71024230f91b?q=80&w=1200&fm=webp" alt="إذن العمل في تركيا للأجانب 2026" style="width: 100%; max-height: 480px; object-fit: cover; border-radius: 16px; box-shadow: var(--shadow-md);">
+            <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 8px;">الدليل القانوني الشامل للحصول على إذن العمل (Çalışma İzni) في تركيا لعام 2026</p>
+          </div>
+
+          <p>يُعد إذن العمل (Çalışma İzni) الوثيقة القانونية الأساسية التي تمنح المقيم الأجنبي حق العمل بشكل رسمي في تركيا وتحميه من الاستغلال، كما تتيح له ولعائلته التأمين الصحي الشامل (SGK) وحق التقدم للجنسية التركية بعد 5 سنوات متواصلة من العمل المسجل.</p>
+
+          <h2>الشروط الأساسية لاستخراج إذن العمل للشركات التركية:</h2>
+          <ul>
+            <li><strong>شرط توظيف 5 مواطنين أتراك:</strong> تشترط وزارة العمل توظيف 5 أتراك مسجلين في SGK مقابل كل عامل أجنبي (مع استثناءات للشركات ذات رأس المال الاستثماري الكبير والشركاء الأجانب في عامهم الأول).</li>
+            <li><strong>رأس مال الشركة:</strong> لا يقل عن 100,000 ليرة تركية مسددة بالكامل.</li>
+            <li><strong>الحد الأدنى للأجور القانوني للأجانب:</strong> يختلف راتب العامل الأجنبي الخاضع لإذن العمل بحسب المسمى الوظيفي (مثلاً: مهندس أو خبير يحصل على مضاعفات الحد الأدنى).</li>
+          </ul>
+
+          <h2>خطوات التقديم عبر بوابة e-İzin:</h2>
+          <ol>
+            <li>يقوم صاحب العمل بتقديم الطلب عبر منصة وزارة العمل والضمان الاجتماعي التركية.</li>
+            <li>إرفاق عقد العمل، صورة الإقامة سارية المفعول (سياحية، حماية مؤقتة، أو طالب)، وصورة جواز السفر المترجم والمنوترة.</li>
+            <li>دفع الرسوم الرسمية لإذن العمل وبطاقة الإقامة بعد صدور الموافقة.</li>
+          </ol>
+
+          <div style="background: rgba(0, 123, 255, 0.06); border-inline-start: 4px solid var(--primary); padding: 18px; border-radius: 8px; margin: 24px 0;">
+            <h4 style="margin: 0 0 8px 0; color: var(--primary); font-size: 1.05rem; font-weight: 700;">🧮 هل أنت أو شركتك مؤهلون لإذن العمل؟</h4>
+            <p style="margin: 0; font-size: 0.95rem;">استخدم <a href="/ar/work-permit-eligibility" style="color: var(--primary); font-weight: 700;">أداة حاسبة أهلية إذن العمل 2026</a> لمعرفة نسبة القبول والاشتراطات بدقة.</p>
+          </div>
+        </div>
+      `
+    },
+    {
+      title: 'وظائف العرب في تركيا 2026: أكثر المهن طلباً وفرص الاستقرار المهني',
+      slug: 'arab-jobs-in-turkey-guide-2026',
+      summary: 'استعراض لأكثر القطاعات توظيفاً للعمالة العربية في إسطنبول، نصائح التفاوض على الرواتب، حقوق الموظف في قانون العمل التركي، وتجنب الإعلانات الاحتيالية.',
+      publishedAt: '2026-08-16',
+      canonical: 'https://jobs-in-istanbul.com/ar/blog/arab-jobs-in-turkey-guide-2026',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 28px;">
+            <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1200&fm=webp" alt="وظائف العرب في تركيا 2026" style="width: 100%; max-height: 480px; object-fit: cover; border-radius: 16px; box-shadow: var(--shadow-md);">
+            <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 8px;">دليل التوظيف والاستقرار المهني للكفاءات والعمالة العربية في تركيا</p>
+          </div>
+
+          <p>تستضيف إسطنبول أكبر تجمع للشركات والمؤسسات العربية والدولية في المنطقة. في هذا الدليل نسلط الضوء على واقع توظيف العرب وأفضل المسارات المهنية لبناء دخل مستقر ومستدام.</p>
+
+          <h2>أفضل 5 مسارات مهنية للعرب في تركيا:</h2>
+          <ul>
+            <li><strong>التسويق والمبيعات الموجهة للخليج العربي:</strong> نظراً لفارق التوقيت واللغة، تحقق الشركات العاملة في تركيا أرباحاً كبرى من بيع خدماتها لعملاء دول الخليج.</li>
+            <li><strong>الإعلام وصناعة المحتوى الرقمي:</strong> استوديوهات الإنتاج، الترجمة الصوتية والدوبلاج، وإدارة المنصات.</li>
+            <li><strong>التعليم الأكاديمي والمدارس الخاصة:</strong> تدريس المناهج الدولية واللغات.</li>
+            <li><strong>القطاع اللوجستي والتجارة الخارجية:</strong> تصدير البضائع التركية للأسواق العربية.</li>
+            <li><strong>المطاعم والأغذية والضيافة:</strong> علامات عربية شهيرة وسلاسل مطاعم كبرى.</li>
+          </ul>
+
+          <div style="background: rgba(239, 68, 68, 0.08); border-inline-start: 4px solid #ef4444; padding: 18px; border-radius: 8px; margin: 24px 0;">
+            <h4 style="margin: 0 0 8px 0; color: #b91c1c; font-size: 1.05rem; font-weight: 700;">🛡️ نصائح أمنية ضد الاحتيال الوظيفي:</h4>
+            <p style="margin: 0; font-size: 0.95rem;">احذر تماماً من دفع أي مبالغ مالية مقابل التسجيل في شركات التوظيف أو وعود إذن العمل الوهمية. المنصات الموثوقة والشركات الحقيقية لا تطلب مقابلاً مادياً من الباحث عن عمل.</p>
+          </div>
+        </div>
+      `
+    },
+    {
+      title: 'دليل رواتب المهن والحد الأدنى للأجور في إسطنبول لعام 2026',
+      slug: 'istanbul-salaries-guide-2026',
+      summary: 'جدول رواتب المهن الحرفية والتقنية والإدارية في إسطنبول لعام 2026 بعد تطبيق الحد الأدنى الرسمي للأجور، وتكاليف المعيشة وتأمين السكن والمواصلات.',
+      publishedAt: '2026-08-16',
+      canonical: 'https://jobs-in-istanbul.com/ar/blog/istanbul-salaries-guide-2026',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 28px;">
+            <img src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=1200&fm=webp" alt="رواتب المهن في إسطنبول 2026" style="width: 100%; max-height: 480px; object-fit: cover; border-radius: 16px; box-shadow: var(--shadow-md);">
+            <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 8px;">مؤشرات الأجور الصافية وتكاليف المعيشة لمختلف المهن في إسطنبول 2026</p>
+          </div>
+
+          <p>مع بداية عام 2026، تم تحديد الحد الأدنى الصافي للأجور في تركيا بـ <strong>28,075.50 ليرة تركية</strong>. لكن في إسطنبول تختلف الرواتب الفعلية المعروضة في السوق بحسب التخصص والموقع الجغرافي والخبرة.</p>
+
+          <h2>متوسط الرواتب الصافية حسب المهنة (إسطنبول 2026):</h2>
+          <ul>
+            <li><strong>مهندس برمجيات / مطور ويب:</strong> 55,000 - 110,000 ليرة تركية</li>
+            <li><strong>أخصائي كول سنتر ومبيعات هاتفية:</strong> 30,000 - 50,000 ليرة + عمولات</li>
+            <li><strong>شيف / طاهي مطاعم متخصص:</strong> 35,000 - 60,000 ليرة + سكن وطعام</li>
+            <li><strong>عامل مصنع وإنتاج:</strong> 28,500 - 38,000 ليرة + سيرفيس ووجبة طعام</li>
+            <li><strong>مترجم ومرافق طبي:</strong> 32,000 - 48,000 ليرة</li>
+            <li><strong>سائق VIP وسياحي:</strong> 38,000 - 65,000 ليرة</li>
+          </ul>
+
+          <div style="background: rgba(0, 123, 255, 0.06); border-inline-start: 4px solid var(--primary); padding: 18px; border-radius: 8px; margin: 24px 0;">
+            <h4 style="margin: 0 0 8px 0; color: var(--primary); font-size: 1.05rem; font-weight: 700;">🧮 احسب راتبك الصافي بدقة:</h4>
+            <p style="margin: 0; font-size: 0.95rem;">يمكنك استخدام <a href="/ar/salary-calculator-2026" style="color: var(--primary); font-weight: 700;">حاسبة الرواتب والضرائب لعام 2026</a> لحساب صافي وإجمالي الراتب واقتطاعات التأمين.</p>
+          </div>
+        </div>
+      `
+    },
+    {
+      title: 'تطبيق "وظائف في إسطنبول": دليلك الشامل لإيجاد عمل والاستقرار في تركيا',
+      slug: 'jobs-in-istanbul-mobile-app-guide-2026',
+      summary: 'الدليل الشامل لاستخدام تطبيق "وظائف في إسطنبول" على Google Play: محرك بحث الوظائف، خريطة المناطق الصناعية OSB، تعلم التركية للعمل، منشئ العرائض الرسمية PDF، وسعر الصرف والذهب.',
+      publishedAt: '2026-08-10',
+      canonical: 'https://jobs-in-istanbul.com/ar/blog/jobs-in-istanbul-mobile-app-guide-2026',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 28px;">
+            <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1200&fm=webp" alt="تطبيق وظائف في إسطنبول على غوغل بلاي" style="width: 100%; max-height: 480px; object-fit: cover; border-radius: 16px; box-shadow: var(--shadow-md);">
+            <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 8px;">تطبيق "وظائف في إسطنبول" الرسمي على Google Play: المنصة الشاملة للتوظيف والخدمات المهنية واليومية في تركيا</p>
+          </div>
+
+          <!-- Featured Google Play Download Callout Box -->
+          <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border: 1px solid rgba(255, 255, 255, 0.15); padding: 28px; border-radius: 16px; margin: 30px 0; color: white; box-shadow: 0 12px 30px rgba(0,0,0,0.25);">
+            <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 16px;">
+              <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #01875f 0%, #004d34 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: white; box-shadow: 0 8px 20px rgba(1,135,95,0.4);">
+                <i class="fa-brands fa-google-play"></i>
+              </div>
+              <div>
+                <h3 style="margin: 0 0 4px 0; color: white; font-size: 1.3rem; font-weight: 800;">تطبيق "وظائف في إسطنبول" على Google Play</h3>
+                <div style="display: flex; align-items: center; gap: 6px; color: #fbbf24; font-size: 0.85rem; font-weight: 700;">
+                  <span>★ 4.9</span>
+                  <span style="color: #94a3b8; font-weight: 400;">| مجاني بالكامل | أندرويد & PWA</span>
+                </div>
+              </div>
+            </div>
+            <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px;">حمل التطبيق الرسمي الآن لتصفح مئات الفرص الوظيفية المحدثة يومياً والتواصل المباشر مع أصحاب العمل بلمسة واحدة.</p>
+            <a href="https://play.google.com/store/apps/details?id=com.jobsistanbul.app" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #01875f 0%, #006644 100%); color: white !important; padding: 12px 24px; border-radius: 30px; font-weight: 800; font-size: 0.95rem; text-decoration: none; box-shadow: 0 6px 18px rgba(1, 135, 95, 0.4); transition: transform 0.2s ease;">
+              <i class="fa-brands fa-google-play" style="font-size: 1.2rem;"></i>
+              <span>تحميل التطبيق مجاناً من Google Play</span>
+            </a>
+          </div>
+
+          <p>إذا كنت تبحث عن <strong>وظائف في اسطنبول</strong> أو تخطط للانتقال إلى تركيا وتبدأ حياة مهنية جديدة، فإن أول خطوة صحيحة هي امتلاك أداة موثوقة تجمع لك كل ما تحتاجه في مكان واحد. هنا يأتي دور تطبيق <strong>"وظائف في إسطنبول"</strong>، المصمم خصيصًا ليكون رفيقك اليومي في رحلة البحث عن <strong>فرص عمل في اسطنبول للسوريين والعرب</strong>، وليس فقط أداة توظيف، بل منصة متكاملة تسهّل عليك الحياة في تركيا بجميع تفاصيلها.</p>
+
+          <h2>لماذا يحتاج الباحثون عن عمل إلى هذا التطبيق؟</h2>
+
+          <p>سوق العمل في إسطنبول واسع ومتجدد باستمرار، لكن التحدي الحقيقي أمام الوافدين العرب هو معرفة أين تُنشر <strong>الوظائف الشاغرة في اسطنبول</strong> وكيفية التواصل السريع مع أصحاب العمل دون إضاعة الوقت في مواقع متفرقة أو صفحات غير موثوقة. يحل التطبيق هذه المشكلة عبر محرك بحث متطور يعرض مئات الوظائف اليومية في مختلف القطاعات.</p>
+
+          <div style="margin: 32px 0;">
+            <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1200&fm=webp" alt="أدوات ومميزات تطبيق وظائف في إسطنبول" style="width: 100%; max-height: 420px; object-fit: cover; border-radius: 16px; box-shadow: var(--shadow-sm);">
+            <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 8px;">مجموعة شاملة من الأدوات الذكية المتاحة داخل التطبيق لدعم حياتك المهنية واليومية في إسطنبول</p>
+          </div>
+
+          <h3>💼 محرك بحث متقدم عن الوظائف</h3>
+          <p>يتيح لك التطبيق تصفح <strong>وظائف اسطنبول للعرب</strong> حسب القطاع، الراتب، الموقع، ونوع الدوام (دوام كامل أو جزئي)، مع إمكانية التواصل المباشر مع أصحاب العمل عبر الهاتف أو واتساب بضغطة واحدة، مما يختصر عليك خطوات كثيرة مقارنة بالطرق التقليدية في البحث عن <strong>عمل في تركيا</strong>.</p>
+
+          <h3>🗺️ خريطة المناطق الصناعية (OSB)</h3>
+          <p>من أبرز ما يميز التطبيق هو خريطة تفاعلية لأهم <strong>المناطق الصناعية في اسطنبول</strong> مثل إيكيتلي (İkitelli)، أوستيم، وتوزلا، وهي المناطق التي يقصدها معظم الباحثين عن <strong>وظائف مصانع في اسطنبول</strong>. تساعدك هذه الخريطة على تحديد مواقع المصانع والشركات بسهولة والوصول إليها مباشرة.</p>
+
+          <h3>🎓 تعلم اللغة التركية لسوق العمل</h3>
+          <p>نجاحك في العمل يبدأ من التواصل، لذلك يضم التطبيق وحدة مخصصة لتعلم <strong>مصطلحات اللغة التركية للعمل</strong> والمحادثات اليومية، مع بطاقات تعليمية تفاعلية واختبارات لغوية واستماع للنطق الصحيح، وهو ما يجعله خيارًا مثاليًا لمن يبحث عن <strong>تعلم التركية للمبتدئين</strong> بطريقة عملية مرتبطة بسوق العمل.</p>
+
+          <h3>📜 منشئ العرائض والطلبات الرسمية</h3>
+          <p>يوفر التطبيق أداة ذكية لكتابة وإنشاء العرائض والطلبات الرسمية باللغة التركية بصيغة قانونية سليمة، ثم تصديرها فورًا كملفات PDF جاهزة للطباعة والمشاركة، وهي ميزة تختصر عليك زيارة المكاتب القانونية في كثير من المعاملات البسيطة.</p>
+
+          <h3>💱 أسعار الصرف والذهب لحظيًا</h3>
+          <p>يعرض التطبيق <strong>سعر صرف الليرة التركية</strong> مقابل الدولار واليورو والعملات العربية بشكل لحظي، إضافة إلى <strong>أسعار الذهب في تركيا</strong> لحظة بلحظة، ما يجعله أداة يومية مفيدة حتى لمن استقر بالفعل في العمل.</p>
+
+          <h3>📱 بطاقة عمل رقمية بكود QR</h3>
+          <p>يمكّنك التطبيق من إنشاء بطاقة عمل احترافية خاصة بك مع رمز QR (vCard)، لمشاركة معلومات التواصل وخبراتك المهنية بسرعة مع أصحاب العمل أو الزملاء، وهي إضافة ذكية تعزز حضورك المهني في سوق العمل التركي.</p>
+
+          <h3>🔍 قارئ أكواد QR والباركود</h3>
+          <p>أداة مدمجة وسريعة لقراءة رموز QR والباركود، تسهّل عليك مسح الروابط والبطاقات في أي وقت.</p>
+
+          <h2>من يستفيد من تطبيق "وظائف في إسطنبول"؟</h2>
+
+          <p>سواء كنت من الباحثين عن <strong>وظائف اسطنبول للسوريين</strong>، أو من العمال المهرة الذين يبحثون عن فرص في <strong>المدن الصناعية بإسطنبول</strong>، أو من الوافدين الجدد الذين يحتاجون إلى تعلم اللغة والتعامل مع الأوراق الرسمية، فإن هذا التطبيق صُمم ليغطي احتياجاتك المتنوعة في مكان واحد، بدلًا من التنقل بين عدة تطبيقات ومواقع مختلفة.</p>
+
+          <h2>سهولة الاستخدام وتجربة مستخدم مريحة</h2>
+
+          <p>يتميز التطبيق بتصميم عصري وسريع ومريح للعين، مع دعم كامل للوضع الليلي (Dark Mode)، وتنقل سلس دون تعقيدات أو إعلانات مزعجة، بالإضافة إلى تحديثات مستمرة ووظائف جديدة تُضاف على مدار الساعة، ما يضمن لك أنك دائمًا على اطلاع بأحدث <strong>فرص العمل في اسطنبول</strong>.</p>
+
+          <h2>كيف تبدأ؟</h2>
+
+          <p>تحميل التطبيق بسيط ومجاني عبر متجر Google Play، وبعد التثبيت مباشرة يمكنك تصفح الوظائف المتاحة، استكشاف خريطة المناطق الصناعية، والبدء في بناء بطاقة عملك الرقمية، كل ذلك بدعم كامل للغتين العربية والتركية.</p>
+
+          <!-- Bottom Download Banner Callout -->
+          <div style="background: linear-gradient(135deg, #01875f 0%, #004d34 100%); color: white; padding: 32px 24px; border-radius: 16px; text-align: center; margin: 40px 0; box-shadow: 0 10px 25px rgba(1,135,95,0.3);">
+            <h3 style="color: white; font-size: 1.5rem; font-weight: 900; margin: 0 0 12px 0;">ابدأ رحلتك المهنية اليوم!</h3>
+            <p style="color: #e2e8f0; font-size: 1.05rem; max-width: 600px; margin: 0 auto 24px auto; line-height: 1.6;">حمّل تطبيق "وظائف في إسطنبول" الآن واخطُ خطوتك الأولى نحو فرصة عمل جديدة في قلب إسطنبول.</p>
+            <a href="https://play.google.com/store/apps/details?id=com.jobsistanbul.app" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 10px; background: white; color: #01875f !important; padding: 14px 28px; border-radius: 30px; font-weight: 900; font-size: 1rem; text-decoration: none; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: transform 0.2s ease;">
+              <i class="fa-brands fa-google-play" style="font-size: 1.3rem;"></i>
+              <span>تنزيل التطبيق من متجر Google Play</span>
+            </a>
+          </div>
+
+          <div style="border-top: 1px solid var(--border); padding-top: 16px; margin-top: 32px;">
+            <p style="font-size: 0.85rem; color: var(--text-muted);"><strong>الكلمات المفتاحية:</strong> وظائف في اسطنبول، فرص عمل في اسطنبول للسوريين، وظائف اسطنبول للعرب، عمل في تركيا، المناطق الصناعية اسطنبول، وظائف مصانع اسطنبول، تطبيق وظائف اسطنبول، سعر صرف الليرة التركية، أسعار الذهب في تركيا، تعلم اللغة التركية للعمل، عرائض رسمية تركيا.</p>
+          </div>
+        </div>
+      `
+    },
     {
       title: 'فرص عمل في اسطنبول يوليو 2026: نظرة شاملة على السوق وأبرز القطاعات المفتوحة',
       slug: 'job-opportunities-istanbul-monthly-guide-2026',
@@ -2327,6 +2649,26 @@ const seededArticles: Record<string, any[]> = {
       slug: 'turkey-minimum-wage-employer-cost-2026',
       summary: 'تعرف بالتفصيل على الحد الأدنى للأجور في تركيا لعام 2026 للعمال وأصحاب العمل. تحليل شامل للحسابات الصافية والإجمالية، والخصومات، والتكاليف الفعلية المترتبة على الشركات مع الحوافز.',
       publishedAt: '2026-06-25',
+      updatedAt: '2026-07-22',
+      canonical: 'https://jobs-in-istanbul.com/ar/blog/turkey-minimum-wage-employer-cost-2026',
+      faqs: [
+        {
+          question: "ما هو الحد الأدنى الصافي للأجور في تركيا لعام 2026؟",
+          answer: "يبلغ الحد الأدنى الصافي للأجور في تركيا لعام 2026 رسمياً 28,075.50 ليرة تركية شهرياً بعد اقتطاع مستحقات الضمان الاجتماعي."
+        },
+        {
+          question: "ما هو الحد الأدنى الإجمالي للأجور في تركيا لعام 2026؟",
+          answer: "يبلغ الحد الأدنى الإجمالي للأجور في تركيا لعام 2026 رسمياً 33,030.00 ليرة تركية شهرياً."
+        },
+        {
+          question: "كم تبلغ التكلفة الإجمالية لصاحب العمل لراتب الحد الأدنى في تركيا؟",
+          answer: "تبلغ التكلفة الإجمالية على صاحب العمل 38,810.25 ليرة تركية شهرياً مع الاستفادة من حافز الضمان الاجتماعي 5%، و40,461.75 ليرة تركية بدونه."
+        },
+        {
+          question: "هل يخضع الحد الأدنى للأجور لضريبة الدخل في تركيا؟",
+          answer: "لا، وفقاً للقانون التركي يُعفى الحد الأدنى للأجور بالكامل من ضريبة الدخل وضريبة الدمغة."
+        }
+      ],
       content: `
         <div class="article-rich-text">
           <img src="https://images.unsplash.com/photo-1625225230517-7426c1be750c?q=80&w=1200&fm=webp" alt="الحد الأدنى للأجور في تركيا 2026" style="width: 100%; height: auto; border-radius: 12px; margin-bottom: 24px; box-shadow: var(--shadow-md);">
@@ -2524,6 +2866,82 @@ const seededArticles: Record<string, any[]> = {
     }
   ],
   en: [
+    aktuelAppArticleEn,
+    quranAppArticleEn,
+    {
+      title: 'Jobs in Istanbul App: Your Ultimate Mobile Guide to Finding Work & Living in Turkey',
+      slug: 'jobs-in-istanbul-mobile-app-guide-2026',
+      summary: 'Complete guide to using the official "Jobs in Istanbul" mobile app on Google Play: job search engine, OSB industrial zones map, business Turkish lessons, PDF petition generator, live TRY currency rates, and digital QR business card.',
+      publishedAt: '2026-08-10',
+      canonical: 'https://jobs-in-istanbul.com/en/blog/jobs-in-istanbul-mobile-app-guide-2026',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 28px;">
+            <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1200&fm=webp" alt="Jobs in Istanbul App on Google Play" style="width: 100%; max-height: 480px; object-fit: cover; border-radius: 16px; box-shadow: var(--shadow-md);">
+            <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 8px;">Official "Jobs in Istanbul" App on Google Play: All-in-one platform for employment, business tools, and daily life in Turkey</p>
+          </div>
+
+          <!-- Featured Google Play Download Callout Box -->
+          <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border: 1px solid rgba(255, 255, 255, 0.15); padding: 28px; border-radius: 16px; margin: 30px 0; color: white; box-shadow: 0 12px 30px rgba(0,0,0,0.25);">
+            <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 16px;">
+              <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #01875f 0%, #004d34 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: white; box-shadow: 0 8px 20px rgba(1,135,95,0.4);">
+                <i class="fa-brands fa-google-play"></i>
+              </div>
+              <div>
+                <h3 style="margin: 0 0 4px 0; color: white; font-size: 1.3rem; font-weight: 800;">"Jobs in Istanbul" Official Google Play App</h3>
+                <div style="display: flex; align-items: center; gap: 6px; color: #fbbf24; font-size: 0.85rem; font-weight: 700;">
+                  <span>★ 4.9 Rating</span>
+                  <span style="color: #94a3b8; font-weight: 400;">| 100% Free | Android & PWA</span>
+                </div>
+              </div>
+            </div>
+            <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px;">Download our official app now to browse hundreds of daily updated job vacancies in Istanbul and apply directly in one tap.</p>
+            <a href="https://play.google.com/store/apps/details?id=com.jobsistanbul.app" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #01875f 0%, #006644 100%); color: white !important; padding: 12px 24px; border-radius: 30px; font-weight: 800; font-size: 0.95rem; text-decoration: none; box-shadow: 0 6px 18px rgba(1, 135, 95, 0.4); transition: transform 0.2s ease;">
+              <i class="fa-brands fa-google-play" style="font-size: 1.2rem;"></i>
+              <span>Download Free on Google Play Store</span>
+            </a>
+          </div>
+
+          <p>If you are searching for <strong>jobs in Istanbul</strong> or planning to relocate to Turkey for a career move, having a reliable mobile companion is essential. The <strong>"Jobs in Istanbul"</strong> app is specifically built to empower job seekers, expats, and international talent with everything needed to succeed and settle in Turkey.</p>
+
+          <h2>Why Every Job Seeker Needs This App</h2>
+          <p>Istanbul's job market is dynamic, yet international job seekers often struggle with untangling scattered listings. This app solves that challenge with a dedicated search engine featuring real-time vacancies in technology, sales, tourism, manufacturing, and education.</p>
+
+          <div style="margin: 32px 0;">
+            <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1200&fm=webp" alt="Jobs in Istanbul Mobile App Tools" style="width: 100%; max-height: 420px; object-fit: cover; border-radius: 16px; box-shadow: var(--shadow-sm);">
+            <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 8px;">Comprehensive toolkit built inside the app to support your daily professional life in Istanbul</p>
+          </div>
+
+          <h3>💼 Advanced Job Search Engine</h3>
+          <p>Filter vacancies by sector, salary range, district, and work type (Full-time, Part-time, Remote). Contact hiring employers directly via Phone or WhatsApp with a single tap.</p>
+
+          <h3>🗺️ Industrial Zones (OSB) Interactive Map</h3>
+          <p>Locate major manufacturing hubs across Istanbul including İkitelli, OSTİM, Tuzla, and Merter for factory, warehouse, and logistics employment opportunities.</p>
+
+          <h3>🎓 Business Turkish Language Module</h3>
+          <p>Master workplace vocabulary with interactive flashcards, pronunciation audio, and business dialogue quizzes tailored for foreign workers.</p>
+
+          <h3>📜 Official PDF Petition Builder</h3>
+          <p>Generate legally structured Turkish petition documents (Dilekçe) instantly and export to print-ready PDF for government offices and official procedures.</p>
+
+          <h3>💱 Real-Time TRY Currency & Gold Rates</h3>
+          <p>Track live USD/EUR exchange rates and gold prices in Turkey to stay informed on economic indicators daily.</p>
+
+          <h3>📱 Digital QR Business Card (vCard)</h3>
+          <p>Build a professional digital business card with custom QR code to share contact info and credentials instantly with employers.</p>
+
+          <h2>Get Started Today!</h2>
+          <div style="background: linear-gradient(135deg, #01875f 0%, #004d34 100%); color: white; padding: 32px 24px; border-radius: 16px; text-align: center; margin: 40px 0; box-shadow: 0 10px 25px rgba(1,135,95,0.3);">
+            <h3 style="color: white; font-size: 1.5rem; font-weight: 900; margin: 0 0 12px 0;">Take Your Career to the Next Level</h3>
+            <p style="color: #e2e8f0; font-size: 1.05rem; max-width: 600px; margin: 0 auto 24px auto;">Download the "Jobs in Istanbul" app now on Google Play and start applying for job opportunities today.</p>
+            <a href="https://play.google.com/store/apps/details?id=com.jobsistanbul.app" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 10px; background: white; color: #01875f !important; padding: 14px 28px; border-radius: 30px; font-weight: 900; text-decoration: none;">
+              <i class="fa-brands fa-google-play" style="font-size: 1.3rem;"></i>
+              <span>Get it on Google Play Store</span>
+            </a>
+          </div>
+        </div>
+      `
+    },
     {
       title: 'Nursing Jobs in Istanbul for Foreigners and Arabs (2026): YÖK Equivalency, Licensing & Salaries',
       slug: 'nursing-jobs-in-istanbul-for-arabs-2026-guide',
@@ -2790,7 +3208,7 @@ const seededArticles: Record<string, any[]> = {
       summary: "A comprehensive guide on how to write and format a resume accepted by Turkish companies, key mistakes to avoid for expats, and passing ATS screening systems.",
       publishedAt: "2026-07-09",
       canonical: "https://jobs-in-istanbul.com/en/blog/how-to-write-cv-for-turkish-companies",
-  "content": `
+      "content": `
     <div class="article-rich-text">
       <div style="margin-bottom: 24px;">
         <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?q=80&w=1200&fm=webp" alt="Write a CV for Turkish Companies" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
@@ -2912,7 +3330,7 @@ const seededArticles: Record<string, any[]> = {
     </div>
 
       `
-},
+    },
     {
       title: 'Compulsory Health Insurance (SGK) in Turkey 2026: Expats Guide & Benefits',
       slug: 'sgk-health-insurance-turkey-workers',
@@ -3142,6 +3560,26 @@ const seededArticles: Record<string, any[]> = {
       slug: 'turkey-minimum-wage-employer-cost-2026',
       summary: 'A detailed breakdown of Turkey\'s gross and net minimum wage for 2026, real employer cost calculations with SGK incentives, and business budgeting implications.',
       publishedAt: '2026-06-25',
+      updatedAt: '2026-07-22',
+      canonical: 'https://jobs-in-istanbul.com/en/blog/turkey-minimum-wage-employer-cost-2026',
+      faqs: [
+        {
+          question: "What is the net minimum wage in Turkey for 2026?",
+          answer: "The official net minimum wage in Turkey for 2026 is 28,075.50 TRY per month after all statutory social security deductions."
+        },
+        {
+          question: "What is the gross minimum wage in Turkey for 2026?",
+          answer: "The official gross minimum wage in Turkey for 2026 is 33,030.00 TRY per month."
+        },
+        {
+          question: "What is the total monthly cost to an employer for a minimum wage employee in Turkey?",
+          answer: "With the standard 5% SGK premium discount, the total employer cost is 38,810.25 TRY per month. Without the incentive, it is 40,461.75 TRY per month."
+        },
+        {
+          question: "Are minimum wage salaries subject to income tax in Turkey?",
+          answer: "No, under Turkish labor laws, minimum wage earnings are fully exempt from income tax and stamp duty."
+        }
+      ],
       content: `
         <div class="article-rich-text">
           <div style="margin-bottom: 24px;">
@@ -3230,10 +3668,36 @@ const seededArticles: Record<string, any[]> = {
           <h2>IV. Implications for Hiring and Expats in Turkey</h2>
           <p>If you are an expat working in Turkey or a business planning to hire foreign employees, there are additional considerations to keep in mind:</p>
           <ul>
-            <li><strong>Work Permit Requirements:</strong> To obtain a work permit (Çalışma İzni) for a foreign employee, the Ministry of Labor enforces specific minimum salary multipliers depending on the role. For example, engineers, directors, and specialists are subject to higher multiples of the gross minimum wage (ranging from 1.5x to 6.5x).</li>
+            <li><strong>Work Permit Requirements:</strong> To obtain a work permit (Çalışma İzni) for a foreign employee, the Ministry of Labor enforces specific minimum salary multipliers depending on the role. For example, engineers, directors, and specialists are subject to higher multiples of the gross minimum wage (ranging from 1.5x to 6.5x). Estimate your eligibility with our <a href="/en/work-permit-calculator" style="color: var(--primary); font-weight: 700; text-decoration: none;">Work Permit Eligibility Calculator</a>.</li>
             <li><strong>Social Security (SGK) Benefits:</strong> Working legally on a minimum wage entitles employees to full health coverage under the state system, including medical services for immediate family members. For detailed coverage information, see our guide on <a href="/en/blog/sgk-health-insurance-turkey-workers" style="color: var(--primary); font-weight: 700; text-decoration: none;">SGK Health Insurance for Workers in Turkey</a>.</li>
             <li><strong>Local Financial Setup:</strong> When starting your job, you will need to set up a local bank account to receive payments. Learn more in our article on <a href="/en/blog/open-bank-account-turkey-foreigners" style="color: var(--primary); font-weight: 700; text-decoration: none;">opening a bank account in Turkey for foreigners</a>.</li>
           </ul>
+
+          <div style="margin: 32px 0; background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%); border: 1px solid var(--border); border-radius: 12px; padding: 24px;">
+            <h3 style="margin-top: 0; color: var(--primary);">Calculate Net & Gross Salary Instantly</h3>
+            <p style="margin-bottom: 16px;">Want to calculate exact take-home earnings or employer costs for higher salary tiers? Use our interactive 2026 Salary Estimator.</p>
+            <a href="/en/salary-calculator-2026" class="btn-apply-now" style="display: inline-block; padding: 8px 18px; text-decoration: none;">Launch 2026 Salary Calculator →</a>
+          </div>
+
+          <h2>V. Frequently Asked Questions (FAQ)</h2>
+          <div class="faq-container" style="margin-bottom: 32px;">
+            <details style="margin-bottom: 12px; border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; background: var(--bg-card);">
+              <summary style="font-weight: 700; cursor: pointer; color: var(--text-dark);">What is the net minimum wage in Turkey for 2026?</summary>
+              <p style="margin-top: 8px; font-size: 0.95rem; color: var(--text-muted);">The official net minimum wage in Turkey for 2026 is <strong>28,075.50 TRY</strong> per month after all statutory social security deductions (14% SGK employee share + 1% unemployment share).</p>
+            </details>
+            <details style="margin-bottom: 12px; border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; background: var(--bg-card);">
+              <summary style="font-weight: 700; cursor: pointer; color: var(--text-dark);">What is the gross minimum wage in Turkey for 2026?</summary>
+              <p style="margin-top: 8px; font-size: 0.95rem; color: var(--text-muted);">The official gross minimum wage in Turkey for 2026 is <strong>33,030.00 TRY</strong> per month.</p>
+            </details>
+            <details style="margin-bottom: 12px; border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; background: var(--bg-card);">
+              <summary style="font-weight: 700; cursor: pointer; color: var(--text-dark);">What is the total monthly cost to an employer for a minimum wage employee in Turkey?</summary>
+              <p style="margin-top: 8px; font-size: 0.95rem; color: var(--text-muted);">With the standard 5% SGK premium discount (for compliant businesses with no tax debt), the total employer cost is <strong>38,810.25 TRY</strong> per month. Without the incentive, it is <strong>40,461.75 TRY</strong> per month.</p>
+            </details>
+            <details style="margin-bottom: 12px; border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; background: var(--bg-card);">
+              <summary style="font-weight: 700; cursor: pointer; color: var(--text-dark);">Are minimum wage salaries subject to income tax in Turkey?</summary>
+              <p style="margin-top: 8px; font-size: 0.95rem; color: var(--text-muted);">No, under Turkish labor legislation, minimum wage earnings are 100% exempt from income tax (Gelir Vergisi) and stamp tax (Damga Vergisi).</p>
+            </details>
+          </div>
 
           <h2>Conclusion</h2>
           <p>Navigating the local payroll calculations is vital to avoiding legal compliance penalties and optimizing tax incentives. Whether you are a business operating in Istanbul or an expat candidate negotiating an offer, knowing these parameters will ensure a smooth, legally compliant engagement.</p>
@@ -3242,13 +3706,87 @@ const seededArticles: Record<string, any[]> = {
     }
   ],
   tr: [
+    aktuelAppArticleTr,
+    quranAppArticleTr,
     {
-  "title": "Türk Şirketleri İçin Özgeçmiş (CV) Nasıl Hazırlanır? 2026 Rehberi",
-  "slug": "how-to-write-cv-for-turkish-companies",
-  "summary": "Türkiye iş gücü piyasasına ve yerel işverenlerin beklentilerine uygun özgeçmiş (CV) hazırlama yolları, kaçınılması gereken hatalar ve ATS uyumluluğu rehberi.",
-  "publishedAt": "2026-07-09",
-  "canonical": "https://jobs-in-istanbul.com/tr/blog/how-to-write-cv-for-turkish-companies",
-  "content": `
+      title: 'İstanbul İş İlanları Uygulaması: İş Bulma ve Türkiye\'de Yaşam Rehberiniz',
+      slug: 'jobs-in-istanbul-mobile-app-guide-2026',
+      summary: 'Google Play\'deki resmi "İstanbul İş İlanları" mobil uygulamasını kullanma rehberi: iş arama motoru, OSB sanayi bölgeleri haritası, iş Türkçe dersleri, PDF dilekçe oluşturucu, canlı döviz ve altın fiyatları.',
+      publishedAt: '2026-08-10',
+      canonical: 'https://jobs-in-istanbul.com/tr/blog/jobs-in-istanbul-mobile-app-guide-2026',
+      content: `
+        <div class="article-rich-text">
+          <div style="margin-bottom: 28px;">
+            <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1200&fm=webp" alt="İstanbul İş İlanları Google Play Uygulaması" style="width: 100%; max-height: 480px; object-fit: cover; border-radius: 16px; box-shadow: var(--shadow-md);">
+            <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 8px;">Google Play'deki Resmi "İstanbul İş İlanları" Uygulaması: İş arama, kariyer araçları ve Türkiye'de günlük yaşam için tek platform</p>
+          </div>
+
+          <!-- Featured Google Play Download Callout Box -->
+          <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border: 1px solid rgba(255, 255, 255, 0.15); padding: 28px; border-radius: 16px; margin: 30px 0; color: white; box-shadow: 0 12px 30px rgba(0,0,0,0.25);">
+            <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 16px;">
+              <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #01875f 0%, #004d34 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: white; box-shadow: 0 8px 20px rgba(1,135,95,0.4);">
+                <i class="fa-brands fa-google-play"></i>
+              </div>
+              <div>
+                <h3 style="margin: 0 0 4px 0; color: white; font-size: 1.3rem; font-weight: 800;">"İstanbul İş İlanları" Resmi Google Play Uygulaması</h3>
+                <div style="display: flex; align-items: center; gap: 6px; color: #fbbf24; font-size: 0.85rem; font-weight: 700;">
+                  <span>★ 4.9 Puan</span>
+                  <span style="color: #94a3b8; font-weight: 400;">| %100 Ücretsiz | Android & PWA</span>
+                </div>
+              </div>
+            </div>
+            <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px;">Günlük güncellenen açık iş ilanlarını incelemek ve işverenlerle tek tıkla iletişime geçmek için resmi uygulamamızı indirin.</p>
+            <a href="https://play.google.com/store/apps/details?id=com.jobsistanbul.app" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #01875f 0%, #006644 100%); color: white !important; padding: 12px 24px; border-radius: 30px; font-weight: 800; font-size: 0.95rem; text-decoration: none; box-shadow: 0 6px 18px rgba(1, 135, 95, 0.4); transition: transform 0.2s ease;">
+              <i class="fa-brands fa-google-play" style="font-size: 1.2rem;"></i>
+              <span>Google Play Mağazasından Ücretsiz İndirin</span>
+            </a>
+          </div>
+
+          <p>İstanbul'da iş arıyorsanız veya kariyer yolculuğunuza yön vermek istiyorsanız, ihtiyacınız olan tüm araçları tek bir uygulamada bir araya getirdik. <strong>"İstanbul İş İlanları"</strong> uygulaması, iş arayanlar, yabancı yetenekler ve uzmanlar için özel olarak geliştirilmiştir.</p>
+
+          <h2>Uygulamanın Öne Çıkan Özellikleri</h2>
+
+          <div style="margin: 32px 0;">
+            <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1200&fm=webp" alt="İstanbul İş İlanları Mobil Araçlar" style="width: 100%; max-height: 420px; object-fit: cover; border-radius: 16px; box-shadow: var(--shadow-sm);">
+            <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 8px;">İstanbul'daki profesyonel hayatınızı kolaylaştırmak için uygulama içine entegre edilmiş kapsamlı araç seti</p>
+          </div>
+
+          <h3>💼 Gelişmiş İş Arama Motoru</h3>
+          <p>Sektör, maaş, ilçe ve çalışma şekline göre iş ilanlarını filtreleyin. Telefon veya WhatsApp üzerinden işverenlere anında ulaşın.</p>
+
+          <h3>🗺️ Organize Sanayi Bölgesi (OSB) Haritası</h3>
+          <p>İkitelli, OSTİM, Tuzla ve Merter sanayi bölgelerindeki fabrika ve lojistik fırsatlarını haritada inceleyin.</p>
+
+          <h3>🎓 İş Dünyası Türkçe Eğitim Modülü</h3>
+          <p>İş yeri terimleri, pratik diyaloglar ve sesli telaffuz kartlarıyla Türkçe seviyenizi geliştirin.</p>
+
+          <h3>📜 PDF Dilekçe Oluşturucu</h3>
+          <p>Resmi kurumlar için yasal dilekçe şablonlarını saniyeler içinde hazırlayın ve PDF olarak indirin.</p>
+
+          <h3>💱 Canlı Döviz ve Altın Fiyatları</h3>
+          <p>Dolar, Euro ve altın fiyatlarını anlık takip edin.</p>
+
+          <h3>📱 Dijital QR Kartvizit (vCard)</h3>
+          <p>İşverenlerle iletişim bilgilerinizi paylaşmak için özel QR kodlu dijital kartvizitinizi oluşturun.</p>
+
+          <div style="background: linear-gradient(135deg, #01875f 0%, #004d34 100%); color: white; padding: 32px 24px; border-radius: 16px; text-align: center; margin: 40px 0; box-shadow: 0 10px 25px rgba(1,135,95,0.3);">
+            <h3 style="color: white; font-size: 1.5rem; font-weight: 900; margin: 0 0 12px 0;">Hemen İndirin ve Başvurun!</h3>
+            <p style="color: #e2e8f0; font-size: 1.05rem; max-width: 600px; margin: 0 auto 24px auto;">Google Play üzerinden uygulamayı ücretsiz indirin ve ilk başvurunuzu yapın.</p>
+            <a href="https://play.google.com/store/apps/details?id=com.jobsistanbul.app" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 10px; background: white; color: #01875f !important; padding: 14px 28px; border-radius: 30px; font-weight: 900; text-decoration: none;">
+              <i class="fa-brands fa-google-play" style="font-size: 1.3rem;"></i>
+              <span>Google Play'den Ücretsiz İndir</span>
+            </a>
+          </div>
+        </div>
+      `
+    },
+    {
+      "title": "Türk Şirketleri İçin Özgeçmiş (CV) Nasıl Hazırlanır? 2026 Rehberi",
+      "slug": "how-to-write-cv-for-turkish-companies",
+      "summary": "Türkiye iş gücü piyasasına ve yerel işverenlerin beklentilerine uygun özgeçmiş (CV) hazırlama yolları, kaçınılması gereken hatalar ve ATS uyumluluğu rehberi.",
+      "publishedAt": "2026-07-09",
+      "canonical": "https://jobs-in-istanbul.com/tr/blog/how-to-write-cv-for-turkish-companies",
+      "content": `
     <div class="article-rich-text">
       <div style="margin-bottom: 24px;">
         <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?q=80&w=1200&fm=webp" alt="Türk Şirketleri İçin Özgeçmiş Hazırlama" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
@@ -3370,7 +3908,7 @@ const seededArticles: Record<string, any[]> = {
     </div>
 
       `
-},
+    },
     {
       title: 'Yabancı Çalışanlar İçin Türkiye\'de Zorunlu Sağlık Sigortası (SGK) 2026',
       slug: 'sgk-health-insurance-turkey-workers',
@@ -3594,14 +4132,62 @@ const seededArticles: Record<string, any[]> = {
       slug: 'turkey-minimum-wage-employer-cost-2026',
       summary: 'Türkiye\'nin 2026 yılı brüt ve net asgari ücretinin detaylı analizi, SGK teşvikleriyle gerçek işveren maliyeti hesaplamaları.',
       publishedAt: '2026-06-25',
+      updatedAt: '2026-07-22',
+      canonical: 'https://jobs-in-istanbul.com/tr/blog/turkey-minimum-wage-employer-cost-2026',
+      faqs: [
+        {
+          question: "2026 yılı net asgari ücret ne kadardır?",
+          answer: "2026 yılı için Türkiye'de resmi net asgari ücret 28.075,50 TL olarak belirlenmiştir."
+        },
+        {
+          question: "2026 yılı brüt asgari ücret ne kadardır?",
+          answer: "2026 yılı için resmi brüt asgari ücret 33.030,00 TL'dir."
+        },
+        {
+          question: "2026 asgari ücretin işverene toplam maliyeti nedir?",
+          answer: "%5 SGK prim teşviki uygulandığında toplam işveren maliyeti 38.810,25 TL; teşviksiz ise 40.461,75 TL'dir."
+        }
+      ],
       content: `
         <div class="article-rich-text">
-          <p>2026 yılı asgari ücret ve işveren maliyetleri rehberi.</p>
+          <div style="margin-bottom: 24px;">
+            <img src="https://images.unsplash.com/photo-1625225230517-7426c1be750c?q=80&w=1200&fm=webp" alt="Türkiye Asgari Ücret 2026" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+          </div>
+          <p><strong>2026 yılı asgari ücret tutarları</strong> Çalışma ve Sosyal Güvenlik Bakanlığı Asgari Ücret Tespit Komisyonu tarafından açıklanmıştır. 2026 takvim yılında uygulanacak resmi brüt ve net asgari ücret parametreleri ile işveren maliyeti detayları aşağıda yer almaktadır.</p>
+          
+          <h2>I. 2026 Asgari Ücret Parametreleri</h2>
+          <ul>
+            <li><strong>Brüt Asgari Ücret:</strong> 33.030,00 TL</li>
+            <li><strong>Net Asgari Ücret:</strong> 28.075,50 TL</li>
+          </ul>
+
+          <h2>II. Yasal SGK Kesintileri (%15)</h2>
+          <p>Brüt ücretten yapılan kesintiler: %14 SGK İşçi Payı (4.624,20 TL) ve %1 İşsizlik Sigortası İşçi Payı (330,30 TL) olmak üzere toplam 4.954,50 TL'dir.</p>
+
+          <h2>III. İşveren Maliyeti Hesaplaması (SGK Teşviki İle)</h2>
+          <p>%5 SGK prim teşvikinden yararlanan işverenler için aylık toplam maliyet <strong>38.810,25 TL</strong>; teşviksiz durumda ise <strong>40.461,75 TL</strong> olarak gerçekleşmektedir.</p>
+
+          <div style="margin: 24px 0; background: var(--bg-subtle); border-radius: 8px; padding: 16px;">
+            <a href="/tr/salary-calculator-2026" class="btn-apply-now" style="display: inline-block; padding: 8px 18px; text-decoration: none;">2026 Maaş Hesaplayıcıyı Kullan →</a>
+          </div>
+
+          <h2>IV. Sıkça Sorulan Sorular (SSS)</h2>
+          <div class="faq-container" style="margin-bottom: 24px;">
+            <details style="margin-bottom: 8px; border: 1px solid var(--border); border-radius: 6px; padding: 10px;">
+              <summary style="font-weight: 700; cursor: pointer;">2026 net asgari ücret ne kadar?</summary>
+              <p style="margin-top: 6px; color: var(--text-muted);">2026 yılı net asgari ücret 28.075,50 TL'dir.</p>
+            </details>
+            <details style="margin-bottom: 8px; border: 1px solid var(--border); border-radius: 6px; padding: 10px;">
+              <summary style="font-weight: 700; cursor: pointer;">2026 brüt asgari ücret ne kadar?</summary>
+              <p style="margin-top: 6px; color: var(--text-muted);">2026 yılı brüt asgari ücret 33.030,00 TL'dir.</p>
+            </details>
+          </div>
         </div>
       `
     }
   ],
   ru: [
+    quranAppArticleRu,
     {
       title: 'Разница между туристическим ВНЖ и разрешением на работу в Турции: преимущества, недостатки и процедура смены статуса в 2026 году',
       slug: 'difference-tourist-residency-work-permit-turkey',
@@ -3618,12 +4204,12 @@ const seededArticles: Record<string, any[]> = {
       `
     },
     {
-  "title": "Как составить резюме (CV) для турецких компаний? Руководство на 2026 год",
-  "slug": "how-to-write-cv-for-turkish-companies",
-  "summary": "Подробное руководство по составлению и форматированию резюме (CV) для турецкого рынка труда, типичные ошибки экспатов и прохождение систем ATS.",
-  "publishedAt": "2026-07-09",
-  "canonical": "https://jobs-in-istanbul.com/ru/blog/how-to-write-cv-for-turkish-companies",
-  "content": `
+      "title": "Как составить резюме (CV) для турецких компаний? Руководство на 2026 год",
+      "slug": "how-to-write-cv-for-turkish-companies",
+      "summary": "Подробное руководство по составлению и форматированию резюме (CV) для турецкого рынка труда, типичные ошибки экспатов и прохождение систем ATS.",
+      "publishedAt": "2026-07-09",
+      "canonical": "https://jobs-in-istanbul.com/ru/blog/how-to-write-cv-for-turkish-companies",
+      "content": `
     <div class="article-rich-text">
       <div style="margin-bottom: 24px;">
         <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?q=80&w=1200&fm=webp" alt="Написание резюме для турецких компаний" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
@@ -3745,7 +4331,7 @@ const seededArticles: Record<string, any[]> = {
     </div>
 
       `
-},
+    },
     {
       title: 'Обязательное медицинское страхование (SGK) в Турции 2026: гид для иностранцев',
       slug: 'sgk-health-insurance-turkey-workers',
@@ -3841,18 +4427,43 @@ const seededArticles: Record<string, any[]> = {
       slug: 'turkey-minimum-wage-employer-cost-2026',
       summary: 'Анализ утвержденного размера минимальной чистой зарплаты и социальных отчислений работодателей в 2026 году.',
       publishedAt: '2026-07-09',
+      updatedAt: '2026-07-22',
       canonical: 'https://jobs-in-istanbul.com/ru/blog/turkey-minimum-wage-employer-cost-2026',
+      faqs: [
+        {
+          question: "Какая минимальная чистая зарплата в Турции в 2026 году?",
+          answer: "Официальная минимальная чистая зарплата (Net Asgari Ücret) в Турции на 2026 год составляет 28 075,50 лир в месяц."
+        },
+        {
+          question: "Какова брутто минимальная зарплата в Турции в 2026 году?",
+          answer: "Официальная минимальная брутто зарплата (Brüt Asgari Ücret) в Турции на 2026 год составляет 33 030,00 лир в месяц."
+        },
+        {
+          question: "Какова общая стоимость минимальной зарплаты для работодателя в Турции?",
+          answer: "С учетом 5% скидки SGK общая стоимость составляет 38 810,25 лир в месяц. Без скидки — 40 461,75 лир."
+        }
+      ],
       content: `
         <div class="article-rich-text">
           <div style="margin-bottom: 24px;">
-            <img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?q=80&w=1200&fm=webp" alt="Минимальная зарплата в Турции" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+            <img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?q=80&w=1200&fm=webp" alt="Минимальная зарплата в Турции 2026" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
           </div>
-          <p>В 2026 году чистая минимальная зарплата составляет 28 075,50 лир. Полные затраты работодателя с учетом всех социальных взносов составляют свыше 33 000 лир.</p>
+          <p>В 2026 году официальная брутто минимальная зарплата в Турции составляет <strong>33 030,00 TRY</strong>, а чистая (нетто) зарплата на руки — <strong>28 075,50 TRY</strong> в месяц.</p>
+          <h2>I. Основные показатели минимальной зарплаты 2026</h2>
+          <ul>
+            <li><strong>Брутто зарплата (Brüt Asgari Ücret):</strong> 33 030,00 лир</li>
+            <li><strong>Чистая зарплата (Net Asgari Ücret):</strong> 28 075,50 лир</li>
+            <li><strong>Расходы работодателя (с 5% льготой SGK):</strong> 38 810,25 лир</li>
+          </ul>
+          <div style="margin: 24px 0;">
+            <a href="/ru/salary-calculator-2026" class="btn-apply-now" style="display: inline-block; padding: 8px 18px; text-decoration: none;">Калькулятор зарплаты 2026 →</a>
+          </div>
         </div>
       `
     }
   ],
   ur: [
+    quranAppArticleUr,
     {
       title: 'ترکی میں سیاحتی اقامت اور ورک پرمٹ کے درمیان فرق: فوائد، نقصانات اور تبدیلی کے مراحل ۲۰۲۶',
       slug: 'difference-tourist-residency-work-permit-turkey',
@@ -3869,12 +4480,12 @@ const seededArticles: Record<string, any[]> = {
       `
     },
     {
-  "title": "ترک کمپنیوں کے لیے پیشہ ورانہ سی وی (CV) کیسے بنائیں؟ مکمل گائیڈ ۲۰۲۶",
-  "slug": "how-to-write-cv-for-turkish-companies",
-  "summary": "ترکی کی کمپنیوں کے لیے موزوں سی وی بنانے، اس میں تصویر شامل کرنے، ورک پرمٹ کی معلومات فراہم کرنے اور اے ٹی ایس فلٹر سسٹمز کو پاس کرنے کی گائیڈ۔",
-  "publishedAt": "2026-07-09",
-  "canonical": "https://jobs-in-istanbul.com/ur/blog/how-to-write-cv-for-turkish-companies",
-  "content": `
+      "title": "ترک کمپنیوں کے لیے پیشہ ورانہ سی وی (CV) کیسے بنائیں؟ مکمل گائیڈ ۲۰۲۶",
+      "slug": "how-to-write-cv-for-turkish-companies",
+      "summary": "ترکی کی کمپنیوں کے لیے موزوں سی وی بنانے، اس میں تصویر شامل کرنے، ورک پرمٹ کی معلومات فراہم کرنے اور اے ٹی ایس فلٹر سسٹمز کو پاس کرنے کی گائیڈ۔",
+      "publishedAt": "2026-07-09",
+      "canonical": "https://jobs-in-istanbul.com/ur/blog/how-to-write-cv-for-turkish-companies",
+      "content": `
     <div class="article-rich-text">
       <div style="margin-bottom: 24px;">
         <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?q=80&w=1200&fm=webp" alt="ترک کمپنیوں کے لیے سی وی لکھنا" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
@@ -3990,7 +4601,7 @@ const seededArticles: Record<string, any[]> = {
     </div>
 
       `
-},
+    },
     {
       title: 'ترکی میں لازمی ہیلتھ انشورنس (SGK) ۲۰۲۶: غیر ملکیوں کے لیے گائیڈ اور فوائد',
       slug: 'sgk-health-insurance-turkey-workers',
@@ -4086,18 +4697,33 @@ const seededArticles: Record<string, any[]> = {
       slug: 'turkey-minimum-wage-employer-cost-2026',
       summary: 'سال ۲۰۲۶ کے لیے ترکی میں منظور شدہ کم از کم تنخواہ اور اس پر آجر کو ہونے والے کل اخراجات کا تفصیلی جائزہ۔',
       publishedAt: '2026-07-09',
+      updatedAt: '2026-07-22',
       canonical: 'https://jobs-in-istanbul.com/ur/blog/turkey-minimum-wage-employer-cost-2026',
+      faqs: [
+        {
+          question: "ترکی میں ۲۰۲۶ کے لیے کم از کم نیٹ تنخواہ کتنی ہے؟",
+          answer: "ترکی میں ۲۰۲۶ کے لیے سرکاری نیٹ کم از کم تنخواہ ۲۸,۰۷۵.۵۰ ترک لیرا ماہانہ ہے۔"
+        },
+        {
+          question: "ترکی میں ۲۰۲۶ کے لیے گراس کم از کم تنخواہ کتنی ہے؟",
+          answer: "ترکی میں ۲۰۲۶ کے لیے سرکاری گراس کم از کم تنخواہ ۳۳,۰۳۰.۰۰ ترک لیرا ماہانہ ہے۔"
+        }
+      ],
       content: `
         <div class="article-rich-text">
           <div style="margin-bottom: 24px;">
-            <img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?q=80&w=1200&fm=webp" alt="کم از کم تنخواہ ترکی" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+            <img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?q=80&w=1200&fm=webp" alt="کم از کم تنخواہ ترکی ۲۰۲۶" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
           </div>
-          <p>ترکی میں ۲۰۲۶ کے لیے کم از کم نیٹ تنخواہ ۲۸,۰۷۵.۵۰ ترک لیرا ہے، جو تمام قسم کی انشورنسز اور الاؤنسز کو ملا کر آجر کو ۳۳ ہزار سے زیادہ پڑتی ہے۔</p>
+          <p>ترکی میں ۲۰۲۶ کے لیے گراس کم از کم تنخواہ <strong>۳۳,۰۳۰.۰۰ ترک لیرا</strong> اور نیٹ تنخواہ <strong>۲۸,۰۷۵.۵۰ ترک لیرا</strong> ماہانہ ہے۔ ۵ فیصد انشورنس ڈسکاؤنٹ کے ساتھ آجر کو کل لاگت <strong>۳۸,۸۱۰.۲۵ ترک لیرا</strong> پڑتی ہے۔</p>
+          <div style="margin: 24px 0;">
+            <a href="/ur/salary-calculator-2026" class="btn-apply-now" style="display: inline-block; padding: 8px 18px; text-decoration: none;">۲۰۲۶ سیلری کیلکولیٹر کھولیں →</a>
+          </div>
         </div>
       `
     }
   ],
   fa: [
+    quranAppArticleFa,
     {
       title: 'تفاوت اقامت توریستی و اجازه کار در ترکیه: مزایا، معایب و نحوه تبدیل اقامت در سال ۲۰۲۶',
       slug: 'difference-tourist-residency-work-permit-turkey',
@@ -4118,12 +4744,12 @@ const seededArticles: Record<string, any[]> = {
       `
     },
     {
-  "title": "چگونه یک رزومه (CV) حرفه‌ای برای شرکت‌های ترکیه‌ای بنویسیم؟ راهنمای سال ۲۰۲۶",
-  "slug": "how-to-write-cv-for-turkish-companies",
-  "summary": "راهنمای گام به گام نوشتن و قالب‌بندی رزومه مورد تایید کارفرمایان ترک، اشتباهات رایج مهاجران و نحوه تطبیق آن با سیستم‌های غربالگری خودکار رزومه (ATS).",
-  "publishedAt": "2026-07-09",
-  "canonical": "https://jobs-in-istanbul.com/fa/blog/how-to-write-cv-for-turkish-companies",
-  "content": `
+      "title": "چگونه یک رزومه (CV) حرفه‌ای برای شرکت‌های ترکیه‌ای بنویسیم؟ راهنمای سال ۲۰۲۶",
+      "slug": "how-to-write-cv-for-turkish-companies",
+      "summary": "راهنمای گام به گام نوشتن و قالب‌بندی رزومه مورد تایید کارفرمایان ترک، اشتباهات رایج مهاجران و نحوه تطبیق آن با سیستم‌های غربالگری خودکار رزومه (ATS).",
+      "publishedAt": "2026-07-09",
+      "canonical": "https://jobs-in-istanbul.com/fa/blog/how-to-write-cv-for-turkish-companies",
+      "content": `
     <div class="article-rich-text">
       <div style="margin-bottom: 24px;">
         <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?q=80&w=1200&fm=webp" alt="نوشتن رزومه برای شرکت‌های ترکیه‌ای" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
@@ -4239,7 +4865,7 @@ const seededArticles: Record<string, any[]> = {
     </div>
 
       `
-},
+    },
     {
       title: 'بیمه درمانی تامین اجتماعی (SGK) در ترکیه ۲۰۲۶: راهنمای کامل برای اتباع خارجی',
       slug: 'sgk-health-insurance-turkey-workers',
@@ -4335,18 +4961,44 @@ const seededArticles: Record<string, any[]> = {
       slug: 'turkey-minimum-wage-employer-cost-2026',
       summary: 'تحلیل جامع حداقل حقوق خالص و ناخالص تصویب شده برای سال ۲۰۲۶ و هزینه‌های تامین اجتماعی کارفرمایان.',
       publishedAt: '2026-07-09',
+      updatedAt: '2026-07-22',
       canonical: 'https://jobs-in-istanbul.com/fa/blog/turkey-minimum-wage-employer-cost-2026',
+      faqs: [
+        {
+          question: "حداقل حقوق خالص در ترکیه برای سال ۲۰۲۶ چقدر است؟",
+          answer: "حداقل حقوق خالص کارمندان در ترکیه برای سال ۲۰۲۶ معادل ۲۸,۰۷۵.۵۰ لیر در ماه تعیین شده است."
+        },
+        {
+          question: "حداقل حقوق ناخالص در ترکیه برای سال ۲۰۲۶ چقدر است؟",
+          answer: "حداقل حقوق ناخالص (Brüt) در ترکیه برای سال ۲۰۲۶ معادل ۳۳,۰۳۰.۰۰ لیر در ماه است."
+        }
+      ],
       content: `
         <div class="article-rich-text">
           <div style="margin-bottom: 24px;">
-            <img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?q=80&w=1200&fm=webp" alt="حداقل حقوق در ترکیه" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
+            <img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?q=80&w=1200&fm=webp" alt="حداقل حقوق در ترکیه ۲۰۲۶" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: 12px; box-shadow: var(--shadow-md);">
           </div>
-          <p>حداقل حقوق خالص کارمندان در ترکیه برای سال ۲۰۲۶ معادل ۲۸,۰۷۵.۵۰ لیر تعیین شده است. این مقدار مبنای محاسبات مالیاتی و بیمه‌ای کارفرمایان قرار می‌گیرد.</p>
+          <p>حداقل حقوق ناخالص در ترکیه برای سال ۲۰۲۶ معادل <strong>۳۳,۰۳۰.۰۰ لیر</strong> و حقوق خالص <strong>۲۸,۰۷۵.۵۰ لیر</strong> است. کل هزینه کارفرما با تخفیف ۵ درصدی بیمه معادل <strong>۳۸,۸۱۰.۲۵ لیر</strong> خواهد بود.</p>
+          <div style="margin: 24px 0;">
+            <a href="/fa/salary-calculator-2026" class="btn-apply-now" style="display: inline-block; padding: 8px 18px; text-decoration: none;">محاسبه‌گر حقوق ۲۰۲۶ →</a>
+          </div>
         </div>
       `
     }
   ],
-};;
+  id: [
+    quranAppArticleId
+  ],
+  fr: [
+    quranAppArticleFr
+  ],
+  bn: [
+    quranAppArticleBn
+  ],
+  de: [
+    quranAppArticleDe
+  ]
+};
 
 // Helper to extract first image
 function extractFirstImage(content: string): string {
@@ -4356,23 +5008,28 @@ function extractFirstImage(content: string): string {
 }
 
 // Helper to get reading time
-function getReadingTime(content: string, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur'): string {
+function getReadingTime(content: string, locale: any): string {
   if (!content) return locale === 'ar' || locale === 'fa' || locale === 'ur' ? '1 منٹ مطالعہ' : (locale === 'tr' ? '1 dk okuma' : '1 min read');
   const wordsCount = content.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length;
   const min = Math.max(1, Math.round(wordsCount / 200));
-  return {
+  const times: Record<string, string> = {
     ar: min + ' دقائق قراءة',
     en: min + ' min read',
     tr: min + ' dk okuma',
     ru: min + ' мин чтения',
     fa: min + ' دقیقه مطالعه',
-    ur: min + ' منٹ مطالعہ'
-  }[locale];
+    ur: min + ' منٹ مطالعہ',
+    id: min + ' mnt baca',
+    fr: min + ' min de lecture',
+    bn: min + ' মিনিট পড়া',
+    de: min + ' Min. Lesezeit'
+  };
+  return times[locale] || (min + ' min read');
 }
 
 // Helper to get category
-function getCategory(slug: string, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur'): { name: string; color: string } {
-  const maps: Record<string, Partial<Record<'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur', string>>> = {
+function getCategory(slug: string, locale: any): { name: string; color: string } {
+  const maps: Record<string, Partial<Record<'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur' | 'id' | 'fr' | 'bn' | 'de', string>>> = {
     'sgk-health-insurance-turkey-workers': {
       ar: 'الضمان الاجتماعي',
       en: 'Social Security',
@@ -4438,18 +5095,48 @@ function getCategory(slug: string, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
       en: 'Work Permits',
       tr: 'Çalışma İzni',
       ru: 'Разрешение на работу'
+    },
+    'quran-karim-app-offline-features-download': {
+      ar: 'تطبيقات إسلامية',
+      en: 'Islamic Apps',
+      tr: 'İslami Uygulamalar',
+      ru: 'Исламские приложения',
+      fa: 'اپلیکیشن‌های اسلامی',
+      ur: 'اسلامی ایپس',
+      id: 'Aplikasi Islami',
+      fr: 'Applications islamiques',
+      bn: 'ইসলামিক অ্যাপস',
+      de: 'Islamische Apps'
+    },
+    'kuran-i-kerim-namaz-vakitleri-uygulamasi-indir': {
+      ar: 'تطبيقات إسلامية',
+      en: 'Islamic Apps',
+      tr: 'İslami Uygulamalar',
+      ru: 'Исламские приложения',
+      fa: 'اپلیکیشن‌های اسلامی',
+      ur: 'اسلامی ایپس',
+      id: 'Aplikasi Islami',
+      fr: 'Applications islamiques',
+      bn: 'ইসলামিক অ্যাপস',
+      de: 'Islamische Apps'
     }
   };
 
-  const cat = maps[slug] || {
+  const cat: any = maps[slug] || {
     ar: 'إرشاد مهني',
     en: 'Career Guide',
     tr: 'Kariyer Rehberi',
     fa: 'راهنمای شغلی',
-    ur: 'کیریئر گائیڈ'
+    ur: 'کیریئر گائیڈ',
+    id: 'Panduan Karier',
+    fr: 'Guide Carrière',
+    bn: 'ক্যারিয়ার গাইড',
+    de: 'Karriere-Ratgeber'
   };
 
   const colors: Record<string, string> = {
+    'quran-karim-app-offline-features-download': '#047857', // emerald green
+    'kuran-i-kerim-namaz-vakitleri-uygulamasi-indir': '#047857', // emerald green
     'sgk-health-insurance-turkey-workers': '#10b981', // emerald
     'open-bank-account-turkey-foreigners': '#3b82f6', // blue
     'best-dental-implants-clinic-turkey': '#ec4899', // pink
@@ -4471,11 +5158,13 @@ function getCategory(slug: string, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
 
 // Blog List View
 careerBlogRouter.get('/:locale/blog', async (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa' && locale !== 'ur') return c.redirect('/ar/blog');
+  const locale = c.req.param('locale') as any;
+  if (!['ar', 'en', 'tr', 'ru', 'fa', 'ur', 'id', 'fr', 'bn', 'de'].includes(locale)) return c.redirect('/ar/blog');
 
   const db = (c.env as any).DB;
-  let articles: any[] = seededArticles[locale] || [];
+  let articles: any[] = (seededArticles[locale] && seededArticles[locale].length > 0)
+    ? seededArticles[locale]
+    : ((seededArticles['ar'] && seededArticles['ar'].length > 0) ? seededArticles['ar'] : seededArticles['en'] || []);
 
   try {
     const rows = await db.prepare(
@@ -4499,7 +5188,7 @@ careerBlogRouter.get('/:locale/blog', async (c) => {
     console.warn('DB blog fetch failed, using fallback seed articles');
   }
 
-  const t = {
+  const tTable: Record<string, any> = {
     ar: {
       title: 'مدونة المهنة - إسطنبول',
       subtitle: 'مقالات ونصائح مهنية تهمك حول إقامة العمل، السيرة الذاتية، والنقل والمواصلات في إسطنبول.',
@@ -4541,8 +5230,38 @@ careerBlogRouter.get('/:locale/blog', async (c) => {
       readMore: 'مزید پڑھیں ←',
       pubDate: 'تاریخ اشاعت:',
       featured: 'نمایاں مضمون'
+    },
+    id: {
+      title: 'Blog Kariyer & Islami - Istanbul',
+      subtitle: 'Panduan karier, izin kerja, aplikasi Islami, dan kehidupan di Istanbul.',
+      readMore: 'Baca Selengkapnya ←',
+      pubDate: 'Tanggal Publikasi:',
+      featured: 'Artikel Pilihan'
+    },
+    fr: {
+      title: 'Blog Carrière & Vie - Istanbul',
+      subtitle: 'Conseils professionnels, permis de travail, applications islamiques et vie à Istanbul.',
+      readMore: 'Lire la suite ←',
+      pubDate: 'Date de publication :',
+      featured: 'Article à la une'
+    },
+    bn: {
+      title: 'ক্যারিয়ার ও ইসলামিক ব্লগ - ইস্তাম্বুল',
+      subtitle: 'ইস্তাম্বুলে কর্মসংস্থান, কাজের অনুমতি, ইসলামিক অ্যাপ ও জীবনযাপন সহায়িকা।',
+      readMore: 'আরও পড়ুন ←',
+      pubDate: 'প্রকাশের তারিখ:',
+      featured: 'বিশেষ নিবন্ধ'
+    },
+    de: {
+      title: 'Karriere & Lifestyle Blog - Istanbul',
+      subtitle: 'Karrieretipps, Arbeitserlaubnis, islamische Apps und Leben in Istanbul.',
+      readMore: 'Mehr lesen ←',
+      pubDate: 'Veröffentlichungsdatum:',
+      featured: 'Empfohlener Beitrag'
     }
-  }[locale];
+  };
+
+  const t = tTable[locale] || tTable['en'];
 
   if (articles.length === 0) {
     return c.html(renderLayout(c, t.title, `<div class="container" style="padding: 100px 20px; text-align: center; color: var(--text-muted);">${locale === 'ar' ? 'لا توجد مقالات حالياً.' : 'No articles available.'}</div>`, locale, ''));
@@ -4694,7 +5413,7 @@ careerBlogRouter.get('/:locale/blog', async (c) => {
   const featured = articles[0];
   const restOfArticles = articles.slice(1);
 
-  const adLabels = {
+  const adLabelsTable: Record<string, any> = {
     ar: {
       sectionTitle: 'فرص عمل مميزة للأجانب في إسطنبول',
       badge: 'إعلانات نشطة',
@@ -4761,7 +5480,8 @@ careerBlogRouter.get('/:locale/blog', async (c) => {
         { title: 'UI/UX پروڈکٹ ڈیزائنر', company: 'Trendyol', type: 'تمام وقت | آن سائٹ', salary: 'مکمل مراعات' }
       ]
     }
-  }[locale];
+  };
+  const adLabels = adLabelsTable[locale] || adLabelsTable['en'];
 
   const adHtml = `
     <div class="job-ad-container" style="margin-bottom: 50px; background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-subtle) 100%); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 32px; box-shadow: var(--shadow-sm); position: relative; overflow: hidden;">
@@ -4807,7 +5527,7 @@ careerBlogRouter.get('/:locale/blog', async (c) => {
       </style>
 
       <div class="job-ad-row">
-        ${adLabels.roles.map(role => `
+        ${adLabels.roles.map((role: any) => `
           <div class="job-ad-item">
             <div>
               <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
@@ -4894,23 +5614,36 @@ careerBlogRouter.get('/:locale/blog', async (c) => {
   `;
 
   const seoHtml = generateMetaTags(locale, 'blog') + generateJsonLd(locale, 'blog');
+  c.header('Cache-Control', 'public, max-age=600, s-maxage=3600, stale-while-revalidate=86400');
   return c.html(renderLayout(c, t.title, html, locale, seoHtml));
 });
 
 // Blog Detail View
 careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
-  const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
+  const locale = c.req.param('locale') as any;
   const slug = c.req.param('slug');
-  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa' && locale !== 'ur') return c.redirect('/ar/blog');
+  if (!['ar', 'en', 'tr', 'ru', 'fa', 'ur', 'id', 'fr', 'bn', 'de'].includes(locale)) return c.redirect('/ar/blog');
 
   const db = (c.env as any).DB;
   let article = (seededArticles[locale] || []).find((art: any) => art.slug === slug);
+  if (!article && slug === 'quran-karim-app-offline-features-download') {
+    article = (seededArticles[locale] || []).find((art: any) => art.slug === 'kuran-i-kerim-namaz-vakitleri-uygulamasi-indir')
+      || (seededArticles[locale] || [])[0];
+  }
+  if (!article && slug === 'kuran-i-kerim-namaz-vakitleri-uygulamasi-indir') {
+    article = quranAppArticleTr;
+  }
+  if (!article) {
+    article = (seededArticles['ar'] || []).find((art: any) => art.slug === slug)
+      || (seededArticles['en'] || []).find((art: any) => art.slug === slug)
+      || (seededArticles['tr'] || []).find((art: any) => art.slug === slug);
+  }
 
   try {
-    if (!article) {
-      const dbRow = await db.prepare(
+    if (!article && db) {
+      const dbRow = await safeQuery(() => db.prepare(
         `SELECT data, published_at FROM documents WHERE type_id = 'blog_post' AND slug = ? AND status = 'published' AND is_published = 1`
-      ).bind(slug).first();
+      ).bind(slug).first(), 1, 50);
 
       if (dbRow) {
         const parsed = JSON.parse(dbRow.data);
@@ -4924,7 +5657,7 @@ careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
       }
     }
   } catch (err) {
-    console.error('Failed to look up DB article:', err);
+    console.warn('Failed to look up DB article:', err);
   }
 
   if (!article) {
@@ -4934,32 +5667,38 @@ careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
   const cat = getCategory(article.slug, locale);
   const time = getReadingTime(article.content, locale);
 
-  let allArticles: any[] = seededArticles[locale] || [];
-  try {
-    const rows = await db.prepare(
-      `SELECT data, published_at FROM documents WHERE type_id = 'blog_post' AND status = 'published' AND is_published = 1 ORDER BY published_at DESC`
-    ).all();
+  let allArticles: any[] = (seededArticles[locale] && seededArticles[locale].length > 0)
+    ? seededArticles[locale]
+    : ((seededArticles['ar'] && seededArticles['ar'].length > 0) ? seededArticles['ar'] : seededArticles['en'] || []);
 
-    if (rows.results && rows.results.length > 0) {
-      const dbArticles = (rows.results || []).map((row: any) => {
-        const parsed = JSON.parse(row.data);
-        return {
-          title: parsed.title,
-          slug: parsed.slug,
-          summary: parsed.content ? parsed.content.replace(/<[^>]*>/g, '').substring(0, 150).trim() + '...' : '',
-          publishedAt: new Date(row.published_at).toISOString().split('T')[0],
-          content: parsed.content
-        };
-      });
-      allArticles = [...dbArticles, ...allArticles];
+  // Only query DB for additional articles if seed pool is too small (saves D1 full table scans)
+  if (allArticles.length < 4 && db) {
+    try {
+      const rows = await safeQuery(() => db.prepare(
+        `SELECT data, published_at FROM documents WHERE type_id = 'blog_post' AND status = 'published' AND is_published = 1 ORDER BY published_at DESC LIMIT 5`
+      ).all(), 1, 50);
+
+      if (rows?.results && rows.results.length > 0) {
+        const dbArticles = (rows.results || []).map((row: any) => {
+          const parsed = JSON.parse(row.data);
+          return {
+            title: parsed.title,
+            slug: parsed.slug,
+            summary: parsed.content ? parsed.content.replace(/<[^>]*>/g, '').substring(0, 150).trim() + '...' : '',
+            publishedAt: new Date(row.published_at).toISOString().split('T')[0],
+            content: parsed.content
+          };
+        });
+        allArticles = [...dbArticles, ...allArticles];
+      }
+    } catch (err) {
+      // ignore
     }
-  } catch (err) {
-    // ignore
   }
 
   const otherArticles = allArticles.filter((art: any) => art.slug !== slug).slice(0, 3);
 
-  const tLabels = {
+  const tLabelsTable: Record<string, any> = {
     ar: {
       back: '← العودة للمدونة',
       share: 'مشاركة المقال:',
@@ -5001,8 +5740,38 @@ careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
       copySuccess: 'لنک کامیابی سے کاپی ہو گیا ہے!',
       suggested: 'دیگر تجویز کردہ مضامین جو آپ کو پسند آ سکتے ہیں',
       readMore: 'مزید پڑھیں ←'
+    },
+    id: {
+      back: '← Kembali ke Blog',
+      share: 'Bagikan Artikel:',
+      copySuccess: 'Tautan artikel berhasil disalin!',
+      suggested: 'Artikel Rekomendasi Lainnya',
+      readMore: 'Baca Selengkapnya ←'
+    },
+    fr: {
+      back: '← Retour au blog',
+      share: 'Partager l\'article :',
+      copySuccess: 'Lien de l\'article copié avec succès !',
+      suggested: 'Articles suggérés qui pourraient vous intéresser',
+      readMore: 'Lire la suite ←'
+    },
+    bn: {
+      back: '← ব্লগে ফিরে যান',
+      share: 'নিবন্ধটি শেয়ার করুন:',
+      copySuccess: 'লিঙ্ক সফলভাবে কপি করা হয়েছে!',
+      suggested: 'অন্যান্য প্রস্তাবিত নিবন্ধসমূহ',
+      readMore: 'আরও পড়ুন ←'
+    },
+    de: {
+      back: '← Zurück zum Blog',
+      share: 'Artikel teilen:',
+      copySuccess: 'Artikellink erfolgreich kopiert!',
+      suggested: 'Weitere empfohlene Artikel',
+      readMore: 'Mehr lesen ←'
     }
-  }[locale];
+  };
+
+  const tLabels = tLabelsTable[locale] || tLabelsTable['en'];
 
   const shareUrl = `https://jobs-in-istanbul.com/${locale}/blog/${article.slug}`;
 
@@ -5052,10 +5821,11 @@ careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
   `;
 
   const suggestedCardsHtml = otherArticles.map((art: any) => {
-    const img = extractFirstImage(art.content);
+    const artContent = art.content || '';
+    const img = extractFirstImage(artContent);
     const category = getCategory(art.slug, locale);
-    const time = getReadingTime(art.content, locale);
-    const cleanSummary = art.summary || art.content.replace(/<[^>]*>/g, '').substring(0, 100).trim() + '...';
+    const time = getReadingTime(artContent, locale);
+    const cleanSummary = art.summary || (artContent ? artContent.replace(/<[^>]*>/g, '').substring(0, 100).trim() + '...' : '');
 
     return `
       <article class="blog-card">
@@ -5172,7 +5942,7 @@ careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
     </style>
   `;
 
-  const detailAdLabels = {
+  const detailAdLabelsTable: Record<string, any> = {
     ar: {
       title: 'هل تبحث عن عمل في تركيا؟',
       desc: 'سجل في بوابة الوظائف بإسطنبول، واحصل على إشعار بالفرص المهنية الجديدة المتوافقة مع مؤهلاتك فور نشرها.',
@@ -5198,18 +5968,43 @@ careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
       btnRegister: 'Загрузить резюме',
     },
     fa: {
-      title: 'Вы ищете работу в Турции?',
-      desc: 'Зарегистрируйтесь на Стамбульском портале вакансий и получайте уведомления о новых возможностях, как только они будут опубликованы.',
-      btnSearch: 'Посмотреть вакансии',
-      btnRegister: 'Загрузить резюме',
+      title: 'آیا به دنبال کار در ترکیه هستید؟',
+      desc: 'در پورتال استخدامی استانبول ثبت‌نام کنید و به محض انتشار فرصت‌های شغلی جدید، باخبر شوید.',
+      btnSearch: 'مشاهده فرصت‌های شغلی',
+      btnRegister: 'ارسال رزومه',
     },
     ur: {
-      title: 'Вы ищете работу в Турции?',
-      desc: 'Зарегистрируйтесь на Стамбульском портале вакансий и получайте уведомления о новых возможностях, как только они будут опубликованы.',
-      btnSearch: 'Посмотреть вакансии',
-      btnRegister: 'Загрузить резюме',
+      title: 'کیا آپ ترکی میں نوکری تلاش کر رہے ہیں؟',
+      desc: 'استنبول جاب پورٹل پر رجسٹر ہوں اور نئے کیریئر کے مواقع کی فوری اطلاع حاصل کریں۔',
+      btnSearch: 'ملازمتیں دیکھیں',
+      btnRegister: 'سی وی اپ لوڈ کریں',
+    },
+    id: {
+      title: 'Apakah Anda mencari pekerjaan di Turki?',
+      desc: 'Daftar di Portal Lowongan Kerja Istanbul dan dapatkan pemberitahuan lowongan baru.',
+      btnSearch: 'Lihat Lowongan',
+      btnRegister: 'Unggah CV',
+    },
+    fr: {
+      title: 'Vous cherchez du travail en Turquie ?',
+      desc: 'Inscrivez-vous sur le portail des emplois d\'Istanbul et recevez des alertes.',
+      btnSearch: 'Voir les offres',
+      btnRegister: 'Déposer votre CV',
+    },
+    bn: {
+      title: 'আপনি কি তুরস্কে চাকরি খুঁজছেন?',
+      desc: 'ইস্তাম্বুল জব পোর্টালে নিবন্ধন করুন এবং নতুন সুযোগ সম্পর্কে অবিলম্বে অবহিত হন।',
+      btnSearch: 'চাকরি দেখুন',
+      btnRegister: 'সিভি জমা দিন',
+    },
+    de: {
+      title: 'Suchen Sie Arbeit in der Türkei?',
+      desc: 'Registrieren Sie sich im Istanbul Jobportal und erhalten Sie Benachrichtigungen über neue Stellenangebote.',
+      btnSearch: 'Jobs ansehen',
+      btnRegister: 'Lebenslauf hochladen',
     }
-  }[locale];
+  };
+  const detailAdLabels = detailAdLabelsTable[locale] || detailAdLabelsTable['en'];
 
   const detailAdHtml = `
     <div class="detail-job-ad-widget" style="margin-top: 40px; margin-bottom: 40px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(6, 182, 212, 0.05) 100%); border: 1.5px dashed var(--primary); border-radius: var(--radius-lg); padding: 30px; text-align: center; position: relative;">
@@ -5256,13 +6051,17 @@ careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
     description: cleanSummary,
     slug: article.slug,
     publishedAt: new Date(article.publishedAt).getTime(),
-    canonical: article.canonical,
+    updatedAt: article.updatedAt ? new Date(article.updatedAt).getTime() : Date.now(),
+    canonical: article.canonical || `https://jobs-in-istanbul.com/${locale}/blog/${article.slug}`,
   }) + generateJsonLd(locale, 'blog_post', {
     title: article.title,
     description: cleanSummary,
     slug: article.slug,
     publishedAt: new Date(article.publishedAt).getTime(),
+    updatedAt: article.updatedAt ? new Date(article.updatedAt).getTime() : Date.now(),
+    faqs: article.faqs || [],
   });
 
+  c.header('Cache-Control', 'public, max-age=600, s-maxage=3600, stale-while-revalidate=86400');
   return c.html(renderLayout(c, article.title, html, locale, seoHtml));
 });

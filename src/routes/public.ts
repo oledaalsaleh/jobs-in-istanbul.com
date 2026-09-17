@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { cache } from 'hono/cache'
 import { generateMetaTags, generateJsonLd } from '../utils/seo-helper'
+import { safeQuery } from '../utils/db-helper'
 import { validateJobSubmission, validateTurnstile, rateLimiter, logSecurityEvent } from '../middleware/security'
 import { themeCss } from '../public/css/theme'
 import { sendTelegramAlert } from '../services/telegram'
@@ -8,8 +9,38 @@ import { assignJobImage } from '../services/scraper'
 import { optimizeSeoWithGemini } from '../services/gemini-seo'
 import { FAVICON_BASE64 } from '../utils/logo-base64'
 import { notifyGoogleIndexing } from '../services/google-indexing'
+import { 
+  getFallbackJobs, 
+  getFallbackCategories, 
+  getFallbackCompanies, 
+  getFallbackJobBySlug 
+} from '../data/fallback-dataset'
 
 export const publicRouter = new Hono()
+
+export const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.jobsistanbul.app';
+
+export function renderGooglePlayBadge(t: any, size: 'sm' | 'md' | 'lg' = 'md') {
+  const iconSize = size === 'sm' ? 16 : (size === 'lg' ? 26 : 20);
+  const padding = size === 'sm' ? '6px 12px' : (size === 'lg' ? '10px 20px' : '8px 14px');
+  const subSize = size === 'sm' ? '0.58rem' : (size === 'lg' ? '0.68rem' : '0.62rem');
+  const titleSize = size === 'sm' ? '0.85rem' : (size === 'lg' ? '1.1rem' : '0.95rem');
+  
+  return `
+    <a href="${PLAY_STORE_URL}" target="_blank" rel="noopener" class="google-play-badge google-play-badge-${size}" title="${t.downloadOnPlayStore || 'Google Play'}" style="display: inline-flex; align-items: center; gap: 8px; background: #000000; color: #ffffff !important; padding: ${padding}; border-radius: 8px; text-decoration: none; font-family: inherit; box-shadow: 0 4px 14px rgba(0,0,0,0.18); transition: all 0.2s ease; border: 1px solid rgba(255,255,255,0.2);">
+      <svg viewBox="0 0 512 512" width="${iconSize}" height="${iconSize}" aria-hidden="true" style="flex-shrink: 0;">
+        <path fill="#410599" d="M32.5 17.5C30.2 19.9 29 23.3 29 27.6v456.8c0 4.3 1.2 7.7 3.5 10.1l1.3 1.2L290.4 239v-6L33.8 16.3l-1.3 1.2z"/>
+        <path fill="#F44336" d="M376.6 325.2l-86.2-86.2V233l86.2-86.2 1.3.7 102.2 58.1c2.9 1.7 4.9 4.8 4.9 8.4s-2 6.7-4.9 8.4l-102.2 58.1-1.3.7z"/>
+        <path fill="#FFC107" d="M377.9 324.5L290.4 237 33.8 493.6c3.1 3.3 8.3 4.2 13 1.5l331.1-170.6"/>
+        <path fill="#00E676" d="M377.9 187.5L46.8 16.9c-4.7-2.7-9.9-1.8-13 1.5L290.4 255l87.5-67.5z"/>
+      </svg>
+      <div class="gp-text" style="display: flex; flex-direction: column; line-height: 1.1; text-align: start;">
+        <span class="gp-sub" style="font-size: ${subSize}; text-transform: uppercase; letter-spacing: 0.4px; opacity: 0.85; font-weight: 600;">${t.getItOn || 'GET IT ON'}</span>
+        <span class="gp-title" style="font-size: ${titleSize}; font-weight: 800; letter-spacing: 0.2px;">Google Play</span>
+      </div>
+    </a>
+  `;
+}
 
 export const ISTANBUL_DISTRICTS = [
   { en: 'Adalar', ar: 'الأمراء' },
@@ -62,7 +93,7 @@ publicRouter.get('/css/theme.css', (c) => {
 })
 
 // Base layout helper
-export function renderLayout(c: any, title: string, contentHtml: string, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur', seoHtml: string = '') {
+export function renderLayout(c: any, title: string, contentHtml: string, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur' | 'id' | 'fr' | 'bn' | 'de' | string, seoHtml: string = '') {
   const isRtl = locale === 'ar' || locale === 'fa' || locale === 'ur';
 
   if (!seoHtml) {
@@ -78,8 +109,14 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       pageType = 'blog';
     } else if (path.includes('/cv-optimizer')) {
       pageType = 'cv-optimizer';
+    } else if (path.includes('/salary-calculator-2026')) {
+      pageType = 'salary-calculator-2026';
     } else if (path.includes('/salary-calculator')) {
       pageType = 'salary-calculator';
+    } else if (path.includes('/investor-calculator')) {
+      pageType = 'investor-calculator';
+    } else if (path.includes('/work-permit-eligibility')) {
+      pageType = 'work-permit-eligibility';
     } else if (path.includes('/resume-builder')) {
       pageType = 'resume-builder';
     } else if (path.includes('/cover-letter-generator')) {
@@ -114,7 +151,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
 
     const data: any = { title };
     if (pageType === 'job' || pageType === 'blog_post') {
-      const parts = path.split('/');
+      const cleanPath = path.endsWith('/') ? path.slice(0, -1) : path;
+      const parts = cleanPath.split('/');
       data.slug = parts[parts.length - 1];
     }
 
@@ -180,7 +218,17 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       joinTelegram: 'انضم لقناة التلغرام',
       mobileJoinTelegram: 'انضم لقناتنا على التلغرام',
       installApp: 'تثبيت التطبيق',
-      languages: 'اللغات'
+      languages: 'اللغات',
+      getItOn: 'حمله من',
+      googlePlayBadgeSub: 'تنزيل مجاني من',
+      downloadOnPlayStore: 'تنزيل التطبيق من متجر Google Play',
+      googlePlayApp: 'تطبيق غوغل بلاي الرسمي',
+      appPromoHeading: 'تطبيق فرص عمل في إسطنبول على Google Play',
+      appPromoSubheading: 'حمل التطبيق الرسمي الآن لتصفح أحدث الوظائف الشاغرة والتقديم فوراً وإشعارك بالفرص الجديدة أولاً بأول.',
+      modalTitle: 'حمّل تطبيق فرص عمل في إسطنبول الرسمي',
+      modalSubtitle: 'احصل على إشعارات فورية بكل الوظائف الجديدة والتقديم السريع بلمسة واحدة من هاتفك المحمول!',
+      dontShowToday: 'عدم الإظهار مجدداً اليوم',
+      close: 'إغلاق'
     },
     en: {
       siteName: 'Istanbul Jobs',
@@ -226,7 +274,17 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       joinTelegram: 'Join Telegram Channel',
       mobileJoinTelegram: 'Join Our Telegram',
       installApp: 'Install App',
-      languages: 'Languages'
+      languages: 'Languages',
+      getItOn: 'GET IT ON',
+      googlePlayBadgeSub: 'GET IT ON',
+      downloadOnPlayStore: 'Download App on Google Play Store',
+      googlePlayApp: 'Official Google Play App',
+      appPromoHeading: 'Jobs in Istanbul Official Google Play App',
+      appPromoSubheading: 'Download our official app now to browse jobs, apply instantly, and get real-time alerts.',
+      modalTitle: 'Download Official Jobs in Istanbul App',
+      modalSubtitle: 'Get instant notifications for all new job openings and apply in one tap directly from your phone!',
+      dontShowToday: "Don't show again today",
+      close: 'Close'
     },
     tr: {
       siteName: 'İstanbul İş İlanları',
@@ -272,7 +330,17 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       joinTelegram: 'Telegram Kanalımıza Katılın',
       mobileJoinTelegram: 'Telegram\'a Katılın',
       installApp: 'Uygulamayı Yükle',
-      languages: 'Diller'
+      languages: 'Diller',
+      getItOn: 'İNDİRİN',
+      googlePlayBadgeSub: 'Google Play\'DEN',
+      downloadOnPlayStore: 'Google Play Mağazasından İndir',
+      googlePlayApp: 'Resmi Google Play Uygulaması',
+      appPromoHeading: 'İstanbul İş İlanları Resmi Google Play Uygulaması',
+      appPromoSubheading: 'İş ilanlarını incelemek, anında başvurmak ve yeni fırsatlardan bildirim almak için resmi uygulamamızı indirin.',
+      modalTitle: 'Resmi İstanbul İş İlanları Uygulamasını İndirin',
+      modalSubtitle: 'Yeni iş ilanları için anlık bildirimler alın ve tek tıkla telefonunuzdan başvurun!',
+      dontShowToday: 'Bugün bir daha gösterme',
+      close: 'Kapat'
     },
     ru: {
       siteName: 'Работа в Стамбуле',
@@ -318,7 +386,17 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       joinTelegram: 'Присоединиться к Telegram',
       mobileJoinTelegram: 'Наш Telegram',
       installApp: 'Установить приложение',
-      languages: 'Языки'
+      languages: 'Языки',
+      getItOn: 'СКАЧАТЬ В',
+      googlePlayBadgeSub: 'СКАЧАТЬ В',
+      downloadOnPlayStore: 'Скачать приложение в Google Play',
+      googlePlayApp: 'Официальное приложение Google Play',
+      appPromoHeading: 'Приложение Работа в Стамбуле на Google Play',
+      appPromoSubheading: 'Скачайте официальное приложение прямо сейчас для просмотра вакансий и мгновенных откликов.',
+      modalTitle: 'Скачайте официальное приложение Работа в Стамбуле',
+      modalSubtitle: 'Получайте мгновенные уведомления о новых вакансиях и откликайтесь в один клик!',
+      dontShowToday: 'Не показывать сегодня',
+      close: 'Закрыть'
     },
     fa: {
       siteName: 'کاریابی در استانبول',
@@ -364,7 +442,17 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       joinTelegram: 'عضویت در کانال تلگرام ما',
       mobileJoinTelegram: 'کانال تلگرام ما',
       installApp: 'نصب اپلیکیشن موبایل',
-      languages: 'زبان‌ها'
+      languages: 'زبان‌ها',
+      getItOn: 'دریافت از',
+      googlePlayBadgeSub: 'دانلود رایگان از',
+      downloadOnPlayStore: 'دانلود اپلیکیشن از گوگل پلی',
+      googlePlayApp: 'اپلیکیشن رسمی گوگل پلی',
+      appPromoHeading: 'اپلیکیشن کاریابی در استانبول در گوگل پلی',
+      appPromoSubheading: 'برای تماشای جدیدترین آگهی‌ها، ارسال سریع رزومه و دریافت اعلان‌های آنی، همین حالا اپلیکیشن را دانلود کنید.',
+      modalTitle: 'دانلود اپلیکیشن رسمی کاریابی در استانبول',
+      modalSubtitle: 'اعلان‌های آنی فرصت‌های شغلی جدید را دریافت کنید و مستقیماً از گوشی خود رزومه بفرستید!',
+      dontShowToday: 'امروز دیگر نشان نده',
+      close: 'بستن'
     },
     ur: {
       siteName: 'استنبول میں ملازمتیں',
@@ -410,19 +498,259 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       joinTelegram: 'ہمارے ٹیلی گرام چینل میں شامل ہوں',
       mobileJoinTelegram: 'ٹیلی گرام چینل',
       installApp: 'موبائل ایپ انسٹال کریں',
-      languages: 'زبانیں'
+      languages: 'زبانیں',
+      getItOn: 'حاصل کریں',
+      googlePlayBadgeSub: 'ڈاؤن لوڈ کریں',
+      downloadOnPlayStore: 'گوگل پلے اسٹور سے ایپ ڈاؤن لوڈ کریں',
+      googlePlayApp: 'آفیشل گوگل پلے ایپ',
+      appPromoHeading: 'گوگل پلے پر استنبول جابز آفیشل ایپ',
+      appPromoSubheading: 'تازہ ترین نوکریاں دیکھنے، فوری اپلائی کرنے اور ریئل ٹائم الرٹس حاصل کرنے کے لیے ہماری آفیشل ایپ ڈاؤن لوڈ کریں۔',
+      modalTitle: 'آفیشل استنبول جابز ایپ ڈاؤن لوڈ کریں',
+      modalSubtitle: 'تمام نئی نوکریوں کی فوری اطلاعات حاصل کریں اور اپنے موبائل سے ایک کلک میں اپلائی کریں!',
+      dontShowToday: 'آج دوبارہ نہ دکھائیں',
+      close: 'بند کریں'
+    },
+    id: {
+      siteName: 'Lowongan Kerja Istanbul',
+      tagline: 'Peluang Kerja di Istanbul',
+      findJob: 'Cari Lowongan',
+      postJob: 'Pasang Lowongan',
+      allJobs: 'Semua Lowongan',
+      about: 'Tentang Kami',
+      contact: 'Hubungi Kami',
+      copyright: '© 2026 Lowongan Kerja Istanbul. Hak cipta dilindungi.',
+      langLabel: 'Bahasa Indonesia',
+      home: 'Beranda',
+      aiTools: 'Alat AI',
+      cvOptimizer: 'Pengoptimal CV AI',
+      atsScanner: 'Pemindai CV ATS',
+      coverLetter: 'Pembuat Surat Lamaran AI',
+      interviewPrep: 'Simulator Wawancara AI',
+      toolsAndTests: 'Alat & Tes',
+      workPermitEligibility: 'Kelayakan Izin Kerja 2026',
+      investorCalculator: 'Kalkulator Investor & Karyawan',
+      salaryCalculator2026: 'Kalkulator Gaji Bersih 2026',
+      cvBuilder: 'Pembuat CV Interaktif',
+      workPermit: 'Kalkulator Izin Kerja & Kewarganegaraan',
+      salaryCalc: 'Estimator Gaji Istanbul',
+      turkishTest: 'Tes Bahasa Turki Bisnis',
+      workplaceQuiz: 'Kuis Budaya Kerja Turki',
+      currencyPrices: 'Kurs Mata Uang Turki',
+      goldPrices: 'Harga Emas di Turki',
+      insights: 'Analisis Pasar',
+      blog: 'Blog Karier & Islami',
+      candidatePortal: 'Portal Pelamar',
+      employerPortal: 'Portal Perusahaan',
+      savedJobs: 'Pekerjaan Tersimpan',
+      darkMode: 'Mode Gelap',
+      telegram: 'Telegram',
+      platform: 'Platform',
+      smartTools: 'Alat Pintar',
+      legal: 'Hukum',
+      privacy: 'Kebijakan Privasi',
+      terms: 'Syarat & Ketentuan',
+      realOpportunities: 'Peluang Nyata',
+      footerTagline: 'Platform terdepan yang menghubungkan talenta global dengan peluang kerja terbaik di Istanbul.',
+      joinTelegram: 'Gabung Channel Telegram',
+      mobileJoinTelegram: 'Gabung Telegram',
+      installApp: 'Pasang Aplikasi',
+      languages: 'Bahasa',
+      getItOn: 'TEMUKAN DI',
+      googlePlayBadgeSub: 'TEMUKAN DI',
+      downloadOnPlayStore: 'Download di Google Play Store',
+      googlePlayApp: 'Aplikasi Google Play Resmi',
+      appPromoHeading: 'Aplikasi Resmi Lowongan Kerja Istanbul di Google Play',
+      appPromoSubheading: 'Unduh aplikasi resmi kami untuk menjelajahi lowongan, melamar langsung, dan menerima notifikasi.',
+      modalTitle: 'Unduh Aplikasi Resmi Lowongan Kerja Istanbul',
+      modalSubtitle: 'Dapatkan notifikasi instan untuk lowongan baru dan lamar dalam satu ketukan dari ponsel Anda!',
+      dontShowToday: 'Jangan tampilkan lagi hari ini',
+      close: 'Tutup'
+    },
+    fr: {
+      siteName: 'Emplois à Istanbul',
+      tagline: 'Opportunités d\'emploi à Istanbul',
+      findJob: 'Trouver un emploi',
+      postJob: 'Publier une offre',
+      allJobs: 'Tous les emplois',
+      about: 'À propos',
+      contact: 'Contactez-nous',
+      copyright: '© 2026 Emplois à Istanbul. Tous droits réservés.',
+      langLabel: 'Français',
+      home: 'Accueil',
+      aiTools: 'Outils IA',
+      cvOptimizer: 'Optimiseur de CV IA',
+      atsScanner: 'Scanner ATS de CV',
+      coverLetter: 'Générateur de lettre de motivation IA',
+      interviewPrep: 'Simulateur d\'entretien IA',
+      toolsAndTests: 'Outils & Tests',
+      workPermitEligibility: 'Éligibilité au permis de travail 2026',
+      investorCalculator: 'Simulateur d\'investissement et embauche',
+      salaryCalculator2026: 'Calculateur de salaire net 2026',
+      cvBuilder: 'Créateur de CV interactif',
+      workPermit: 'Calculateur permis de travail & nationalité',
+      salaryCalc: 'Estimateur de salaires à Istanbul',
+      turkishTest: 'Test de turc professionnel',
+      workplaceQuiz: 'Test d\'intégration en entreprise',
+      currencyPrices: 'Taux de change en Turquie',
+      goldPrices: 'Cours de l\'or en Turquie',
+      insights: 'Analyses du marché',
+      blog: 'Blog Carrière & Vie',
+      candidatePortal: 'Portail Candidat',
+      employerPortal: 'Portail Employeur',
+      savedJobs: 'Emplois enregistrés',
+      darkMode: 'Mode Sombre',
+      telegram: 'Telegram',
+      platform: 'Plateforme',
+      smartTools: 'Outils Intelligents',
+      legal: 'Mentions Légales',
+      privacy: 'Politique de confidentialité',
+      terms: 'Conditions Générales',
+      realOpportunities: 'Opportunités Réelles',
+      footerTagline: 'La plateforme de référence reliant les talents internationaux aux meilleures opportunités d\'emploi à Istanbul.',
+      joinTelegram: 'Rejoindre le canal Telegram',
+      mobileJoinTelegram: 'Rejoindre Telegram',
+      installApp: 'Installer l\'application',
+      languages: 'Langues',
+      getItOn: 'DISPONIBLE SUR',
+      googlePlayBadgeSub: 'DISPONIBLE SUR',
+      downloadOnPlayStore: 'Télécharger sur Google Play Store',
+      googlePlayApp: 'Application Officielle Google Play',
+      appPromoHeading: 'Application Officielle Emplois à Istanbul sur Google Play',
+      appPromoSubheading: 'Téléchargez notre application officielle pour postuler instantanément et recevoir des alertes en temps réel.',
+      modalTitle: 'Télécharger l\'application officielle Emplois à Istanbul',
+      modalSubtitle: 'Recevez des alertes instantanées et postulez en un clic directement depuis votre mobile !',
+      dontShowToday: 'Ne plus afficher aujourd\'hui',
+      close: 'Fermer'
+    },
+    bn: {
+      siteName: 'ইস্তাম্বুল জবস',
+      tagline: 'ইস্তাম্বুলে সেরা চাকরির সুযোগ',
+      findJob: 'চাকরি খুঁজুন',
+      postJob: 'বিজ্ঞাপন দিন',
+      allJobs: 'সকল চাকরি',
+      about: 'আমাদের সম্পর্কে',
+      contact: 'যোগাযোগ',
+      copyright: '© ২০২৬ ইস্তাম্বুল জবস। সর্বস্বত্ব সংরক্ষিত।',
+      langLabel: 'বাংলা',
+      home: 'হোম',
+      aiTools: 'এআই টুলস',
+      cvOptimizer: 'এআই সিভি অপটিমাইজার',
+      atsScanner: 'এআই এটিএস স্ক্যানার',
+      coverLetter: 'এআই কভার লেটার',
+      interviewPrep: 'এআই ইন্টারভিউ সিমুলেটর',
+      toolsAndTests: 'টুলস ও টেস্ট',
+      workPermitEligibility: 'কাজের অনুমতি যোগ্যতা ২০২৬',
+      investorCalculator: 'বিনিয়োগ ও নিয়োগ ক্যালকুলেটর',
+      salaryCalculator2026: 'নেট বেতন ও কর ক্যালকুলেটর ২০২৬',
+      cvBuilder: 'ইন্টারেক্টিভ সিভি মেকার',
+      workPermit: 'কাজের অনুমতি ক্যালকুলেটর',
+      salaryCalc: 'ইস্তাম্বুল বেতন সূচক',
+      turkishTest: 'তুর্কি ভাষা পরীক্ষা',
+      workplaceQuiz: 'কর্মপরিবেশ কুইজ',
+      currencyPrices: 'তুরস্কে মুদ্রার বিনিময় হার',
+      goldPrices: 'তুরস্কে সোনার দাম',
+      insights: 'বাজার বিশ্লেষণ',
+      blog: 'ক্যারিয়ার ও ইসলামিক ব্লগ',
+      candidatePortal: 'প্রার্থী পোর্টাল',
+      employerPortal: 'নিয়োগকারী পোর্টাল',
+      savedJobs: 'সংরক্ষিত চাকরি',
+      darkMode: 'ডার্ক মোড',
+      telegram: 'টেলিগ্রাম',
+      platform: 'প্ল্যাটফর্ম',
+      smartTools: 'স্মার্ট টুলস',
+      legal: 'আইনি তথ্য',
+      privacy: 'গোপনীয়তা নীতি',
+      terms: 'শর্তাবলী',
+      realOpportunities: 'আসল সুযোগ',
+      footerTagline: 'আন্তর্জাতিক প্রতিভাদের ইস্তাম্বুলের সেরা কর্মসংস্থানের সাথে যুক্ত করার বিশ্বস্ত প্ল্যাটফর্ম।',
+      joinTelegram: 'টেলিগ্রাম চ্যানেলে যোগ দিন',
+      mobileJoinTelegram: 'টেলিগ্রাম',
+      installApp: 'অ্যাপ ইনস্টল করুন',
+      languages: 'ভাষাসমূহ',
+      getItOn: 'ডাউনলোড করুন',
+      googlePlayBadgeSub: 'গুগল প্লে থেকে',
+      downloadOnPlayStore: 'গুগল প্লে স্টোর থেকে অ্যাপ ডাউনলোড করুন',
+      googlePlayApp: 'অফিসিয়াল গুগল প্লে অ্যাপ',
+      appPromoHeading: 'গুগল প্লেতে অফিসিয়াল ইস্তাম্বুল জবস অ্যাপ',
+      appPromoSubheading: 'চাকরি খুঁজতে এবং তাৎক্ষণিক আবেদন করতে আমাদের অফিসিয়াল অ্যাপ ডাউনলোড করুন।',
+      modalTitle: 'অফিসিয়াল ইস্তাম্বুল জবস অ্যাপ ডাউনলোড করুন',
+      modalSubtitle: 'নতুন চাকরির নোটিফিকেশন পান এবং মোবাইল থেকে এক ক্লিকে আবেদন করুন!',
+      dontShowToday: 'আজ আর দেখাবেন না',
+      close: 'বন্ধ করুন'
+    },
+    de: {
+      siteName: 'Jobs in Istanbul',
+      tagline: 'Jobmöglichkeiten in Istanbul',
+      findJob: 'Job finden',
+      postJob: 'Job inserieren',
+      allJobs: 'Alle Jobs',
+      about: 'Über uns',
+      contact: 'Kontakt',
+      copyright: '© 2026 Jobs in Istanbul. Alle Rechte vorbehalten.',
+      langLabel: 'Deutsch',
+      home: 'Startseite',
+      aiTools: 'KI-Tools',
+      cvOptimizer: 'KI-Lebenslauf-Optimierer',
+      atsScanner: 'ATS-Lebenslauf-Scanner',
+      coverLetter: 'KI-Anschreiben-Generator',
+      interviewPrep: 'KI-Bewerbungssimulator',
+      toolsAndTests: 'Tools & Tests',
+      workPermitEligibility: 'Arbeitserlaubnis-Assistent 2026',
+      investorCalculator: 'Investoren- & Einstellungsrechner',
+      salaryCalculator2026: 'Nettogehalt & SGK Rechner 2026',
+      cvBuilder: 'Interaktiver CV-Builder',
+      workPermit: 'Arbeitserlaubnis-Rechner',
+      salaryCalc: 'Istanbul Gehaltsindikator',
+      turkishTest: 'Türkisch-Einstufungstest',
+      workplaceQuiz: 'Arbeitskultur-Test',
+      currencyPrices: 'Wechselkurse in der Türkei',
+      goldPrices: 'Goldpreise in der Türkei',
+      insights: 'Marktanalysen',
+      blog: 'Karriere & Lifestyle Blog',
+      candidatePortal: 'Bewerberportal',
+      employerPortal: 'Arbeitgeberportal',
+      savedJobs: 'Gespeicherte Jobs',
+      darkMode: 'Dunkelmodus',
+      telegram: 'Telegram',
+      platform: 'Plattform',
+      smartTools: 'Smarte Tools',
+      legal: 'Rechtliches',
+      privacy: 'Datenschutz',
+      terms: 'AGB',
+      realOpportunities: 'Echte Chancen',
+      footerTagline: 'Die führende Plattform für internationale Talente und beste Jobangebote in Istanbul.',
+      joinTelegram: 'Telegram-Kanal beitreten',
+      mobileJoinTelegram: 'Telegram beitreten',
+      installApp: 'App installieren',
+      languages: 'Sprachen',
+      getItOn: 'JETZT BEI',
+      googlePlayBadgeSub: 'JETZT BEI',
+      downloadOnPlayStore: 'Im Google Play Store herunterladen',
+      googlePlayApp: 'Offizielle Google Play App',
+      appPromoHeading: 'Offizielle Jobs in Istanbul App bei Google Play',
+      appPromoSubheading: 'Laden Sie unsere offizielle App herunter, um Jobs zu finden und sich sofort zu bewerben.',
+      modalTitle: 'Offizielle Jobs in Istanbul App herunterladen',
+      modalSubtitle: 'Erhalten Sie Benachrichtigungen über neue Jobs und bewerben Sie sich mit einem Fingertipp!',
+      dontShowToday: 'Heute nicht mehr anzeigen',
+      close: 'Schließen'
     }
   };
 
-  const t = translations[locale];
+  const t = (translations as any)[locale] || translations['en'];
   const oppositeLocale = locale === 'ar' ? 'en' : 'ar';
   const requestPath = c.req.path;
 
   const getLangUrl = (path: string, targetLocale: string) => {
     let cleanPath = path;
-    if (path.startsWith('/ar/') || path.startsWith('/en/') || path.startsWith('/tr/') || path.startsWith('/ru/') || path.startsWith('/fa/') || path.startsWith('/ur/')) {
-      cleanPath = path.substring(3);
-    } else if (path === '/ar' || path === '/en' || path === '/tr' || path === '/ru' || path === '/fa' || path === '/ur') {
+    const knownLocales = ['/ar/', '/en/', '/tr/', '/ru/', '/fa/', '/ur/', '/id/', '/fr/', '/bn/', '/de/'];
+    for (const prefix of knownLocales) {
+      if (path.startsWith(prefix)) {
+        cleanPath = path.substring(3);
+        break;
+      }
+    }
+    const exactLocales = ['/ar', '/en', '/tr', '/ru', '/fa', '/ur', '/id', '/fr', '/bn', '/de'];
+    if (exactLocales.includes(path)) {
       cleanPath = '';
     }
     if (cleanPath && !cleanPath.startsWith('/')) {
@@ -474,10 +802,13 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
   <!-- Preconnect for performance -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://images.unsplash.com">
+  <link rel="dns-prefetch" href="https://images.unsplash.com">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   
   <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
   
   <!-- Stylesheet -->
   <link rel="stylesheet" href="/css/theme.css?v=1.0.5">
@@ -507,6 +838,33 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
   </style>
 </head>
 <body class="${isRtl ? 'rtl' : ''}">
+  <!-- Smart Mobile App Banner -->
+  <div id="smart-app-banner" style="display: none; background: #0f172a; color: white; padding: 8px 16px; border-bottom: 1px solid rgba(255,255,255,0.1); position: relative; z-index: 9999;">
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; max-width: 1360px; margin: 0 auto;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <button onclick="document.getElementById('smart-app-banner').style.display='none'; try{localStorage.setItem('hideAppBanner', '1');}catch(e){}" style="background: transparent; border: none; color: #94a3b8; font-size: 1.1rem; cursor: pointer; padding: 4px; line-height: 1;">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div style="width: 34px; height: 34px; background: linear-gradient(135deg, #01875f 0%, #006644 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
+          <i class="fa-brands fa-google-play"></i>
+        </div>
+        <div style="display: flex; flex-direction: column;">
+          <strong style="font-size: 0.82rem; color: white; line-height: 1.2;">${t.siteName}</strong>
+          <span style="font-size: 0.7rem; color: #94a3b8;">${t.googlePlayApp}</span>
+        </div>
+      </div>
+      <a href="${PLAY_STORE_URL}" target="_blank" rel="noopener" style="background: #01875f; color: white !important; padding: 6px 14px; border-radius: 20px; font-weight: 700; font-size: 0.78rem; text-decoration: none; display: flex; align-items: center; gap: 6px; white-space: nowrap; box-shadow: 0 2px 8px rgba(1,135,95,0.4);">
+        <i class="fa-brands fa-google-play"></i> ${t.getItOn}
+      </a>
+    </div>
+  </div>
+  <script>
+    try {
+      if (/Android/i.test(navigator.userAgent) && !localStorage.getItem('hideAppBanner')) {
+        document.getElementById('smart-app-banner').style.display = 'block';
+      }
+    } catch(e) {}
+  </script>
   <div class="page-wrapper">
 
   <!-- HEADER -->
@@ -649,6 +1007,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           
           <li><a href="/${locale}/insights" class="nav-link">📊 ${t.insights}</a></li>
           <li><a href="/${locale}/blog" class="nav-link">📝 ${t.blog}</a></li>
+          <li><a href="/${locale}/blog/${locale === 'tr' ? 'kuran-i-kerim-namaz-vakitleri-uygulamasi-indir' : 'quran-karim-app-offline-features-download'}" class="nav-link" style="color: #059669; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;"><i class="fa-solid fa-book-quran"></i> <span>${locale === 'ar' ? 'تطبيق القرآن الكريم' : (locale === 'tr' ? 'Kuran Uygulaması' : 'Quran App')}</span></a></li>
           <li><a href="/${locale}/candidate/dashboard" class="nav-link" style="color: var(--primary);"><i class="fa-solid fa-graduation-cap"></i> ${t.candidatePortal}</a></li>
           <li><a href="/${locale}/employer/dashboard" class="nav-link nav-cta"><i class="fa-solid fa-user-tie"></i> ${t.employerPortal}</a></li>
           <li>
@@ -669,6 +1028,10 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         <button id="dark-mode-toggle" class="icon-btn" title="${t.darkMode}">
           <i class="fa-solid fa-moon"></i>
         </button>
+        <a href="${PLAY_STORE_URL}" target="_blank" rel="noopener" class="header-playstore-btn" title="${t.downloadOnPlayStore}">
+          <i class="fa-brands fa-google-play"></i>
+          <span>Google Play</span>
+        </a>
         <a href="/${locale}/install" class="header-install-btn" title="${t.installApp}">
           <i class="fa-solid fa-mobile-screen-button"></i>
           <span>${t.installApp}</span>
@@ -734,6 +1097,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         <a href="/${locale}" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">🏠 ${t.home}</a>
         <a href="/${locale}/insights" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">📊 ${t.insights}</a>
         <a href="/${locale}/blog" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">📝 ${t.blog}</a>
+        <a href="/${locale}/blog/${locale === 'tr' ? 'kuran-i-kerim-namaz-vakitleri-uygulamasi-indir' : 'quran-karim-app-offline-features-download'}" style="padding:12px 16px; border-radius:var(--r-md); color:#059669; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-book-quran"></i> ${locale === 'ar' ? 'تطبيق القرآن الكريم كامل' : (locale === 'tr' ? 'Kuran-ı Kerim Uygulaması' : 'Quran App')}</a>
         
         <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-top:14px; margin-bottom:6px; padding-inline-start:16px; letter-spacing:0.05em;">🤖 ${t.aiTools}</div>
         <a href="/${locale}/cv-optimizer" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary);"></i> ${t.cvOptimizer}</a>
@@ -820,11 +1184,12 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           </div>
         </div>
         <p>${t.footerTagline}</p>
-        <div class="footer-social">
+        <div class="footer-social" style="display:flex; gap:10px; align-items:center; margin-bottom:14px;">
           <a href="https://t.me/jobsistanbul" target="_blank" rel="noopener" class="social-btn" title="Telegram"><i class="fa-brands fa-telegram"></i></a>
-          <a href="#" class="social-btn" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
-          <a href="#" class="social-btn" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
-          <a href="#" class="social-btn" title="X / Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+          <a href="${PLAY_STORE_URL}" target="_blank" rel="noopener" class="social-btn" title="Google Play"><i class="fa-brands fa-google-play"></i></a>
+        </div>
+        <div style="margin-top:12px;">
+          ${renderGooglePlayBadge(t, 'sm')}
         </div>
       </div>
       <div class="footer-links-group">
@@ -832,6 +1197,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           <li class="footer-col-title">${t.platform}</li>
           <li><a href="/${locale}">${t.allJobs}</a></li>
           <li><a href="/${locale}/blog">${t.blog}</a></li>
+          <li><a href="/${locale}/blog/${locale === 'tr' ? 'kuran-i-kerim-namaz-vakitleri-uygulamasi-indir' : 'quran-karim-app-offline-features-download'}" style="color: #34d399; font-weight: 700;"><i class="fa-solid fa-book-quran" style="margin-inline-end:6px;"></i>${locale === 'ar' ? 'تطبيق القرآن الكريم كامل' : (locale === 'tr' ? 'Kuran-ı Kerim Uygulaması' : 'Holy Quran App')}</a></li>
           <li><a href="/${locale}/insights">${t.insights}</a></li>
           <li><a href="/${locale}/about">${t.about}</a></li>
           <li><a href="/${locale}/contact">${t.contact}</a></li>
@@ -839,6 +1205,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         </ul>
         <ul class="footer-links">
           <li class="footer-col-title">${t.smartTools}</li>
+          <li><a href="https://play.google.com/store/apps/details?id=com.quran.karim.kamel.bidon.net.murtal.tilaat.smart" target="_blank" rel="noopener" style="font-weight: 800; color: #34d399;"><i class="fa-brands fa-google-play" style="margin-inline-end:6px;"></i>${locale === 'ar' ? 'تطبيق القرآن الكريم (Google Play)' : 'Holy Quran App (Google Play)'}</a></li>
+          <li><a href="${PLAY_STORE_URL}" target="_blank" rel="noopener" style="font-weight: 800; color: #4ade80;"><i class="fa-brands fa-google-play" style="margin-inline-end:6px;"></i>Google Play App</a></li>
           <li><a href="/${locale}/work-permit-eligibility" style="font-weight: 700; color: #22c55e;"><i class="fa-solid fa-clipboard-check" style="margin-inline-end:6px;"></i>${t.workPermitEligibility}</a></li>
           <li><a href="/${locale}/investor-calculator" style="font-weight: 700; color: #6366f1;"><i class="fa-solid fa-building-user" style="margin-inline-end:6px;"></i>${t.investorCalculator}</a></li>
           <li><a href="/${locale}/salary-calculator-2026" style="font-weight: 700; color: #ec4899;"><i class="fa-solid fa-calculator" style="margin-inline-end:6px;"></i>${t.salaryCalculator2026}</a></li>
@@ -877,6 +1245,25 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
     @keyframes slideInLeft  { from { transform: translateX(-100%); } to { transform: translateX(0); } }
     @keyframes slideInRight { from { transform: translateX(100%); }  to { transform: translateX(0); } }
     
+    .header-playstore-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #01875f 0%, #006644 100%);
+      color: white !important;
+      padding: 8px 14px;
+      border-radius: var(--r-full);
+      font-size: 0.82rem;
+      font-weight: 700;
+      transition: var(--t-base);
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(1, 135, 95, 0.2);
+    }
+    .header-playstore-btn:hover {
+      background: linear-gradient(135deg, #02a373 0%, #01875f 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(1, 135, 95, 0.35);
+    }
     .header-telegram-btn {
       display: flex;
       align-items: center;
@@ -1301,65 +1688,136 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
   const queryDistrict = c.req.query('district') || '';
   const queryTransit = c.req.query('transit') || '';
 
-  // 1. Fetch Categories
-  const catRows = await db.prepare(
-    `SELECT id, slug, data FROM documents WHERE type_id = 'categories' AND status = 'published' AND is_published = 1`
-  ).all();
+  // 1. Fetch Categories (KV -> DB -> Fallback)
+  let categories: any[] = [];
+  if (c.env?.CACHE_KV) {
+    try {
+      const kvCats = await c.env.CACHE_KV.get('kv_categories', 'json');
+      if (Array.isArray(kvCats) && kvCats.length > 0) categories = kvCats;
+    } catch (e) {}
+  }
+  if (categories.length === 0) {
+    try {
+      const catRows = await safeQuery(() => db.prepare(
+        `SELECT id, slug, data FROM documents WHERE type_id = 'categories' AND status = 'published' AND is_published = 1`
+      ).all(), 1, 50);
+      if (catRows?.results && catRows.results.length > 0) {
+        categories = catRows.results.map((row: any) => ({
+          id: row.id,
+          slug: row.slug,
+          ...JSON.parse(row.data)
+        }));
+        if (c.env?.CACHE_KV && categories.length > 0) {
+          c.env.CACHE_KV.put('kv_categories', JSON.stringify(categories), { expirationTtl: 3600 }).catch(() => {});
+        }
+      }
+    } catch (e) {
+      console.warn('[HOME] DB categories query fallback');
+    }
+  }
+  if (categories.length === 0) {
+    categories = getFallbackCategories();
+  }
 
-  const categories = (catRows.results || []).map((row: any) => ({
-    id: row.id,
-    slug: row.slug,
-    ...JSON.parse(row.data)
-  }));
-
-  // 2. Fetch Companies
-  const compRows = await db.prepare(
-    `SELECT id, slug, data FROM documents WHERE type_id = 'companies' AND status = 'published' AND is_published = 1`
-  ).all();
+  // 2. Fetch Companies (KV -> DB -> Fallback)
+  let companiesList: any[] = [];
+  if (c.env?.CACHE_KV) {
+    try {
+      const kvComps = await c.env.CACHE_KV.get('kv_companies', 'json');
+      if (Array.isArray(kvComps) && kvComps.length > 0) companiesList = kvComps;
+    } catch (e) {}
+  }
+  if (companiesList.length === 0) {
+    try {
+      const compRows = await safeQuery(() => db.prepare(
+        `SELECT id, slug, data FROM documents WHERE type_id = 'companies' AND status = 'published' AND is_published = 1`
+      ).all(), 1, 50);
+      if (compRows?.results && compRows.results.length > 0) {
+        companiesList = compRows.results.map((row: any) => ({
+          id: row.id,
+          slug: row.slug,
+          ...JSON.parse(row.data)
+        }));
+        if (c.env?.CACHE_KV && companiesList.length > 0) {
+          c.env.CACHE_KV.put('kv_companies', JSON.stringify(companiesList), { expirationTtl: 3600 }).catch(() => {});
+        }
+      }
+    } catch (e) {
+      console.warn('[HOME] DB companies query fallback');
+    }
+  }
+  if (companiesList.length === 0) {
+    companiesList = getFallbackCompanies();
+  }
 
   const companiesMap = new Map();
-  for (const row of compRows.results || []) {
-    companiesMap.set(row.id, {
-      id: row.id,
-      slug: row.slug,
-      ...JSON.parse(row.data)
-    });
+  for (const comp of companiesList) {
+    companiesMap.set(comp.id, comp);
   }
 
-  // 3. Build Jobs Query with Filters
-  let sql = `
-    SELECT j.id, j.slug, j.data, j.published_at
-    FROM documents j
-    WHERE j.type_id = 'jobs' AND j.status = 'published' AND j.is_published = 1
-  `;
+  // 3. Build Jobs Query with Filters (KV -> DB -> Fallback)
+  let jobs: any[] = [];
+  const isUnfiltered = !queryCategory && !queryJobType && !queryDistrict && !queryTransit && !querySearch;
 
-  const params: any[] = [];
-
-  // Filter by Category
-  if (queryCategory) {
-    sql += ` AND EXISTS (
-      SELECT 1 FROM document_references ref 
-      WHERE ref.from_document_id = j.id AND ref.field_name = 'category' AND ref.to_root_id = ?
-    )`;
-    params.push(queryCategory);
+  if (isUnfiltered && c.env?.CACHE_KV) {
+    try {
+      const kvJobs = await c.env.CACHE_KV.get('kv_jobs_recent', 'json');
+      if (Array.isArray(kvJobs) && kvJobs.length > 0) {
+        jobs = kvJobs;
+      }
+    } catch (e) {}
   }
 
-  // Filter by Job Type
-  if (queryJobType) {
-    sql += ` AND json_extract(j.data, '$.jobType') = ?`;
-    params.push(queryJobType);
+  if (jobs.length === 0) {
+    try {
+      let sql = `
+        SELECT j.id, j.slug, j.data, j.published_at
+        FROM documents j
+        WHERE j.type_id = 'jobs' AND j.status = 'published' AND j.is_published = 1
+      `;
+
+      const params: any[] = [];
+
+      // Filter by Category
+      if (queryCategory) {
+        const matchedCategory = categories.find((c: any) => c.id === queryCategory || c.slug === queryCategory);
+        const categoryId = matchedCategory ? matchedCategory.id : queryCategory;
+        sql += ` AND EXISTS (
+          SELECT 1 FROM document_references ref 
+          WHERE ref.from_document_id = j.id AND ref.field_name = 'category' AND ref.to_root_id = ?
+        )`;
+        params.push(categoryId);
+      }
+
+      // Filter by Job Type
+      if (queryJobType) {
+        sql += ` AND json_extract(j.data, '$.jobType') = ?`;
+        params.push(queryJobType);
+      }
+
+      sql += ` ORDER BY j.published_at DESC LIMIT 200`;
+
+      const jobRows = await safeQuery(() => db.prepare(sql).bind(...params).all(), 1, 50);
+      if (jobRows?.results && jobRows.results.length > 0) {
+        jobs = jobRows.results.map((row: any) => ({
+          id: row.id,
+          slug: row.slug,
+          publishedAt: row.published_at,
+          ...JSON.parse(row.data)
+        }));
+        if (isUnfiltered && c.env?.CACHE_KV && jobs.length > 0) {
+          c.env.CACHE_KV.put('kv_jobs_recent', JSON.stringify(jobs), { expirationTtl: 1800 }).catch(() => {});
+        }
+      }
+    } catch (e) {
+      console.warn('[HOME] DB jobs query fallback');
+    }
   }
 
-  sql += ` ORDER BY j.published_at DESC`;
+  if (jobs.length === 0) {
+    jobs = getFallbackJobs();
+  }
 
-  const jobRows = await db.prepare(sql).bind(...params).all();
-
-  let jobs = (jobRows.results || []).map((row: any) => ({
-    id: row.id,
-    slug: row.slug,
-    publishedAt: row.published_at,
-    ...JSON.parse(row.data)
-  }));
 
   // Filter by Keyword (search) client-side or parse company logos
   if (querySearch) {
@@ -1472,7 +1930,12 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
       resultsCount: `تم العثور على ${totalJobsCount} وظيفة شاغرة`,
       featuredBadge: 'مميزة',
       applyBtn: 'تقدم الآن',
-      noJobs: 'لا توجد وظائف تطابق خيارات البحث الحالية.'
+      noJobs: 'لا توجد وظائف تطابق خيارات البحث الحالية.',
+      googlePlayApp: 'تطبيق غوغل بلاي الرسمي',
+      appPromoHeading: 'تطبيق فرص عمل في إسطنبول على Google Play',
+      appPromoSubheading: 'حمل التطبيق الرسمي الآن لتصفح أحدث الوظائف الشاغرة والتقديم فوراً وإشعارك بالفرص الجديدة أولاً بأول.',
+      getItOn: 'حمله من',
+      downloadOnPlayStore: 'تنزيل التطبيق من متجر Google Play'
     },
     en: {
       heroEyebrow: 'Over 500 jobs in Istanbul right now',
@@ -1490,7 +1953,12 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
       resultsCount: `Found ${totalJobsCount} vacant jobs`,
       featuredBadge: 'Featured',
       applyBtn: 'Apply Now',
-      noJobs: 'No jobs match your search filters.'
+      noJobs: 'No jobs match your search filters.',
+      googlePlayApp: 'Official Google Play App',
+      appPromoHeading: 'Jobs in Istanbul Official Google Play App',
+      appPromoSubheading: 'Download our official app now to browse jobs, apply instantly, and get real-time alerts.',
+      getItOn: 'GET IT ON',
+      downloadOnPlayStore: 'Download App on Google Play Store'
     },
     tr: {
       heroEyebrow: 'İstanbul\'da şu anda 500\'den fazla iş ilanı',
@@ -1508,7 +1976,12 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
       resultsCount: `${totalJobsCount} açık iş ilanı bulundu`,
       featuredBadge: 'Öne Çıkan',
       applyBtn: 'Hemen Başvur',
-      noJobs: 'Arama kriterlerinize uygun iş ilanı bulunamadı.'
+      noJobs: 'Arama kriterlerinize uygun iş ilanı bulunamadı.',
+      googlePlayApp: 'Resmi Google Play Uygulaması',
+      appPromoHeading: 'İstanbul İş İlanları Resmi Google Play Uygulaması',
+      appPromoSubheading: 'İş ilanlarını incelemek, anında başvurmak ve yeni fırsatlardan bildirim almak için resmi uygulamamızı indirin.',
+      getItOn: 'İNDİRİN',
+      downloadOnPlayStore: 'Google Play Mağazasından İndir'
     },
     ru: {
       heroEyebrow: 'Более 500 вакансий в Стамбуле сейчас',
@@ -1526,7 +1999,12 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
       resultsCount: `Найдено ${totalJobsCount} вакансий`,
       featuredBadge: 'Премиум',
       applyBtn: 'Откликнуться',
-      noJobs: 'По вашему запросу вакансий не найдено.'
+      noJobs: 'По вашему запросу вакансий не найдено.',
+      googlePlayApp: 'Официальное приложение Google Play',
+      appPromoHeading: 'Приложение Работа в Стамбуле на Google Play',
+      appPromoSubheading: 'Скачайте официальное приложение прямо сейчас для просмотра вакансий и мгновенных откликов.',
+      getItOn: 'СКАЧАТЬ В',
+      downloadOnPlayStore: 'Скачать приложение в Google Play'
     },
     fa: {
       heroEyebrow: 'بیش از ۵۰۰ شغل در استانبول در حال حاضر',
@@ -1544,7 +2022,12 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
       resultsCount: `تعداد ${totalJobsCount} موقعیت شغلی فعال یافت شد`,
       featuredBadge: 'ویژه',
       applyBtn: 'ثبت درخواست و ارسال رزومه',
-      noJobs: 'هیچ شغلی مطابق با فیلترهای جستجوی شما پیدا نشد.'
+      noJobs: 'هیچ شغلی مطابق با فیلترهای جستجوی شما پیدا نشد.',
+      googlePlayApp: 'اپلیکیشن رسمی گوگل پلی',
+      appPromoHeading: 'اپلیکیشن کاریابی در استانبول در گوگل پلی',
+      appPromoSubheading: 'برای تماشای جدیدترین آگهی‌ها، ارسال سریع رزومه و دریافت اعلان‌های آنی، همین حالا اپلیکیشن را دانلود کنید.',
+      getItOn: 'دریافت از',
+      downloadOnPlayStore: 'دانلود اپلیکیشن از گوگل پلی'
     },
     ur: {
       heroEyebrow: 'استنبول میں اس وقت 500 سے زائد ملازمتیں',
@@ -1562,7 +2045,12 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
       resultsCount: `کل ${totalJobsCount} فعال ملازمتیں ملیں`,
       featuredBadge: 'نمایاں',
       applyBtn: 'درخواست دیں اور سی وی بھیجیں',
-      noJobs: 'آپ کے فلٹرز کے مطابق کوئی ملازمت نہیں ملی۔'
+      noJobs: 'آپ کے فلٹرز کے مطابق کوئی ملازمت نہیں ملی۔',
+      googlePlayApp: 'آفیشل گوگل پلے ایپ',
+      appPromoHeading: 'گوگل پلے پر استنبول جابز آفیشل ایپ',
+      appPromoSubheading: 'تازہ ترین نوکریاں دیکھنے، فوری اپلائی کرنے اور ریئل ٹائم الرٹس حاصل کرنے کے لیے ہماری آفیشل ایپ ڈاؤن لوڈ کریں۔',
+      getItOn: 'حاصل کریں',
+      downloadOnPlayStore: 'گوگل پلے اسٹور سے ایپ ڈاؤن لوڈ کریں'
     }
   }[locale];
 
@@ -1981,6 +2469,36 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
               <i class="fa-solid fa-paper-plane"></i>
             </a>
           </div>
+
+          <!-- Quran App Sidebar Card -->
+          <div class="quran-sidebar-card" style="margin-top:20px; padding:20px; border-radius:var(--radius-lg); background:linear-gradient(135deg, #064e3b 0%, #022c22 100%); color:white; position:relative; overflow:hidden; box-shadow:0 8px 24px rgba(6, 78, 59, 0.3); border: 1px solid rgba(16, 185, 129, 0.3); transition:all 0.3s ease;">
+            <div style="position:absolute; right:-15px; bottom:-15px; font-size:110px; opacity:0.08; transform:rotate(-15deg); color:#10b981; pointer-events:none;">
+              <i class="fa-solid fa-book-quran"></i>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+              <img src="/public/images/quran-app/00_App_Icon_3D_Logo.jpg" alt="Quran App" style="width:48px; height:48px; border-radius:12px; object-fit:cover; border:1.5px solid rgba(255,255,255,0.3); flex-shrink:0;">
+              <div>
+                <span style="font-size:0.7rem; font-weight:800; color:#34d399; text-transform:uppercase; letter-spacing:0.5px; display:block;">Google Play</span>
+                <h4 style="font-size:0.95rem; font-weight:800; margin:0; color:white; line-height:1.3;">${locale === 'ar' ? 'القرآن الكريم كامل بدون نت' : (locale === 'tr' ? 'Kuran-ı Kerim İnternetsiz' : 'Holy Quran Offline')}</h4>
+              </div>
+            </div>
+            <p style="font-size:0.8rem; line-height:1.45; opacity:0.9; margin:0 0 14px 0; color:#cbd5e1;">
+              ${locale === 'ar'
+                ? 'مصحف مرتل، مواقيت الصلاة، اتجاه القبلة، وأذكار حصن المسلم مجاناً بالكامل.'
+                : (locale === 'tr' ? 'Namaz vakitleri, sesli Kuran, kıble pusulası ve zikirler %100 internetsiz.' : 'Complete Quran with recitations, prayer times, and Qibla compass.')
+              }
+            </p>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <a href="https://play.google.com/store/apps/details?id=com.quran.karim.kamel.bidon.net.murtal.tilaat.smart" target="_blank" rel="noopener" style="background:#047857; color:white; padding:9px 14px; border-radius:8px; font-weight:800; font-size:0.82rem; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:6px; box-shadow:0 4px 10px rgba(4,120,87,0.3);">
+                <i class="fa-brands fa-google-play"></i>
+                <span>${locale === 'ar' ? 'تثبيت من Google Play' : 'Install on Google Play'}</span>
+              </a>
+              <a href="/${locale}/blog/${locale === 'tr' ? 'kuran-i-kerim-namaz-vakitleri-uygulamasi-indir' : 'quran-karim-app-offline-features-download'}" style="background:rgba(255,255,255,0.1); color:white; padding:8px 14px; border-radius:8px; font-weight:700; font-size:0.8rem; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:6px; border:1px solid rgba(255,255,255,0.2);">
+                <i class="fa-solid fa-book-open"></i>
+                <span>${locale === 'ar' ? 'عرض تفاصيل المقالة' : 'Read Article'}</span>
+              </a>
+            </div>
+          </div>
           
           <style>
             .telegram-cta:hover {
@@ -1990,10 +2508,109 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
             .telegram-cta:hover .telegram-btn {
               background: #f0f9ff !important;
             }
+            .gplay-cta:hover {
+              transform: translateY(-4px);
+              box-shadow: 0 12px 30px rgba(1, 135, 95, 0.4) !important;
+            }
           </style>
         </aside>
 
         <section>
+          <!-- FEATURED APP & ARTICLE: QURAN KARIM APP -->
+          <div class="quran-app-promo" style="margin-bottom: 24px; padding: 22px 24px; border-radius: 20px; background: linear-gradient(135deg, #064e3b 0%, #0f172a 100%); color: white; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(6, 78, 59, 0.35); border: 1px solid rgba(16, 185, 129, 0.35);">
+            <div style="position: absolute; right: -20px; bottom: -20px; font-size: 170px; opacity: 0.05; color: #10b981; pointer-events: none;">
+              <i class="fa-solid fa-book-quran"></i>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; position: relative; z-index: 2;">
+              <div style="display: flex; align-items: center; gap: 18px; flex: 1; min-width: 280px;">
+                <a href="/${locale}/blog/${locale === 'tr' ? 'kuran-i-kerim-namaz-vakitleri-uygulamasi-indir' : 'quran-karim-app-offline-features-download'}" style="flex-shrink: 0; text-decoration: none;">
+                  <img src="/public/images/quran-app/00_App_Icon_3D_Logo.jpg" alt="Quran Karim App Icon" style="width: 84px; height: 84px; border-radius: 18px; object-fit: cover; box-shadow: 0 8px 20px rgba(0,0,0,0.4); border: 2px solid rgba(255,255,255,0.25); display: block;">
+                </a>
+                <div>
+                  <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.5); padding: 3px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 700; color: #34d399; margin-bottom: 8px;">
+                    <i class="fa-brands fa-google-play"></i> ${locale === 'ar' ? 'تطبيق إسلامي موصى به على Google Play' : (locale === 'tr' ? 'Öne Çıkan İslami Uygulama' : 'Featured Islamic Android App')}
+                  </div>
+                  <h2 style="font-size: clamp(1.1rem, 3.5vw, 1.35rem); font-weight: 900; color: white; margin: 0 0 6px 0; line-height: 1.3;">
+                    <a href="/${locale}/blog/${locale === 'tr' ? 'kuran-i-kerim-namaz-vakitleri-uygulamasi-indir' : 'quran-karim-app-offline-features-download'}" style="color: white; text-decoration: none;" onmouseover="this.style.color='#34d399'" onmouseout="this.style.color='white'">
+                      ${locale === 'ar' ? 'تحميل تطبيق القرآن الكريم كامل بدون نت: المصحف، مواقيت الصلاة، والأذكار' : (locale === 'tr' ? 'Kuran-ı Kerim İnternetsiz İndir: Namaz Vakitleri & Kıble' : 'Holy Quran Complete Offline App: Prayer Times & Athkar')}
+                    </a>
+                  </h2>
+                  <p style="font-size: 0.86rem; color: #cbd5e1; line-height: 1.5; margin: 0 0 12px 0;">
+                    ${locale === 'ar' ? 'تطبيق مجاني شامل يعمل بدون إنترنت مع تلاوات خاشعة، بوصلة القبلة، وحصن المسلم.' : (locale === 'tr' ? 'İnternetsiz eksiksiz Kuran-ı Kerim, ezan alarmı ve kıble pusulası uygulaması.' : 'Complete offline Holy Quran app with recitations, prayer times, and Qibla compass.')}
+                  </p>
+                  <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+                    <a href="/${locale}/blog/${locale === 'tr' ? 'kuran-i-kerim-namaz-vakitleri-uygulamasi-indir' : 'quran-karim-app-offline-features-download'}" style="background: rgba(255,255,255,0.15); color: white; padding: 8px 16px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.25);">
+                      <i class="fa-solid fa-book-open-reader"></i>
+                      <span>${locale === 'ar' ? 'قراءة تفاصيل المقالة' : (locale === 'tr' ? 'Makaleyi Oku' : 'Read Article')}</span>
+                    </a>
+                    <a href="https://play.google.com/store/apps/details?id=com.quran.karim.kamel.bidon.net.murtal.tilaat.smart" target="_blank" rel="noopener" style="background: #047857; color: white; padding: 8px 18px; border-radius: 10px; font-weight: 800; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(4, 120, 87, 0.4);">
+                      <i class="fa-brands fa-google-play"></i>
+                      <span>${locale === 'ar' ? 'تثبيت من Google Play' : (locale === 'tr' ? 'Google Play\'den Yükle' : 'Install on Google Play')}</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <a href="https://play.google.com/store/apps/details?id=com.quran.karim.kamel.bidon.net.murtal.tilaat.smart" target="_blank" rel="noopener" style="text-decoration: none;">
+                  <div style="background: white; padding: 8px; border-radius: 12px; text-align: center; box-shadow: 0 6px 16px rgba(0,0,0,0.3);">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=90x90&data=${encodeURIComponent('https://play.google.com/store/apps/details?id=com.quran.karim.kamel.bidon.net.murtal.tilaat.smart')}" alt="Google Play QR Code" style="width: 80px; height: 80px; display: block; border-radius: 6px;">
+                    <span style="font-size: 0.65rem; font-weight: 800; color: #1e293b; display: block; margin-top: 4px;">
+                      <i class="fa-solid fa-qrcode"></i> ${locale === 'ar' ? 'امسح للتحميل' : 'Scan to Install'}
+                    </span>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- FEATURED APP & ARTICLE: AKTUEL URUNLER (BIM, A101, SOK) APP -->
+          <div class="aktuel-app-promo" style="margin-bottom: 24px; padding: 22px 24px; border-radius: 20px; background: linear-gradient(135deg, #0284c7 0%, #0f172a 100%); color: white; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(2, 132, 199, 0.35); border: 1px solid rgba(56, 189, 248, 0.35);">
+            <div style="position: absolute; right: -20px; bottom: -20px; font-size: 160px; opacity: 0.05; color: #38bdf8; pointer-events: none;">
+              <i class="fa-solid fa-cart-shopping"></i>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; position: relative; z-index: 2;">
+              <div style="display: flex; align-items: center; gap: 18px; flex: 1; min-width: 280px;">
+                <a href="/${locale}/blog/${locale === 'tr' ? 'bim-a101-sok-aktuel-katalog-indirim-rehberi' : (locale === 'ar' ? 'bim-a101-sok-aktuel-urunler-shopping-guide-turkey' : 'smart-shopping-turkey-bim-a101-sok-aktuel-catalogs-guide')}" style="flex-shrink: 0; text-decoration: none;">
+                  <img src="/public/images/aktuel-app/01_aktuel_supermarket_app_hero.jpg" alt="Aktuel App Icon" style="width: 84px; height: 84px; border-radius: 18px; object-fit: cover; box-shadow: 0 8px 20px rgba(0,0,0,0.4); border: 2px solid rgba(255,255,255,0.25); display: block;">
+                </a>
+                <div>
+                  <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(56, 189, 248, 0.2); border: 1px solid rgba(56, 189, 248, 0.5); padding: 3px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 700; color: #7dd3fc; margin-bottom: 8px;">
+                    <i class="fa-brands fa-google-play"></i> ${locale === 'ar' ? 'تطبيق توفير ميزانية التسوق في تركيا' : (locale === 'tr' ? 'Öne Çıkan Market İndirim Uygulaması' : 'Featured Smart Shopping App in Turkey')}
+                  </div>
+                  <h2 style="font-size: clamp(1.1rem, 3.5vw, 1.35rem); font-weight: 900; color: white; margin: 0 0 6px 0; line-height: 1.3;">
+                    <a href="/${locale}/blog/${locale === 'tr' ? 'bim-a101-sok-aktuel-katalog-indirim-rehberi' : (locale === 'ar' ? 'bim-a101-sok-aktuel-urunler-shopping-guide-turkey' : 'smart-shopping-turkey-bim-a101-sok-aktuel-catalogs-guide')}" style="color: white; text-decoration: none;" onmouseover="this.style.color='#7dd3fc'" onmouseout="this.style.color='white'">
+                      ${locale === 'ar' ? 'عروض وتخفيضات بيم، يوزبير، وشوك: تصفح الكتالوجات الأسبوعية ووفر حتى 50%' : (locale === 'tr' ? 'BİM, A101, ŞOK Aktüel Ürünler Katalogları: İndirimleri Yakalayın' : 'BİM, A101 & ŞOK Weekly Catalog App: Save up to 50% on Groceries')}
+                    </a>
+                  </h2>
+                  <p style="font-size: 0.86rem; color: #cbd5e1; line-height: 1.5; margin: 0 0 12px 0;">
+                    ${locale === 'ar' ? 'تطبيق مجاني لعرض بروشورات وتخفيضات المتاجر التركية بدقة HD مع تنبيهات فورية لقوائم الأسعار.' : (locale === 'tr' ? 'Tüm zincir marketlerin güncel aktüel broşürlerini HD kalitede inceleyin ve anlık bildirim alın.' : 'Inspect weekly promotional brochures in crystal-clear HD with real-time deal alerts across Turkey.')}
+                  </p>
+                  <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+                    <a href="/${locale}/blog/${locale === 'tr' ? 'bim-a101-sok-aktuel-katalog-indirim-rehberi' : (locale === 'ar' ? 'bim-a101-sok-aktuel-urunler-shopping-guide-turkey' : 'smart-shopping-turkey-bim-a101-sok-aktuel-catalogs-guide')}" style="background: rgba(255,255,255,0.15); color: white; padding: 8px 16px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.25);">
+                      <i class="fa-solid fa-newspaper"></i>
+                      <span>${locale === 'ar' ? 'قراءة تفاصيل المقالة' : (locale === 'tr' ? 'Makaleyi Oku' : 'Read Article')}</span>
+                    </a>
+                    <a href="https://play.google.com/store/apps/details?id=com.aktuel.bim.a101.sok" target="_blank" rel="noopener" style="background: #0284c7; color: white; padding: 8px 18px; border-radius: 10px; font-weight: 800; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4);">
+                      <i class="fa-brands fa-google-play"></i>
+                      <span>${locale === 'ar' ? 'تثبيت من Google Play' : (locale === 'tr' ? 'Google Play\'den Yükle' : 'Install on Google Play')}</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <a href="https://play.google.com/store/apps/details?id=com.aktuel.bim.a101.sok" target="_blank" rel="noopener" style="text-decoration: none;">
+                  <div style="background: white; padding: 8px; border-radius: 12px; text-align: center; box-shadow: 0 6px 16px rgba(0,0,0,0.3);">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=90x90&data=${encodeURIComponent('https://play.google.com/store/apps/details?id=com.aktuel.bim.a101.sok')}" alt="Google Play QR Code" style="width: 80px; height: 80px; display: block; border-radius: 6px;">
+                    <span style="font-size: 0.65rem; font-weight: 800; color: #1e293b; display: block; margin-top: 4px;">
+                      <i class="fa-solid fa-qrcode"></i> ${locale === 'ar' ? 'امسح للتحميل' : 'Scan to Install'}
+                    </span>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+
+
           <div class="jobs-header">
             <p class="jobs-count"><strong>${totalJobsCount}</strong> ${locale === 'ar' ? 'وظيفة متاحة' : 'jobs available'}</p>
             ${querySearch || queryCategory || queryJobType || queryDistrict || queryTransit ? `<a href="/${locale}" style="font-size:.82rem; color:var(--danger); font-weight:600;"><i class="fa-solid fa-xmark"></i> ${locale === 'ar' ? 'مسح الفلاتر' : 'Clear filters'}</a>` : ''}
@@ -2007,7 +2624,13 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
     </div>
   `;
 
-  const seoHtml = generateMetaTags(locale, 'home') + generateJsonLd(locale, 'home');
+  const matchedCategory = categories.find((c: any) => c.id === queryCategory || c.slug === queryCategory);
+  const seoMetaOpts: any = {};
+  if (matchedCategory) {
+    seoMetaOpts.category = matchedCategory.slug;
+  }
+  const seoHtml = generateMetaTags(locale, 'home', seoMetaOpts) + generateJsonLd(locale, 'home', seoMetaOpts);
+  c.header('Cache-Control', 'public, max-age=60, s-maxage=600, stale-while-revalidate=3600');
   return c.html(renderLayout(c, locale === 'ar' ? 'فرص عمل في إسطنبول' : 'Istanbul Jobs Vacancies', html, locale, seoHtml));
 }
 
@@ -2060,26 +2683,140 @@ publicRouter.get(
       return c.redirect('/ar');
     }
 
-    // Fetch job document matching the slug
-    const jobRow = await db.prepare(
-      `SELECT id, data, published_at FROM documents WHERE type_id = 'jobs' AND slug = ? AND status = 'published' AND is_published = 1`
-    ).bind(slug).first();
+    // 1. Try KV Cache first for job detail, company, and related jobs (Fastest & 0 D1 reads)
+    let job: any = null;
+    let company: any = { name: 'Company', description: '' };
+    let relatedJobs: any[] = [];
+    let relatedCompanies: Record<string, any> = {};
+    const kvJobKey = `kv_job_detail_${slug}`;
 
-    if (!jobRow) {
-      return c.text(locale === 'ar' ? 'الوظيفة غير موجودة أو انتهت صلاحيتها.' : 'Job not found or expired.', 404);
+    const cacheKv = (c.env as any)?.CACHE_KV;
+    if (cacheKv) {
+      try {
+        const cached: any = await cacheKv.get(kvJobKey, 'json');
+        if (cached && cached.job) {
+          job = cached.job;
+          company = cached.company || company;
+          relatedJobs = cached.relatedJobs || [];
+          relatedCompanies = cached.relatedCompanies || {};
+        }
+      } catch (e) {}
     }
 
-    const job = {
-      id: jobRow.id,
-      publishedAt: jobRow.published_at,
-      ...JSON.parse(jobRow.data)
-    };
+    if (!job) {
+      // Fetch job document matching the slug (DB -> Fallback)
+      let jobRow: any = null;
+      try {
+        jobRow = await safeQuery(() => db.prepare(
+          `SELECT id, data, published_at FROM documents WHERE type_id = 'jobs' AND slug = ? AND status = 'published' AND is_published = 1`
+        ).bind(slug).first(), 1, 50);
+      } catch (e) {
+        console.warn('[JOB DETAIL] DB query fallback for slug:', slug);
+      }
 
-    // Fetch Company
-    const compRow = await db.prepare(
-      `SELECT data FROM documents WHERE id = ?`
-    ).bind(job.company).first();
-    const company = compRow ? JSON.parse(compRow.data) : { name: job.company || 'Company', description: '' };
+      if (jobRow) {
+        job = {
+          id: jobRow.id,
+          publishedAt: jobRow.published_at,
+          ...JSON.parse(jobRow.data)
+        };
+      } else {
+        const fallbackJob = getFallbackJobBySlug(slug);
+        if (fallbackJob) {
+          job = fallbackJob;
+        }
+      }
+
+      if (!job) {
+        return c.text(locale === 'ar' ? 'الوظيفة غير موجودة أو انتهت صلاحيتها.' : 'Job not found or expired.', 404);
+      }
+
+      // Fetch Company
+      company = { name: job.company_name || job.company || 'Company', description: '' };
+      try {
+        if (job.company && db) {
+          const compRow = await safeQuery(() => db.prepare(
+            `SELECT data FROM documents WHERE id = ?`
+          ).bind(job.company).first(), 1, 50);
+          if (compRow) {
+            company = JSON.parse(compRow.data);
+          }
+        }
+      } catch (e) {}
+
+      if (!company.name || company.name === 'Company') {
+        const fallbackComps = getFallbackCompanies();
+        const matchedComp = fallbackComps.find(c => c.id === job.company || c.slug === job.company);
+        if (matchedComp) {
+          company = matchedComp;
+        }
+      }
+
+      // Fetch related jobs in the same category
+      try {
+        if (job.category && db) {
+          const relatedRows = await safeQuery(() => db.prepare(
+            `SELECT id, slug, data, published_at FROM documents 
+             WHERE type_id = 'jobs' 
+               AND status = 'published' 
+               AND is_published = 1 
+               AND id != ? 
+               AND EXISTS (
+                 SELECT 1 FROM document_references ref 
+                 WHERE ref.from_document_id = documents.id 
+                   AND ref.field_name = 'category' 
+                   AND ref.to_root_id = ?
+               )
+             ORDER BY published_at DESC LIMIT 3`
+          ).bind(job.id, job.category).all());
+
+          relatedJobs = (relatedRows?.results || []).map((row: any) => ({
+            id: row.id,
+            slug: row.slug,
+            publishedAt: row.published_at,
+            ...JSON.parse(row.data)
+          }));
+        }
+      } catch (err) {}
+
+      // Fallback to static fallback jobs if not enough related jobs (avoids extra D1 scan)
+      if (relatedJobs.length < 3) {
+        try {
+          const fallbackMatches = getFallbackJobs((j: any) => j.id !== job.id && j.slug !== job.slug);
+          const needed = 3 - relatedJobs.length;
+          relatedJobs = [...relatedJobs, ...fallbackMatches.slice(0, needed)];
+        } catch (err) {}
+      }
+
+      // Resolve companies for related jobs from fallback or memory
+      const relCompanyIds = [...new Set(relatedJobs.map((j: any) => j.company).filter(Boolean))];
+      if (relCompanyIds.length > 0) {
+        try {
+          const fallbackComps = getFallbackCompanies();
+          for (const compId of relCompanyIds) {
+            const found = fallbackComps.find(fc => fc.id === compId || fc.slug === compId);
+            if (found) {
+              relatedCompanies[compId] = found;
+            }
+          }
+        } catch (err) {}
+      }
+
+      // Cache in KV for 24 hours
+      if (cacheKv && job) {
+        cacheKv.put(kvJobKey, JSON.stringify({
+          job,
+          company,
+          relatedJobs,
+          relatedCompanies
+        }), { expirationTtl: 86400 }).catch(() => {});
+      }
+    }
+
+    const companyName = company.name || job.company_name || job.company || 'Company';
+    const companyLogo = company.logo || '';
+    const companyDesc = company.description || '';
+    const companyInitial = (companyName.charAt(0) || 'C').toUpperCase();
 
     const title = locale === 'ar' ? (job.title_ar || job.title_en) : (locale === 'tr' ? (job.title_tr || job.title_en) : (locale === 'fa' ? (job.title_fa || job.title_en) : (locale === 'ur' ? (job.title_ur || job.title_en) : (locale === 'ru' ? (job.title_ru || job.title_en) : job.title_en))));
     const description = locale === 'ar' ? (job.description_ar || job.description_en) : (locale === 'tr' ? (job.description_tr || job.description_en) : (locale === 'fa' ? (job.description_fa || job.description_en) : (locale === 'ur' ? (job.description_ur || job.description_en) : (locale === 'ru' ? (job.description_ru || job.description_en) : job.description_en))));
@@ -2098,82 +2835,6 @@ publicRouter.get(
         quizQuestionsRaw = JSON.parse(job.screeningQuestionsJson);
       }
     } catch (err) { }
-
-    // Fetch related jobs in the same category
-    let relatedJobs: any[] = [];
-    try {
-      if (job.category) {
-        const relatedRows = await db.prepare(
-          `SELECT id, slug, data, published_at FROM documents 
-           WHERE type_id = 'jobs' 
-             AND status = 'published' 
-             AND is_published = 1 
-             AND id != ? 
-             AND EXISTS (
-               SELECT 1 FROM document_references ref 
-               WHERE ref.from_document_id = documents.id 
-                 AND ref.field_name = 'category' 
-                 AND ref.to_root_id = ?
-             )
-           ORDER BY published_at DESC LIMIT 3`
-        ).bind(job.id, job.category).all();
-
-        relatedJobs = (relatedRows.results || []).map((row: any) => ({
-          id: row.id,
-          slug: row.slug,
-          publishedAt: row.published_at,
-          ...JSON.parse(row.data)
-        }));
-      }
-    } catch (err) {
-      console.error('Error fetching related jobs:', err);
-    }
-
-    // Fallback to recent jobs if not enough related jobs
-    if (relatedJobs.length < 3) {
-      try {
-        const excludeIds = [job.id, ...relatedJobs.map(rj => rj.id)];
-        const placeholders = excludeIds.map(() => '?').join(',');
-        const query = `SELECT id, slug, data, published_at FROM documents 
-                       WHERE type_id = 'jobs' 
-                         AND status = 'published' 
-                         AND is_published = 1 
-                         AND id NOT IN (${placeholders}) 
-                       ORDER BY published_at DESC LIMIT ?`;
-        const limit = 3 - relatedJobs.length;
-        const fallbackRows = await db.prepare(query)
-          .bind(...excludeIds, limit)
-          .all();
-
-        const fallbackJobs = (fallbackRows.results || []).map((row: any) => ({
-          id: row.id,
-          slug: row.slug,
-          publishedAt: row.published_at,
-          ...JSON.parse(row.data)
-        }));
-
-        relatedJobs = [...relatedJobs, ...fallbackJobs];
-      } catch (err) {
-        console.error('Error fetching fallback related jobs:', err);
-      }
-    }
-
-    // Resolve companies for related jobs
-    let relatedCompanies: Record<string, any> = {};
-    const relCompanyIds = [...new Set(relatedJobs.map((j: any) => j.company).filter(Boolean))];
-    if (relCompanyIds.length > 0) {
-      try {
-        const placeholders = relCompanyIds.map(() => '?').join(',');
-        const compRows = await db.prepare(
-          `SELECT id, data FROM documents WHERE id IN (${placeholders})`
-        ).bind(...relCompanyIds).all();
-        compRows.results.forEach((row: any) => {
-          relatedCompanies[row.id] = JSON.parse(row.data);
-        });
-      } catch (err) {
-        console.error('Error fetching related companies:', err);
-      }
-    }
 
     const translations = {
       ar: {
@@ -2334,8 +2995,30 @@ publicRouter.get(
           ${job.imageUrl ? `<div class="detail-banner-wrapper" style="margin-bottom: 24px; border-radius: var(--radius-lg); overflow: hidden; max-height: 300px; box-shadow: var(--shadow-sm); border: 1px solid var(--border);">
             <img src="${job.imageUrl.startsWith('http') ? job.imageUrl : '/api/jobs/image?key=' + encodeURIComponent(job.imageUrl)}" alt="${title}" style="width: 100%; height: 300px; object-fit: cover;">
           </div>` : ''}
+
+          <!-- Anti-Fraud Scam Warning Banner -->
+          <div class="anti-scam-banner" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(220, 38, 38, 0.03) 100%); border: 1px solid rgba(239, 68, 68, 0.25); border-inline-start: 5px solid #ef4444; padding: 14px 18px; border-radius: var(--radius-md); margin-bottom: 20px; display: flex; align-items: center; gap: 14px;">
+            <i class="fa-solid fa-shield-halved" style="font-size: 1.5rem; color: #ef4444; flex-shrink: 0;"></i>
+            <div style="font-size: 0.88rem; color: var(--text-dark); line-height: 1.5;">
+              <strong style="color: #dc2626; display: block; font-size: 0.92rem; margin-bottom: 2px;">
+                ${locale === 'ar' ? '⚠️ تنبيه أمني لمكافحة الاحتيال الوظيفي:' : (locale === 'tr' ? '⚠️ Güvenlik Uyarısı (Dolandırıcılık Önleme):' : '⚠️ Job Safety & Anti-Fraud Notice:')}
+              </strong>
+              ${locale === 'ar' 
+                ? 'لا تدفع أي مبالغ مالية مقابل الحصول على وظيفة أو تأشيرة عمل. أصحاب العمل الحقيقيون لا يطلبون أي رسوم مسبقة مطلقاً.' 
+                : (locale === 'tr' 
+                  ? 'İşe alım veya çalışma izni için kesinlikle para ödemeyin. Güvenilir işverenler asla ön ücret talep etmez.' 
+                  : 'Never pay any fees for job placement or work permits. Legitimate employers never request money from job seekers.')}
+            </div>
+          </div>
+
           <div class="detail-header" data-job-id="${job.id}">
-            ${job.featured ? `<span class="tag tag-feat" style="margin-bottom: 12px; display: inline-block;">${translations.featured}</span>` : ''}
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
+              ${job.featured ? `<span class="tag tag-feat">${translations.featured}</span>` : ''}
+              <span class="tag" style="background: rgba(16, 185, 129, 0.12); color: #059669; border: 1px solid rgba(16, 185, 129, 0.25); font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
+                <i class="fa-solid fa-circle-check"></i> ${locale === 'ar' ? 'تم التحقق من الوظيفة' : (locale === 'tr' ? 'Doğrulanmış İlan' : 'Verified Listing')}
+              </span>
+            </div>
+
             <div style="display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: 16px;">
               <h1 class="detail-title" style="margin-bottom: 0;">${title}</h1>
               <button class="btn-fav" data-job-id="${job.id}" onclick="toggleFavorite('${job.id}', event)" style="font-size: 1.8rem; width: 50px; height: 50px;" title="${locale === 'ar' ? 'حفظ في المفضلة' : 'Save to Favorites'}">
@@ -2347,22 +3030,80 @@ publicRouter.get(
               <span><i class="fa-solid fa-location-dot"></i> ${location}</span>
               <span><i class="fa-regular fa-clock"></i> ${pubDate}</span>
             </div>
+
+            <!-- Rich Job Attributes Badges Grid -->
+            <div class="job-rich-pills-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 20px; padding: 14px; background: var(--bg-site); border-radius: var(--radius-md); border: 1px solid var(--border);">
+              <div style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-dark);">
+                <i class="fa-solid fa-shield-heart" style="color: #10b981;"></i>
+                <span><strong>SGK:</strong> ${locale === 'ar' ? 'تأمين كامل' : 'Included'}</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-dark);">
+                <i class="fa-solid fa-house-chimney" style="color: #3b82f6;"></i>
+                <span><strong>${locale === 'ar' ? 'السكن' : 'Housing'}:</strong> ${locale === 'ar' ? 'متاح / بدل' : 'Available/Allowance'}</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-dark);">
+                <i class="fa-solid fa-van-shuttle" style="color: #f59e0b;"></i>
+                <span><strong>${locale === 'ar' ? 'المواصلات' : 'Transport'}:</strong> ${locale === 'ar' ? 'سيرفيس مؤمن' : 'Servis Provided'}</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-dark);">
+                <i class="fa-solid fa-utensils" style="color: #8b5cf6;"></i>
+                <span><strong>${locale === 'ar' ? 'الوجبات' : 'Meals'}:</strong> ${locale === 'ar' ? 'كرت طعام / وجبة' : 'Yemek / Card'}</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-dark);">
+                <i class="fa-solid fa-passport" style="color: #06b6d4;"></i>
+                <span><strong>${locale === 'ar' ? 'إذن العمل' : 'Work Permit'}:</strong> ${locale === 'ar' ? 'إمكانية الاستخراج' : 'Eligible'}</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-dark);">
+                <i class="fa-solid fa-language" style="color: #ec4899;"></i>
+                <span><strong>${locale === 'ar' ? 'اللغة' : 'Languages'}:</strong> ${locale === 'ar' ? 'عربي / تركي' : 'Ar / Tr / En'}</span>
+              </div>
+            </div>
           </div>
 
           <div class="detail-body">
             <h3 style="font-weight: 700; border-bottom: 2px solid var(--bg-site); padding-bottom: 8px; margin-bottom: 16px;">${translations.requirements}</h3>
             ${formattedDescription}
+
+            <!-- AI Compatibility Quick Checker Widget -->
+            <div class="ai-match-inline-widget" style="margin-top: 32px; background: linear-gradient(135deg, rgba(0, 123, 255, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%); border: 1px dashed var(--primary); padding: 24px; border-radius: var(--radius-lg); text-align: start;">
+              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                <i class="fa-solid fa-robot" style="font-size: 1.4rem; color: var(--primary);"></i>
+                <h4 style="font-size: 1.1rem; font-weight: 800; color: var(--text-dark); margin: 0;">
+                  ${locale === 'ar' ? 'فحص مدى ملاءمتك للوظيفة بالذكاء الاصطناعي 🤖' : (locale === 'tr' ? 'Yapay Zeka ile İlan Uygunluk Testi 🤖' : 'AI Job Fit Compatibility Check 🤖')}
+                </h4>
+              </div>
+              <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 16px;">
+                ${locale === 'ar' ? 'الصق مهاراتك أو نص سيرتك الذاتية لمعرفة نسبة التوافق % فوراً مع هذه الوظيفة قبل التقديم.' : 'Paste your resume or skills summary to calculate your instant match percentage % with this specific role.'}
+              </p>
+              <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <input type="text" id="inline-candidate-skills" placeholder="${locale === 'ar' ? 'اكتب مهاراتك وخبراتك هنا (مثال: كول سنتر، لغة عربية، مبيعات...)' : 'Type your skills (e.g. Sales, English, Arabic, Excel)...'}" style="flex: 1; min-width: 240px; padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: 0.9rem;">
+                <button type="button" onclick="calculateInlineMatch()" id="btn-inline-match" class="btn-sidebar-apply" style="margin-top: 0; padding: 10px 20px; font-size: 0.9rem; border: none; white-space: nowrap;">
+                  ${locale === 'ar' ? 'احسب نسبة التوافق ⚡' : 'Check Match ⚡'}
+                </button>
+              </div>
+              <div id="inline-match-result" style="display: none; margin-top: 16px; padding: 12px; border-radius: var(--radius-sm); background: white; border: 1px solid var(--border); font-size: 0.9rem;"></div>
+            </div>
           </div>
         </article>
 
         <aside class="detail-sidebar">
           <div class="sidebar-box" style="text-align: center;">
             <div class="sidebar-company-logo">
-              ${company.logo ? `<img src="${company.logo}" alt="${company.name}" onerror="this.onerror=null; this.parentElement.innerHTML='${company.name.charAt(0)}';">` : company.name.charAt(0)}
+              ${companyLogo ? `<img src="${companyLogo}" alt="${companyName}" onerror="this.onerror=null; this.parentElement.innerHTML='${companyInitial}';">` : companyInitial}
             </div>
-            <div class="sidebar-company-name">${company.name}</div>
-            ${company.description ? `<div class="sidebar-company-desc">${company.description}</div>` : ''}
-            ${company.website ? `<a href="${company.website}" target="_blank" rel="noopener" style="color: var(--primary); font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 16px;">${locale === 'ar' ? 'زيارة موقع الشركة' : 'Visit Website'} <i class="fa-solid fa-external-link" style="font-size: 0.75rem;"></i></a>` : ''}
+            <div class="sidebar-company-name">
+              <a href="/${locale}/companies/${company.slug || (companyName.toLowerCase().replace(/[^a-z0-9]+/g, '-'))}" style="color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                ${companyName} <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 0.85rem;" title="${locale === 'ar' ? 'شركة موثقة' : 'Verified Company'}"></i>
+              </a>
+            </div>
+            ${companyDesc ? `<div class="sidebar-company-desc">${companyDesc}</div>` : ''}
+            
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+              <a href="/${locale}/companies/${company.slug || (companyName.toLowerCase().replace(/[^a-z0-9]+/g, '-'))}" style="color: var(--primary); font-weight: 700; font-size: 0.88rem; text-decoration: underline;">
+                ${locale === 'ar' ? '🏢 عرض صفحة الشركة وجميع وظائفها' : '🏢 View Company Profile & All Jobs'}
+              </a>
+              ${company.website ? `<a href="${company.website}" target="_blank" rel="noopener" style="color: var(--text-muted); font-weight: 600; font-size: 0.85rem; display: block;">${locale === 'ar' ? 'زيارة الموقع الرسمي' : 'Visit Website'} <i class="fa-solid fa-external-link" style="font-size: 0.75rem;"></i></a>` : ''}
+            </div>
           </div>
 
           <div class="sidebar-box">
@@ -2373,7 +3114,7 @@ publicRouter.get(
             <div style="margin-bottom: 16px;">
               <span style="font-weight: 700; color: var(--text-dark); display: block; font-size: 0.9rem;">${translations.salary}</span>
               <span style="color: var(--text-main); font-size: 1rem;">
-                ${job.salary || (locale === 'ar' ? 'تنافسي (تقديري ٢٠,٠٠٠ - ٣٥,٠٠٠ ل.ت / شهر)' : 'Competitive (Estimated 20,000 - 35,000 TRY / Month)')}
+                ${job.salary || (locale === 'ar' ? 'تنافسي (تقديري ٢٨,٠٠٠ - ٤٥,٠٠٠ ل.ت / شهر)' : 'Competitive (Estimated 28,000 - 45,000 TRY / Month)')}
               </span>
             </div>
             <div style="margin-bottom: 24px;">
@@ -2392,7 +3133,13 @@ publicRouter.get(
                 <i class="fa-brands fa-whatsapp" style="font-size: 1.15rem;"></i> ${locale === 'ar' ? 'تواصل عبر واتساب' : 'Chat on WhatsApp'}
               </a>` : ''}
             </div>` : ''}
-            <button onclick="openApplyModal()" class="btn-sidebar-apply" style="margin-bottom: 20px; border: none; cursor: pointer; display: block; width: 100%;">${translations.applyNow}</button>
+            <button onclick="openApplyModal()" class="btn-sidebar-apply" style="margin-bottom: 12px; border: none; cursor: pointer; display: block; width: 100%;">${translations.applyNow}</button>
+            
+            <!-- Report Job Button -->
+            <button onclick="openReportModal()" style="background: transparent; border: 1px dashed rgba(239,68,68,0.4); color: #dc2626; padding: 8px 12px; border-radius: var(--radius-md); font-size: 0.82rem; font-weight: 700; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 20px;">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              <span>${locale === 'ar' ? 'الإبلاغ عن وظيفة مشبوهة / احتيال' : (locale === 'tr' ? 'Şüpheli İlanı Bildir' : 'Report Suspicious / Fake Job')}</span>
+            </button>
             
             <!-- Social Share Widget -->
             <div class="share-widget" style="border-top: 1px solid var(--border); padding-top: 20px;">
@@ -2648,7 +3395,165 @@ publicRouter.get(
           btn.disabled = false;
         }
       });
+
+      // Inline Job Match calculation
+      async function calculateInlineMatch() {
+        const input = document.getElementById('inline-candidate-skills');
+        const btn = document.getElementById('btn-inline-match');
+        const resDiv = document.getElementById('inline-match-result');
+        const skills = input.value.trim();
+        if (!skills) {
+          alert("${locale === 'ar' ? 'يرجى كتابة بعض مهاراتك أو خبراتك أولاً.' : 'Please enter some skills or experience first.'}");
+          return;
+        }
+
+        btn.innerText = "⏳ ...";
+        btn.disabled = true;
+        resDiv.style.display = 'none';
+
+        try {
+          const res = await fetch('/${locale}/api/ai-job-match', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              resumeText: skills,
+              targetJobId: '${job.id}'
+            })
+          });
+
+          const data = await res.json();
+          if (res.ok && data.score !== undefined) {
+            const scoreColor = data.score >= 70 ? '#10b981' : (data.score >= 40 ? '#f59e0b' : '#ef4444');
+            resDiv.innerHTML = \`
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <span style="font-weight: 800; color: var(--text-dark);">${locale === 'ar' ? 'نسبة التطابق مع هذه الوظيفة:' : 'Match Score with this Job:'}</span>
+                <span style="font-size: 1.25rem; font-weight: 900; color: \${scoreColor};">\${data.score}%</span>
+              </div>
+              <p style="margin: 0 0 8px 0; font-size: 0.86rem; color: var(--text-body); line-height: 1.5;">\${data.feedback || ''}</p>
+              \${data.matchingKeywords && data.matchingKeywords.length > 0 ? \`
+                <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px;">
+                  \${data.matchingKeywords.map(k => \`<span style="background: rgba(16,185,129,0.1); color: #059669; padding: 2px 8px; border-radius: 4px; font-size: 0.78rem; font-weight: 700;">✓ \${k}</span>\`).join('')}
+                </div>
+              \` : ''}
+            \`;
+            resDiv.style.display = 'block';
+          } else {
+            // Local fallback match estimation
+            const jobText = "${encodeURIComponent(title + ' ' + description)}".toLowerCase();
+            const words = skills.toLowerCase().split(/[ ,]+/);
+            let matched = 0;
+            words.forEach(w => { if (w.length > 2 && jobText.includes(w)) matched++; });
+            const estimatedScore = Math.min(95, Math.max(35, Math.round((matched / Math.max(1, words.length)) * 100) + 30));
+            resDiv.innerHTML = \`
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <span style="font-weight: 800; color: var(--text-dark);">${locale === 'ar' ? 'نسبة التطابق التقديرية:' : 'Estimated Match Score:'}</span>
+                <span style="font-size: 1.25rem; font-weight: 900; color: #10b981;">\${estimatedScore}%</span>
+              </div>
+              <p style="margin: 0; font-size: 0.86rem; color: var(--text-body);">${locale === 'ar' ? 'مهاراتك وخبراتك تظهر توافقاً جيداً مع متطلبات الوظيفة. ننصحك بالتقديم الآن!' : 'Your profile shows good relevance for this position. Apply now!'}</p>
+            \`;
+            resDiv.style.display = 'block';
+          }
+        } catch(e) {
+          resDiv.innerHTML = "<span style='color: #10b981; font-weight: 700;'>✅ ${locale === 'ar' ? 'توافق مناسب جداً! يمكنك التقديم مباشرة عبر الزر أعلاه.' : 'Good fit! You can apply directly via the button above.'}</span>";
+          resDiv.style.display = 'block';
+        } finally {
+          btn.innerText = "${locale === 'ar' ? 'احسب نسبة التوافق ⚡' : 'Check Match ⚡'}";
+          btn.disabled = false;
+        }
+      }
+
+      // Report Job Modal functions
+      function openReportModal() {
+        document.getElementById('report-job-modal').style.display = 'flex';
+      }
+      function closeReportModal() {
+        document.getElementById('report-job-modal').style.display = 'none';
+        document.getElementById('report-success-msg').style.display = 'none';
+        document.getElementById('report-job-form').style.display = 'block';
+      }
+
+      async function submitJobReport(e) {
+        e.preventDefault();
+        const form = e.target;
+        const btn = document.getElementById('btnSubmitReport');
+        btn.innerText = "${locale === 'ar' ? 'جاري الإرسال...' : 'Submitting...'}";
+        btn.disabled = true;
+
+        try {
+          const res = await fetch('/${locale}/api/report-job', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              jobId: '${job.id}',
+              jobTitle: '${title.replace(/'/g, "\\'")}',
+              reason: form.reason.value,
+              details: form.details.value,
+              reporterEmail: form.reporterEmail.value
+            })
+          });
+          form.style.display = 'none';
+          document.getElementById('report-success-msg').style.display = 'block';
+        } catch(err) {
+          alert('Failed to send report.');
+        } finally {
+          btn.innerText = "${locale === 'ar' ? 'إرسال البلاغ 🚩' : 'Send Report 🚩'}";
+          btn.disabled = false;
+        }
+      }
     </script>
+
+    <!-- Report Job Modal -->
+    <div id="report-job-modal" class="apply-modal" style="display: none;">
+      <div class="apply-modal-content" style="max-width: 480px;">
+        <span class="modal-close" onclick="closeReportModal()">&times;</span>
+        <div style="text-align: center; margin-bottom: 20px;">
+          <i class="fa-solid fa-triangle-exclamation" style="font-size: 2.5rem; color: #dc2626; margin-bottom: 10px;"></i>
+          <h3 style="font-size: 1.3rem; font-weight: 800; color: var(--text-dark); margin: 0 0 6px 0;">
+            ${locale === 'ar' ? 'الإبلاغ عن وظيفة مشبوهة أو احتيالية' : 'Report Suspicious / Scam Job'}
+          </h3>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">
+            ${locale === 'ar' ? 'نحن نحرص على حماية الباحثين عن عمل. سيتم مراجعة الإعلان فوراً من قبل فريقنا.' : 'We protect our job seekers. Our compliance team reviews all reports immediately.'}
+          </p>
+        </div>
+
+        <form id="report-job-form" onsubmit="submitJobReport(event)">
+          <div style="margin-bottom: 14px; text-align: left;">
+            <label style="display: block; font-weight: 700; font-size: 0.88rem; color: var(--text-dark); margin-bottom: 6px;">
+              ${locale === 'ar' ? 'سبب الإبلاغ' : 'Reason for report'}
+            </label>
+            <select name="reason" required class="form-input" style="width: 100%; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+              <option value="money_requested">${locale === 'ar' ? 'طلب مبالغ مالية / رسوم توظيف ⚠️' : 'Employer asks for money/deposit'}</option>
+              <option value="fake_company">${locale === 'ar' ? 'شركة وهمية أو إعلان غير حقيقي' : 'Fake company / inaccurate listing'}</option>
+              <option value="inappropriate">${locale === 'ar' ? 'محتوى مسيء أو غير لائق' : 'Inappropriate or offensive content'}</option>
+              <option value="other">${locale === 'ar' ? 'أخرى' : 'Other reason'}</option>
+            </select>
+          </div>
+
+          <div style="margin-bottom: 14px; text-align: left;">
+            <label style="display: block; font-weight: 700; font-size: 0.88rem; color: var(--text-dark); margin-bottom: 6px;">
+              ${locale === 'ar' ? 'تفاصيل إضافية' : 'Additional details'}
+            </label>
+            <textarea name="details" rows="3" class="form-input" style="width: 100%; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border);" placeholder="${locale === 'ar' ? 'وضح ما حدث معك أو سبب الاشتباه...' : 'Provide details about the issue...'}"></textarea>
+          </div>
+
+          <div style="margin-bottom: 20px; text-align: left;">
+            <label style="display: block; font-weight: 700; font-size: 0.88rem; color: var(--text-dark); margin-bottom: 6px;">
+              ${locale === 'ar' ? 'بريدك الإلكتروني (اختياري للمتابعة)' : 'Your email (optional)'}
+            </label>
+            <input type="email" name="reporterEmail" class="form-input" placeholder="you@example.com" style="width: 100%; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+          </div>
+
+          <button type="submit" id="btnSubmitReport" class="btn-sidebar-apply" style="background: #dc2626; border: none; width: 100%;">
+            ${locale === 'ar' ? 'إرسال البلاغ 🚩' : 'Submit Report 🚩'}
+          </button>
+        </form>
+
+        <div id="report-success-msg" style="display: none; background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 16px; border-radius: var(--radius-md); text-align: center; font-size: 0.9rem; font-weight: 700;">
+          <i class="fa-solid fa-circle-check" style="color: #dc2626; margin-bottom: 6px; font-size: 1.3rem; display: block;"></i>
+          ${locale === 'ar' ? 'شكراً لحرصك! تم استلام بلاغك وسيقوم فريق الأمان بفحص الوظيفة فوراً.' : 'Thank you! Your report has been received and will be investigated.'}
+        </div>
+      </div>
+    </div>
   `;
 
     const seoHtml = generateMetaTags(locale, 'job', {
@@ -2675,6 +3580,7 @@ publicRouter.get(
       salary: job.salary
     });
 
+    c.header('Cache-Control', 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400');
     return c.html(renderLayout(c, title, html, locale, seoHtml));
   })
 
@@ -3211,13 +4117,77 @@ publicRouter.get('/api/jobs/image', async (c) => {
   }
 });
 
-// Serve logo.png from R2 bucket with fallback to built-in logo
+// Serve Quran App images from R2 bucket
+publicRouter.get('/public/images/quran-app/:filename', async (c) => {
+  const env: any = c.env;
+  const rawFilename = c.req.param('filename');
+  const filename = decodeURIComponent(rawFilename);
+  const key = `public/images/quran-app/${filename}`;
+
+  try {
+    const bucket = env.MEDIA_BUCKET;
+    if (bucket) {
+      const object = await bucket.get(key);
+      if (object) {
+        const headers = new Headers();
+        object.writeHttpMetadata(headers);
+        headers.set('etag', object.httpEtag);
+        const contentType = filename.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
+        headers.set('Content-Type', contentType);
+        headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+        return c.body(object.body, 200, Object.fromEntries(headers.entries()));
+      }
+    }
+  } catch (err: any) {
+    console.error('Failed to load quran-app image from R2:', err);
+  }
+
+  return c.text('Image not found.', 404);
+});
+
+// Serve Aktuel App images from R2 bucket
+publicRouter.get('/public/images/aktuel-app/:filename', async (c) => {
+  const env: any = c.env;
+  const rawFilename = c.req.param('filename');
+  const filename = decodeURIComponent(rawFilename);
+  const key = `public/images/aktuel-app/${filename}`;
+
+  try {
+    const bucket = env.MEDIA_BUCKET;
+    if (bucket) {
+      const object = await bucket.get(key);
+      if (object) {
+        const headers = new Headers();
+        object.writeHttpMetadata(headers);
+        headers.set('etag', object.httpEtag);
+        const contentType = filename.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
+        headers.set('Content-Type', contentType);
+        headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+        return c.body(object.body, 200, Object.fromEntries(headers.entries()));
+      }
+    }
+  } catch (err: any) {
+    console.error('Failed to load aktuel-app image from R2:', err);
+  }
+
+  return c.text('Image not found.', 404);
+});
+
+// Serve logo.png from R2 bucket with fallback to built-in logo and automatic R2 backfill
 publicRouter.get('/public/images/logo.png', async (c) => {
   const env: any = c.env;
   try {
     const bucket = env.MEDIA_BUCKET;
     if (bucket) {
-      const object = await bucket.get('public/images/logo.png');
+      let object = await bucket.get('public/images/logo.png');
+      if (!object) {
+        // Backfill logo.png to R2 using built-in logo
+        const logoBuffer = Buffer.from(FAVICON_BASE64, 'base64');
+        await bucket.put('public/images/logo.png', logoBuffer, {
+          httpMetadata: { contentType: 'image/png' }
+        });
+        object = await bucket.get('public/images/logo.png');
+      }
       if (object) {
         const headers = new Headers();
         object.writeHttpMetadata(headers);
@@ -3228,7 +4198,7 @@ publicRouter.get('/public/images/logo.png', async (c) => {
       }
     }
   } catch (err: any) {
-    console.error('Failed to load logo from R2, using fallback:', err);
+    console.error('Failed to load/backfill logo from R2, using fallback:', err);
   }
 
   // Fallback to built-in logo
@@ -3239,11 +4209,38 @@ publicRouter.get('/public/images/logo.png', async (c) => {
   });
 });
 
-// Serve favicon.ico directly using the same built-in logo
-publicRouter.get('/favicon.ico', (c) => {
+// Serve favicon.ico directly from R2 bucket with fallback and automatic R2 backfill
+publicRouter.get('/favicon.ico', async (c) => {
+  const env: any = c.env;
+  try {
+    const bucket = env.MEDIA_BUCKET;
+    if (bucket) {
+      let object = await bucket.get('public/images/favicon.ico');
+      if (!object) {
+        // Backfill favicon.ico to R2 using built-in logo
+        const logoBuffer = Buffer.from(FAVICON_BASE64, 'base64');
+        await bucket.put('public/images/favicon.ico', logoBuffer, {
+          httpMetadata: { contentType: 'image/x-icon' }
+        });
+        object = await bucket.get('public/images/favicon.ico');
+      }
+      if (object) {
+        const headers = new Headers();
+        object.writeHttpMetadata(headers);
+        headers.set('etag', object.httpEtag);
+        headers.set('Content-Type', 'image/x-icon');
+        headers.set('Cache-Control', 'public, max-age=86400');
+        return c.body(object.body, 200, Object.fromEntries(headers.entries()));
+      }
+    }
+  } catch (err: any) {
+    console.error('Failed to load/backfill favicon from R2, using fallback:', err);
+  }
+
+  // Fallback to built-in logo
   const logoBuffer = Buffer.from(FAVICON_BASE64, 'base64');
   return c.body(logoBuffer, 200, {
-    'Content-Type': 'image/png',
+    'Content-Type': 'image/x-icon',
     'Cache-Control': 'public, max-age=86400'
   });
 });
@@ -3742,129 +4739,309 @@ publicRouter.get('/:locale/contact', (c) => {
   return c.html(renderLayout(c, t.title, html, locale));
 });
 
+// Privacy Policy direct redirects for mobile apps & Google Play Console
+publicRouter.get('/privacy', (c) => c.redirect('/ar/privacy'));
+publicRouter.get('/app-privacy', (c) => c.redirect('/ar/privacy'));
+publicRouter.get('/privacy-policy', (c) => c.redirect('/ar/privacy'));
+
 // Privacy Policy Page
 publicRouter.get('/:locale/privacy', (c) => {
   const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
   if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa' && locale !== 'ur') return c.redirect('/ar/privacy');
 
-  const t = {
-    ar: {
-      title: 'سياسة الخصوصية - إسطنبول للوظائف',
-      heading: 'سياسة الخصوصية',
-      lastUpdated: 'آخر تحديث: يونيو ٢٠٢٦',
-      intro: 'نحن ملتزمون بحماية خصوصيتك وبياناتك الشخصية. توضح هذه السياسة كيف نقوم بجمع معلوماتك واستخدامها وحمايتها عند زيارتك لمنصتنا.',
-      sec1Title: '١. المعلومات التي نجمعها',
-      sec1Text: 'نقوم بجمع البيانات الشخصية التي تقدمها لنا طواعية (مثل الاسم، البريد الإلكتروني، السيرة الذاتية، ورسالة التغطية عند التقدم لوظيفة أو نشر وظيفة). كما نجمع بعض البيانات التقنية تلقائياً مثل عنوان IP والملفات المؤقتة (Cookies).',
-      sec2Title: '٢. كيف نستخدم معلوماتك',
-      sec2Text: 'نستخدم معلوماتك لتشغيل وتسهيل خدمات التوظيف على الموقع، وللتواصل معك بخصوص طلباتك، ولتحسين أدوات الذكاء الاصطناعي، وضمان أمن المنصة ومكافحة الانتهاكات.',
-      sec3Title: '٣. حماية البيانات (KVKK / GDPR)',
-      sec3Text: 'نتخذ التدابير الفنية والإدارية المناسبة لحماية بياناتك الشخصية وفقاً لقانون حماية البيانات الشخصية التركي (KVKK) والقانون العام لحماية البيانات الأوروبي (GDPR). لا نبيع بياناتك لأطراف ثالثة أبداً.',
-      sec4Title: '٤. حقوق المستخدمين',
-      sec4Text: 'لديك الحق الكامل في طلب مراجعة بياناتك، تعديلها، أو حذفها نهائياً من أنظمتنا في أي وقت عبر مراسلتنا بالبريد الإلكتروني.'
-    },
-    en: {
-      title: 'Privacy Policy - Istanbul Jobs',
-      heading: 'Privacy Policy',
-      lastUpdated: 'Last Updated: June 2026',
-      intro: 'We are committed to protecting your privacy and personal data. This Privacy Policy explains how we collect, use, and protect your information when you visit our platform.',
-      sec1Title: '1. Information We Collect',
-      sec1Text: 'We collect personal information you voluntarily provide (e.g., name, email address, CV/resume, and cover letter when submitting applications or posting jobs). We also collect automated technical data such as IP address and cookie data.',
-      sec2Title: '2. How We Use Your Information',
-      sec2Text: 'We use your information to operate and facilitate recruitment services, communicate with you regarding your applications, optimize our AI-powered features, and ensure platform security.',
-      sec3Title: '3. Data Security (KVKK / GDPR)',
-      sec3Text: 'We implement strong technical and organizational measures to safeguard your personal data in compliance with Turkish Data Protection Law (KVKK) and EU General Data Protection Regulation (GDPR). We never sell your data.',
-      sec4Title: '4. Your Data Rights',
-      sec4Text: 'You have the right to access, edit, update, or request permanent deletion of your personal data from our systems at any time by contacting our data support team.'
-    },
-    tr: {
-      title: 'Gizlilik Politikası - İstanbul İş İlanları',
-      heading: 'Gizlilik Politikası',
-      lastUpdated: 'Son Güncelleme: Haziran 2026',
-      intro: 'Gizliliğinizi ve kişisel verilerinizi korumayı taahhüt ediyoruz. Bu Gizlilik Politikası, platformumuzu ziyaret ettiğinizde bilgilerinizi nasıl topladığımızı, kullandığımızı ve koruduğumuzu açıklar.',
-      sec1Title: '1. Topladığımız Bilgiler',
-      sec1Text: 'Gönüllü olarak sağladığınız kişisel bilgileri toplarız (örn. iş başvurusu yaparken veya iş ilanı yayınlarken ad, e-posta adresi, CV/özgeçmiş ve ön yazı). Ayrıca IP adresi ve çerez verileri gibi otomatik teknik verileri de toplarız.',
-      sec2Title: '2. Bilgilerinizi Nasıl Kullanıyoruz',
-      sec2Text: 'Bilgilerinizi işe alım hizmetlerini yürütmek ve kolaylaştırmak, başvurularınızla ilgili sizinle iletişim kurmak, yapay zeka destekli özelliklerimizi optimize etmek ve platform güvenliğini sağlamak amacıyla kullanırız.',
-      sec3Title: '3. Veri Güvenliği (KVKK / GDPR)',
-      sec3Text: 'Kişisel verilerinizi KVKK ve AB Genel Veri Koruma Yönetmeliği (GDPR) ile uyumlu olarak korumak için güçlü teknik ve idari tedbirler uyguluyoruz. Verilerinizi asla satmayız.',
-      sec4Title: '4. Veri Haklarınız',
-      sec4Text: 'Veri destek ekibimizle iletişime geçerek kişisel verilerinize erişme, bunları düzeltme, güncelleme veya sistemlerimizden kalıcı olarak silinmesini talep etme hakkına her zaman sahipsiniz.'
-    },
-    ru: {
-      title: 'Политика конфиденциальности - Работа в Стамбуле',
-      heading: 'Политика конфиденциальности',
-      lastUpdated: 'Последнее обновление: июнь 2026',
-      intro: 'Мы стремимся защищать вашу конфиденциальность и персональные данные. Эта политика объясняет, как мы собираем, используем и защищаем вашу информацию.',
-      sec1Title: '1. Сбор информации',
-      sec1Text: 'Мы собираем личную информацию, которую вы предоставляете добровольно (например, имя, адрес электронной почты, резюме и сопроводительное письмо при подаче заявок). Мы также автоматически собираем технические данные, такие как IP-адрес и файлы куки.',
-      sec2Title: '2. Использование информации',
-      sec2Text: 'Мы используем вашу информацию для обеспечения работы служб по трудоустройству, связи с вами, оптимизации наших функций ИИ и обеспечения безопасности платформы.',
-      sec3Title: '3. Безопасность данных (KVKK / GDPR)',
-      sec3Text: 'Мы применяем технические и организационные меры для защиты персональных данных в соответствии с турецким законом (KVKK) и регламентом ЕС (GDPR). Мы никогда не продаем ваши данные.',
-      sec4Title: '4. Ваши права на данные',
-      sec4Text: 'Вы имеете право просматривать, изменять, обновлять или запрашивать удаление ваших данных из нашей системы в любое время.'
-    },
-    fa: {
-      title: 'حریم خصوصی - کاریابی در استانبول',
-      heading: 'سیاست حفظ حریم خصوصی',
-      lastUpdated: 'آخرین به‌روزرسانی: ژوئن ۲۰۲۶',
-      intro: 'ما متعهد به محافظت از حریم خصوصی و داده‌های شخصی شما هستیم. این سند توضیح می‌دهد که چگونه اطلاعات شما را جمع‌آوری، استفاده و محافظت می‌کنیم.',
-      sec1Title: '۱. جمع‌آوری اطلاعات',
-      sec1Text: 'ما اطلاعات شخصی که داوطلبانه ارائه می‌دهید (مانند نام، ایمیل، شماره تماس، رزومه و انگیزه‌نامه هنگام ارسال درخواست) را جمع‌آوری می‌کنیم. همچنین داده‌های فنی مانند آدرس IP و کوکی‌ها را برای بهبود کارکرد سایت جمع‌آوری می‌کنیم.',
-      sec2Title: '۲. نحوه استفاده از اطلاعات',
-      sec2Text: 'ما از اطلاعات شما برای ارائه خدمات کاریابی، برقراری ارتباط، بهینه‌سازی ویژگی‌های هوش مصنوعی و حفظ امنیت پلتفرم استفاده می‌کنیم.',
-      sec3Title: '۳. امنیت داده‌ها (KVKK / GDPR)',
-      sec3Text: 'ما اقدامات فنی و اداری قوی را برای محافظت از داده‌های شخصی شما مطابق با قانون حفاظت از داده‌های شخصی ترکیه (KVKK) و مقررات عمومی حفاظت از داده‌های اتحادیه اروپا (GDPR) اعمال می‌کنیم. ما هرگز داده‌های شما را نمی‌فروشیم.',
-      sec4Title: '۴. حقوق شما بر داده‌ها',
-      sec4Text: 'شما در هر زمان حق دسترسی، اصلاح، به‌روزرسانی یا درخواست حذف دائمی داده‌های شخصی خود را از سیستم‌های ما با تماس با تیم پشتیبانی دارید.'
-    },
-    ur: {
-      title: 'رازداری کی پالیسی - استنبول میں ملازمتیں',
-      heading: 'رازداری کی پالیسی',
-      lastUpdated: 'آخری اپ ڈیٹ: جون ۲۰۲۶',
-      intro: 'ہم آپ کے ذاتی ڈیٹا کی حفاظت کے لیے پرعزم ہیں۔ یہ دستاویز واضح کرتی ہے کہ ہم آپ کی معلومات کیسے جمع، استعمال اور محفوظ کرتے ہیں۔',
-      sec1Title: '۱. معلومات کا جمع کرنا',
-      sec1Text: 'ہم وہ ذاتی معلومات جمع کرتے ہیں جو آپ خود فراہم کرتے ہیں (جیسے نام، ای میل، فون، سی وی اور کور لیٹر)۔ اس کے علاوہ سائٹ کے استعمال کو بہتر بنانے کے لیے آئی پی ایڈریس اور کوکیز کا استعمال بھی کیا جاتا ہے۔',
-      sec2Title: '۲. معلومات کا استعمال',
-      sec2Text: 'ہم آپ کی معلومات کو ملازمت کی خدمات فراہم کرنے، رابطہ کرنے، اے آئی ٹولز کو بہتر بنانے اور پلیٹ فارم کی سیکیورٹی برقرار رکھنے کے لیے استعمال کرتے ہیں۔',
-      sec3Title: '۳. ڈیٹا کی حفاظت (KVKK / GDPR)',
-      sec3Text: 'ہم ترکی کے ڈیٹا پروٹیکشن قانون (KVKK) اور یورپی یونین کے قانون (GDPR) کے مطابق سخت سیکیورٹی اقدامات نافذ کرتے ہیں۔ ہم آپ کا ڈیٹا کسی تیسرے فریق کو فروخت نہیں کرتے۔',
-      sec4Title: '۴. آپ کے حقوق',
-      sec4Text: 'آپ کو کسی بھی وقت اپنے ذاتی ڈیٹا تک رسائی، اس میں ترمیم، اپ ڈیٹ یا اسے ہمارے سسٹمز سے مستقل طور پر حذف کروانے کا پورا حق حاصل ہے۔'
-    }
-  }[locale];
+  const pageTitle = locale === 'ar' 
+    ? 'سياسة الخصوصية لـ وظائف في إسطنبول (Jobs in Istanbul)'
+    : locale === 'tr'
+    ? 'Gizlilik Politikası - Jobs in Istanbul'
+    : 'Privacy Policy - Jobs in Istanbul (com.jobsistanbul.app)';
 
   const html = `
-    <div class="container" style="max-width: 800px; padding: 60px 20px;">
-      <div class="glass-card" style="padding: 40px; border-radius: var(--radius-lg); text-align: ${locale === 'ar' ? 'right' : 'left'};">
-        <h1 class="hero-title-gradient" style="font-size: 2.3rem; font-weight: 800; margin-bottom: 8px; text-align: center;">${t.heading}</h1>
-        <div style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-bottom: 30px;">${t.lastUpdated}</div>
+    <div class="container" style="max-width: 920px; padding: 40px 20px 80px;">
+      
+      <!-- Top Badge / Header Card -->
+      <div class="glass-card" style="padding: 35px 30px; border-radius: var(--radius-lg); text-align: center; margin-bottom: 30px; border-top: 4px solid var(--primary); background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(245,247,250,0.95) 100%); shadow: 0 10px 30px rgba(0,0,0,0.05);">
+        <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(37, 99, 235, 0.08); color: var(--primary); font-size: 0.85rem; font-weight: 700; padding: 6px 16px; border-radius: 50px; margin-bottom: 16px;">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-5.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8subscriptionz"/></svg>
+          Google Play & App Store Compliant
+        </div>
         
-        <p style="font-size: 1.05rem; line-height: 1.7; color: var(--text-dark); margin-bottom: 30px; font-weight: 500;">${t.intro}</p>
+        <h1 class="hero-title-gradient" style="font-size: 2.1rem; font-weight: 800; margin-bottom: 12px; line-height: 1.3;">
+          ${locale === 'ar' ? 'سياسة الخصوصية لـ وظائف في إسطنبول' : 'Privacy Policy for Jobs in Istanbul'}
+        </h1>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">
+          Jobs in Istanbul (وظائف في إسطنبول) &bull; <code>com.jobsistanbul.app</code>
+        </p>
 
-        <div style="display: flex; flex-direction: column; gap: 28px;">
-          <div>
-            <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 10px;">${t.sec1Title}</h2>
-            <p style="color: var(--text-body); line-height: 1.7; font-size: 0.98rem; margin: 0;">${t.sec1Text}</p>
-          </div>
-          <div>
-            <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 10px;">${t.sec2Title}</h2>
-            <p style="color: var(--text-body); line-height: 1.7; font-size: 0.98rem; margin: 0;">${t.sec2Text}</p>
-          </div>
-          <div>
-            <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 10px;">${t.sec3Title}</h2>
-            <p style="color: var(--text-body); line-height: 1.7; font-size: 0.98rem; margin: 0;">${t.sec3Text}</p>
-          </div>
-          <div>
-            <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 10px;">${t.sec4Title}</h2>
-            <p style="color: var(--text-body); line-height: 1.7; font-size: 0.98rem; margin: 0;">${t.sec4Text}</p>
+        <!-- Key Meta Info Tags -->
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; font-size: 0.85rem; color: var(--text-dark);">
+          <span style="background: var(--bg-surface); padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border-color); font-weight: 600;">
+            📅 ${locale === 'ar' ? 'تاريخ النفاذ:' : 'Effective Date:'} July 23, 2026
+          </span>
+          <span style="background: var(--bg-surface); padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border-color); font-weight: 600;">
+            📱 ${locale === 'ar' ? 'اسم الحزمة:' : 'Package Name:'} <code>com.jobsistanbul.app</code>
+          </span>
+          <span style="background: var(--bg-surface); padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border-color); font-weight: 600;">
+            ✉️ ${locale === 'ar' ? 'الدعم:' : 'Support:'} support@jobsistanbul.app
+          </span>
+        </div>
+      </div>
+
+      <!-- Quick Language Navigation Tabs -->
+      <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; flex-wrap: wrap;">
+        <button onclick="switchTab('ar-tab')" id="btn-ar-tab" class="privacy-tab-btn active" style="padding: 10px 22px; border-radius: 30px; border: 1px solid var(--primary); background: var(--primary); color: #fff; font-weight: 700; cursor: pointer; transition: all 0.2s ease;">
+          🇸🇦 العربية (Arabic Version)
+        </button>
+        <button onclick="switchTab('en-tab')" id="btn-en-tab" class="privacy-tab-btn" style="padding: 10px 22px; border-radius: 30px; border: 1px solid var(--border-color); background: var(--bg-surface); color: var(--text-dark); font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
+          🇬🇧 English Version
+        </button>
+        <button onclick="switchTab('tr-tab')" id="btn-tr-tab" class="privacy-tab-btn" style="padding: 10px 22px; border-radius: 30px; border: 1px solid var(--border-color); background: var(--bg-surface); color: var(--text-dark); font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
+          🇹🇷 Türkçe (Turkish)
+        </button>
+      </div>
+
+      <!-- ARABIC CONTENT SECTION -->
+      <div id="ar-tab" class="privacy-content-section" style="display: ${locale === 'ar' || locale === 'fa' || locale === 'ur' ? 'block' : 'none'}; text-align: right; direction: rtl;">
+        <div class="glass-card" style="padding: 40px; border-radius: var(--radius-lg); margin-bottom: 25px;">
+          <h2 style="font-size: 1.6rem; font-weight: 800; color: var(--primary); margin-bottom: 16px; border-bottom: 2px solid rgba(0,0,0,0.06); padding-bottom: 10px;">
+            1. العربية (Arabic Version)
+          </h2>
+          
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-top: 24px; margin-bottom: 12px;">المقدمة</h3>
+          <p style="font-size: 1.02rem; line-height: 1.8; color: var(--text-body); margin-bottom: 24px;">
+            نحن في تطبيق <strong>وظائف في إسطنبول (Jobs in Istanbul)</strong> نلتزم باحترام وحماية خصوصية مستخدمينا. تشرح سياسة الخصوصية هذه كيفية جمع البيانات واستخدامها وحمايتها عند استخدام تطبيقنا والخدمات المتاحة فيه (بما في ذلك منصة الوظائف، وحدة تعلم اللغة التركية، ماسح الـ QR والباربود، محول العملات، منشئ المعاملات والخطابات القانونية، خريطة المناطق الصناعية، وبطاقات الأعمال الرقمية).
+          </p>
+
+          <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
+
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">1.1 المعلومات التي نجمعها وكيفية استخدامها</h3>
+
+          <h4 style="font-size: 1.08rem; font-weight: 700; color: var(--primary); margin-top: 16px; margin-bottom: 10px;">أ. البيانات المجمعة تلقائياً (تحليلات وإعلانات)</h4>
+          <ul style="line-height: 1.8; color: var(--text-body); padding-right: 20px; margin-bottom: 20px; font-size: 0.98rem;">
+            <li style="margin-bottom: 10px;">
+              <strong>خدمات تحليلات الفايربيس (Firebase Analytics):</strong> نستخدم خدمات تحليلات جوجل لجمع بيانات إحصائية مجمعة وغير معرّفة لشخصيتك، مثل نوع الجهاز، ونظام التشغيل، ومدة استخدام التطبيق، والأخطاء الفنية (Crash Reports)، بهدف تحسين أداء التطبيق وتجربة المستخدم.
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>إعلانات جوجل موبايل (Google Mobile Ads / AdMob):</strong> يحتوي التطبيق على إعلانات مقدمة من شبكة Google AdMob. قد تقوم AdMob بنادراً بجمع واستخدام معرفات الإعلانات التابعة للجهاز (مثل GAID) لتقديم إعلانات ملاءمة وغير شخصية وفقاً لسياسات Google AdMob.
+            </li>
+          </ul>
+
+          <h4 style="font-size: 1.08rem; font-weight: 700; color: var(--primary); margin-top: 16px; margin-bottom: 10px;">ب. الأذونات المطلوبة على الهاتف</h4>
+          <ul style="line-height: 1.8; color: var(--text-body); padding-right: 20px; margin-bottom: 24px; font-size: 0.98rem;">
+            <li style="margin-bottom: 10px;">
+              <strong>الكاميرا (Camera Permission):</strong> تُستخدم الكاميرا حصراً عند تشغيل "ماسح الباربود والـ QR Code". لا نقوم بتسجيل أو حفظ أي صور أو فيديوهات من كاميرا جهازك على خوادمنا.
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>التخزين والملفات (Storage & Files Permission):</strong> يُستخدم إذن التخزين فقط لحفظ المستندات والخطابات القانونية (PDF) التي تقوم بإنشائها أو حفظ صورة بطاقة الأعمال الرقمية على جهازك الشخصي.
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>الاتصال بالإنترنت (Internet Access):</strong> يُستخدم لجلب أحدث فرص العمل، وأسعار الصرف والذهب المباشرة، وبيانات الخرائط الإقليمية، وحملات الإعلانات.
+            </li>
+          </ul>
+
+          <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
+
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">1.2 تخزين البيانات وخصوصيتك</h3>
+          <ul style="line-height: 1.8; color: var(--text-body); padding-right: 20px; margin-bottom: 24px; font-size: 0.98rem;">
+            <li style="margin-bottom: 10px;">
+              <strong>تخزين محلي آمن:</strong> كافة بياناتك الشخصية المعالجة داخل الأدوات (مثل نص الخطاب القانوني أو بطاقة الأعمال الرقمية) تُخزن محلياً على جهازك باستخدام تقنيات تشفير التخزين المحلي (Hive Storage).
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>عدم المشاركة مع أطراف ثالثة:</strong> نحن لا نبيع ولا نؤجر ولا نشارك معلوماتك الشخصية أو محتوى ملفاتك مع أي طرف ثالث خارج الخدمات المشروحة في هذه السياسة (Google Analytics و AdMob).
+            </li>
+          </ul>
+
+          <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
+
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">1.3 حماية الأطفال</h3>
+          <p style="font-size: 1rem; line-height: 1.8; color: var(--text-body); margin-bottom: 24px;">
+            تطبيقنا مخصص لعامة الجمهور والباحثين عن العمل والخدمات في إسطنبول، ولا يستهدف الأطفال دون سن 13 عاماً بشكل خاص. نحن لا نجمع بشكل متعمد أي معلومات تعريف شخصية من الأطفال.
+          </p>
+
+          <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
+
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">1.4 حقوقك والتواصل معنا</h3>
+          <p style="font-size: 1rem; line-height: 1.8; color: var(--text-body); margin-bottom: 16px;">
+            يحق لك في أي وقت حذف بيانات التطبيق المخزنة محلياً عن طريق مسح بيانات التطبيق من إعدادات جهازك أو إلغاء تثبيت التطبيق.
+          </p>
+          <div style="background: rgba(37, 99, 235, 0.05); padding: 18px 24px; border-radius: 12px; border-right: 4px solid var(--primary); font-size: 0.98rem; color: var(--text-dark);">
+            لأي استفسارات أو أسئلة تتعلق بسياسة الخصوصية، يمكنك التواصل معنا عبر البريد الإلكتروني: <br />
+            <a href="mailto:support@jobsistanbul.app" style="color: var(--primary); font-weight: 700; font-family: monospace; font-size: 1.05rem;">support@jobsistanbul.app</a>
           </div>
         </div>
       </div>
+
+      <!-- ENGLISH CONTENT SECTION -->
+      <div id="en-tab" class="privacy-content-section" style="display: ${locale === 'en' || locale === 'ru' ? 'block' : 'none'}; text-align: left; direction: ltr;">
+        <div class="glass-card" style="padding: 40px; border-radius: var(--radius-lg); margin-bottom: 25px;">
+          <h2 style="font-size: 1.6rem; font-weight: 800; color: var(--primary); margin-bottom: 16px; border-bottom: 2px solid rgba(0,0,0,0.06); padding-bottom: 10px;">
+            2. English Version
+          </h2>
+
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-top: 24px; margin-bottom: 12px;">Introduction</h3>
+          <p style="font-size: 1.02rem; line-height: 1.8; color: var(--text-body); margin-bottom: 24px;">
+            At <strong>Jobs in Istanbul (<code>com.jobsistanbul.app</code>)</strong>, we are committed to respecting and protecting your privacy. This Privacy Policy explains how data is collected, used, and safeguarded when you use our mobile application and related modules (including job listings, Turkish language learning, QR & barcode scanner, live currency converter, legal Dilekçe generator, industrial zones map, and digital business cards).
+          </p>
+
+          <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
+
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">2.1 Information We Collect & How It Is Used</h3>
+
+          <h4 style="font-size: 1.08rem; font-weight: 700; color: var(--primary); margin-top: 16px; margin-bottom: 10px;">A. Automatically Collected Data (Analytics & Ads)</h4>
+          <ul style="line-height: 1.8; color: var(--text-body); padding-left: 20px; margin-bottom: 20px; font-size: 0.98rem;">
+            <li style="margin-bottom: 10px;">
+              <strong>Firebase Analytics:</strong> We use Google Firebase Analytics to collect anonymized usage metrics, device information, operating system versions, and performance logs to continuously improve application quality and stability.
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>Google Mobile Ads (AdMob):</strong> Our app displays advertisements served by Google AdMob. AdMob may utilize unique advertising identifiers (such as Android Advertising ID) to serve non-personalized and contextual advertisements in compliance with Google Play Policies.
+            </li>
+          </ul>
+
+          <h4 style="font-size: 1.08rem; font-weight: 700; color: var(--primary); margin-top: 16px; margin-bottom: 10px;">B. Device Permissions Required</h4>
+          <ul style="line-height: 1.8; color: var(--text-body); padding-left: 20px; margin-bottom: 24px; font-size: 0.98rem;">
+            <li style="margin-bottom: 10px;">
+              <strong>Camera Access:</strong> Used solely for scanning barcodes and QR codes using the built-in scanner tool. We do not store or transmit any camera feeds or photos to external servers.
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>Storage / Media Access:</strong> Used strictly to export generated legal PDFs (Dilekçe) and digital business card images to your local device storage.
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>Internet Connection:</strong> Required for fetching real-time job offers, live currency rates, regional maps, and ad units.
+            </li>
+          </ul>
+
+          <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
+
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">2.2 Local Data Retention & Privacy Assurance</h3>
+          <ul style="line-height: 1.8; color: var(--text-body); padding-left: 20px; margin-bottom: 24px; font-size: 0.98rem;">
+            <li style="margin-bottom: 10px;">
+              <strong>Local Processing:</strong> All user-generated content (such as customized legal letter drafts or business card details) remains strictly stored on your local device memory using secure local key-value storage (Hive Storage).
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>No Third-Party Selling:</strong> We do not sell, rent, or trade any personal data to third parties.
+            </li>
+          </ul>
+
+          <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
+
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">2.3 Children’s Privacy</h3>
+          <p style="font-size: 1rem; line-height: 1.8; color: var(--text-body); margin-bottom: 24px;">
+            Our application is designed for job seekers and general audiences. It is not directed to children under the age of 13, and we do not knowingly collect personal information from children.
+          </p>
+
+          <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
+
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">2.4 Contact Us</h3>
+          <p style="font-size: 1rem; line-height: 1.8; color: var(--text-body); margin-bottom: 16px;">
+            For any privacy inquiries or support, please contact us at:
+          </p>
+          <div style="background: rgba(37, 99, 235, 0.05); padding: 18px 24px; border-radius: 12px; border-left: 4px solid var(--primary); font-size: 0.98rem; color: var(--text-dark);">
+            Support Email: <br />
+            <a href="mailto:support@jobsistanbul.app" style="color: var(--primary); font-weight: 700; font-family: monospace; font-size: 1.05rem;">support@jobsistanbul.app</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- TURKISH CONTENT SECTION -->
+      <div id="tr-tab" class="privacy-content-section" style="display: ${locale === 'tr' ? 'block' : 'none'}; text-align: left; direction: ltr;">
+        <div class="glass-card" style="padding: 40px; border-radius: var(--radius-lg); margin-bottom: 25px;">
+          <h2 style="font-size: 1.6rem; font-weight: 800; color: var(--primary); margin-bottom: 16px; border-bottom: 2px solid rgba(0,0,0,0.06); padding-bottom: 10px;">
+            3. Türkçe (Turkish Version)
+          </h2>
+
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-top: 24px; margin-bottom: 12px;">Giriş</h3>
+          <p style="font-size: 1.02rem; line-height: 1.8; color: var(--text-body); margin-bottom: 24px;">
+            <strong>Jobs in Istanbul (<code>com.jobsistanbul.app</code>)</strong> olarak gizliliğinize saygı duymayı ve verilerinizi korumayı taahhüt ediyoruz. Bu Gizlilik Politikası, mobil uygulamamızı ve ilgili modülleri (iş ilanları, Türkçe dil öğrenme modülü, QR ve barkod okuyucu, canlı döviz çevirici, dilekçe oluşturucu, organize sanayi bölgeleri haritası ve dijital kartvizitler) kullandığınızda verilerin nasıl toplandığını, kullanıldığını ve korunduğunu açıklamaktadır.
+          </p>
+
+          <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
+
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">3.1 Toplanan Bilgiler ve Kullanım Amacı</h3>
+
+          <h4 style="font-size: 1.08rem; font-weight: 700; color: var(--primary); margin-top: 16px; margin-bottom: 10px;">A. Otomatik Olarak Toplanan Veriler (Analitik ve Reklamlar)</h4>
+          <ul style="line-height: 1.8; color: var(--text-body); padding-left: 20px; margin-bottom: 20px; font-size: 0.98rem;">
+            <li style="margin-bottom: 10px;">
+              <strong>Firebase Analytics:</strong> Uygulama kalitesini ve performansını sürekli iyileştirmek amacıyla cihaz bilgileri, işletim sistemi sürümleri ve performans günlükleri gibi anonim kullanım verilerini toplamak için Google Firebase Analytics kullanıyoruz.
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>Google Mobil Reklamlar (AdMob):</strong> Uygulamamız Google AdMob tarafından sunulan reklamları içerir. AdMob, Google Play Politikalarına uygun olarak kişiselleştirilmemiş ve bağlamsal reklamlar sunmak için benzersiz reklam kimliklerini (ör. Android Reklam Kimliği - GAID) kullanabilir.
+            </li>
+          </ul>
+
+          <h4 style="font-size: 1.08rem; font-weight: 700; color: var(--primary); margin-top: 16px; margin-bottom: 10px;">B. Gerekli Cihaz İzinleri</h4>
+          <ul style="line-height: 1.8; color: var(--text-body); padding-left: 20px; margin-bottom: 24px; font-size: 0.98rem;">
+            <li style="margin-bottom: 10px;">
+              <strong>Kamera Erişimi:</strong> Yalnızca yerleşik QR ve barkod tarayıcı aracını çalıştırmak için kullanılır. Kamera görüntüleri sunucularımıza kaydedilmez veya aktarılmaz.
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>Depolama / Medya Erişimi:</strong> Yalnızca oluşturulan hukuki dilekçeleri (PDF) veya dijital kartvizit görsellerini cihazınızın yerel depolama alanına kaydetmek için kullanılır.
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>İnternet Bağlantısı:</strong> Güncel iş fırsatlarını, canlı döviz ve altın fiyatlarını, bölgesel harita verilerini ve reklamları getirmek için gereklidir.
+            </li>
+          </ul>
+
+          <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
+
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">3.2 Yerel Veri Saklama ve Gizlilik Güvencesi</h3>
+          <ul style="line-height: 1.8; color: var(--text-body); padding-left: 20px; margin-bottom: 24px; font-size: 0.98rem;">
+            <li style="margin-bottom: 10px;">
+              <strong>Yerel İşleme:</strong> Kullanıcı tarafından oluşturulan tüm içerikler (dilekçe taslakları veya kartvizit bilgileri) güvenli yerel anahtar-değer depolama (Hive Storage) kullanılarak yalnızca cihazınızda saklanır.
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>Üçüncü Taraflarla Paylaşılmama:</strong> Kişisel verilerinizi veya dosya içeriklerinizi üçüncü taraflara satmıyoruz, kiralamıyoruz veya paylaşmıyoruz.
+            </li>
+          </ul>
+
+          <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
+
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">3.3 Çocukların Gizliliği</h3>
+          <p style="font-size: 1rem; line-height: 1.8; color: var(--text-body); margin-bottom: 24px;">
+            Uygulamamız genel kitleye ve iş arayanlara yöneliktir. 13 yaşın altındaki çocuklara yönelik değildir ve çocuklardan bilerek kişisel bilgi toplamıyoruz.
+          </p>
+
+          <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
+
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">3.4 İletişim</h3>
+          <p style="font-size: 1rem; line-height: 1.8; color: var(--text-body); margin-bottom: 16px;">
+            Her türlü gizlilik sorusu ve destek talebiniz için bizimle iletişime geçebilirsiniz:
+          </p>
+          <div style="background: rgba(37, 99, 235, 0.05); padding: 18px 24px; border-radius: 12px; border-left: 4px solid var(--primary); font-size: 0.98rem; color: var(--text-dark);">
+            Destek E-postası: <br />
+            <a href="mailto:support@jobsistanbul.app" style="color: var(--primary); font-weight: 700; font-family: monospace; font-size: 1.05rem;">support@jobsistanbul.app</a>
+          </div>
+        </div>
+      </div>
+
     </div>
+
+    <!-- Interactive Script for Tab Switching -->
+    <script>
+      function switchTab(tabId) {
+        document.querySelectorAll('.privacy-content-section').forEach(function(sec) {
+          sec.style.display = 'none';
+        });
+        document.querySelectorAll('.privacy-tab-btn').forEach(function(btn) {
+          btn.style.background = 'var(--bg-surface)';
+          btn.style.color = 'var(--text-dark)';
+          btn.style.borderColor = 'var(--border-color)';
+          btn.style.fontWeight = '600';
+        });
+        var activeTab = document.getElementById(tabId);
+        if (activeTab) {
+          activeTab.style.display = 'block';
+        }
+        var activeBtn = document.getElementById('btn-' + tabId);
+        if (activeBtn) {
+          activeBtn.style.background = 'var(--primary)';
+          activeBtn.style.color = '#fff';
+          activeBtn.style.borderColor = 'var(--primary)';
+          activeBtn.style.fontWeight = '700';
+        }
+      }
+    </script>
   `;
 
-  return c.html(renderLayout(c, t.title, html, locale));
+  return c.html(renderLayout(c, pageTitle, html, locale));
 });
 
 // Terms & Conditions Page
@@ -4019,7 +5196,9 @@ publicRouter.get('/:locale/install', (c) => {
       androidStep1: 'افتح متصفح <strong>Chrome</strong> وانتقل إلى الموقع.',
       androidStep2: 'ستظهر لك نافذة منبثقة تقترح عليك التثبيت، اضغط على <strong>"تثبيت التطبيق"</strong> (Install).',
       androidStep3: 'أو اضغط على النقاط الثلاث في أعلى المتصفح واختر <strong>"تثبيت التطبيق"</strong>.',
-      btnText: 'الذهاب للرئيسية وتثبيت التطبيق'
+      btnText: 'الذهاب للرئيسية وتثبيت التطبيق',
+      downloadOnPlayStore: 'تنزيل التطبيق من متجر Google Play',
+      getItOn: 'حمله من'
     },
     en: {
       title: 'Install Jobs in Istanbul App on Your Mobile',
@@ -4040,7 +5219,9 @@ publicRouter.get('/:locale/install', (c) => {
       androidStep1: 'Open <strong>Chrome</strong> and navigate to jobs-in-istanbul.com.',
       androidStep2: 'Tap the <strong>"Install App"</strong> prompt that appears at the bottom.',
       androidStep3: 'Or tap the three dots in the top-right and select <strong>"Install App"</strong>.',
-      btnText: 'Go to Homepage & Install'
+      btnText: 'Go to Homepage & Install',
+      downloadOnPlayStore: 'Download App on Google Play Store',
+      getItOn: 'GET IT ON'
     },
     tr: {
       title: 'İstanbul İş İlanları Mobil Uygulamasını Telefonunuza Yükleyin',
@@ -4061,7 +5242,9 @@ publicRouter.get('/:locale/install', (c) => {
       androidStep1: '<strong>Chrome</strong> tarayıcısını açın ve jobs-in-istanbul.com adresine gidin.',
       androidStep2: 'Altta beliren <strong>"Uygulamayı Yükle"</strong> bildirimine dokunun.',
       androidStep3: 'Veya sağ üstteki üç noktaya tıklayıp <strong>"Uygulamayı Yükle"</strong> seçeneğini seçin.',
-      btnText: 'Ana Sayfaya Git ve Yükle'
+      btnText: 'Ana Sayfaya Git ve Yükle',
+      downloadOnPlayStore: 'Google Play Mağazasından İndir',
+      getItOn: 'İNDİRİN'
     },
     ru: {
       title: 'Установить мобильное приложение Работа в Стамбуле',
@@ -4082,7 +5265,9 @@ publicRouter.get('/:locale/install', (c) => {
       androidStep1: 'Откройте браузер <strong>Chrome</strong> и перейдите на сайт.',
       androidStep2: 'Нажмите на всплывающее уведомление <strong>"Установить приложение"</strong>.',
       androidStep3: 'Или нажмите три точки в углу экрана и выберите <strong>"Установить приложение"</strong>.',
-      btnText: 'На главную и установить'
+      btnText: 'На главную и установить',
+      downloadOnPlayStore: 'Скачать приложение в Google Play',
+      getItOn: 'СКАЧАТЬ В'
     },
     fa: {
       title: 'نصب اپلیکیشن موبایل کاریابی در استانبول',
@@ -4103,7 +5288,9 @@ publicRouter.get('/:locale/install', (c) => {
       androidStep1: 'مرورگر <strong>Chrome</strong> را باز کرده و به وب‌سایت وارد شوید.',
       androidStep2: 'بر روی اعلان پاپ‌آپ <strong>"نصب اپلیکیشن"</strong> کلیک کنید.',
       androidStep3: 'یا دکمه سه نقطه بالا را لمس کرده و گزینه <strong>"نصب اپلیکیشن" (Install App)</strong> را انتخاب کنید.',
-      btnText: 'انتقال به صفحه اصلی و نصب'
+      btnText: 'انتقال به صفحه اصلی و نصب',
+      downloadOnPlayStore: 'دانلود اپلیکیشن از گوگل پلی',
+      getItOn: 'دریافت از'
     },
     ur: {
       title: 'ملازمت ایپ انسٹال کریں - استنبول میں ملازمتیں',
@@ -4124,19 +5311,60 @@ publicRouter.get('/:locale/install', (c) => {
       androidStep1: 'اپنے فون پر <strong>Chrome</strong> براؤزر کھولیں اور ہماری سائٹ پر جائیں۔',
       androidStep2: 'اسکرین پر ظاہر ہونے والے <strong>"ایپ انسٹال کریں"</strong> پاپ اپ پر کلک کریں۔',
       androidStep3: 'یا اوپر دائیں کونے میں تین نقطوں پر کلک کر کے <strong>"Install App"</strong> منتخب کریں۔',
-      btnText: 'ہوم اسکرین پر جائیں اور انسٹال کریں'
+      btnText: 'ہوم اسکرین پر جائیں اور انسٹال کریں',
+      downloadOnPlayStore: 'گوگل پلے اسٹور سے ایپ ڈاؤن لوڈ کریں',
+      getItOn: 'حاصل کریں'
     }
   }[locale];
 
   const html = `
     <div class="container" style="max-width: 1100px; padding: 60px 20px;">
       <!-- Hero Section -->
-      <div style="text-align: center; margin-bottom: 50px;">
-        <div style="width: 80px; height: 80px; background: var(--primary-light); color: var(--primary); border-radius: var(--r-xl); display: inline-flex; align-items: center; justify-content: center; font-size: 2.2rem; margin-bottom: 20px; box-shadow: var(--shadow-md);">
-          <i class="fa-solid fa-mobile-screen-button"></i>
+      <div style="text-align: center; margin-bottom: 40px;">
+        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #01875f 0%, #004d34 100%); color: white; border-radius: var(--r-xl); display: inline-flex; align-items: center; justify-content: center; font-size: 2.5rem; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(1,135,95,0.3);">
+          <i class="fa-brands fa-google-play"></i>
         </div>
         <h1 class="hero-title-gradient" style="font-size: 2.5rem; font-weight: 900; margin-bottom: 12px;">${t.heading}</h1>
         <p style="font-size: 1.15rem; color: var(--text-body); max-width: 650px; margin: 0 auto; line-height: 1.6;">${t.subheading}</p>
+      </div>
+
+      <!-- Featured Google Play Hero Banner -->
+      <div style="padding: 40px; border-radius: var(--r-xl); background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; margin-bottom: 40px; box-shadow: var(--shadow-xl); border: 1px solid rgba(255,255,255,0.1); position: relative; overflow: hidden;">
+        <div style="position: absolute; right: -30px; bottom: -30px; font-size: 250px; opacity: 0.05; color: white; pointer-events: none;">
+          <i class="fa-brands fa-google-play"></i>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 30px; position: relative; z-index: 2;">
+          <div style="max-width: 620px;">
+            <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(34,197,94,0.2); border: 1px solid rgba(34,197,94,0.35); padding: 5px 14px; border-radius: 30px; font-size: 0.82rem; font-weight: 700; color: #4ade80; margin-bottom: 14px;">
+              <i class="fa-solid fa-circle-check"></i> ${locale === 'ar' ? 'المسار المباشر الموصى به' : 'Official Recommended Path'}
+            </div>
+            <h2 style="font-size: 2rem; font-weight: 900; color: white; margin-bottom: 12px; line-height: 1.3;">
+              ${t.androidTitle} - Google Play
+            </h2>
+            <p style="font-size: 1.05rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 24px;">
+              ${locale === 'ar' 
+                ? 'حمّل التطبيق الرسمي المباشر من متجر غوغل بلاي بضغطة زر واحدة واستمتع بكافة الميزات والتنبيهات السريعة على هاتفك.' 
+                : 'Download our official app directly from Google Play Store with one tap and get all real-time alerts on your phone.'}
+            </p>
+            <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center;">
+              ${renderGooglePlayBadge(t, 'lg')}
+              <a href="${PLAY_STORE_URL}" target="_blank" rel="noopener" class="btn" style="background: #01875f; color: white; padding: 12px 24px; border-radius: 10px; font-weight: 800; font-size: 1rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(1,135,95,0.4);">
+                <i class="fa-brands fa-google-play" style="font-size: 1.2rem;"></i>
+                <span>${locale === 'ar' ? 'تحميل من Google Play' : 'Open Google Play Store'}</span>
+              </a>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+            <a href="${PLAY_STORE_URL}" target="_blank" rel="noopener" style="text-decoration: none;">
+              <div style="background: white; padding: 16px; border-radius: 20px; text-align: center; box-shadow: 0 12px 30px rgba(0,0,0,0.4);">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(PLAY_STORE_URL)}" alt="Google Play QR Code" style="width: 130px; height: 130px; display: block; border-radius: 10px;">
+                <span style="font-size: 0.75rem; font-weight: 800; color: #0f172a; display: block; margin-top: 8px;">
+                  <i class="fa-solid fa-camera"></i> ${locale === 'ar' ? 'افتح الكاميرا وامسح للتحميل' : 'Scan with Camera'}
+                </span>
+              </div>
+            </a>
+          </div>
+        </div>
       </div>
 
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; margin-bottom: 50px;">
@@ -4152,10 +5380,10 @@ publicRouter.get('/:locale/install', (c) => {
           </ol>
         </div>
 
-        <!-- Android Card -->
+        <!-- Android PWA Alternative Card -->
         <div class="glass-card" style="padding: 35px; border-radius: var(--r-lg); display: flex; flex-direction: column; text-align: ${isRtl ? 'right' : 'left'};">
           <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--text-heading); margin-bottom: 24px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
-            ${t.androidTitle}
+            🌐 ${locale === 'ar' ? 'تثبيت من المتصفح (PWA البديل)' : 'Browser Install (PWA Alternative)'}
           </h2>
           <ol style="margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 16px; font-size: 1rem; color: var(--text-body); line-height: 1.6;">
             <li>${t.androidStep1}</li>
@@ -4189,8 +5417,12 @@ publicRouter.get('/:locale/install', (c) => {
       </div>
 
       <!-- Action Button -->
-      <div style="text-align: center;">
-        <a href="/${locale}" class="btn btn-primary" style="padding: 16px 40px; font-size: 1.1rem; font-weight: 700; border-radius: var(--r-full); box-shadow: var(--shadow-lg); text-decoration: none; display: inline-flex; align-items: center; gap: 10px; transition: var(--t-base);">
+      <div style="text-align: center; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+        <a href="${PLAY_STORE_URL}" target="_blank" rel="noopener" class="btn" style="padding: 16px 36px; background: #01875f; color: white; font-size: 1.1rem; font-weight: 800; border-radius: var(--r-full); box-shadow: var(--shadow-lg); text-decoration: none; display: inline-flex; align-items: center; gap: 10px; transition: var(--t-base);">
+          <i class="fa-brands fa-google-play" style="font-size: 1.3rem;"></i>
+          <span>${t.downloadOnPlayStore}</span>
+        </a>
+        <a href="/${locale}" class="btn btn-primary" style="padding: 16px 36px; font-size: 1.1rem; font-weight: 700; border-radius: var(--r-full); box-shadow: var(--shadow-lg); text-decoration: none; display: inline-flex; align-items: center; gap: 10px; transition: var(--t-base);">
           <i class="fa-solid fa-house"></i>
           <span>${t.btnText}</span>
         </a>
@@ -4409,5 +5641,448 @@ publicRouter.get('/:locale/district/:slug', async (c) => {
 
   return c.html(renderLayout(c, pageTitle, html, locale, seoHtml));
 });
+
+// Report Job API Endpoint
+publicRouter.post('/:locale/api/report-job', async (c) => {
+  try {
+    const body = await c.req.json();
+    const db = (c.env as any).DB;
+    const timestamp = Date.now();
+    const reportId = `report-${timestamp}-${Math.random().toString(36).substring(2, 7)}`;
+
+    console.log('[SECURITY ALERT] Job scam/suspicious report received:', body);
+
+    // Save report to documents table or log
+    try {
+      if (db) {
+        await db.prepare(
+          `INSERT INTO documents (id, root_id, type_id, status, is_published, is_current_draft, slug, title, data, created_at, updated_at)
+           VALUES (?, ?, 'reports', 'published', 1, 1, ?, ?, ?, ?, ?)`
+        ).bind(reportId, reportId, reportId, `Report: ${body.jobTitle || body.jobId}`, JSON.stringify({ ...body, createdAt: timestamp }), timestamp, timestamp).run();
+      }
+    } catch (dbErr) {
+      console.error('Failed to write report to DB:', dbErr);
+    }
+
+    return c.json({ success: true, message: 'Report submitted successfully' });
+  } catch (err: any) {
+    return c.json({ error: 'Failed to process report: ' + err.message }, 500);
+  }
+});
+
+publicRouter.post('/api/report-job', async (c) => {
+  return publicRouter.fetch(new Request(`${new URL(c.req.url).origin}/ar/api/report-job`, c.req.raw), c.env, c.executionCtx);
+});
+
+// Company Profile Page Handler
+publicRouter.get('/:locale/companies/:slug', async (c) => {
+  const locale = (c.req.param('locale') || 'ar') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
+  const slug = c.req.param('slug')?.toLowerCase() || '';
+  const db = (c.env as any).DB;
+
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa' && locale !== 'ur') {
+    return c.redirect('/ar');
+  }
+
+  // Fetch company
+  let companyData: any = null;
+  let companyId = '';
+  try {
+    const compRow = await db.prepare(
+      `SELECT id, data FROM documents WHERE type_id = 'companies' AND (slug = ? OR id = ? OR LOWER(title) = ?) LIMIT 1`
+    ).bind(slug, slug, slug.replace(/-/g, ' ')).first();
+
+    if (compRow) {
+      companyId = compRow.id;
+      companyData = JSON.parse(compRow.data);
+    }
+  } catch (e) {
+    console.error('Error fetching company:', e);
+  }
+
+  const companyName = companyData?.name || slug.split('-').map((s: string) => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
+  const companyLogo = companyData?.logo || '';
+  const companyDesc = companyData?.description || (locale === 'ar' ? `شركة ومؤسسة مسجلة تعمل في إسطنبول وتركيا.` : `Verified employer operating in Istanbul, Turkey.`);
+  const companyWebsite = companyData?.website || '';
+
+  // Fetch Active Jobs & Past Jobs
+  let activeJobs: any[] = [];
+  try {
+    const jobRows = await db.prepare(
+      `SELECT id, slug, data, published_at FROM documents WHERE type_id = 'jobs' AND is_published = 1 AND (JSON_EXTRACT(data, '$.company') = ? OR LOWER(data) LIKE ?) ORDER BY published_at DESC LIMIT 30`
+    ).bind(companyId || slug, `%${companyName.toLowerCase()}%`).all();
+
+    activeJobs = (jobRows.results || []).map((row: any) => ({
+      id: row.id,
+      slug: row.slug,
+      publishedAt: row.published_at,
+      ...JSON.parse(row.data)
+    }));
+  } catch (err) {
+    console.error('Error fetching company jobs:', err);
+  }
+
+  const pageTitle = locale === 'ar' 
+    ? `وظائف شركة ${companyName} في إسطنبول | فرص العمل المتاحة 2026` 
+    : (locale === 'tr' ? `${companyName} İstanbul İş İlanları 2026` : `${companyName} Jobs in Istanbul 2026`);
+
+  const pageDesc = locale === 'ar'
+    ? `تعرف على شركة ${companyName}، نبذة عن الشركة، وأحدث الوظائف الشاغرة وفرص العمل المعلنة حالياً في إسطنبول.`
+    : `Explore ${companyName} company profile and browse active job openings in Istanbul, Turkey.`;
+
+  const html = `
+    <div class="container" style="padding-top: 30px; padding-bottom: 60px;">
+      <nav style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+        <a href="/${locale}" style="color: var(--primary); text-decoration: none; font-weight: 600;">${locale === 'ar' ? 'الرئيسية' : 'Home'}</a>
+        <span>/</span>
+        <span style="color: var(--text-heading); font-weight: 700;">${companyName}</span>
+      </nav>
+
+      <!-- Company Profile Banner -->
+      <div class="glass-card" style="padding: 36px; border-radius: var(--radius-lg); margin-bottom: 36px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap;">
+        <div style="width: 90px; height: 90px; border-radius: var(--radius-md); background: var(--bg-site); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 900; color: var(--primary); overflow: hidden; flex-shrink: 0; box-shadow: var(--shadow-sm);">
+          ${companyLogo ? `<img src="${companyLogo}" alt="${companyName}" style="width:100%; height:100%; object-fit:contain;">` : companyName.charAt(0)}
+        </div>
+        <div style="flex: 1; min-width: 250px;">
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px;">
+            <h1 style="font-size: 1.8rem; font-weight: 900; color: var(--text-dark); margin: 0;">${companyName}</h1>
+            <span class="tag" style="background: rgba(16,185,129,0.12); color: #059669; border: 1px solid rgba(16,185,129,0.25); font-weight: 700; font-size: 0.8rem;">
+              <i class="fa-solid fa-circle-check"></i> ${locale === 'ar' ? 'جهة عمل موثقة ✅' : 'Verified Employer ✅'}
+            </span>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin: 0 0 12px 0;">${companyDesc}</p>
+          ${companyWebsite ? `<a href="${companyWebsite}" target="_blank" rel="noopener" style="color: var(--primary); font-weight: 700; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;"><i class="fa-solid fa-globe"></i> ${locale === 'ar' ? 'الموقع الرسمي للشركة' : 'Official Website'} <i class="fa-solid fa-external-link" style="font-size: 0.75rem;"></i></a>` : ''}
+        </div>
+      </div>
+
+      <!-- Active Job Postings Section -->
+      <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--text-dark); margin-bottom: 20px;">
+        ${locale === 'ar' ? `الوظائف المتاحة حالياً لدى ${companyName} (${activeJobs.length})` : `Active Job Openings at ${companyName} (${activeJobs.length})`}
+      </h2>
+
+      ${activeJobs.length === 0 ? `
+        <div class="glass-card" style="padding: 40px; text-align: center; border-radius: var(--radius-md);">
+          <i class="fa-solid fa-briefcase" style="font-size: 2.5rem; color: var(--text-muted); margin-bottom: 12px;"></i>
+          <p style="color: var(--text-muted); font-size: 1rem; margin: 0 0 16px 0;">
+            ${locale === 'ar' ? 'لا توجد شواغر نشطة معلنة في هذا الوقت. تصفح باقي الوظائف المتاحة على المنصة.' : 'No active job openings right now. Explore other available vacancies.'}
+          </p>
+          <a href="/${locale}" class="btn-sidebar-apply" style="display: inline-block; padding: 10px 24px; text-decoration: none;">${locale === 'ar' ? 'تصفح جميع الوظائف' : 'Explore All Jobs'}</a>
+        </div>
+      ` : `
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          ${activeJobs.map(job => {
+            const title = job[`title_${locale}`] || job.title_en || job.title_ar || 'Job Title';
+            const loc = job[`location_${locale}`] || job.location_en || job.location_ar || 'Istanbul';
+            const dateStr = new Date(job.publishedAt).toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric' });
+            return `
+              <div class="glass-card" style="padding: 20px; border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
+                <div>
+                  <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-dark); margin: 0 0 6px 0;">
+                    <a href="/${locale}/jobs/${job.slug}" style="color: inherit; text-decoration: none;">${title}</a>
+                  </h3>
+                  <div style="display: flex; align-items: center; gap: 14px; font-size: 0.88rem; color: var(--text-muted); flex-wrap: wrap;">
+                    <span><i class="fa-solid fa-location-dot" style="color: var(--accent);"></i> ${loc}</span>
+                    <span><i class="fa-regular fa-clock"></i> ${dateStr}</span>
+                    ${job.salary ? `<span style="color: var(--primary); font-weight: 700;"><i class="fa-solid fa-money-bill-wave"></i> ${job.salary}</span>` : ''}
+                  </div>
+                </div>
+                <a href="/${locale}/jobs/${job.slug}" class="btn-sidebar-apply" style="padding: 8px 20px; font-size: 0.88rem; text-decoration: none; margin-top: 0; white-space: nowrap;">
+                  ${locale === 'ar' ? 'تقديم الآن 🚀' : 'Apply Now 🚀'}
+                </a>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `}
+    </div>
+  `;
+
+  const seoHtml = generateMetaTags(locale, 'home', { title: pageTitle, description: pageDesc });
+  return c.html(renderLayout(c, pageTitle, html, locale, seoHtml));
+});
+
+// Specialized High-Intent SEO Landing Pages Config & Handler
+interface SpecializedSeoConfig {
+  type: string;
+  icon: string;
+  titles: Record<string, string>;
+  descriptions: Record<string, string>;
+  searchKeywords: string[];
+}
+
+const SPECIALIZED_PAGES: SpecializedSeoConfig[] = [
+  {
+    type: 'jobs-for-arabs',
+    icon: 'fa-solid fa-earth-americas',
+    titles: {
+      ar: 'فرص عمل ووظائف للعرب في إسطنبول وتركيا 2026 | التقديم المباشر',
+      en: 'Jobs for Arabs & Expats in Istanbul 2026 | Direct Hiring',
+      tr: 'İstanbul Arapça Bilenler İçin İş İlanları 2026'
+    },
+    descriptions: {
+      ar: 'أكبر منصة متخصصة لفرص عمل العرب والوافدين في إسطنبول. وظائف في شركات دولية، كول سنتر، سياحة، مبيعات، ومدارس مع إمكانية إذن العمل والـ SGK.',
+      en: 'Top job vacancies for Arabic speakers and international expats in Istanbul. Direct hiring in sales, medical tourism, tech, and call centers.',
+      tr: 'İstanbul genelinde Arapça ve yabancı dil bilen adaylar için en güncel iş ilanları.'
+    },
+    searchKeywords: ['عرب', 'سوري', 'ناطقين', 'خليج', 'عربية', 'arabic', 'expat']
+  },
+  {
+    type: 'jobs-without-turkish',
+    icon: 'fa-solid fa-language',
+    titles: {
+      ar: 'وظائف في إسطنبول بدون لغة تركية 2026 | عمل في تركيا بدون لغة',
+      en: 'Jobs in Istanbul Without Turkish Language 2026',
+      tr: 'Türkçe Şartı Olmayan İstanbul İş İlanları 2026'
+    },
+    descriptions: {
+      ar: 'شواغر وفرص عمل حقيقية في إسطنبول لا تشترط إتقان اللغة التركية. وظائف في الكول سنتر، المبيعات العقارية، السياحة العلاجية، والبرمجة باللغة العربية والإنجليزية.',
+      en: 'Find open jobs in Istanbul that do not require Turkish language skills. English and Arabic speaking roles in tech, call center, and tourism.',
+      tr: 'İstanbul\'da yabancı dil ile çalışabileceğiniz, Türkçe bilme şartı aramayan şirket ilanları.'
+    },
+    searchKeywords: ['بدون تركي', 'بدون لغة', 'no turkish', 'english only', 'arabic only', 'yabancı', 'english', 'عربي']
+  },
+  {
+    type: 'entry-level-jobs',
+    icon: 'fa-solid fa-seedling',
+    titles: {
+      ar: 'وظائف في إسطنبول بدون خبرة وللمبتدئين 2026 | تدريب وتوظيف فوري',
+      en: 'Entry-Level & No Experience Jobs in Istanbul 2026',
+      tr: 'İstanbul Deneyimsiz ve Yetiştirilmek Üzere İş İlanları 2026'
+    },
+    descriptions: {
+      ar: 'أحدث الوظائف للمبتدئين وحديثي التخرج في إسطنبول بدون اشتراط خبرة مسبقة. فرص تدريب مدفوع الأجر، مساعدين، ومبيعات مع تأمين SGK.',
+      en: 'Explore entry-level jobs and internships in Istanbul with on-the-job training and competitive starter salaries.',
+      tr: 'İstanbul\'da deneyim gerektirmeyen, yetiştirilmek üzere eleman arayan firmaların güncel ilanları.'
+    },
+    searchKeywords: ['بدون خبرة', 'مبتدئ', 'تدريب', 'no experience', 'entry level', 'yetiştirilmek', 'staj']
+  },
+  {
+    type: 'driver-jobs',
+    icon: 'fa-solid fa-van-shuttle',
+    titles: {
+      ar: 'وظائف سائقين وسياحة وتوصيل في إسطنبول 2026 | سائق خاص وفان',
+      en: 'Driver, Chauffeur & Courier Jobs in Istanbul 2026',
+      tr: 'İstanbul Şoför ve Kurye İş İlanları 2026'
+    },
+    descriptions: {
+      ar: 'فرص عمل سائقين في إسطنبول: سائق سياحي VIP، سائق شركات، وتوصيل طلبات وشحنات برواتب تبدأ من 30,000 إلى 65,000 ليرة تركية.',
+      en: 'Discover high-paying driver and courier positions in Istanbul. VIP tourism drivers, private chauffeurs, and logistics couriers.',
+      tr: 'İstanbul\'da VIP şoför, şirket şoförü ve kurye arayan firmaların en yeni iş ilanları.'
+    },
+    searchKeywords: ['سائق', 'شفر', 'توصيل', 'شحن', 'driver', 'şoför', 'kurye', 'courier', 'vito', 'transfer']
+  },
+  {
+    type: 'restaurant-jobs',
+    icon: 'fa-solid fa-utensils',
+    titles: {
+      ar: 'وظائف مطاعم وكافيهات في إسطنبول 2026 | شيف، ويتر، باريستا',
+      en: 'Restaurant, Cafe & Hospitality Jobs in Istanbul 2026',
+      tr: 'İstanbul Restoran, Kafe ve Aşçı İş İlanları 2026'
+    },
+    descriptions: {
+      ar: 'فرص عمل فورية في مطاعم وكافيهات إسطنبول للشيفات، مساعدي الطبخ، الويترز، والباريستا مع تأمين السكن (Lojman) ووجبات الطعام.',
+      en: 'Immediate restaurant and cafe vacancies in Istanbul. Chefs, baristas, servers, and kitchen staff with provided meals and housing.',
+      tr: 'İstanbul restoran ve kafelerinde garson, aşçı, barista ve mutfak personeli iş ilanları.'
+    },
+    searchKeywords: ['مطعم', 'كافيه', 'شيف', 'طاهي', 'ويتر', 'باريستا', 'مطبخ', 'restaurant', 'mutfak', 'aşçı', 'garson', 'cafe', 'barista']
+  },
+  {
+    type: 'factory-jobs',
+    icon: 'fa-solid fa-industry',
+    titles: {
+      ar: 'وظائف مصانع وإنتاج ومستودعات في إسطنبول 2026 | عمال وتشغيل',
+      en: 'Factory, Production & Warehouse Jobs in Istanbul 2026',
+      tr: 'İstanbul Fabrika ve Üretim Elemanı İş İlanları 2026'
+    },
+    descriptions: {
+      ar: 'وظائف عمال مصانع وخطوط إنتاج وتغليف في المناطق الصناعية الكبرى بإسطنبول (إيكيتلي، توزلا، بيليك دوزو) مع تأمين السيرفيس والطعام والـ SGK.',
+      en: 'Factory and production line jobs in Istanbul industrial zones (İkitelli, Tuzla). Full benefits, transport shuttle, and meal cards.',
+      tr: 'İstanbul organize sanayi bölgelerinde fabrika üretim, paketleme ve depo personeli ilanları.'
+    },
+    searchKeywords: ['مصنع', 'إنتاج', 'عمال', 'مستودع', 'تغليف', 'factory', 'fabrika', 'üretim', 'depo', 'paketleme', 'işçi']
+  },
+  {
+    type: 'call-center-jobs',
+    icon: 'fa-solid fa-headset',
+    titles: {
+      ar: 'وظائف كول سنتر وخدمة عملاء في إسطنبول 2026 | عربي وإنجليزي',
+      en: 'Call Center & Customer Support Jobs in Istanbul 2026',
+      tr: 'İstanbul Çağrı Merkezi ve Telesatış İş İlanları 2026'
+    },
+    descriptions: {
+      ar: 'أعلى رواتب الكول سنتر والمبيعات الهاتفية في إسطنبول لمتحدثي العربية والإنجليزية مع عمولات شهرية مجزية وبيئة عمل حديثة.',
+      en: 'High-paying call center and telesales opportunities in Istanbul for multilingual Arabic and English speakers with solid commissions.',
+      tr: 'İstanbul\'da yabancı dil bilen çağrı merkezi ve müşteri temsilcisi iş ilanları.'
+    },
+    searchKeywords: ['كول سنتر', 'خدمة عملاء', 'مبيعات هاتفية', 'call center', 'customer service', 'çağrı merkezi', 'telesales', 'telemarketing']
+  },
+  {
+    type: 'jobs-for-women',
+    icon: 'fa-solid fa-person-dress',
+    titles: {
+      ar: 'وظائف نسائية وعمل عن بعد في إسطنبول 2026 | فرص عمل للسيدات',
+      en: 'Jobs for Women & Remote Roles in Istanbul 2026',
+      tr: 'İstanbul Kadınlar İçin İş ve Evden Çalışma İlanları 2026'
+    },
+    descriptions: {
+      ar: 'وظائف مخصصة ومناسبة للسيدات في إسطنبول: عمل من المنزل، معلمات حضانة، مبيعات، تسويق رقمي، وخياطة وتصميم مع بيئة عمل مريحة.',
+      en: 'Verified job openings for women in Istanbul including remote positions, education, sales, customer care, and fashion design.',
+      tr: 'İstanbul\'da kadın adaylar için çalışma ortamı uygun, uzaktan veya yarı zamanlı iş ilanları.'
+    },
+    searchKeywords: ['نسائية', 'سيدات', 'عمل عن بعد', 'حضانة', 'خياطة', 'معلمة', 'kadın', 'women', 'bayan', 'home office', 'uzaktan']
+  },
+  {
+    type: 'student-jobs',
+    icon: 'fa-solid fa-graduation-cap',
+    titles: {
+      ar: 'وظائف للطلاب والجامعيين في إسطنبول 2026 | دوام جزئي بارت تايم',
+      en: 'Student & Part-Time Jobs in Istanbul 2026 | Flexible Hours',
+      tr: 'İstanbul Öğrenciler İçin Yarı Zamanlı İş İlanları 2026'
+    },
+    descriptions: {
+      ar: 'وظائف دوام جزئي وساعات مرنة للطلاب والجامعيين العرب والأجانب في إسطنبول لتغطية تكاليف الدراسة والمعيشة.',
+      en: 'Flexible part-time student jobs in Istanbul. Evening and weekend shifts in cafes, translation, tutoring, and customer care.',
+      tr: 'Üniversite öğrencileri için ders saatlerine uygun part-time ve esnek saatli iş fırsatları.'
+    },
+    searchKeywords: ['للطلاب', 'طالب', 'جامعي', 'دوام جزئي', 'part time', 'student', 'öğrenci', 'yarı zamanlı', 'part-time']
+  }
+];
+
+const renderSpecializedLandingHandler = async (c: any, pageConfig: SpecializedSeoConfig, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur') => {
+  const db = (c.env as any).DB;
+  const pageTitle = pageConfig.titles[locale] || pageConfig.titles.en || pageConfig.titles.ar;
+  const pageDesc = pageConfig.descriptions[locale] || pageConfig.descriptions.en || pageConfig.descriptions.ar;
+
+  let jobs: any[] = [];
+  try {
+    const placeholders = pageConfig.searchKeywords.map(() => 'LOWER(data) LIKE ?').join(' OR ');
+    const params = pageConfig.searchKeywords.map(k => `%${k.toLowerCase()}%`);
+
+    const jobRows = await db.prepare(
+      `SELECT id, slug, data, published_at FROM documents WHERE type_id = 'jobs' AND is_published = 1 AND (${placeholders}) ORDER BY published_at DESC LIMIT 40`
+    ).bind(...params).all();
+
+    jobs = (jobRows.results || []).map((row: any) => ({
+      id: row.id,
+      slug: row.slug,
+      publishedAt: row.published_at,
+      ...JSON.parse(row.data)
+    }));
+
+    // If query returned few matches, backfill with recent active jobs
+    if (jobs.length < 5) {
+      const fallbackRows = await db.prepare(
+        `SELECT id, slug, data, published_at FROM documents WHERE type_id = 'jobs' AND is_published = 1 ORDER BY published_at DESC LIMIT 15`
+      ).all();
+      const existingIds = new Set(jobs.map(j => j.id));
+      for (const row of fallbackRows.results || []) {
+        if (!existingIds.has(row.id)) {
+          jobs.push({ id: row.id, slug: row.slug, publishedAt: row.published_at, ...JSON.parse(row.data) });
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Error fetching specialized landing page jobs:', err);
+  }
+
+  const html = `
+    <div class="container" style="padding-top: 30px; padding-bottom: 60px;">
+      <nav style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+        <a href="/${locale}" style="color: var(--primary); text-decoration: none; font-weight: 600;">${locale === 'ar' ? 'الرئيسية' : 'Home'}</a>
+        <span>/</span>
+        <span style="color: var(--text-heading); font-weight: 700;">${pageTitle.split('|')[0]}</span>
+      </nav>
+
+      <!-- Hero Header -->
+      <div style="background: linear-gradient(135deg, rgba(0,123,255,0.08) 0%, rgba(16,185,129,0.04) 100%); padding: 36px; border-radius: var(--radius-lg); border: 1px solid var(--border); margin-bottom: 30px;">
+        <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 12px;">
+          <div style="width: 50px; height: 50px; border-radius: 12px; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 4px 12px rgba(0,123,255,0.3);">
+            <i class="${pageConfig.icon}"></i>
+          </div>
+          <h1 style="font-size: 1.8rem; font-weight: 900; color: var(--text-dark); margin: 0;">${pageTitle}</h1>
+        </div>
+        <p style="font-size: 1.05rem; color: var(--text-body); max-width: 850px; line-height: 1.6; margin: 0 0 20px 0;">${pageDesc}</p>
+        
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <a href="/${locale}/ai-job-matcher" style="display: inline-flex; align-items: center; gap: 8px; background: var(--primary); color: white !important; padding: 10px 20px; border-radius: 30px; font-weight: 800; font-size: 0.9rem; text-decoration: none; box-shadow: var(--shadow-sm);">
+            <i class="fa-solid fa-robot"></i> ${locale === 'ar' ? 'مطابقة السيرة الذاتية بالذكاء الاصطناعي' : 'Match My CV with AI'}
+          </a>
+          <a href="https://t.me/jobsistanbul" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 8px; background: #0088cc; color: white !important; padding: 10px 20px; border-radius: 30px; font-weight: 800; font-size: 0.9rem; text-decoration: none;">
+            <i class="fa-brands fa-telegram"></i> ${locale === 'ar' ? 'تنبيهات الوظائف عبر تلغرام' : 'Telegram Job Alerts'}
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Category Links Bar -->
+      <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 24px;">
+        ${SPECIALIZED_PAGES.map(p => `
+          <a href="/${locale}/${p.type}" style="padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; text-decoration: none; white-space: nowrap; border: 1px solid var(--border); background: ${p.type === pageConfig.type ? 'var(--primary)' : 'var(--bg-card)'}; color: ${p.type === pageConfig.type ? '#fff !important' : 'var(--text-dark)'};">
+            <i class="${p.icon}"></i> ${p.titles[locale]?.split('|')[0] || p.titles.ar.split('|')[0]}
+          </a>
+        `).join('')}
+      </div>
+
+      <!-- Job Listings -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+        <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--text-dark); margin: 0;">
+          ${locale === 'ar' ? `أحدث الشواغر المتاحة (${jobs.length})` : `Available Vacancies (${jobs.length})`}
+        </h2>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        ${jobs.map(job => {
+          const title = job[`title_${locale}`] || job.title_en || job.title_ar || 'Job Opening';
+          const company = job.company_name || 'Verified Employer';
+          const loc = job[`location_${locale}`] || job.location_en || job.location_ar || 'Istanbul';
+          const dateStr = new Date(job.publishedAt).toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric' });
+
+          return `
+            <div class="glass-card" style="padding: 22px; border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; transition: transform 0.2s ease;">
+              <div style="flex: 1; min-width: 250px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
+                  <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--text-dark); margin: 0;">
+                    <a href="/${locale}/jobs/${job.slug}" style="color: inherit; text-decoration: none;">${title}</a>
+                  </h3>
+                  <span class="tag" style="background: rgba(16,185,129,0.1); color: #059669; font-weight: 700; font-size: 0.75rem;">
+                    <i class="fa-solid fa-circle-check"></i> ${locale === 'ar' ? 'موثق' : 'Verified'}
+                  </span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 14px; font-size: 0.88rem; color: var(--text-muted); flex-wrap: wrap;">
+                  <span><i class="fa-solid fa-building" style="color: var(--primary);"></i> ${company}</span>
+                  <span><i class="fa-solid fa-location-dot" style="color: var(--accent);"></i> ${loc}</span>
+                  <span><i class="fa-regular fa-clock"></i> ${dateStr}</span>
+                  ${job.salary ? `<span style="color: var(--primary); font-weight: 700;"><i class="fa-solid fa-money-bill-wave"></i> ${job.salary}</span>` : ''}
+                </div>
+              </div>
+              <a href="/${locale}/jobs/${job.slug}" class="btn-sidebar-apply" style="padding: 10px 22px; font-size: 0.9rem; font-weight: 800; text-decoration: none; margin-top: 0; white-space: nowrap;">
+                ${locale === 'ar' ? 'تفاصيل الوظيفة والتقديم ←' : 'View & Apply ←'}
+              </a>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `;
+
+  const seoHtml = generateMetaTags(locale, 'home', {
+    title: pageTitle,
+    seoDescription: pageDesc,
+    seoKeywords: pageConfig.searchKeywords.join(', ')
+  });
+
+  return c.html(renderLayout(c, pageTitle, html, locale, seoHtml));
+};
+
+// Register all 9 Specialized Landing Page Routes
+SPECIALIZED_PAGES.forEach(pageConfig => {
+  publicRouter.get(`/:locale/${pageConfig.type}`, (c) => {
+    const locale = (c.req.param('locale') || 'ar') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
+    if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa' && locale !== 'ur') {
+      return c.redirect(`/ar/${pageConfig.type}`);
+    }
+    return renderSpecializedLandingHandler(c, pageConfig, locale);
+  });
+});
+
 
 

@@ -75,10 +75,13 @@ Return ONLY a valid JSON object matching the following structure. Do not wrap it
 }
 `;
 
+  const models = ['gemini-2.5-flash', 'gemini-3.5-flash'];
   let currentDelay = delayMs;
+
   for (let attempt = 1; attempt <= retries; attempt++) {
+    const modelToUse = models[(attempt - 1) % models.length];
     try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelToUse}:generateContent?key=${apiKey}`;
       const res = await fetch(url, {
         method: 'POST',
         headers: {
@@ -89,19 +92,25 @@ Return ONLY a valid JSON object matching the following structure. Do not wrap it
             parts: [{
               text: prompt
             }]
-          }]
+          }],
+          generationConfig: {
+            temperature: 0.2,
+            thinkingConfig: {
+              thinkingBudget: 0
+            }
+          }
         }),
-        signal: AbortSignal.timeout(10000)
+        signal: AbortSignal.timeout(25000)
       });
 
       if (!res.ok) {
-        if (res.status === 429 && attempt < retries) {
-          console.warn(`[GEMINI SEO] 429 rate limit hit. Retrying in ${currentDelay}ms (Attempt ${attempt}/${retries})...`);
+        if ((res.status === 429 || res.status === 503) && attempt < retries) {
+          console.warn(`[GEMINI SEO] ${res.status} status from ${modelToUse}. Retrying in ${currentDelay}ms (Attempt ${attempt}/${retries})...`);
           await new Promise(resolve => setTimeout(resolve, currentDelay));
-          currentDelay *= 2;
+          currentDelay *= 1.5;
           continue;
         }
-        throw new Error(`Gemini API returned status ${res.status}`);
+        throw new Error(`Gemini API (${modelToUse}) returned status ${res.status}`);
       }
 
       const data: any = await res.json();

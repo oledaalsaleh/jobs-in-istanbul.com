@@ -1,6 +1,9 @@
 import { Hono } from 'hono'
 import { FAVICON_BASE64 } from '../utils/logo-base64'
 import { ISTANBUL_DISTRICTS } from './public'
+import { safeQuery } from '../utils/db-helper'
+import { seededArticles } from './career-blog'
+import { getFallbackJobs, getFallbackCategories } from '../data/fallback-dataset'
 
 export const seoRouter = new Hono()
 
@@ -19,6 +22,25 @@ Sitemap: https://jobs-in-istanbul.com/sitemap.xml
 `;
   return c.text(robots)
 })
+
+// app-ads.txt handler (IAB Tech Lab specification)
+seoRouter.get('/app-ads.txt', (c) => {
+  const content = `google.com, pub-2220383290034920, DIRECT, f08c47fec0942fa0\n`;
+  return c.text(content, 200, {
+    'Content-Type': 'text/plain; charset=utf-8',
+    'Cache-Control': 'public, max-age=86400'
+  });
+})
+
+// ads.txt handler (web ads specification fallback)
+seoRouter.get('/ads.txt', (c) => {
+  const content = `google.com, pub-2220383290034920, DIRECT, f08c47fec0942fa0\n`;
+  return c.text(content, 200, {
+    'Content-Type': 'text/plain; charset=utf-8',
+    'Cache-Control': 'public, max-age=86400'
+  });
+})
+
 
 // sitemap.xml handler (Sitemap Index)
 seoRouter.get('/sitemap.xml', (c) => {
@@ -58,11 +80,19 @@ seoRouter.get('/sitemap-static.xml', async (c) => {
   const now = new Date().toISOString().split('T')[0];
 
   // Fetch all categories
-  const catRows = await db.prepare(
-    `SELECT slug FROM documents WHERE type_id = 'categories' AND status = 'published' AND is_published = 1`
-  ).all();
+  let categories: any[] = [];
+  try {
+    const catRows = await safeQuery(() => db.prepare(
+      `SELECT slug FROM documents WHERE type_id = 'categories' AND status = 'published' AND is_published = 1`
+    ).all());
+    categories = catRows?.results || [];
+  } catch (err) {
+    console.warn('Failed to load categories for sitemap-static, using fallback:', err);
+  }
 
-  const categories = catRows.results || [];
+  if (categories.length === 0) {
+    categories = getFallbackCategories().map(c => ({ slug: c.slug }));
+  }
 
   // Static routes
   const staticRoutes = [
@@ -83,6 +113,16 @@ seoRouter.get('/sitemap-static.xml', async (c) => {
     { ar: '/ar/work-permit-eligibility', en: '/en/work-permit-eligibility', tr: '/tr/work-permit-eligibility', ru: '/ru/work-permit-eligibility', fa: '/fa/work-permit-eligibility', ur: '/ur/work-permit-eligibility' },
     { ar: '/ar/investor-calculator', en: '/en/investor-calculator', tr: '/tr/investor-calculator', ru: '/ru/investor-calculator', fa: '/fa/investor-calculator', ur: '/ur/investor-calculator' },
     { ar: '/ar/salary-calculator-2026', en: '/en/salary-calculator-2026', tr: '/tr/salary-calculator-2026', ru: '/ru/salary-calculator-2026', fa: '/fa/salary-calculator-2026', ur: '/ur/salary-calculator-2026' },
+    { ar: '/ar/ai-job-matcher', en: '/en/ai-job-matcher', tr: '/tr/ai-job-matcher', ru: '/ru/ai-job-matcher', fa: '/fa/ai-job-matcher', ur: '/ur/ai-job-matcher' },
+    { ar: '/ar/jobs-for-arabs', en: '/en/jobs-for-arabs', tr: '/tr/jobs-for-arabs', ru: '/ru/jobs-for-arabs', fa: '/fa/jobs-for-arabs', ur: '/ur/jobs-for-arabs' },
+    { ar: '/ar/jobs-without-turkish', en: '/en/jobs-without-turkish', tr: '/tr/jobs-without-turkish', ru: '/ru/jobs-without-turkish', fa: '/fa/jobs-without-turkish', ur: '/ur/jobs-without-turkish' },
+    { ar: '/ar/entry-level-jobs', en: '/en/entry-level-jobs', tr: '/tr/entry-level-jobs', ru: '/ru/entry-level-jobs', fa: '/fa/entry-level-jobs', ur: '/ur/entry-level-jobs' },
+    { ar: '/ar/driver-jobs', en: '/en/driver-jobs', tr: '/tr/driver-jobs', ru: '/ru/driver-jobs', fa: '/fa/driver-jobs', ur: '/ur/driver-jobs' },
+    { ar: '/ar/restaurant-jobs', en: '/en/restaurant-jobs', tr: '/tr/restaurant-jobs', ru: '/ru/restaurant-jobs', fa: '/fa/restaurant-jobs', ur: '/ur/restaurant-jobs' },
+    { ar: '/ar/factory-jobs', en: '/en/factory-jobs', tr: '/tr/factory-jobs', ru: '/ru/factory-jobs', fa: '/fa/factory-jobs', ur: '/ur/factory-jobs' },
+    { ar: '/ar/call-center-jobs', en: '/en/call-center-jobs', tr: '/tr/call-center-jobs', ru: '/ru/call-center-jobs', fa: '/fa/call-center-jobs', ur: '/ur/call-center-jobs' },
+    { ar: '/ar/jobs-for-women', en: '/en/jobs-for-women', tr: '/tr/jobs-for-women', ru: '/ru/jobs-for-women', fa: '/fa/jobs-for-women', ur: '/ur/jobs-for-women' },
+    { ar: '/ar/student-jobs', en: '/en/student-jobs', tr: '/tr/student-jobs', ru: '/ru/student-jobs', fa: '/fa/student-jobs', ur: '/ur/student-jobs' },
     { ar: '/ar/insights', en: '/en/insights', tr: '/tr/insights', ru: '/ru/insights', fa: '/fa/insights', ur: '/ur/insights' },
     { ar: '/ar/about', en: '/en/about', tr: '/tr/about', ru: '/ru/about', fa: '/fa/about', ur: '/ur/about' },
     { ar: '/ar/contact', en: '/en/contact', tr: '/tr/contact', ru: '/ru/contact', fa: '/fa/contact', ur: '/ur/contact' },
@@ -151,15 +191,36 @@ seoRouter.get('/sitemap-static.xml', async (c) => {
 
 // sitemap-jobs.xml handler (Job posts)
 seoRouter.get('/sitemap-jobs.xml', async (c) => {
+  const cacheKv = (c.env as any)?.CACHE_KV;
+  if (cacheKv) {
+    try {
+      const cachedXml = await cacheKv.get('kv_sitemap_jobs_xml');
+      if (cachedXml) {
+        return c.body(cachedXml, 200, {
+          'Content-Type': 'application/xml; charset=utf-8',
+          'Cache-Control': 'public, max-age=86400'
+        });
+      }
+    } catch (e) {}
+  }
+
   const db = (c.env as any).DB;
   const siteUrl = 'https://jobs-in-istanbul.com';
 
   // Fetch all published jobs
-  const jobRows = await db.prepare(
-    `SELECT slug, updated_at FROM documents WHERE type_id = 'jobs' AND status = 'published' AND is_published = 1`
-  ).all();
+  let jobs: any[] = [];
+  try {
+    const jobRows = await safeQuery(() => db.prepare(
+      `SELECT slug, updated_at FROM documents WHERE type_id = 'jobs' AND status = 'published' AND is_published = 1`
+    ).all());
+    jobs = jobRows?.results || [];
+  } catch (err) {
+    console.warn('Failed to load jobs for sitemap-jobs, using fallback:', err);
+  }
 
-  const jobs = jobRows.results || [];
+  if (jobs.length === 0) {
+    jobs = getFallbackJobs().map(j => ({ slug: j.slug, updated_at: j.publishedAt || Date.now() }));
+  }
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -167,7 +228,7 @@ seoRouter.get('/sitemap-jobs.xml', async (c) => {
 
   // 3. Jobs
   for (const job of jobs) {
-    const jobDate = new Date(job.updated_at).toISOString().split('T')[0];
+    const jobDate = new Date(job.updated_at || Date.now()).toISOString().split('T')[0];
     const arUrl = `${siteUrl}/ar/jobs/${job.slug}`;
     const enUrl = `${siteUrl}/en/jobs/${job.slug}`;
     const trUrl = `${siteUrl}/tr/jobs/${job.slug}`;
@@ -195,9 +256,13 @@ seoRouter.get('/sitemap-jobs.xml', async (c) => {
   xml += `
 </urlset>`;
 
+  if (cacheKv) {
+    cacheKv.put('kv_sitemap_jobs_xml', xml, { expirationTtl: 21600 }).catch(() => {});
+  }
+
   return c.body(xml, 200, {
     'Content-Type': 'application/xml; charset=utf-8',
-    'Cache-Control': 'public, max-age=3600'
+    'Cache-Control': 'public, max-age=86400'
   });
 })
 
@@ -210,30 +275,18 @@ seoRouter.get('/sitemap-blog.xml', async (c) => {
   // Fetch all blog posts
   let blogs: any[] = [];
   try {
-    const blogRows = await db.prepare(
+    const blogRows = await safeQuery(() => db.prepare(
       `SELECT slug, updated_at FROM documents WHERE type_id = 'blog_post' AND status = 'published' AND is_published = 1`
-    ).all();
+    ).all());
     blogs = blogRows.results || [];
   } catch (err) {
     console.error('Sitemap: Failed to query blog posts:', err);
   }
 
   // 4. Blog Posts
-  const staticBlogSlugs = [
-    'nursing-jobs-in-istanbul-for-arabs-2026-guide',
-    'working-in-turkey-for-arab-women-2026-guide',
-    'jobs-in-turkey-for-egyptians-2026-guide',
-    'work-permit-turkey-syrians-arabs-2026-guide',
-    'sgk-health-insurance-turkey-workers',
-    'open-bank-account-turkey-foreigners',
-    'best-dental-implants-clinic-turkey',
-    'turkey-work-permit-residency-laws',
-    'optimize-resume-to-pass-ats-systems',
-    'avoid-istanbul-traffic-and-transportation-tips',
-    'turkey-minimum-wage-employer-cost-2026',
-    'jobs-in-istanbul-vacancies-weekly-update-july-2026',
-    'job-opportunities-istanbul-monthly-guide-2026'
-  ];
+  const staticBlogSlugs = Array.from(new Set(
+    Object.values(seededArticles).flatMap((articles: any[]) => articles.map(art => art.slug))
+  ));
   const allBlogSlugs = Array.from(new Set([
     ...staticBlogSlugs,
     ...blogs.map(b => b.slug)
@@ -254,7 +307,11 @@ seoRouter.get('/sitemap-blog.xml', async (c) => {
     const ruUrl = `${siteUrl}/ru/blog/${slug}`;
     const faUrl = `${siteUrl}/fa/blog/${slug}`;
     const urUrl = `${siteUrl}/ur/blog/${slug}`;
-    for (const url of [arUrl, enUrl, trUrl, ruUrl, faUrl, urUrl]) {
+    const idUrl = `${siteUrl}/id/blog/${slug}`;
+    const frUrl = `${siteUrl}/fr/blog/${slug}`;
+    const bnUrl = `${siteUrl}/bn/blog/${slug}`;
+    const deUrl = `${siteUrl}/de/blog/${slug}`;
+    for (const url of [arUrl, enUrl, trUrl, ruUrl, faUrl, urUrl, idUrl, frUrl, bnUrl, deUrl]) {
       xml += `
   <url>
     <loc>${url}</loc>
@@ -267,6 +324,10 @@ seoRouter.get('/sitemap-blog.xml', async (c) => {
     <xhtml:link rel="alternate" hreflang="ru" href="${ruUrl}" />
     <xhtml:link rel="alternate" hreflang="fa" href="${faUrl}" />
     <xhtml:link rel="alternate" hreflang="ur" href="${urUrl}" />
+    <xhtml:link rel="alternate" hreflang="id" href="${idUrl}" />
+    <xhtml:link rel="alternate" hreflang="fr" href="${frUrl}" />
+    <xhtml:link rel="alternate" hreflang="bn" href="${bnUrl}" />
+    <xhtml:link rel="alternate" hreflang="de" href="${deUrl}" />
     <xhtml:link rel="alternate" hreflang="x-default" href="${enUrl}" />
   </url>`;
     }
@@ -286,12 +347,18 @@ seoRouter.get('/rss.xml', async (c) => {
   const db = (c.env as any).DB;
   const siteUrl = 'https://jobs-in-istanbul.com';
 
-  const jobRows = await db.prepare(
-    `SELECT j.id, j.slug, j.data, j.published_at
-     FROM documents j
-     WHERE j.type_id = 'jobs' AND j.status = 'published' AND j.is_published = 1
-     ORDER BY j.published_at DESC LIMIT 30`
-  ).all();
+  let jobsList: any[] = [];
+  try {
+    const jobRows = await safeQuery(() => db.prepare(
+      `SELECT j.id, j.slug, j.data, j.published_at
+       FROM documents j
+       WHERE j.type_id = 'jobs' AND j.status = 'published' AND j.is_published = 1
+       ORDER BY j.published_at DESC LIMIT 30`
+    ).all());
+    jobsList = jobRows.results || [];
+  } catch (err) {
+    console.error('RSS: Failed to query jobs:', err);
+  }
 
   let rss = `<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
@@ -303,7 +370,7 @@ seoRouter.get('/rss.xml', async (c) => {
   <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
   <atom:link href="${siteUrl}/rss.xml" rel="self" type="application/rss+xml" />`;
 
-  for (const row of jobRows.results || []) {
+  for (const row of jobsList) {
     const job = JSON.parse(row.data);
     const pubDate = new Date(row.published_at).toUTCString();
 
@@ -437,7 +504,7 @@ self.addEventListener('fetch', (event) => {
   });
 })
 
-// PWA Icons handler
+// PWA Icons handler with automatic R2 backfill
 const serveIcon = async (c: any) => {
   const env: any = c.env;
   try {
@@ -446,7 +513,12 @@ const serveIcon = async (c: any) => {
       const path = c.req.path.slice(1); // e.g. "icon-192.png"
       let object = await bucket.get(`public/images/${path}`);
       if (!object) {
-        object = await bucket.get('public/images/logo.png');
+        // Backfill the PWA icon to R2 using the built-in logo fallback
+        const logoBuffer = Buffer.from(FAVICON_BASE64, 'base64');
+        await bucket.put(`public/images/${path}`, logoBuffer, {
+          httpMetadata: { contentType: 'image/png' }
+        });
+        object = await bucket.get(`public/images/${path}`);
       }
 
       if (object) {
@@ -516,7 +588,7 @@ seoRouter.get('/sitemap-districts.xml', (c) => {
 seoRouter.get('/:key{[a-zA-Z0-9_-]+\\.txt}', (c) => {
   const keyParam = c.req.param('key').replace('.txt', '');
   const envKey = (c.env as any).INDEXNOW_KEY || 'jobs-istanbul-indexnow-2026-key';
-  
+
   if (keyParam === envKey || keyParam.startsWith('jobs-istanbul-indexnow')) {
     return c.text(envKey, 200, {
       'Content-Type': 'text/plain; charset=utf-8'

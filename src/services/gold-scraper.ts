@@ -159,21 +159,38 @@ Return ONLY a valid JSON object matching the following structure. Do not wrap it
     updatedAt: nowMs
   };
 
-  const existing = await env.DB.prepare(
-    `SELECT id FROM documents WHERE type_id = 'site_settings' AND id = ?`
-  ).bind(docId).first();
-
-  if (existing) {
-    await env.DB.prepare(
-      `UPDATE documents SET title = ?, data = ?, updated_at = ? WHERE id = ? AND type_id = 'site_settings'`
-    ).bind(title, JSON.stringify(dataObj), nowMs, docId).run();
-  } else {
-    await env.DB.prepare(
-      `INSERT INTO documents (id, root_id, type_id, status, is_published, is_current_draft, slug, title, data, published_at, created_at, updated_at)
-       VALUES (?, ?, 'site_settings', 'published', 1, 1, ?, ?, ?, ?, ?, ?)`
-    ).bind(docId, docId, slug, title, JSON.stringify(dataObj), nowMs, nowMs, nowMs).run();
+  // 1. Always save to CACHE_KV for ultra-fast, high-availability access
+  if (env.CACHE_KV) {
+    try {
+      await env.CACHE_KV.put('kv_gold_prices', JSON.stringify(dataObj));
+      console.log('✓ Successfully stored gold prices in CACHE_KV.');
+    } catch (kvErr) {
+      console.warn('Failed to store gold prices in CACHE_KV:', kvErr);
+    }
   }
 
-  console.log('✓ Successfully stored gold prices and advice in DB.');
+  // 2. Persist to D1 DB if available
+  if (env.DB) {
+    try {
+      const existing = await env.DB.prepare(
+        `SELECT id FROM documents WHERE type_id = 'site_settings' AND id = ?`
+      ).bind(docId).first();
+
+      if (existing) {
+        await env.DB.prepare(
+          `UPDATE documents SET title = ?, data = ?, updated_at = ? WHERE id = ? AND type_id = 'site_settings'`
+        ).bind(title, JSON.stringify(dataObj), nowMs, docId).run();
+      } else {
+        await env.DB.prepare(
+          `INSERT INTO documents (id, root_id, type_id, status, is_published, is_current_draft, slug, title, data, published_at, created_at, updated_at)
+           VALUES (?, ?, 'site_settings', 'published', 1, 1, ?, ?, ?, ?, ?, ?)`
+        ).bind(docId, docId, slug, title, JSON.stringify(dataObj), nowMs, nowMs, nowMs).run();
+      }
+      console.log('✓ Successfully stored gold prices and advice in DB.');
+    } catch (dbErr) {
+      console.warn('Failed to persist gold prices to D1 DB (will rely on CACHE_KV):', dbErr);
+    }
+  }
+
   return goldItems;
 }
