@@ -138,6 +138,17 @@ app.route('/', insightsRouter)
 app.route('/', currencyPricesRouter)
 app.route('/', goldPricesRouter)
 
+// Helper: Global HTTP Security Headers for comprehensive hardening
+function applySecurityHeaders(headers: Headers): Headers {
+  if (!headers.has('X-Content-Type-Options')) headers.set('X-Content-Type-Options', 'nosniff');
+  if (!headers.has('X-Frame-Options')) headers.set('X-Frame-Options', 'SAMEORIGIN');
+  if (!headers.has('Referrer-Policy')) headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  if (!headers.has('Permissions-Policy')) headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  if (!headers.has('Strict-Transport-Security')) headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  if (!headers.has('X-XSS-Protection')) headers.set('X-XSS-Protection', '1; mode=block');
+  return headers;
+}
+
 // Export the application for both HTTP requests (fetch) and Cron triggers (scheduled)
 export default {
   async fetch(request: Request, env: any, ctx: any) {
@@ -229,6 +240,7 @@ export default {
         if (cachedResponse) {
           const hitHeaders = new Headers(cachedResponse.headers);
           hitHeaders.set('X-Edge-Cache', 'HIT');
+          applySecurityHeaders(hitHeaders);
           return new Response(cachedResponse.body, {
             status: cachedResponse.status,
             statusText: cachedResponse.statusText,
@@ -269,6 +281,7 @@ export default {
           // Edge cache for 2 hours (s-maxage=7200), browser cache for 5 minutes, stale revalidation for 24h
           cacheHeaders.set('Cache-Control', 'public, max-age=300, s-maxage=7200, stale-while-revalidate=86400');
           cacheHeaders.set('X-Edge-Cache', 'MISS');
+          applySecurityHeaders(cacheHeaders);
 
           const responseToCache = new Response(response.clone().body, {
             status: response.status,
@@ -284,7 +297,15 @@ export default {
       }
     }
 
-    return response;
+    // Apply security headers to non-cached responses
+    const secureHeaders = new Headers(response.headers);
+    applySecurityHeaders(secureHeaders);
+
+    return new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: secureHeaders
+    });
   },
   async scheduled(_event: any, env: any, ctx: any) {
     ctx.waitUntil((async () => {

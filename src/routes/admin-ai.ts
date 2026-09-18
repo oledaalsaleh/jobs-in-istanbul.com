@@ -1,14 +1,14 @@
 import { Hono } from 'hono'
+import { rateLimiter } from '../middleware/security'
 
 export const adminAiRouter = new Hono()
 
-adminAiRouter.post('/api/admin/process-ai', async (c) => {
+adminAiRouter.post('/api/admin/process-ai', rateLimiter(5, 5), async (c) => {
   const env: any = c.env;
   
   // Basic security check: ensure an Admin API Key is provided
-  // We can use the JWT_SECRET from env as a makeshift API key for this custom route
   const authHeader = c.req.header('Authorization');
-  if (authHeader !== `Bearer ${env.JWT_SECRET}`) {
+  if (!authHeader || authHeader !== `Bearer ${env.JWT_SECRET}`) {
     return c.json({ error: 'Unauthorized' }, 401);
   }
 

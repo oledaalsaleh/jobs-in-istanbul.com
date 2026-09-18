@@ -5,16 +5,17 @@ import { optimizeSeoWithGemini } from '../services/gemini-seo';
 import { runCurrencyScraper } from '../services/currency-scraper';
 import { runGoldScraper } from '../services/gold-scraper';
 import { sendTelegramAlert } from '../services/telegram';
+import { rateLimiter } from '../middleware/security';
 
 export const scraperRouter = new Hono();
 
 // Secure admin endpoint to manually trigger a scrape cycle
-scraperRouter.post('/api/admin/trigger-scrape', async (c) => {
+scraperRouter.post('/api/admin/trigger-scrape', rateLimiter(5, 5), async (c) => {
   const env: any = c.env;
   
   // Basic security check: ensure an Admin API Key is provided via JWT_SECRET Bearer token
   const authHeader = c.req.header('Authorization');
-  if (authHeader !== `Bearer ${env.JWT_SECRET}`) {
+  if (!authHeader || authHeader !== `Bearer ${env.JWT_SECRET}`) {
     return c.json({ error: 'Unauthorized' }, 401);
   }
 
@@ -65,9 +66,10 @@ scraperRouter.post('/api/admin/trigger-scrape', async (c) => {
 // Unified Admin API endpoint to trigger synchronization for currencies, gold, and jobs
 const handleSyncAll = async (c: any) => {
   const env: any = c.env;
-  const token = c.req.query('secret') || c.req.header('Authorization')?.replace('Bearer ', '');
-  if (token !== env.JWT_SECRET && token !== 'secure-sync-istanbul-2026') {
-    return c.json({ error: 'Unauthorized' }, 401);
+  const token = (c.req.query('secret') || c.req.header('Authorization')?.replace('Bearer ', '') || '').trim();
+  const validSecret = env.JWT_SECRET || env.ADMIN_SYNC_SECRET;
+  if (!token || !validSecret || token !== validSecret) {
+    return c.json({ error: 'Unauthorized. Valid secret required.' }, 401);
   }
 
   const results: any = { timestamp: new Date().toISOString() };
@@ -139,15 +141,16 @@ const handleSyncAll = async (c: any) => {
   return c.json({ success: true, syncResults: results });
 };
 
-scraperRouter.get('/admin-api/sync-all', handleSyncAll);
-scraperRouter.post('/admin-api/sync-all', handleSyncAll);
+scraperRouter.get('/admin-api/sync-all', rateLimiter(5, 5), handleSyncAll);
+scraperRouter.post('/admin-api/sync-all', rateLimiter(5, 5), handleSyncAll);
 
 // Dedicated Admin API endpoint to trigger job scraping and publishing
 const handleRefreshJobs = async (c: any) => {
   const env: any = c.env;
-  const token = c.req.query('secret') || c.req.header('Authorization')?.replace('Bearer ', '');
-  if (token && token !== env.JWT_SECRET && token !== 'secure-sync-istanbul-2026') {
-    return c.json({ error: 'Unauthorized' }, 401);
+  const token = (c.req.query('secret') || c.req.header('Authorization')?.replace('Bearer ', '') || '').trim();
+  const validSecret = env.JWT_SECRET || env.ADMIN_SYNC_SECRET;
+  if (!token || !validSecret || token !== validSecret) {
+    return c.json({ error: 'Unauthorized. Valid secret required.' }, 401);
   }
 
   const limitQuery = c.req.query('limit');
@@ -210,11 +213,11 @@ const handleRefreshJobs = async (c: any) => {
   });
 };
 
-scraperRouter.get('/admin-api/refresh-jobs', handleRefreshJobs);
-scraperRouter.post('/admin-api/refresh-jobs', handleRefreshJobs);
+scraperRouter.get('/admin-api/refresh-jobs', rateLimiter(5, 5), handleRefreshJobs);
+scraperRouter.post('/admin-api/refresh-jobs', rateLimiter(5, 5), handleRefreshJobs);
 
 // Secure admin endpoint to manually trigger a currency scrape cycle
-scraperRouter.post('/api/admin/trigger-currency-scrape', async (c) => {
+scraperRouter.post('/api/admin/trigger-currency-scrape', rateLimiter(5, 5), async (c) => {
   const env: any = c.env;
   
   const authHeader = c.req.header('Authorization');
@@ -245,7 +248,7 @@ scraperRouter.post('/api/admin/trigger-currency-scrape', async (c) => {
 });
 
 // Secure admin endpoint to manually trigger a gold scrape cycle
-scraperRouter.post('/api/admin/trigger-gold-scrape', async (c) => {
+scraperRouter.post('/api/admin/trigger-gold-scrape', rateLimiter(5, 5), async (c) => {
   const env: any = c.env;
   
   const authHeader = c.req.header('Authorization');
@@ -276,7 +279,7 @@ scraperRouter.post('/api/admin/trigger-gold-scrape', async (c) => {
 });
 
 // Secure admin endpoint to optimize all jobs using Gemini AI
-scraperRouter.post('/api/admin/optimize-all-jobs-seo', async (c) => {
+scraperRouter.post('/api/admin/optimize-all-jobs-seo', rateLimiter(5, 5), async (c) => {
   const env: any = c.env;
 
   // Basic security check
@@ -571,8 +574,8 @@ const handleAutoPublishJob = async (c: any) => {
   }
 };
 
-// Mount auto-publish routes
-scraperRouter.post('/api/jobs/auto-publish', handleAutoPublishJob);
-scraperRouter.post('/api/admin/auto-publish-job', handleAutoPublishJob);
+// Mount auto-publish routes with strict rate-limiting
+scraperRouter.post('/api/jobs/auto-publish', rateLimiter(10, 5), handleAutoPublishJob);
+scraperRouter.post('/api/admin/auto-publish-job', rateLimiter(10, 5), handleAutoPublishJob);
 
 
