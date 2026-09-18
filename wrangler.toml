@@ -2,6 +2,7 @@ name = "jobs-in-istanbul"
 main = "src/index.ts"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
+account_id = "622b6eab87c2f1c07ce8e52fad9ab81e"
 
 # Cloudflare Workers settings
 workers_dev = true
