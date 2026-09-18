@@ -68,7 +68,10 @@ app.onError((err, c) => {
   if (
     errMsg.includes('D1_ERROR') || 
     errMsg.includes('SQLITE_BUSY') || 
-    errMsg.includes('database is locked')
+    errMsg.includes('database is locked') ||
+    errMsg.includes('exceeded D1') ||
+    errMsg.includes('daily row read limit') ||
+    errMsg.includes('7500')
   ) {
     return c.html(`
       <!DOCTYPE html>
@@ -196,7 +199,92 @@ export default {
       }
       return Response.redirect(`${url.origin}/ar`, 302);
     }
-    return app.fetch(request, env, ctx);
+
+    // --- High-Performance Cloudflare Edge Caching Layer ---
+    // Protects D1 database from hitting row read limits by serving public pages from Edge
+    const isGetOrHead = request.method === 'GET' || request.method === 'HEAD';
+    const isPublicRoute = isGetOrHead &&
+      !url.pathname.startsWith('/admin') &&
+      !url.pathname.startsWith('/api/') &&
+      !url.pathname.startsWith('/candidate') &&
+      !url.pathname.startsWith('/employer') &&
+      !url.pathname.startsWith('/auth');
+
+    // In Cloudflare Workers, caches.default represents the global zone cache
+    const edgeCache = (typeof caches !== 'undefined' && (caches as any).default) ? (caches as any).default : null;
+    const hasAuthHeader = request.headers.has('Authorization');
+    const isCacheEligible = isPublicRoute && !hasAuthHeader && !url.searchParams.has('nocache');
+
+    // Build unique cache key URL
+    const cacheKey = isCacheEligible ? new Request(url.toString(), {
+      method: 'GET',
+      headers: {
+        'Accept': request.headers.get('Accept') || 'text/html,*/*'
+      }
+    }) : null;
+
+    if (isCacheEligible && edgeCache && cacheKey) {
+      try {
+        const cachedResponse = await edgeCache.match(cacheKey);
+        if (cachedResponse) {
+          const hitHeaders = new Headers(cachedResponse.headers);
+          hitHeaders.set('X-Edge-Cache', 'HIT');
+          return new Response(cachedResponse.body, {
+            status: cachedResponse.status,
+            statusText: cachedResponse.statusText,
+            headers: hitHeaders
+          });
+        }
+      } catch (cacheMatchErr) {
+        console.warn('[EDGE CACHE MATCH ERROR]', cacheMatchErr);
+      }
+    }
+
+    let response: Response;
+    try {
+      response = await app.fetch(request, env, ctx);
+    } catch (fetchErr: any) {
+      console.error('[WORKER FETCH ERROR]', fetchErr);
+      return new Response('Temporary Server Update in Progress. Please reload in a moment.', {
+        status: 500,
+        headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+      });
+    }
+
+    // Store successful public responses in Cloudflare Edge Cache
+    if (isCacheEligible && edgeCache && cacheKey && response && response.status === 200) {
+      const contentType = response.headers.get('content-type') || '';
+      const isContentCacheable =
+        contentType.includes('text/html') ||
+        contentType.includes('application/xml') ||
+        contentType.includes('text/xml') ||
+        contentType.includes('application/json') ||
+        contentType.includes('text/plain');
+
+      if (isContentCacheable) {
+        try {
+          const cacheHeaders = new Headers(response.headers);
+          // Strip set-cookie so Cloudflare Edge doesn't treat public pages as private sessions
+          cacheHeaders.delete('set-cookie');
+          // Edge cache for 2 hours (s-maxage=7200), browser cache for 5 minutes, stale revalidation for 24h
+          cacheHeaders.set('Cache-Control', 'public, max-age=300, s-maxage=7200, stale-while-revalidate=86400');
+          cacheHeaders.set('X-Edge-Cache', 'MISS');
+
+          const responseToCache = new Response(response.clone().body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: cacheHeaders
+          });
+
+          ctx.waitUntil(edgeCache.put(cacheKey, responseToCache.clone()));
+          return responseToCache;
+        } catch (cachePutErr) {
+          console.warn('[EDGE CACHE PUT ERROR]', cachePutErr);
+        }
+      }
+    }
+
+    return response;
   },
   async scheduled(_event: any, env: any, ctx: any) {
     ctx.waitUntil((async () => {

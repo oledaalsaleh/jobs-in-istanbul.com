@@ -70,9 +70,9 @@ enabled = true
 binding = "AI"
 
 [triggers]
-crons = ["*/30 * * * *"]
+crons = ["0 */4 * * *"]
 
 [env.production.triggers]
-crons = ["*/30 * * * *"]
+crons = ["0 */4 * * *"]
 
 
