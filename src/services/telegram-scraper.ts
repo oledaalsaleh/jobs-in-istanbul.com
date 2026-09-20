@@ -2,6 +2,7 @@ import type { D1Database } from '@cloudflare/workers-types';
 import { analyzeJobUnified, saveJobToDb, cleanHtml } from './scraper';
 import { sendTelegramAlert } from './telegram';
 import { sendFcmJobNotification } from './fcm';
+import { autoIndexAndNotifyJob } from './auto-indexing';
 
 /**
  * Scrapes job postings from the public Telegram channel preview https://t.me/s/jobsintr
@@ -275,17 +276,18 @@ export async function runTelegramScraper(
             }
           }
 
-          // Push Notification to Android App via FCM
+          // Autonomous Search Engine Indexing (Google Indexing API, IndexNow, Sitemap Ping) & FCM Push
           try {
-            await sendFcmJobNotification(env, {
+            await autoIndexAndNotifyJob(env, {
               id: jobId,
               title: jobJson.title_ar || jobJson.title_en || 'وظيفة شاغرة جديدة في إسطنبول',
               companyName: jobJson.company_name,
               location: jobJson.location_ar || jobJson.location_en,
               slug
             });
-          } catch (fcmErr) {
-            console.warn('[FCM PUSH ERROR]', fcmErr);
+            details.push(`[AUTO-INDEX] Broadcast to Google & Bing IndexNow for "${slug}".`);
+          } catch (autoIndexErr) {
+            console.warn('[AUTO-INDEX ERROR]', autoIndexErr);
           }
 
           // Mark Telegram post as processed

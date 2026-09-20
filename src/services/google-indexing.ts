@@ -23,10 +23,14 @@ export async function notifyGoogleIndexing(env: any, jobSlug: string): Promise<b
     const jwt = await generateGoogleJwt(privateKey, clientEmail);
     const accessToken = await fetchAccessToken(jwt);
     
-    // We send indexing alerts for both Arabic and English URL paths
+    // Send indexing alerts for all supported website language URL paths
     const urls = [
       `https://jobs-in-istanbul.com/ar/jobs/${jobSlug}`,
-      `https://jobs-in-istanbul.com/en/jobs/${jobSlug}`
+      `https://jobs-in-istanbul.com/en/jobs/${jobSlug}`,
+      `https://jobs-in-istanbul.com/tr/jobs/${jobSlug}`,
+      `https://jobs-in-istanbul.com/ru/jobs/${jobSlug}`,
+      `https://jobs-in-istanbul.com/fa/jobs/${jobSlug}`,
+      `https://jobs-in-istanbul.com/ur/jobs/${jobSlug}`
     ];
 
     for (const url of urls) {

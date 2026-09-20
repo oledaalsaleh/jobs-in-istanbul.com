@@ -6,6 +6,7 @@ import { runCurrencyScraper } from '../services/currency-scraper';
 import { runGoldScraper } from '../services/gold-scraper';
 import { sendTelegramAlert } from '../services/telegram';
 import { sendFcmJobNotification } from '../services/fcm';
+import { autoIndexUnindexedJobs, pingSearchEngineSitemaps } from '../services/auto-indexing';
 import { rateLimiter } from '../middleware/security';
 
 export const scraperRouter = new Hono();
@@ -139,11 +140,49 @@ const handleSyncAll = async (c: any) => {
     results.telegramJobs = { success: false, error: err.message };
   }
 
+  // 4. Auto-Indexing catch-up (Google Indexing API, IndexNow, Sitemap Pings)
+  try {
+    const indexRes = await autoIndexUnindexedJobs(env, 10);
+    results.indexing = { success: true, ...indexRes };
+  } catch (err: any) {
+    results.indexing = { success: false, error: err.message };
+  }
+
   return c.json({ success: true, syncResults: results });
 };
 
 scraperRouter.get('/admin-api/sync-all', rateLimiter(5, 5), handleSyncAll);
 scraperRouter.post('/admin-api/sync-all', rateLimiter(5, 5), handleSyncAll);
+
+// Dedicated Admin API endpoint to trigger search engine auto-indexing
+const handleTriggerIndexing = async (c: any) => {
+  const env: any = c.env;
+  const token = (c.req.query('secret') || c.req.header('Authorization')?.replace('Bearer ', '') || '').trim();
+  const validSecret = env.JWT_SECRET || env.ADMIN_SYNC_SECRET;
+  if (!token || !validSecret || token !== validSecret) {
+    return c.json({ error: 'Unauthorized. Valid secret required.' }, 401);
+  }
+
+  const limitQuery = c.req.query('limit');
+  const limit = limitQuery ? parseInt(limitQuery, 10) : 15;
+
+  try {
+    const indexRes = await autoIndexUnindexedJobs(env, limit);
+    const sitemapRes = await pingSearchEngineSitemaps();
+    return c.json({
+      success: true,
+      timestamp: new Date().toISOString(),
+      indexing: indexRes,
+      sitemapPings: sitemapRes
+    });
+  } catch (err: any) {
+    return c.json({ success: false, error: err.message }, 500);
+  }
+};
+
+scraperRouter.get('/admin-api/trigger-indexing', rateLimiter(5, 5), handleTriggerIndexing);
+scraperRouter.post('/admin-api/trigger-indexing', rateLimiter(5, 5), handleTriggerIndexing);
+scraperRouter.post('/api/admin/trigger-indexing', rateLimiter(5, 5), handleTriggerIndexing);
 
 // Dedicated Admin API endpoint to trigger job scraping and publishing
 const handleRefreshJobs = async (c: any) => {

@@ -1,7 +1,7 @@
 import type { D1Database } from '@cloudflare/workers-types';
 import { optimizeSeoWithGemini } from './gemini-seo';
 import { sendTelegramAlert } from './telegram';
-import { sendFcmJobNotification } from './fcm';
+import { autoIndexAndNotifyJob } from './auto-indexing';
 
 export interface ScrapedJobData {
   title_ar: string;
@@ -979,17 +979,18 @@ export async function runScraper(
           }
         }
 
-        // Push Notification to Android App via FCM
+        // Autonomous Search Engine Indexing (Google Indexing API, IndexNow Bing/Yandex, Sitemap Ping)
         try {
-          await sendFcmJobNotification(env, {
+          await autoIndexAndNotifyJob(env, {
             id: jobId,
             title: jobJson.title_ar || jobJson.title_en || 'وظيفة شاغرة جديدة في إسطنبول',
             companyName: jobJson.company_name,
             location: jobJson.location_ar || jobJson.location_en,
             slug
           });
-        } catch (fcmErr) {
-          console.warn('[FCM PUSH ERROR]', fcmErr);
+          details.push(`[AUTO-INDEX] Broadcast to Google Indexing API & IndexNow for "${slug}".`);
+        } catch (autoIndexErr) {
+          console.warn('[AUTO-INDEX ERROR]', autoIndexErr);
         }
 
         // If published, update metadata in D1

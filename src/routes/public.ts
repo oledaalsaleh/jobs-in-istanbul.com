@@ -8,7 +8,7 @@ import { sendTelegramAlert } from '../services/telegram'
 import { assignJobImage } from '../services/scraper'
 import { optimizeSeoWithGemini } from '../services/gemini-seo'
 import { FAVICON_BASE64 } from '../utils/logo-base64'
-import { notifyGoogleIndexing } from '../services/google-indexing'
+import { autoIndexAndNotifyJob } from '../services/auto-indexing'
 import { 
   getFallbackJobs, 
   getFallbackCategories, 
@@ -3941,16 +3941,26 @@ publicRouter.post(
           )
         );
         c.executionCtx.waitUntil(
-          notifyGoogleIndexing(c.env, slug).catch((err) =>
-            console.error('Google Indexing async dispatch error:', err)
+          autoIndexAndNotifyJob(c.env, {
+            slug,
+            title: data.title,
+            companyName: data.company,
+            location: data.location
+          }).catch((err) =>
+            console.error('Auto Indexing async dispatch error:', err)
           )
         );
       } else {
         sendTelegramAlert(c.env, data.title, data.company, data.location, slug).catch((err) =>
           console.error('Telegram alert fallback error:', err)
         );
-        notifyGoogleIndexing(c.env, slug).catch((err) =>
-          console.error('Google Indexing fallback error:', err)
+        autoIndexAndNotifyJob(c.env, {
+          slug,
+          title: data.title,
+          companyName: data.company,
+          location: data.location
+        }).catch((err) =>
+          console.error('Auto Indexing fallback error:', err)
         );
       }
 

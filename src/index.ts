@@ -126,6 +126,7 @@ import { optimizeSeoWithGemini } from './services/gemini-seo'
 import { runCurrencyScraper } from './services/currency-scraper'
 import { runGoldScraper } from './services/gold-scraper'
 import { sendFcmRatesNotification } from './services/fcm'
+import { autoIndexUnindexedJobs } from './services/auto-indexing'
 
 // Mount routes
 app.route('/', publicRouter)
@@ -502,6 +503,18 @@ export default {
         } catch (seoErr) {
           console.error('[CRON SEO] Auto SEO Optimizer execution error:', seoErr);
         }
+      }
+
+      // ----------------------------------------------------
+      // 6. Autonomous Search Engine Auto-Indexing Engine
+      // (Google Indexing API, IndexNow Bing/Yandex, Sitemap Pings)
+      // ----------------------------------------------------
+      try {
+        console.log('[CRON AUTO-INDEX] Running Autonomous Search Engine Indexing...');
+        const indexResult = await autoIndexUnindexedJobs(env, 15);
+        console.log(`[CRON AUTO-INDEX] Catch-up finished: ${indexResult.processed} processed, ${indexResult.indexed} submitted.`);
+      } catch (autoIndexErr) {
+        console.error('[CRON AUTO-INDEX] Error running autonomous indexing:', autoIndexErr);
       }
 
       console.log('[CRON] Scheduled execution cycle finished successfully.');
