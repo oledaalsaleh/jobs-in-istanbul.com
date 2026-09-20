@@ -5015,7 +5015,8 @@ export const seededArticles: Record<string, any[]> = {
 };
 
 // Helper to extract first image
-function extractFirstImage(content: string): string {
+function extractFirstImage(content: string, article?: any): string {
+  if (article && article.image) return article.image;
   if (!content) return 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=800&fm=webp';
   const match = content.match(/<img[^>]+src=["']([^"']+)["']/i);
   return match ? match[1] : 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=800&fm=webp';
@@ -5573,7 +5574,7 @@ careerBlogRouter.get('/:locale/blog', async (c) => {
     </div>
   `;
 
-  const featuredImg = extractFirstImage(featured.content);
+  const featuredImg = extractFirstImage(featured.content, featured);
   const featuredCat = getCategory(featured.slug, locale);
   const featuredTime = getReadingTime(featured.content, locale);
   const featuredCleanSummary = featured.summary || featured.content.replace(/<[^>]*>/g, '').substring(0, 180).trim() + '...';
@@ -5600,7 +5601,7 @@ careerBlogRouter.get('/:locale/blog', async (c) => {
   `;
 
   const listHtml = restOfArticles.map((art: any) => {
-    const img = extractFirstImage(art.content);
+    const img = extractFirstImage(art.content, art);
     const cat = getCategory(art.slug, locale);
     const time = getReadingTime(art.content, locale);
     const cleanSummary = art.summary || art.content.replace(/<[^>]*>/g, '').substring(0, 120).trim() + '...';
@@ -5849,7 +5850,7 @@ careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
 
   const suggestedCardsHtml = otherArticles.map((art: any) => {
     const artContent = art.content || '';
-    const img = extractFirstImage(artContent);
+    const img = extractFirstImage(artContent, art);
     const category = getCategory(art.slug, locale);
     const time = getReadingTime(artContent, locale);
     const cleanSummary = art.summary || (artContent ? artContent.replace(/<[^>]*>/g, '').substring(0, 100).trim() + '...' : '');
@@ -6073,10 +6074,12 @@ careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
   `;
 
   const cleanSummary = article.summary || article.content.substring(0, 160).replace(/<[^>]*>/g, '');
+  const articleImg = article.image || extractFirstImage(article.content, article);
   const seoHtml = generateMetaTags(locale, 'blog_post', {
     title: article.title,
     description: cleanSummary,
     slug: article.slug,
+    image: articleImg,
     publishedAt: new Date(article.publishedAt).getTime(),
     updatedAt: article.updatedAt ? new Date(article.updatedAt).getTime() : Date.now(),
     canonical: article.canonical || `https://jobs-in-istanbul.com/${locale}/blog/${article.slug}`,
@@ -6084,6 +6087,7 @@ careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
     title: article.title,
     description: cleanSummary,
     slug: article.slug,
+    image: articleImg,
     publishedAt: new Date(article.publishedAt).getTime(),
     updatedAt: article.updatedAt ? new Date(article.updatedAt).getTime() : Date.now(),
     faqs: article.faqs || [],
