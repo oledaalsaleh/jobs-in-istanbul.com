@@ -140,6 +140,7 @@ app.route('/', careerBlogRouter)
 app.route('/', insightsRouter)
 app.route('/', currencyPricesRouter)
 app.route('/', goldPricesRouter)
+app.route('/', mobileApiRouter)
 
 // Helper: Global HTTP Security Headers for comprehensive hardening
 function applySecurityHeaders(headers: Headers): Headers {
@@ -159,11 +160,13 @@ export default {
 
     // Direct Mobile REST API dispatch (high-speed Hono execution, bypasses CMS collection catch-all)
     if (
+      url.pathname.startsWith('/api/mobile/') ||
       url.pathname.startsWith('/api/v1/') ||
       url.pathname === '/api/currencies' ||
       url.pathname === '/api/gold' ||
       url.pathname === '/api/jobs' ||
       url.pathname === '/api/feed' ||
+      url.pathname === '/api/config' ||
       url.pathname.startsWith('/api/jobs/') ||
       url.pathname.startsWith('/api/notifications/')
     ) {

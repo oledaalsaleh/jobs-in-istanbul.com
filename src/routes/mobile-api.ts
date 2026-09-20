@@ -559,23 +559,56 @@ async function handleBroadcast(c: Context) {
   }
 }
 
+const handleConfig = async (c: Context) => {
+  return c.json({
+    success: true,
+    app: {
+      name: 'Jobs in Istanbul',
+      packageName: 'com.jobsistanbul.app',
+      version: '1.0.0',
+      buildNumber: 1,
+      playStoreUrl: 'https://play.google.com/store/apps/details?id=com.jobsistanbul.app',
+      supportedLanguages: ['ar', 'en', 'tr', 'ru', 'fa', 'ur'],
+      defaultLanguage: 'ar',
+      features: {
+        currencyPrices: true,
+        goldPrices: true,
+        osbMap: true,
+        dilekceGenerator: true,
+        turkishVocabulary: true,
+        digitalBusinessCard: true
+      }
+    }
+  });
+};
+
 // ----------------------------------------------------
-// Register Routes for both /api/v1/... and /api/...
+// Register Routes for /api/v1/..., /api/..., and /api/mobile/...
 // ----------------------------------------------------
 mobileApiRouter.get('/api/v1/currencies', handleCurrencies);
 mobileApiRouter.get('/api/currencies', handleCurrencies);
+mobileApiRouter.get('/api/mobile/currencies', handleCurrencies);
 
 mobileApiRouter.get('/api/v1/gold', handleGold);
 mobileApiRouter.get('/api/gold', handleGold);
+mobileApiRouter.get('/api/mobile/gold', handleGold);
 
 mobileApiRouter.get('/api/v1/jobs', handleJobs);
 mobileApiRouter.get('/api/jobs', handleJobs);
+mobileApiRouter.get('/api/mobile/jobs', handleJobs);
 
 mobileApiRouter.get('/api/v1/jobs/:idOrSlug', handleJobDetail);
 mobileApiRouter.get('/api/jobs/:idOrSlug', handleJobDetail);
+mobileApiRouter.get('/api/mobile/jobs/:idOrSlug', handleJobDetail);
 
 mobileApiRouter.get('/api/v1/feed', handleFeed);
 mobileApiRouter.get('/api/feed', handleFeed);
+mobileApiRouter.get('/api/mobile/feed', handleFeed);
+
+mobileApiRouter.get('/api/v1/config', handleConfig);
+mobileApiRouter.get('/api/config', handleConfig);
+mobileApiRouter.get('/api/mobile/config', handleConfig);
 
 mobileApiRouter.post('/api/v1/notifications/broadcast', handleBroadcast);
 mobileApiRouter.post('/api/notifications/broadcast', handleBroadcast);
+mobileApiRouter.post('/api/mobile/notifications/broadcast', handleBroadcast);
