@@ -5,6 +5,7 @@ import { optimizeSeoWithGemini } from '../services/gemini-seo';
 import { runCurrencyScraper } from '../services/currency-scraper';
 import { runGoldScraper } from '../services/gold-scraper';
 import { sendTelegramAlert } from '../services/telegram';
+import { sendFcmJobNotification } from '../services/fcm';
 import { rateLimiter } from '../middleware/security';
 
 export const scraperRouter = new Hono();
@@ -534,6 +535,19 @@ const handleAutoPublishJob = async (c: any) => {
       } catch (tgErr: any) {
         console.error('[AUTO-PUBLISH TELEGRAM ERROR]', tgErr.message);
       }
+    }
+
+    // Push notification to Android app
+    try {
+      await sendFcmJobNotification(env, {
+        id: jobId,
+        title: jobData.title_ar || jobData.title_en || 'وظيفة شاغرة جديدة في إسطنبول',
+        companyName: jobData.company_name,
+        location: jobData.location_ar || jobData.location_en,
+        slug
+      });
+    } catch (fcmErr) {
+      console.warn('[FCM AUTO-PUBLISH ERROR]', fcmErr);
     }
 
     const origin = new URL(c.req.url).origin;

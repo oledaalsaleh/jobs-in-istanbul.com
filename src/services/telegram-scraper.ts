@@ -1,6 +1,7 @@
 import type { D1Database } from '@cloudflare/workers-types';
 import { analyzeJobUnified, saveJobToDb, cleanHtml } from './scraper';
 import { sendTelegramAlert } from './telegram';
+import { sendFcmJobNotification } from './fcm';
 
 /**
  * Scrapes job postings from the public Telegram channel preview https://t.me/s/jobsintr
@@ -194,6 +195,19 @@ export async function runTelegramScraper(
             }
           }
 
+          // Push Notification to Android App via FCM
+          try {
+            await sendFcmJobNotification(env, {
+              id: jobId,
+              title: jobJson.title_ar || jobJson.title_en || 'وظيفة شاغرة جديدة في إسطنبول',
+              companyName: jobJson.company_name,
+              location: jobJson.location_ar || jobJson.location_en,
+              slug
+            });
+          } catch (fcmErr) {
+            console.warn('[FCM PUSH ERROR]', fcmErr);
+          }
+
           // Mark Telegram post as processed
           await env.DB.prepare(
             `INSERT INTO documents (id, root_id, type_id, status, is_published, slug, title, data, created_at, updated_at)
@@ -259,6 +273,19 @@ export async function runTelegramScraper(
               console.error('[TELEGRAM ERROR] Failed to send Telegram alert for scraped standalone job:', tgErr);
               details.push(`[TELEGRAM ERROR] Failed to publish "${jobJson.title_en}" to Telegram: ${tgErr.message}`);
             }
+          }
+
+          // Push Notification to Android App via FCM
+          try {
+            await sendFcmJobNotification(env, {
+              id: jobId,
+              title: jobJson.title_ar || jobJson.title_en || 'وظيفة شاغرة جديدة في إسطنبول',
+              companyName: jobJson.company_name,
+              location: jobJson.location_ar || jobJson.location_en,
+              slug
+            });
+          } catch (fcmErr) {
+            console.warn('[FCM PUSH ERROR]', fcmErr);
           }
 
           // Mark Telegram post as processed

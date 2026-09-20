@@ -119,11 +119,13 @@ import { careerBlogRouter } from './routes/career-blog'
 import { insightsRouter } from './routes/insights'
 import { currencyPricesRouter } from './routes/currency-prices'
 import { goldPricesRouter } from './routes/gold-prices'
+import { mobileApiRouter } from './routes/mobile-api'
 import { runScraper } from './services/scraper'
 import { runTelegramScraper } from './services/telegram-scraper'
 import { optimizeSeoWithGemini } from './services/gemini-seo'
 import { runCurrencyScraper } from './services/currency-scraper'
 import { runGoldScraper } from './services/gold-scraper'
+import { sendFcmRatesNotification } from './services/fcm'
 
 // Mount routes
 app.route('/', publicRouter)
@@ -153,6 +155,26 @@ function applySecurityHeaders(headers: Headers): Headers {
 export default {
   async fetch(request: Request, env: any, ctx: any) {
     const url = new URL(request.url);
+
+    // Direct Mobile REST API dispatch (high-speed Hono execution, bypasses CMS collection catch-all)
+    if (
+      url.pathname.startsWith('/api/v1/') ||
+      url.pathname === '/api/currencies' ||
+      url.pathname === '/api/gold' ||
+      url.pathname === '/api/jobs' ||
+      url.pathname === '/api/feed' ||
+      url.pathname.startsWith('/api/jobs/') ||
+      url.pathname.startsWith('/api/notifications/')
+    ) {
+      const res = await mobileApiRouter.fetch(request, env, ctx);
+      const secureHeaders = new Headers(res.headers);
+      applySecurityHeaders(secureHeaders);
+      return new Response(res.body, {
+        status: res.status,
+        statusText: res.statusText,
+        headers: secureHeaders
+      });
+    }
 
     // Serve app-ads.txt and ads.txt on root, /blog, /:locale/blog, or any subpath (Google AdMob / IAB Tech Lab verification)
     if (url.pathname === '/app-ads.txt' || url.pathname === '/ads.txt' || url.pathname.endsWith('/app-ads.txt') || url.pathname.endsWith('/ads.txt')) {
@@ -322,6 +344,12 @@ export default {
           GEMINI_API_KEY: env.GEMINI_API_KEY
         });
         console.log(`[CRON CURRENCY] Currency scraper finished successfully. Updated ${currPrices?.length || 0} currencies.`);
+        if (currPrices && currPrices.length > 0) {
+          const usd = currPrices.find((p: any) => p.code === 'USD');
+          const eur = currPrices.find((p: any) => p.code === 'EUR');
+          const summary = `الدولار: ${usd?.sell || '-'} TL | اليورو: ${eur?.sell || '-'} TL`;
+          await sendFcmRatesNotification(env, 'currency', summary).catch(() => {});
+        }
       } catch (currErr) {
         console.error('[CRON CURRENCY] Currency scraper execution error:', currErr);
       }
@@ -337,6 +365,11 @@ export default {
           GEMINI_API_KEY: env.GEMINI_API_KEY
         });
         console.log(`[CRON GOLD] Gold scraper finished successfully. Updated ${goldMetals?.length || 0} metals.`);
+        if (goldMetals && goldMetals.length > 0) {
+          const g24 = goldMetals.find((m: any) => m.name?.includes('24') || m.karat === 24);
+          const summary = `عيار 24: ${g24?.sell || '-'} TL`;
+          await sendFcmRatesNotification(env, 'gold', summary).catch(() => {});
+        }
       } catch (goldErr) {
         console.error('[CRON GOLD] Gold scraper execution error:', goldErr);
       }

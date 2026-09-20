@@ -4,7 +4,10 @@ import { fileURLToPath } from 'url'
 import { 
   istanbulAppArticleAr, 
   istanbulAppArticleEn, 
-  istanbulAppArticleTr
+  istanbulAppArticleTr,
+  istanbulAppArticleRu,
+  istanbulAppArticleFa,
+  istanbulAppArticleUr
 } from '../src/data/istanbul-app-article'
 
 const __filename = fileURLToPath(import.meta.url);
@@ -32,6 +35,24 @@ const articlesToSeed = [
     slug: istanbulAppArticleTr.slug,
     title: istanbulAppArticleTr.title,
     content: istanbulAppArticleTr.content
+  },
+  {
+    id: 'blog-post-istanbul-app-ru',
+    slug: istanbulAppArticleRu.slug,
+    title: istanbulAppArticleRu.title,
+    content: istanbulAppArticleRu.content
+  },
+  {
+    id: 'blog-post-istanbul-app-fa',
+    slug: istanbulAppArticleFa.slug,
+    title: istanbulAppArticleFa.title,
+    content: istanbulAppArticleFa.content
+  },
+  {
+    id: 'blog-post-istanbul-app-ur',
+    slug: istanbulAppArticleUr.slug,
+    title: istanbulAppArticleUr.title,
+    content: istanbulAppArticleUr.content
   }
 ];
 

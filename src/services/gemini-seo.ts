@@ -104,6 +104,10 @@ Return ONLY a valid JSON object matching the following structure. Do not wrap it
       });
 
       if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          console.warn(`[GEMINI SEO] ${res.status} Unauthorized/Forbidden. Skipping retries.`);
+          break;
+        }
         if ((res.status === 429 || res.status === 503) && attempt < retries) {
           console.warn(`[GEMINI SEO] ${res.status} status from ${modelToUse}. Retrying in ${currentDelay}ms (Attempt ${attempt}/${retries})...`);
           await new Promise(resolve => setTimeout(resolve, currentDelay));

@@ -22,7 +22,10 @@ import {
 import {
   istanbulAppArticleAr,
   istanbulAppArticleEn,
-  istanbulAppArticleTr
+  istanbulAppArticleTr,
+  istanbulAppArticleRu,
+  istanbulAppArticleFa,
+  istanbulAppArticleUr
 } from '../data/istanbul-app-article'
 
 export const careerBlogRouter = new Hono()
@@ -4195,6 +4198,7 @@ export const seededArticles: Record<string, any[]> = {
     }
   ],
   ru: [
+    istanbulAppArticleRu,
     quranAppArticleRu,
     {
       title: 'Разница между туристическим ВНЖ и разрешением на работу в Турции: преимущества, недостатки и процедура смены статуса в 2026 году',
@@ -4471,6 +4475,7 @@ export const seededArticles: Record<string, any[]> = {
     }
   ],
   ur: [
+    istanbulAppArticleUr,
     quranAppArticleUr,
     {
       title: 'ترکی میں سیاحتی اقامت اور ورک پرمٹ کے درمیان فرق: فوائد، نقصانات اور تبدیلی کے مراحل ۲۰۲۶',
@@ -4731,6 +4736,7 @@ export const seededArticles: Record<string, any[]> = {
     }
   ],
   fa: [
+    istanbulAppArticleFa,
     quranAppArticleFa,
     {
       title: 'تفاوت اقامت توریستی و اجازه کار در ترکیه: مزایا، معایب و نحوه تبدیل اقامت در سال ۲۰۲۶',
@@ -5038,6 +5044,18 @@ function getReadingTime(content: string, locale: any): string {
 // Helper to get category
 function getCategory(slug: string, locale: any): { name: string; color: string } {
   const maps: Record<string, Partial<Record<'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur' | 'id' | 'fr' | 'bn' | 'de', string>>> = {
+    'jobs-in-istanbul-app-official-guide-2026': {
+      ar: 'تطبيق إسطنبول الرسمي',
+      en: 'Official Mobile App',
+      tr: 'Resmi Mobil Uygulama',
+      ru: 'Официальное приложение',
+      fa: 'اپلیکیشن رسمی استانبول',
+      ur: 'آفیشل موبائل ایپ',
+      id: 'Aplikasi Resmi',
+      fr: 'Application officielle',
+      bn: 'অফিসিয়াল মোবাইল অ্যাপ',
+      de: 'Offizielle App'
+    },
     'sgk-health-insurance-turkey-workers': {
       ar: 'الضمان الاجتماعي',
       en: 'Social Security',
@@ -5143,6 +5161,7 @@ function getCategory(slug: string, locale: any): { name: string; color: string }
   };
 
   const colors: Record<string, string> = {
+    'jobs-in-istanbul-app-official-guide-2026': '#0284c7',
     'quran-karim-app-offline-features-download': '#047857', // emerald green
     'kuran-i-kerim-namaz-vakitleri-uygulamasi-indir': '#047857', // emerald green
     'sgk-health-insurance-turkey-workers': '#10b981', // emerald

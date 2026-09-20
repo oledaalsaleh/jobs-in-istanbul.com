@@ -1,6 +1,7 @@
 import type { D1Database } from '@cloudflare/workers-types';
 import { optimizeSeoWithGemini } from './gemini-seo';
 import { sendTelegramAlert } from './telegram';
+import { sendFcmJobNotification } from './fcm';
 
 export interface ScrapedJobData {
   title_ar: string;
@@ -395,6 +396,9 @@ ${rawText}
       });
 
       if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          throw new Error(`Gemini API returned status ${res.status} (Unauthorized/Forbidden). Fast-failing to Workers AI.`);
+        }
         throw new Error(`Gemini API (${modelToUse}) returned status ${res.status}`);
       }
 
@@ -411,8 +415,8 @@ ${rawText}
       const cleaned = cleanJsonString(text);
       return JSON.parse(cleaned) as ScrapedJobData;
     } catch (e: any) {
-      if (attempt === retries) {
-        console.error(`[GEMINI AI ERROR] Failed parsing with Gemini after ${retries} attempts:`, e);
+      if (attempt === retries || e.message?.includes('401') || e.message?.includes('403')) {
+        console.warn(`[GEMINI AI] Gemini failed (${e.message}). Fast-failing to Workers AI.`);
         throw e;
       }
       await new Promise(r => setTimeout(r, 1500));
@@ -973,6 +977,19 @@ export async function runScraper(
             console.error('[TELEGRAM ERROR] Failed to send Telegram alert for scraped job:', tgErr);
             details.push(`[TELEGRAM ERROR] Failed to publish "${jobJson.title_en}" to Telegram: ${tgErr.message}`);
           }
+        }
+
+        // Push Notification to Android App via FCM
+        try {
+          await sendFcmJobNotification(env, {
+            id: jobId,
+            title: jobJson.title_ar || jobJson.title_en || 'وظيفة شاغرة جديدة في إسطنبول',
+            companyName: jobJson.company_name,
+            location: jobJson.location_ar || jobJson.location_en,
+            slug
+          });
+        } catch (fcmErr) {
+          console.warn('[FCM PUSH ERROR]', fcmErr);
         }
 
         // If published, update metadata in D1

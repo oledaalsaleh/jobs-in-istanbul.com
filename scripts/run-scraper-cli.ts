@@ -2,17 +2,24 @@ import { getPlatformProxy } from 'wrangler'
 import { runScraper } from '../src/services/scraper'
 import { runTelegramScraper } from '../src/services/telegram-scraper'
 
+// Parse CLI arguments
+const args = process.argv.slice(2);
+const isRemote = args.includes('--remote') || args.includes('-r');
+const limitArg = args.find(arg => arg.startsWith('--limit='));
+const limit = limitArg ? parseInt(limitArg.split('=')[1], 10) : 5; // Default 5 postings
+
 async function run() {
-  console.log('⏳ Connecting to Cloudflare platform proxy...');
-  const { env, dispose } = await getPlatformProxy()
+  console.log(`⏳ Connecting to Wrangler platform proxy (Environment: ${isRemote ? 'production' : 'local'})...`);
+  const { env, dispose } = await getPlatformProxy({
+    environment: isRemote ? 'production' : undefined
+  });
 
   if (!env?.DB) {
     console.error('❌ Error: DB binding not found. Make sure wrangler.toml is configured.');
     process.exit(1);
   }
 
-  const limit = 15; // Scrape up to 15 job postings in this run
-  console.log(`⏳ Starting Scraper Cycle (limit: ${limit} posts)...`);
+  console.log(`⏳ Starting Scraper Cycle (limit: ${limit} posts, remote: ${isRemote})...`);
   
   try {
     console.log('🚀 Running Web Scraper (jobsintr.net)...');
@@ -20,8 +27,11 @@ async function run() {
       { 
         DB: env.DB, 
         AI: env.AI, 
+        CACHE_KV: env.CACHE_KV,
         MEDIA_BUCKET: env.MEDIA_BUCKET, 
-        GEMINI_API_KEY: env.GEMINI_API_KEY 
+        GEMINI_API_KEY: env.GEMINI_API_KEY,
+        TELEGRAM_BOT_TOKEN: env.TELEGRAM_BOT_TOKEN,
+        TELEGRAM_CHANNEL_ID: env.TELEGRAM_CHANNEL_ID
       }, 
       limit
     );
@@ -35,8 +45,11 @@ async function run() {
       { 
         DB: env.DB, 
         AI: env.AI, 
+        CACHE_KV: env.CACHE_KV,
         MEDIA_BUCKET: env.MEDIA_BUCKET, 
-        GEMINI_API_KEY: env.GEMINI_API_KEY 
+        GEMINI_API_KEY: env.GEMINI_API_KEY,
+        TELEGRAM_BOT_TOKEN: env.TELEGRAM_BOT_TOKEN,
+        TELEGRAM_CHANNEL_ID: env.TELEGRAM_CHANNEL_ID
       }, 
       limit
     );
