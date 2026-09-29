@@ -386,7 +386,8 @@ ${rawText}
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: {
-            temperature: 0.2,
+            temperature: 0.1,
+            responseMimeType: 'application/json',
             thinkingConfig: {
               thinkingBudget: 0
             }
@@ -952,6 +953,12 @@ export async function runScraper(
 
         details.push(`[SUCCESS] Inserted job ID ${jobId} successfully.`);
         scrapedCount++;
+
+        // Invalidate recent jobs cache so new job appears immediately on the site
+        if (env.CACHE_KV) {
+          await env.CACHE_KV.delete('kv_jobs_recent').catch(() => {});
+          await env.CACHE_KV.put('edge_cache_version', 'v_' + Date.now()).catch(() => {});
+        }
 
         // Keep CACHE_KV updated with newly scraped URL
         scrapedUrls.add(url);

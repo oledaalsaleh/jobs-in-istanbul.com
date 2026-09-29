@@ -226,6 +226,12 @@ export async function runTelegramScraper(
           details.push(`[SUCCESS] Saved job ID ${jobId} from website link.`);
           scrapedCount++;
 
+          // Invalidate recent jobs cache so new job appears immediately on site
+          if (env.CACHE_KV) {
+            await env.CACHE_KV.delete('kv_jobs_recent').catch(() => {});
+            await env.CACHE_KV.put('edge_cache_version', 'v_' + Date.now()).catch(() => {});
+          }
+
           // Keep CACHE_KV updated
           scrapedUrls.add(websiteJobUrl);
           processedTgIds.add(`tg-${item.postId}`);
@@ -306,6 +312,12 @@ export async function runTelegramScraper(
 
           details.push(`[SUCCESS] Saved job ID ${jobId} from standalone Telegram post.`);
           scrapedCount++;
+
+          // Invalidate recent jobs cache so new job appears immediately on site
+          if (env.CACHE_KV) {
+            await env.CACHE_KV.delete('kv_jobs_recent').catch(() => {});
+            await env.CACHE_KV.put('edge_cache_version', 'v_' + Date.now()).catch(() => {});
+          }
 
           // Keep CACHE_KV updated
           scrapedUrls.add(telegramPostUrl);

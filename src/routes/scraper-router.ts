@@ -148,6 +148,12 @@ const handleSyncAll = async (c: any) => {
     results.indexing = { success: false, error: err.message };
   }
 
+  // Invalidate recent jobs cache and bump edge cache version so freshly scraped jobs show immediately
+  if (env.CACHE_KV) {
+    await env.CACHE_KV.delete('kv_jobs_recent').catch(() => {});
+    await env.CACHE_KV.put('edge_cache_version', 'v_' + Date.now()).catch(() => {});
+  }
+
   return c.json({ success: true, syncResults: results });
 };
 
@@ -232,6 +238,13 @@ const handleRefreshJobs = async (c: any) => {
     } catch (err: any) {
       results.telegramJobs = { success: false, error: err.message };
     }
+
+    // Invalidate recent jobs cache and bump edge cache version so freshly scraped jobs show immediately
+    if (env.CACHE_KV) {
+      await env.CACHE_KV.delete('kv_jobs_recent').catch(() => {});
+      await env.CACHE_KV.put('edge_cache_version', 'v_' + Date.now()).catch(() => {});
+    }
+
     return results;
   };
 
@@ -255,6 +268,36 @@ const handleRefreshJobs = async (c: any) => {
 
 scraperRouter.get('/admin-api/refresh-jobs', rateLimiter(5, 5), handleRefreshJobs);
 scraperRouter.post('/admin-api/refresh-jobs', rateLimiter(5, 5), handleRefreshJobs);
+
+// Dedicated Admin API endpoint to purge all caches (KV + Global Edge Cache) instantly
+scraperRouter.get('/admin-api/purge-cache', async (c) => {
+  const env: any = c.env;
+  const newVer = 'v_' + Date.now();
+  if (env.CACHE_KV) {
+    await env.CACHE_KV.delete('kv_jobs_recent').catch(() => {});
+    await env.CACHE_KV.put('edge_cache_version', newVer).catch(() => {});
+  }
+  return c.json({
+    success: true,
+    message: 'Global edge cache and KV cache purged successfully.',
+    version: newVer,
+    timestamp: new Date().toISOString()
+  });
+});
+scraperRouter.post('/admin-api/purge-cache', async (c) => {
+  const env: any = c.env;
+  const newVer = 'v_' + Date.now();
+  if (env.CACHE_KV) {
+    await env.CACHE_KV.delete('kv_jobs_recent').catch(() => {});
+    await env.CACHE_KV.put('edge_cache_version', newVer).catch(() => {});
+  }
+  return c.json({
+    success: true,
+    message: 'Global edge cache and KV cache purged successfully.',
+    version: newVer,
+    timestamp: new Date().toISOString()
+  });
+});
 
 // Secure admin endpoint to manually trigger a currency scrape cycle
 scraperRouter.post('/api/admin/trigger-currency-scrape', rateLimiter(5, 5), async (c) => {

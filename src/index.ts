@@ -252,8 +252,17 @@ export default {
     const hasAuthHeader = request.headers.has('Authorization');
     const isCacheEligible = isPublicRoute && !hasAuthHeader && !url.searchParams.has('nocache');
 
-    // Build unique cache key URL
-    const cacheKey = isCacheEligible ? new Request(url.toString(), {
+    // Build unique cache key URL with dynamic cache versioning for instant global edge invalidation
+    let cacheVersion = 'v1';
+    if (env.CACHE_KV) {
+      try {
+        cacheVersion = (await env.CACHE_KV.get('edge_cache_version')) || 'v1';
+      } catch (e) {}
+    }
+    const cacheUrl = new URL(url.toString());
+    cacheUrl.searchParams.set('__cv', cacheVersion);
+
+    const cacheKey = isCacheEligible ? new Request(cacheUrl.toString(), {
       method: 'GET',
       headers: {
         'Accept': request.headers.get('Accept') || 'text/html,*/*'
@@ -304,8 +313,8 @@ export default {
           const cacheHeaders = new Headers(response.headers);
           // Strip set-cookie so Cloudflare Edge doesn't treat public pages as private sessions
           cacheHeaders.delete('set-cookie');
-          // Edge cache for 2 hours (s-maxage=7200), browser cache for 5 minutes, stale revalidation for 24h
-          cacheHeaders.set('Cache-Control', 'public, max-age=300, s-maxage=7200, stale-while-revalidate=86400');
+          // Browser always revalidates (max-age=0, must-revalidate), edge cache for 2 minutes (s-maxage=120)
+          cacheHeaders.set('Cache-Control', 'public, max-age=0, must-revalidate, s-maxage=120, stale-while-revalidate=300');
           cacheHeaders.set('X-Edge-Cache', 'MISS');
           applySecurityHeaders(cacheHeaders);
 
@@ -423,6 +432,12 @@ export default {
         console.log(`[CRON TELEGRAM SCRAPER] Result: Scraped ${tgResult.scraped}/${tgResult.processed}. Errors: ${tgResult.errors}`);
       } catch (tgErr) {
         console.error('[CRON TELEGRAM SCRAPER] Telegram scraper execution error:', tgErr);
+      }
+
+      // Invalidate recent jobs cache and bump edge cache version so new jobs appear instantly everywhere
+      if (env.CACHE_KV) {
+        await env.CACHE_KV.delete('kv_jobs_recent').catch(() => {});
+        await env.CACHE_KV.put('edge_cache_version', 'v_' + Date.now()).catch(() => {});
       }
 
       // ----------------------------------------------------
