@@ -789,6 +789,14 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
   ${c.env?.GOOGLE_SITE_VERIFICATION && c.env.GOOGLE_SITE_VERIFICATION !== 'ADD_YOUR_GOOGLE_VERIFICATION_CODE_HERE' ? `<meta name="google-site-verification" content="${c.env.GOOGLE_SITE_VERIFICATION}" />` : ''}
   ${c.env?.BING_SITE_VERIFICATION ? `<meta name="msvalidate.01" content="${c.env.BING_SITE_VERIFICATION}" />` : ''}
   ${c.env?.YANDEX_SITE_VERIFICATION ? `<meta name="yandex-verification" content="${c.env.YANDEX_SITE_VERIFICATION}" />` : ''}
+  <!-- Google Analytics 4 (GA4) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=${c.env?.GA4_MEASUREMENT_ID || 'G-9DQNV5MNFF'}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '${c.env?.GA4_MEASUREMENT_ID || 'G-9DQNV5MNFF'}', { send_page_view: true });
+  </script>
   ${seoHtml ? seoHtml : `<title>${title} | ${t.tagline}</title>`}
 
   <!-- كود ربط ملف معلومات التطبيق Manifest -->
@@ -1915,7 +1923,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
   // Translations
   const t = {
     ar: {
-      heroEyebrow: 'أكثر من 500 وظيفة في إسطنبول الآن',
+      heroEyebrow: `أكثر من ${totalJobsCount || '2,600'} وظيفة شاغرة في إسطنبول الآن`,
       heroTitle: 'اعثر على وظيفتك <span class="gradient-word">المثالية</span><br>في إسطنبول',
       heroSubtitle: 'فرص عمل مميزة للعرب والأجانب في مختلف القطاعات بمدينة إسطنبول الكبرى',
       searchPlh: 'ابحث عن مسمى وظيفي، كلمات مفتاحية...',
@@ -1938,7 +1946,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
       downloadOnPlayStore: 'تنزيل التطبيق من متجر Google Play'
     },
     en: {
-      heroEyebrow: 'Over 500 jobs in Istanbul right now',
+      heroEyebrow: `Over ${totalJobsCount || '2,600'} jobs in Istanbul right now`,
       heroTitle: 'Find Your <span class="gradient-word">Dream Job</span><br>in Istanbul',
       heroSubtitle: 'Premium job vacancies for locals and internationals in Istanbul metropolitan area',
       searchPlh: 'Search job title, keywords...',
@@ -1961,7 +1969,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
       downloadOnPlayStore: 'Download App on Google Play Store'
     },
     tr: {
-      heroEyebrow: 'İstanbul\'da şu anda 500\'den fazla iş ilanı',
+      heroEyebrow: `İstanbul'da şu anda ${totalJobsCount || '2.600'}'den fazla açık iş ilanı`,
       heroTitle: 'İstanbul\'da <span class="gradient-word">Mükemmel</span><br>İşinizi Bulun',
       heroSubtitle: 'İstanbul metropol bölgesindeki yerli ve uluslararası yetenekler için özel iş ilanları',
       searchPlh: 'İş unvanı, anahtar kelime arayın...',
@@ -1984,7 +1992,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
       downloadOnPlayStore: 'Google Play Mağazasından İndir'
     },
     ru: {
-      heroEyebrow: 'Более 500 вакансий в Стамбуле сейчас',
+      heroEyebrow: `Более ${totalJobsCount || '2 600'} вакансий в Стамбуле сейчас`,
       heroTitle: 'Найдите свою <span class="gradient-word">идеальную работу</span><br>в Стамбуле',
       heroSubtitle: 'Отличные вакансии для иностранцев и русскоязычных специалистов в различных секторах Стамбула',
       searchPlh: 'Поиск по названию вакансии, ключевым словам...',
@@ -2007,7 +2015,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
       downloadOnPlayStore: 'Скачать приложение в Google Play'
     },
     fa: {
-      heroEyebrow: 'بیش از ۵۰۰ شغل در استانبول در حال حاضر',
+      heroEyebrow: `بیش از ${totalJobsCount || '۲۶۰۰'} شغل در استانبول در حال حاضر`,
       heroTitle: 'کار و استخدام <span class="gradient-word">رویایی خود</span> را در استانبول بیابید',
       heroSubtitle: 'فرصت‌های شغلی برتر برای ایرانیان، کارجویان بین‌المللی و فارسی‌زبانان در مناطق مختلف استانبول بزرگ',
       searchPlh: 'عنوان شغلی، مهارت یا کلمات کلیدی...',
@@ -2030,7 +2038,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
       downloadOnPlayStore: 'دانلود اپلیکیشن از گوگل پلی'
     },
     ur: {
-      heroEyebrow: 'استنبول میں اس وقت 500 سے زائد ملازمتیں',
+      heroEyebrow: `استنبول میں اس وقت ${totalJobsCount || '2,600'} سے زائد ملازمتیں`,
       heroTitle: 'استنبول میں اپنی <span class="gradient-word">مثالی ملازمت</span> تلاش کریں',
       heroSubtitle: 'اردو بولنے والوں اور بین الاقوامی امیدواروں کے لیے استنبول کے بہترین علاقوں میں ملازمت کے مواقع',
       searchPlh: 'ملازمت کا عنوان، مہارت یا کلیدی الفاظ...',
@@ -2516,8 +2524,17 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
         </aside>
 
         <section>
+          <div class="jobs-header">
+            <p class="jobs-count"><strong>${totalJobsCount}</strong> ${locale === 'ar' ? 'وظيفة متاحة' : 'jobs available'}</p>
+            ${querySearch || queryCategory || queryJobType || queryDistrict || queryTransit ? `<a href="/${locale}" style="font-size:.82rem; color:var(--danger); font-weight:600;"><i class="fa-solid fa-xmark"></i> ${locale === 'ar' ? 'مسح الفلاتر' : 'Clear filters'}</a>` : ''}
+          </div>
+          <div class="jobs-list">
+            ${jobsHtml}
+          </div>
+          ${paginationHtml}
+
           <!-- FEATURED APP & ARTICLE: QURAN KARIM APP -->
-          <div class="quran-app-promo" style="margin-bottom: 24px; padding: 22px 24px; border-radius: 20px; background: linear-gradient(135deg, #064e3b 0%, #0f172a 100%); color: white; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(6, 78, 59, 0.35); border: 1px solid rgba(16, 185, 129, 0.35);">
+          <div class="quran-app-promo" style="margin-top: 36px; margin-bottom: 24px; padding: 22px 24px; border-radius: 20px; background: linear-gradient(135deg, #064e3b 0%, #0f172a 100%); color: white; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(6, 78, 59, 0.35); border: 1px solid rgba(16, 185, 129, 0.35);">
             <div style="position: absolute; right: -20px; bottom: -20px; font-size: 170px; opacity: 0.05; color: #10b981; pointer-events: none;">
               <i class="fa-solid fa-book-quran"></i>
             </div>
@@ -2609,16 +2626,6 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
               </div>
             </div>
           </div>
-
-
-          <div class="jobs-header">
-            <p class="jobs-count"><strong>${totalJobsCount}</strong> ${locale === 'ar' ? 'وظيفة متاحة' : 'jobs available'}</p>
-            ${querySearch || queryCategory || queryJobType || queryDistrict || queryTransit ? `<a href="/${locale}" style="font-size:.82rem; color:var(--danger); font-weight:600;"><i class="fa-solid fa-xmark"></i> ${locale === 'ar' ? 'مسح الفلاتر' : 'Clear filters'}</a>` : ''}
-          </div>
-          <div class="jobs-list">
-            ${jobsHtml}
-          </div>
-          ${paginationHtml}
         </section>
       </div>
     </div>
@@ -3964,7 +3971,14 @@ publicRouter.post(
         );
       }
 
-      return c.json({ success: true });
+      // Invalidate recent jobs cache and edge cache so newly published job shows immediately on homepage
+      const envAny = c.env as any;
+      if (envAny?.CACHE_KV) {
+        await envAny.CACHE_KV.delete('kv_jobs_recent').catch(() => {});
+        await envAny.CACHE_KV.put('edge_cache_version', 'v_' + Date.now()).catch(() => {});
+      }
+
+      return c.json({ success: true, slug, id });
     } catch (error) {
       console.error('Error submitting job form:', error);
       return c.json({ success: false, error: 'Database insertion failed' }, 500);
