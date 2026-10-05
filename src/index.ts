@@ -409,11 +409,19 @@ export default {
         console.error('[CRON GOLD] Gold scraper execution error:', goldErr);
       }
 
-      // ----------------------------------------------------
-      // 3. Web Job Scraper (PRIORITY 3 - Safe batch limit: 3)
-      // ----------------------------------------------------
-      try {
-        console.log('[CRON WEB SCRAPER] Running web scraper...');
+      // Fast Currency & Gold scrapers run every 15 minutes!
+      // Heavier batch jobs (Web/Telegram scrapers, SEO optimizer, Auto-indexing) run once every hour.
+      const currentMinute = new Date().getMinutes();
+      const shouldRunHourlyJobs = currentMinute < 15;
+
+      if (!shouldRunHourlyJobs) {
+        console.log('[CRON] Completed 15-minute live price update cycle. Skipping hourly scrapers.');
+      } else {
+        // ----------------------------------------------------
+        // 3. Web Job Scraper (PRIORITY 3 - Safe batch limit: 3)
+        // ----------------------------------------------------
+        try {
+          console.log('[CRON WEB SCRAPER] Running web scraper...');
         const webResult = await runScraper(
           {
             DB: env.DB,
@@ -555,6 +563,7 @@ export default {
         console.log(`[CRON AUTO-INDEX] Catch-up finished: ${indexResult.processed} processed, ${indexResult.indexed} submitted.`);
       } catch (autoIndexErr) {
         console.error('[CRON AUTO-INDEX] Error running autonomous indexing:', autoIndexErr);
+      }
       }
 
       console.log('[CRON] Scheduled execution cycle finished successfully.');

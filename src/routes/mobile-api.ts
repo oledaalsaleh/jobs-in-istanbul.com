@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import type { Context } from 'hono';
 import { safeQuery } from '../utils/db-helper';
 import { sendFcmNotification } from '../services/fcm';
+import { runGoldScraper } from '../services/gold-scraper';
 
 export const mobileApiRouter = new Hono();
 
@@ -188,6 +189,29 @@ async function handleGold(c: Context) {
     }
   }
 
+  // 3. Autonomous background revalidation or on-demand force refresh
+  const forceRefresh = c.req.query('refresh') === '1' || c.req.query('refresh') === 'true';
+  const isStale = !updatedAt || (Date.now() - updatedAt > 10 * 60 * 1000);
+
+  if (forceRefresh) {
+    try {
+      const freshMetals = await runGoldScraper(c.env);
+      if (freshMetals && freshMetals.length > 0) {
+        metals = freshMetals;
+        source = 'live_scrape';
+        updatedAt = Date.now();
+      }
+    } catch (e) {
+      console.warn('[MOBILE API] Live gold refresh error:', e);
+    }
+  } else if (isStale) {
+    try {
+      if (c.executionCtx && typeof c.executionCtx.waitUntil === 'function') {
+        c.executionCtx.waitUntil(runGoldScraper(c.env).catch(e => console.warn('[AUTO MOBILE GOLD SCRAPE ERROR]', e)));
+      }
+    } catch (e) {}
+  }
+
   const mappedMetals = metals.map((m: any) => ({
     id: m.id || m.name,
     name: m.name,
@@ -197,6 +221,8 @@ async function handleGold(c: Context) {
     karat: m.karat || null,
     lastUpdate: m.lastUpdate || ''
   }));
+
+  c.header('Cache-Control', 'public, max-age=30, s-maxage=60, stale-while-revalidate=120');
 
   return c.json({
     success: true,

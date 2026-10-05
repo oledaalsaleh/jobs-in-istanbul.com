@@ -7,20 +7,23 @@ export const goldPricesRouter = new Hono()
 
 // Fallback gold prices in case D1 and KV caches aren't seeded yet (Updated 2026 accurate spot baselines)
 const fallbackGold = [
-  { id: '1', name: 'جرام الذهب عيار 24', unit: 'جرام', buy: 6700.39, sell: 6701.29, karat: '24', lastUpdate: '1788339903' },
-  { id: '12', name: 'جرام الذهب عيار 22', unit: 'جرام', buy: 6141.69, sell: 6142.52, karat: '22', lastUpdate: '1788339903' },
-  { id: '11', name: 'جرام الذهب عيار 21', unit: 'جرام', buy: 5862.84, sell: 5863.63, karat: '21', lastUpdate: '1788339903' },
-  { id: '2', name: 'جرام الذهب عيار 18', unit: 'جرام', buy: 5025.29, sell: 5025.97, karat: '18', lastUpdate: '1788339903' },
-  { id: '3', name: 'جرام الذهب عيار 14', unit: 'جرام', buy: 3908.56, sell: 3909.09, karat: '14', lastUpdate: '1788339903' },
-  { id: '4', name: 'اونصة الذهب', unit: 'اونصة', buy: 208382.12, sell: 208410.05, karat: null, lastUpdate: '1788339903' },
-  { id: '5', name: 'الليرة الذهب', unit: 'ليرة', buy: 43114.66, sell: 43120.49, karat: null, lastUpdate: '1788339903' }
+  { id: '1', name: 'جرام الذهب عيار 24', unit: 'جرام', buy: 6571.45, sell: 6572.24, karat: '24', lastUpdate: '1791197103' },
+  { id: '12', name: 'جرام الذهب عيار 22', unit: 'جرام', buy: 6023.83, sell: 6024.55, karat: '22', lastUpdate: '1791197103' },
+  { id: '11', name: 'جرام الذهب عيار 21', unit: 'جرام', buy: 5750.02, sell: 5750.71, karat: '21', lastUpdate: '1791197103' },
+  { id: '2', name: 'جرام الذهب عيار 18', unit: 'جرام', buy: 4804.66, sell: 4809.24, karat: '18', lastUpdate: '1791197103' },
+  { id: '3', name: 'جرام الذهب عيار 14', unit: 'جرام', buy: 3751.58, sell: 3755.16, karat: '14', lastUpdate: '1791197103' },
+  { id: '4', name: 'اونصة الذهب', unit: 'اونصة', buy: 204427.27, sell: 204451.85, karat: null, lastUpdate: '1791197103' },
+  { id: '5', name: 'الليرة الذهب', unit: 'ليرة', buy: 42123.05, sell: 42953.79, karat: '24', lastUpdate: '1791197103' },
+  { id: '7', name: 'نصف ليرة ذهب', unit: 'نصف ليرة', buy: 20995.71, sell: 21542.77, karat: '24', lastUpdate: '1791197103' },
+  { id: '8', name: 'ربع ليرة ذهب', unit: 'ربع ليرة', buy: 10530.76, sell: 10771.39, karat: '24', lastUpdate: '1791197103' },
+  { id: '6', name: 'جرام الفضة', unit: 'جرام', buy: 97.42, sell: 97.50, karat: null, lastUpdate: '1791197103' }
 ];
 
 const fallbackAdvice = {
   ar: 'تشهد أسعار الذهب تذبذباً اليوم بناءً على تحركات أونصة الذهب عالمياً وسعر صرف الليرة التركية مقابل الدولار. للمستثمرين على المدى المتوسط والطويل، يظل الذهب وسيلة ممتازة لحفظ القيمة والادخار من التضخم، ويُنصح دائماً بالشراء التدريجي.',
   en: 'Gold prices are fluctuating today following global spot rate changes and the USD/TRY exchange rate. For medium-to-long term investors, gold remains an excellent store of value against inflation; gradual accumulation is recommended.',
   tr: 'Altın fiyatları, küresel spot altın hareketleri ve USD/TRY kurundaki değişimlere bağlı olarak bugün dalgalanma gösteriyor. Orta ve uzun vadeli yatırımcılar için altın, enflasyona karşı mükemmel bir değer koruma aracı olmaya devam etmektedir; kademeli birikim önerilir.',
-  ru: 'Цены на золото сегодня колеблются в зависимости от мировых котировок и курса турецкой лиры к доллару. Для долгосрочных инвесторов золото остается отличным средством сбережения от инфляции.'
+  ru: 'Цены на золото сегодня колеблются в зависимости от мировых котировок и курса турецкой лиры к доллару. Для долгосрочных инвесторов золото остается отличным средством сбережения от инفляции.'
 };
 
 goldPricesRouter.post('/admin-api/refresh-gold-prices', async (c) => {
@@ -59,7 +62,7 @@ goldPricesRouter.get('/gold-prices', (c) => {
     return c.redirect('/en/gold-prices');
   }
   return c.redirect('/ar/gold-prices');
-})
+});
 
 goldPricesRouter.get('/:locale/gold-prices', async (c) => {
   const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
@@ -69,6 +72,7 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
   let metals = fallbackGold;
   let advice = fallbackAdvice;
   let lastUpdateStr = '';
+  let kvUpdatedTimestamp = 0;
 
   // 1. Try CACHE_KV first
   const envAny = c.env as any;
@@ -78,7 +82,8 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
       if (kvData && Array.isArray(kvData.metals) && kvData.metals.length > 0) {
         metals = kvData.metals;
         advice = kvData.advice || fallbackAdvice;
-        lastUpdateStr = new Date(kvData.updatedAt || Date.now()).toLocaleString(locale === 'ar' || locale === 'fa' || locale === 'ur' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
+        kvUpdatedTimestamp = kvData.updatedAt || 0;
+        lastUpdateStr = new Date(kvUpdatedTimestamp || Date.now()).toLocaleString(locale === 'ar' || locale === 'fa' || locale === 'ur' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
       }
     } catch (e) {}
   }
@@ -90,11 +95,12 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
         `SELECT data FROM documents WHERE type_id = 'site_settings' AND id = 'gold-prices-cache'`
       ).first(), 1, 50);
 
-      if (cached) {
+      if (cached?.data) {
         const parsed = JSON.parse(cached.data);
         if (parsed.metals && Array.isArray(parsed.metals) && parsed.metals.length > 0) {
           metals = parsed.metals;
           advice = parsed.advice || fallbackAdvice;
+          kvUpdatedTimestamp = parsed.updatedAt || 0;
           lastUpdateStr = new Date(parsed.updatedAt).toLocaleString(locale === 'ar' || locale === 'fa' || locale === 'ur' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
         }
       }
@@ -103,6 +109,28 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
     }
   }
 
+  // 3. Autonomous Auto-Revalidation:
+  // If cache is stale (> 10 minutes) or completely empty, update automatically!
+  const isStale = !kvUpdatedTimestamp || (Date.now() - kvUpdatedTimestamp > 10 * 60 * 1000);
+  if (isStale) {
+    if (metals === fallbackGold) {
+      try {
+        const fresh = await runGoldScraper(c.env);
+        if (fresh && fresh.length > 0) {
+          metals = fresh;
+          lastUpdateStr = new Date().toLocaleString(locale === 'ar' || locale === 'fa' || locale === 'ur' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
+        }
+      } catch (scrapeErr) {
+        console.warn('[GOLD AUTO SCRAPE SYNC ERROR]', scrapeErr);
+      }
+    } else {
+      try {
+        if (c.executionCtx && typeof c.executionCtx.waitUntil === 'function') {
+          c.executionCtx.waitUntil(runGoldScraper(c.env).catch(e => console.warn('[GOLD AUTO SCRAPE BG ERROR]', e)));
+        }
+      } catch (bgErr) {}
+    }
+  }
 
   if (!lastUpdateStr) {
     lastUpdateStr = new Date().toLocaleString(locale === 'ar' || locale === 'fa' || locale === 'ur' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
@@ -110,11 +138,78 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
 
   const localizedGoldName = (id: string, defaultName: string) => {
     const map: Record<string, Record<string, string>> = {
-      ar: { '1': 'جرام الذهب عيار 24', '12': 'جرام الذهب عيار 22', '11': 'جرام الذهب عيار 21', '2': 'جرام الذهب عيار 18', '3': 'جرام الذهب عيار 14', '4': 'أونصة الذهب', '5': 'الليرة الذهب' },
-      en: { '1': '24K Gold Gram', '12': '22K Gold Gram', '11': '21K Gold Gram', '2': '18K Gold Gram', '3': '14K Gold Gram', '4': 'Gold Ounce', '5': 'Gold Lira' },
-      tr: { '1': '24 Ayar Altın Gramı', '12': '22 Ayar Altın Gramı', '11': '21 Ayar Altın Gramı', '2': '18 Ayar Altın Gramı', '3': '14 Ayar Altın Gramı', '4': 'Ons Altın', '5': 'Altın Lira' },
-      ru: { '1': 'грамм золота 24 карата', '12': 'грамм золота 22 карата', '11': 'грамм золота 21 карат', '2': 'грамм золота 18 карат', '3': 'грамм золота 14 карат', '4': 'Унция золота', '5': 'Золотая лира' },
-      fa: { '1': 'هر گرم طلای ۲۴ عیار', '12': 'هر گرم طلای ۲۲ عیار', '11': 'هر گرم طلای ۲۱ عیار', '2': 'هر گرم طلای ۱۸ عیار', '3': 'هر گرم طلای ۱۴ عیار', '4': 'هر اونس طلا', '5': 'لیره طلا' }
+      ar: {
+        '1': 'جرام الذهب عيار 24',
+        '12': 'جرام الذهب عيار 22',
+        '11': 'جرام الذهب عيار 21',
+        '2': 'جرام الذهب عيار 18',
+        '3': 'جرام الذهب عيار 14',
+        '4': 'أونصة الذهب',
+        '5': 'الليرة الذهب',
+        '7': 'نصف ليرة ذهب',
+        '8': 'ربع ليرة ذهب',
+        '6': 'جرام الفضة'
+      },
+      en: {
+        '1': '24K Gold Gram',
+        '12': '22K Gold Gram',
+        '11': '21K Gold Gram',
+        '2': '18K Gold Gram',
+        '3': '14K Gold Gram',
+        '4': 'Gold Ounce',
+        '5': 'Gold Lira (Tam)',
+        '7': 'Half Gold Lira',
+        '8': 'Quarter Gold Lira',
+        '6': 'Silver Gram'
+      },
+      tr: {
+        '1': '24 Ayar Altın Gramı',
+        '12': '22 Ayar Altın Gramı',
+        '11': '21 Ayar Altın Gramı',
+        '2': '18 Ayar Altın Gramı',
+        '3': '14 Ayar Altın Gramı',
+        '4': 'Ons Altın',
+        '5': 'Tam Altın',
+        '7': 'Yarım Altın',
+        '8': 'Çeyrek Altın',
+        '6': 'Gümüş Gramı'
+      },
+      ru: {
+        '1': 'грамм золота 24 карата',
+        '12': 'грамм золота 22 карата',
+        '11': 'грамм золота 21 карат',
+        '2': 'грамм золота 18 карат',
+        '3': 'грамм золота 14 карат',
+        '4': 'Унция золота',
+        '5': 'Золотая лира',
+        '7': 'Половина лиры',
+        '8': 'Четверть лиры',
+        '6': 'Грамм серебра'
+      },
+      fa: {
+        '1': 'هر گرم طلای ۲۴ عیار',
+        '12': 'هر گرم طلای ۲۲ عیار',
+        '11': 'هر گرم طلای ۲۱ عیار',
+        '2': 'هر گرم طلای ۱۸ عیار',
+        '3': 'هر گرم طلای ۱۴ عیار',
+        '4': 'هر اونس طلا',
+        '5': 'لیره طلا',
+        '7': 'نیم لیره طلا',
+        '8': 'ربع لیره طلا',
+        '6': 'هر گرم نقره'
+      },
+      ur: {
+        '1': '24 قیراط سونا فی گرام',
+        '12': '22 قیراط سونا فی گرام',
+        '11': '21 قیراط سونا فی گرام',
+        '2': '18 قیراط سونا فی گرام',
+        '3': '14 قیراط سونا فی گرام',
+        '4': 'سونے کا اونس',
+        '5': 'ترک گولڈ لیرا',
+        '7': 'نصف گولڈ لیرا',
+        '8': 'چوتھائی گولڈ لیرا',
+        '6': 'چاندی فی گرام'
+      }
     };
     return map[locale]?.[id] || defaultName;
   };
@@ -135,7 +230,9 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
       modeSell: 'بيع الذهب (سعر البيع)',
       resultLabel: 'القيمة الإجمالية التقريبية:',
       aiTitle: '🤖 تحليل وتوصيات الذكاء الاصطناعي اليوم (Gemini AI)',
-      textDescription: 'تُستخلص هذه الأسعار تلقائياً على مدار الساعة من أسواق الصاغة التركية لتوفر للمغتربين والمهنيين والمستثمرين مؤشرات دقيقة لإدارة مدخراتهم.'
+      textDescription: 'تُستخلص هذه الأسعار تلقائياً على مدار الساعة من أسواق الصاغة التركية لتوفر للمغتربين والمهنيين والمستثمرين مؤشرات دقيقة لإدارة مدخراتهم.',
+      liveBadge: 'مباشر: تحديث تلقائي لحظي للأسعار',
+      btnRefresh: 'تحديث الآن'
     },
     en: {
       title: 'Gold Prices in Turkey Today',
@@ -152,7 +249,9 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
       modeSell: 'Sell Gold (Selling Rate)',
       resultLabel: 'Estimated Total Value:',
       aiTitle: '🤖 Gemini AI Market Analysis & Advisory Today',
-      textDescription: 'These gold rates are compiled automatically throughout the day from official Turkish jewelry markets to assist with your saving and investment estimates.'
+      textDescription: 'These gold rates are compiled automatically throughout the day from official Turkish jewelry markets to assist with your saving and investment estimates.',
+      liveBadge: 'Live: Real-Time Auto-Updating Rates',
+      btnRefresh: 'Refresh'
     },
     tr: {
       title: 'Türkiye Altın Fiyatları Bugün',
@@ -169,7 +268,9 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
       modeSell: 'Altın Satış (Satış Fiyatı)',
       resultLabel: 'Tahmini Toplam Değer:',
       aiTitle: '🤖 Gemini AI Günlük Altın Piyasası Analiz ve Tavsiyeleri',
-      textDescription: 'Bu altın fiyatları, tasarruf ve yatırım tahminlerinize yardımcı olmak amacıyla gün boyunca resmi Türkiye kuyumcular piyasasından otomatik olarak derlenir.'
+      textDescription: 'Bu altın fiyatları, tasarruf ve yatırım tahminlerinize yardımcı olmak amacıyla gün boyunca resmi Türkiye kuyumcular piyasasından otomatik olarak derlenir.',
+      liveBadge: 'Canlı: Sürekli Otomatik Güncelleme',
+      btnRefresh: 'Şimdi Yenile'
     },
     ru: {
       title: 'Цены на золото в Турции сегодня',
@@ -186,7 +287,9 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
       modeSell: 'Продажа золота (курс продажи)',
       resultLabel: 'Оценочная общая стоимость:',
       aiTitle: '🤖 Анализ рынка и рекомендации Gemini AI',
-      textDescription: 'Эти курсы золота автоматически собираются в течение дня с ювелирных рынков Турции для планирования ваших сбережений.'
+      textDescription: 'Эти курсы золота автоматически собираются в течение дня с ювелирных рынков Турции для планирования ваших сбережений.',
+      liveBadge: 'В прямом эфире: Автообновление цен',
+      btnRefresh: 'Обновить'
     },
     fa: {
       title: 'قیمت طلا در ترکیه امروز',
@@ -203,7 +306,9 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
       modeSell: 'فروش طلا به ما (نرخ فروش)',
       resultLabel: 'ارزش کل تقریبی:',
       aiTitle: '🤖 تحلیل روزانه بازار و توصیه‌های هوش مصنوعی Gemini',
-      textDescription: 'این نرخ‌های طلا به صورت خودکار در طول روز از بازار صنف طلافروشان ترکیه جهت برنامه‌ریزی پس‌انداز و سرمایه‌گذاری شما گردآوری می‌شود.'
+      textDescription: 'این نرخ‌های طلا به صورت خودکار در طول روز از بازار صنف طلافروشان ترکیه جهت برنامه‌ریزی پس‌انداز و سرمایه‌گذاری شما گردآوری می‌شود.',
+      liveBadge: 'زنده: به‌روزرسانی خودکار لحظه‌ای',
+      btnRefresh: 'به‌روزرسانی اکنون'
     },
     ur: {
       title: 'ترکی میں سونے کی قیمتیں آج',
@@ -220,7 +325,9 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
       modeSell: 'ہمیں سونا فروخت کریں (فروخت ریٹ)',
       resultLabel: 'تقریبی کل قیمت:',
       aiTitle: '🤖 اے آئی جیمنی سونے کی مارکیٹ کی رپورٹ',
-      textDescription: 'یہ قیمتیں استنبول کے بازارِ صرافہ سے براہِ راست حاصل کی جاتی ہیں تاکہ آپ سرمایہ کاری کی منصوبہ بندی کر سکیں۔'
+      textDescription: 'یہ قیمتیں استنبول کے بازارِ صرافہ سے براہِ راست حاصل کی جاتی ہیں تاکہ آپ سرمایہ کاری کی منصوبہ بندی کر سکیں۔',
+      liveBadge: 'لائیو: ریئل ٹائم خودکار اپ ڈیٹ',
+      btnRefresh: 'تازہ کریں'
     }
   }[locale];
 
@@ -235,7 +342,10 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
       '2': { bg: 'linear-gradient(135deg, #edc0a6, #c27a51)', text: '#fff', label: '18K' },
       '3': { bg: 'linear-gradient(135deg, #9ca3af, #4b5563)', text: '#fff', label: '14K' },
       '4': { bg: 'linear-gradient(135deg, #cbd5e1, #64748b)', text: '#fff', label: 'OZ' },
-      '5': { bg: 'linear-gradient(135deg, #fcd34d, #b45309)', text: '#fff', label: 'LIRA' }
+      '5': { bg: 'linear-gradient(135deg, #fcd34d, #b45309)', text: '#fff', label: 'TAM' },
+      '7': { bg: 'linear-gradient(135deg, #fef08a, #854d0e)', text: '#fff', label: 'YARIM' },
+      '8': { bg: 'linear-gradient(135deg, #fef9c3, #713f12)', text: '#713f12', label: 'CEYREK' },
+      '6': { bg: 'linear-gradient(135deg, #e2e8f0, #94a3b8)', text: '#1e293b', label: 'SILVER' }
     };
     const item = styleMap[id] || { bg: '#e2e8f0', text: '#1e293b', label: 'ALTIN' };
     return `<span class="gold-badge" style="background: ${item.bg}; color: ${item.text}; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: 800; text-transform: uppercase;">${item.label}</span>`;
@@ -260,11 +370,11 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
           <div style="margin-top: 8px; display: flex; gap: 16px;">
             <div>
               <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; display: block;">${locale === 'ar' || locale === 'fa' || locale === 'ur' ? (locale === 'ar' ? 'شراء' : (locale === 'fa' ? 'خرید' : 'خرید')) : (locale === 'tr' ? 'Alış' : 'Buy')}</span>
-              <span style="font-size: 1.25rem; font-weight: 800; color: var(--text-dark);">${buyPrice} ₺</span>
+              <span class="highlight-price-val" data-highlight-id="${m.id}" data-highlight-type="buy" style="font-size: 1.25rem; font-weight: 800; color: var(--text-dark);">${buyPrice} ₺</span>
             </div>
             <div style="border-left: 1px solid var(--border); padding-left: 16px; padding-right: 16px;">
               <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; display: block;">${locale === 'ar' || locale === 'fa' || locale === 'ur' ? (locale === 'ar' ? 'بيع' : (locale === 'fa' ? 'فروش' : 'فروخت')) : (locale === 'tr' ? 'Satış' : 'Sell')}</span>
-              <span style="font-size: 1.25rem; font-weight: 800; color: #b45309;">${sellPrice} ₺</span>
+              <span class="highlight-price-val" data-highlight-id="${m.id}" data-highlight-type="sell" style="font-size: 1.25rem; font-weight: 800; color: #b45309;">${sellPrice} ₺</span>
             </div>
           </div>
         </div>
@@ -277,12 +387,82 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
 
   const html = `
     <style>
+      @keyframes livePulse {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+      }
+      .live-indicator-dot {
+        width: 10px;
+        height: 10px;
+        background-color: #10b981;
+        border-radius: 50%;
+        display: inline-block;
+        animation: livePulse 2s infinite;
+      }
+      .live-status-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(16, 185, 129, 0.08);
+        border: 1px solid rgba(16, 185, 129, 0.25);
+        border-radius: var(--radius-md);
+        padding: 12px 20px;
+        margin: 20px auto 0;
+        max-width: 1160px;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .live-pill {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 800;
+        font-size: 0.92rem;
+        color: #065f46;
+      }
+      .live-meta {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        font-size: 0.86rem;
+        color: var(--text-muted);
+      }
+      .gold-refresh-btn {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 6px 14px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      }
+      .gold-refresh-btn:hover {
+        background: #fffbeb;
+        border-color: #fbbf24;
+        color: #b45309;
+        transform: translateY(-1px);
+      }
+      @keyframes priceFlashAnim {
+        0% { background-color: rgba(251, 191, 36, 0.45); }
+        100% { background-color: transparent; }
+      }
+      .price-flash {
+        animation: priceFlashAnim 1.4s ease-out;
+        border-radius: 4px;
+      }
       .gold-highlights {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         gap: 20px;
         max-width: 1200px;
-        margin: 30px auto 10px;
+        margin: 24px auto 10px;
         padding: 0 20px;
       }
       .highlight-card {
@@ -448,13 +628,12 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
       .calc-input:focus {
         border-color: #fbbf24;
         box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15);
-        outline: none;
       }
       .calc-presets {
         display: flex;
-        flex-wrap: wrap;
         gap: 8px;
-        margin-top: 10px;
+        margin-top: 8px;
+        flex-wrap: wrap;
       }
       .preset-btn {
         background: var(--bg-site);
@@ -493,8 +672,18 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
       <h1 class="hero-title-gradient" style="text-align: center; margin-bottom: 12px; font-size: 2.3rem; font-weight: 800;">${t.title}</h1>
       <p style="color: var(--text-muted); text-align: center; margin-bottom: 16px; font-size: 1.05rem; max-width: 700px; margin-left: auto; margin-right: auto; line-height: 1.6;">${t.subtitle}</p>
       
-      <div style="text-align: center; font-size: 0.85rem; color: var(--text-muted); font-weight: 600; margin-bottom: 20px;">
-        <i class="fa-regular fa-clock"></i> ${t.lastUpdate} ${lastUpdateStr}
+      <!-- Live Status & Auto-Updating Bar -->
+      <div class="live-status-container">
+        <div class="live-pill">
+          <span class="live-indicator-dot"></span>
+          <span id="live-indicator-text">${t.liveBadge}</span>
+        </div>
+        <div class="live-meta">
+          <span id="gold-last-updated-text"><i class="fa-regular fa-clock"></i> ${t.lastUpdate} ${lastUpdateStr}</span>
+          <button type="button" id="gold-refresh-btn" class="gold-refresh-btn" onclick="triggerManualGoldRefresh()" title="${t.btnRefresh}">
+            <i class="fa-solid fa-arrows-rotate" id="refresh-icon"></i> <span>${t.btnRefresh}</span>
+          </button>
+        </div>
       </div>
 
       <!-- Key Highlight Rates -->
@@ -527,9 +716,9 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
               </thead>
               <tbody>
                 ${metals.map(m => {
-    const buyPrice = m.buy.toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const sellPrice = m.sell.toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    return `
+                  const buyPrice = m.buy.toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                  const sellPrice = m.sell.toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                  return `
                     <tr class="gold-row">
                       <td style="display: flex; align-items: center; gap: 12px; text-align: ${locale === 'ar' ? 'right' : 'left'};">
                         <div style="font-size: 1.15rem; color: #d97706; display: flex; align-items: center;"><i class="${m.id === '4' || m.id === '5' ? 'fa-solid fa-coins' : 'fa-solid fa-cubes'}"></i></div>
@@ -541,11 +730,11 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
                           <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">${m.unit}</div>
                         </div>
                       </td>
-                      <td style="font-size: 1.05rem; font-weight: 800; color: var(--text-dark);">${buyPrice} ₺</td>
-                      <td style="font-size: 1.05rem; font-weight: 800; color: #b45309;">${sellPrice} ₺</td>
+                      <td data-gold-id="${m.id}" data-gold-type="buy" style="font-size: 1.05rem; font-weight: 800; color: var(--text-dark);">${buyPrice} ₺</td>
+                      <td data-gold-id="${m.id}" data-gold-type="sell" style="font-size: 1.05rem; font-weight: 800; color: #b45309;">${sellPrice} ₺</td>
                     </tr>
                   `;
-  }).join('')}
+                }).join('')}
               </tbody>
             </table>
           </div>
@@ -553,9 +742,9 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
           <!-- Mobile View Cards -->
           <div class="gold-mobile-cards">
             ${metals.map(m => {
-    const buyPrice = m.buy.toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const sellPrice = m.sell.toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    return `
+              const buyPrice = m.buy.toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+              const sellPrice = m.sell.toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+              return `
                 <div class="mobile-gold-card">
                   <div class="mobile-gold-card-header" style="direction: ${locale === 'ar' ? 'rtl' : 'ltr'};">
                     <div style="display: flex; align-items: center; gap: 8px;">
@@ -567,16 +756,16 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
                   <div class="mobile-gold-price-box" style="direction: ${locale === 'ar' ? 'rtl' : 'ltr'};">
                     <div class="price-slot">
                       <span class="price-slot-title">${locale === 'ar' ? 'شراء' : (locale === 'tr' ? 'Alış' : 'Buy')}</span>
-                      <span class="price-slot-value">${buyPrice} ₺</span>
+                      <span class="price-slot-value" data-gold-id="${m.id}" data-gold-type="buy">${buyPrice} ₺</span>
                     </div>
                     <div class="price-slot sell">
                       <span class="price-slot-title">${locale === 'ar' ? 'بيع' : (locale === 'tr' ? 'Satış' : 'Sell')}</span>
-                      <span class="price-slot-value">${sellPrice} ₺</span>
+                      <span class="price-slot-value" data-gold-id="${m.id}" data-gold-type="sell">${sellPrice} ₺</span>
                     </div>
                   </div>
                 </div>
               `;
-  }).join('')}
+            }).join('')}
           </div>
 
           <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 25px; line-height: 1.6; text-align: center;">${t.textDescription}</p>
@@ -630,10 +819,11 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
 
     <script>
       const goldRates = ${JSON.stringify(metals.reduce((acc: any, cur) => {
-    acc[cur.id] = { buy: cur.buy, sell: cur.sell, name: cur.name };
-    return acc;
-  }, {}))};
+        acc[cur.id] = { buy: cur.buy, sell: cur.sell, name: cur.name };
+        return acc;
+      }, {}))};
       const locale = '${locale}';
+      let isUpdating = false;
 
       function setWeight(val) {
         document.getElementById('gold-weight').value = val;
@@ -662,8 +852,89 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
         document.getElementById('gold-calc-result').textContent = formatter.format(total) + ' TRY';
       }
 
+      async function triggerManualGoldRefresh() {
+        await fetchLiveRates(true);
+      }
+
+      async function fetchLiveRates(force) {
+        if (isUpdating) return;
+        isUpdating = true;
+        const icon = document.getElementById('refresh-icon');
+        if (icon) icon.classList.add('fa-spin');
+
+        try {
+          const url = '/api/gold' + (force ? '?refresh=1&t=' : '?t=') + Date.now();
+          const res = await fetch(url);
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const data = await res.json();
+          if (data && data.success && Array.isArray(data.metals) && data.metals.length > 0) {
+            updateGoldUi(data.metals, data.updatedAt);
+          }
+        } catch (err) {
+          console.warn('[Auto-update] gold rate fetch error:', err);
+        } finally {
+          isUpdating = false;
+          if (icon) icon.classList.remove('fa-spin');
+        }
+      }
+
+      function updateGoldUi(metalsList, timestamp) {
+        const formatter = new Intl.NumberFormat(locale === 'ar' || locale === 'fa' || locale === 'ur' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')), {
+          maximumFractionDigits: 2,
+          minimumFractionDigits: 2
+        });
+
+        metalsList.forEach(m => {
+          goldRates[m.id] = { buy: m.buy, sell: m.sell, name: m.name };
+
+          const buyText = formatter.format(m.buy) + ' ₺';
+          const sellText = formatter.format(m.sell) + ' ₺';
+
+          document.querySelectorAll('[data-gold-id="' + m.id + '"]').forEach(el => {
+            const type = el.getAttribute('data-gold-type');
+            const targetText = type === 'buy' ? buyText : sellText;
+            if (el.textContent.trim() !== targetText) {
+              el.textContent = targetText;
+              el.classList.add('price-flash');
+              setTimeout(() => el.classList.remove('price-flash'), 1400);
+            }
+          });
+
+          document.querySelectorAll('[data-highlight-id="' + m.id + '"]').forEach(el => {
+            const type = el.getAttribute('data-highlight-type');
+            const targetText = type === 'buy' ? buyText : sellText;
+            if (el.textContent.trim() !== targetText) {
+              el.textContent = targetText;
+              el.classList.add('price-flash');
+              setTimeout(() => el.classList.remove('price-flash'), 1400);
+            }
+          });
+        });
+
+        if (timestamp) {
+          const dateObj = new Date(timestamp);
+          const dateStr = dateObj.toLocaleString(locale === 'ar' || locale === 'fa' || locale === 'ur' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : (locale === 'ru' ? 'ru-RU' : 'en-US')));
+          const el = document.getElementById('gold-last-updated-text');
+          if (el) el.innerHTML = '<i class="fa-regular fa-clock"></i> ' + '${t.lastUpdate} ' + dateStr;
+        }
+
+        calculateGold();
+      }
+
       document.addEventListener('DOMContentLoaded', () => {
         calculateGold();
+
+        // Autonomous Live Polling every 60 seconds
+        setInterval(() => {
+          fetchLiveRates(false);
+        }, 60000);
+
+        // Auto-refresh when visitor switches back to this tab
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') {
+            fetchLiveRates(false);
+          }
+        });
       });
     </script>
   `;
@@ -672,6 +943,6 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
     ? 'أسعار الذهب في تركيا اليوم | عيار 24 و 21 والليرة الذهب بالليرة التركية'
     : (locale === 'tr' ? 'Bugün Türkiye Altın Fiyatları | Canlı Altın Ayarları ve Fiyatları' : 'Gold Prices in Turkey Today | Live Gold Karat & Lira Rates');
 
-  c.header('Cache-Control', 'public, max-age=300, s-maxage=1800, stale-while-revalidate=3600');
+  c.header('Cache-Control', 'public, max-age=60, s-maxage=120, stale-while-revalidate=300');
   return c.html(renderLayout(c, seoTitle, html, locale));
 });
