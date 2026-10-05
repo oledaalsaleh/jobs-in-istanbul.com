@@ -27,6 +27,11 @@ import {
   istanbulAppArticleFa,
   istanbulAppArticleUr
 } from '../data/istanbul-app-article'
+import {
+  remoteWorkArticleAr,
+  remoteWorkArticleEn,
+  remoteWorkArticleTr
+} from '../data/articles/remote-work-turkey'
 
 export const careerBlogRouter = new Hono()
 
@@ -52,6 +57,7 @@ careerBlogRouter.get('/blog', (c) => {
 // Fallback hardcoded seeded articles if the database is empty
 export const seededArticles: Record<string, any[]> = {
   ar: [
+    remoteWorkArticleAr,
     istanbulAppArticleAr,
     aktuelAppArticleAr,
     quranAppArticleAr,
@@ -2875,6 +2881,7 @@ export const seededArticles: Record<string, any[]> = {
     }
   ],
   en: [
+    remoteWorkArticleEn,
     istanbulAppArticleEn,
     aktuelAppArticleEn,
     quranAppArticleEn,
@@ -3716,6 +3723,7 @@ export const seededArticles: Record<string, any[]> = {
     }
   ],
   tr: [
+    remoteWorkArticleTr,
     istanbulAppArticleTr,
     aktuelAppArticleTr,
     quranAppArticleTr,
@@ -5146,6 +5154,12 @@ function getCategory(slug: string, locale: any): { name: string; color: string }
       fr: 'Applications islamiques',
       bn: 'ইসলামিক অ্যাপস',
       de: 'Islamische Apps'
+    },
+    'remote-work-turkey-freelance-company-tax-2026': {
+      ar: 'العمل الحر والضرائب',
+      en: 'Freelance & Taxes',
+      tr: 'Freelance ve Vergi',
+      ru: 'Фриланс и налоги'
     }
   };
 
@@ -5162,6 +5176,7 @@ function getCategory(slug: string, locale: any): { name: string; color: string }
   };
 
   const colors: Record<string, string> = {
+    'remote-work-turkey-freelance-company-tax-2026': '#0284c7', // sky blue
     'jobs-in-istanbul-app-official-guide-2026': '#0284c7',
     'quran-karim-app-offline-features-download': '#047857', // emerald green
     'kuran-i-kerim-namaz-vakitleri-uygulamasi-indir': '#047857', // emerald green
