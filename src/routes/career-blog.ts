@@ -37,6 +37,11 @@ import {
   costOfLivingArticleEn,
   costOfLivingArticleTr
 } from '../data/articles/cost-of-living-istanbul-2026'
+import {
+  tourismHotelSalariesArticleAr,
+  tourismHotelSalariesArticleEn,
+  tourismHotelSalariesArticleTr
+} from '../data/articles/tourism-hotel-salaries-istanbul-2026'
 
 export const careerBlogRouter = new Hono()
 
@@ -62,6 +67,7 @@ careerBlogRouter.get('/blog', (c) => {
 // Fallback hardcoded seeded articles if the database is empty
 export const seededArticles: Record<string, any[]> = {
   ar: [
+    tourismHotelSalariesArticleAr,
     costOfLivingArticleAr,
     remoteWorkArticleAr,
     istanbulAppArticleAr,
@@ -2887,6 +2893,7 @@ export const seededArticles: Record<string, any[]> = {
     }
   ],
   en: [
+    tourismHotelSalariesArticleEn,
     costOfLivingArticleEn,
     remoteWorkArticleEn,
     istanbulAppArticleEn,
@@ -3730,6 +3737,7 @@ export const seededArticles: Record<string, any[]> = {
     }
   ],
   tr: [
+    tourismHotelSalariesArticleTr,
     costOfLivingArticleTr,
     remoteWorkArticleTr,
     istanbulAppArticleTr,
@@ -5174,6 +5182,12 @@ function getCategory(slug: string, locale: any): { name: string; color: string }
       en: 'Cost of Living & Housing',
       tr: 'Yaşam Maliyeti ve Konut',
       ru: 'Стоимость жизни и жилье'
+    },
+    'tourism-hotel-salaries-istanbul-2026-guide': {
+      ar: 'السياحة والفنادق',
+      en: 'Tourism & Hospitality',
+      tr: 'Turizm ve Otelcilik',
+      ru: 'Туризм и гостиницы'
     }
   };
 
@@ -5190,6 +5204,7 @@ function getCategory(slug: string, locale: any): { name: string; color: string }
   };
 
   const colors: Record<string, string> = {
+    'tourism-hotel-salaries-istanbul-2026-guide': '#4338ca', // indigo
     'cost-of-living-istanbul-2026-guide': '#059669', // emerald
     'remote-work-turkey-freelance-company-tax-2026': '#0284c7', // sky blue
     'jobs-in-istanbul-app-official-guide-2026': '#0284c7',
