@@ -530,7 +530,23 @@ Portal Statistics:
         background: var(--primary);
       }
       .kpi-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
-      .kpi-icon { font-size: 2rem; margin-bottom: 8px; }
+      .kpi-icon {
+        font-size: 1.4rem;
+        color: var(--primary);
+        width: 48px;
+        height: 48px;
+        background: var(--primary-light);
+        border-radius: var(--r-md);
+        margin: 0 auto 12px auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.25s ease, background 0.25s ease;
+      }
+      .kpi-card:hover .kpi-icon {
+        transform: scale(1.1);
+        background: rgba(99, 102, 241, 0.18);
+      }
       .kpi-number { font-size: 2.4rem; font-weight: 900; color: var(--primary); line-height: 1; margin-bottom: 4px; }
       .kpi-label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
       
@@ -645,7 +661,7 @@ Portal Statistics:
 
     <!-- Hero -->
     <section class="insights-hero">
-      <h1>📊 ${t.title}</h1>
+      <h1><i class="fa-solid fa-chart-line" style="margin-inline-end: 12px; opacity: 0.95;"></i>${t.title}</h1>
       <p>${t.subtitle}</p>
     </section>
 
@@ -654,22 +670,22 @@ Portal Statistics:
       <!-- KPI Cards -->
       <div class="kpi-grid">
         <div class="kpi-card">
-          <div class="kpi-icon">💼</div>
+          <div class="kpi-icon"><i class="fa-solid fa-briefcase"></i></div>
           <div class="kpi-number">${totalJobs}</div>
           <div class="kpi-label">${t.totalJobs}</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-icon">🏢</div>
+          <div class="kpi-icon"><i class="fa-solid fa-building"></i></div>
           <div class="kpi-number">${totalCompanies}</div>
           <div class="kpi-label">${t.totalCompanies}</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-icon">📂</div>
+          <div class="kpi-icon"><i class="fa-solid fa-layer-group"></i></div>
           <div class="kpi-number">${totalCategories}</div>
           <div class="kpi-label">${t.totalCategories}</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-icon">💰</div>
+          <div class="kpi-icon"><i class="fa-solid fa-money-bill-trend-up"></i></div>
           <div class="kpi-number">${salaryCount}</div>
           <div class="kpi-label">${t.salaryInsights}</div>
         </div>
@@ -789,11 +805,11 @@ Portal Statistics:
                 <div class="donut-legend">
                   <div class="legend-item">
                     <div class="legend-dot" style="background:#f59e0b"></div>
-                    <span>⭐ ${t.featured}: ${featuredCount} (${Math.round(featPct)}%)</span>
+                    <span><i class="fa-solid fa-star" style="color:#f59e0b; font-size:0.8rem; margin-inline-end:4px;"></i>${t.featured}: ${featuredCount} (${Math.round(featPct)}%)</span>
                   </div>
                   <div class="legend-item">
                     <div class="legend-dot" style="background:#6366f1"></div>
-                    <span>📋 ${t.regular}: ${regularCount} (${Math.round(regPct)}%)</span>
+                    <span><i class="fa-solid fa-list-check" style="color:#6366f1; font-size:0.8rem; margin-inline-end:4px;"></i>${t.regular}: ${regularCount} (${Math.round(regPct)}%)</span>
                   </div>
                 </div>
               `
@@ -862,7 +878,7 @@ Portal Statistics:
 
       <!-- Salary Estimator Card -->
       <div class="chart-card" style="margin-bottom: 30px; border: 1px solid var(--border); text-align: left;">
-        <div class="chart-title"><i class="fa-solid fa-calculator"></i> ${locale === 'ar' ? '🧮 حاسبة ومخمن الرواتب التفاعلي' : (locale === 'tr' ? '🧮 İnteraktif Maaş Tahmin Aracı' : '🧮 Interactive Salary Estimator')}</div>
+        <div class="chart-title"><i class="fa-solid fa-calculator"></i> ${locale === 'ar' ? 'حاسبة ومخمن الرواتب التفاعلي' : (locale === 'tr' ? 'İnteraktif Maaş Tahmin Aracı' : 'Interactive Salary Estimator')}</div>
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5;">
           ${locale === 'ar' 
             ? 'اختر القطاع ونوع الدوام لمعرفة متوسط وهيكل الرواتب التقريبية المتوقعة في سوق العمل بإسطنبول حالياً:'

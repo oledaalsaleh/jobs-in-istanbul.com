@@ -898,6 +898,32 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           .nav-dropdown {
             position: relative;
           }
+          .nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-body);
+            transition: var(--t-base);
+          }
+          .nav-link i.nav-icon {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            transition: transform 0.2s ease;
+          }
+          .nav-link:hover i.nav-icon {
+            transform: translateY(-1px);
+          }
+          .nav-chevron {
+            font-size: 0.65rem;
+            opacity: 0.6;
+            transition: transform 0.25s ease;
+            margin-inline-start: 2px;
+          }
+          .nav-dropdown:hover .nav-chevron {
+            transform: rotate(180deg);
+          }
           .nav-dropdown-menu {
             display: none;
             position: absolute;
@@ -907,7 +933,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: var(--r-md);
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
             min-width: 250px;
             padding: 8px 0;
             z-index: 1000;
@@ -930,12 +956,12 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           .dropdown-item:hover {
             background: var(--primary-light);
             color: var(--primary);
+            padding-inline-start: 19px;
           }
           .dropdown-item i {
             font-size: 0.95rem;
             width: 18px;
             text-align: center;
-            opacity: 0.8;
           }
           @keyframes dropdownFade {
             from { opacity: 0; transform: translate(-50%, 8px); }
@@ -943,26 +969,35 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           }
         </style>
         <ul class="nav-links">
-          <li><a href="/${locale}" class="nav-link">🏠 ${t.home}</a></li>
+          <li>
+            <a href="/${locale}" class="nav-link">
+              <i class="fa-solid fa-house-chimney nav-icon" style="color: var(--primary);"></i>
+              <span>${t.home}</span>
+            </a>
+          </li>
           
           <!-- Dropdown: AI Tools -->
           <li class="nav-dropdown">
-            <a href="#" class="nav-link" onclick="event.preventDefault()">🤖 ${t.aiTools} ▾</a>
+            <a href="#" class="nav-link" onclick="event.preventDefault()">
+              <i class="fa-solid fa-wand-magic-sparkles nav-icon" style="color: #6366f1;"></i>
+              <span>${t.aiTools}</span>
+              <i class="fa-solid fa-chevron-down nav-chevron"></i>
+            </a>
             <div class="nav-dropdown-menu">
               <a href="/${locale}/cv-optimizer" class="dropdown-item">
                 <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary);"></i>
                 <span>${t.cvOptimizer}</span>
               </a>
               <a href="/${locale}/ats-scanner" class="dropdown-item">
-                <i class="fa-solid fa-barcode" style="color: #6366f1;"></i>
+                <i class="fa-solid fa-shield-halved" style="color: #6366f1;"></i>
                 <span>${t.atsScanner}</span>
               </a>
               <a href="/${locale}/cover-letter-generator" class="dropdown-item">
-                <i class="fa-solid fa-pen-nib" style="color: var(--accent);"></i>
+                <i class="fa-solid fa-envelope-open-text" style="color: var(--accent);"></i>
                 <span>${t.coverLetter}</span>
               </a>
               <a href="/${locale}/interview-prep" class="dropdown-item">
-                <i class="fa-solid fa-microphone-lines" style="color: #10b981;"></i>
+                <i class="fa-solid fa-comments" style="color: #10b981;"></i>
                 <span>${t.interviewPrep}</span>
               </a>
             </div>
@@ -970,14 +1005,18 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
 
           <!-- Dropdown: Career & Rules -->
           <li class="nav-dropdown">
-            <a href="#" class="nav-link" onclick="event.preventDefault()">🛠 ${t.toolsAndTests} ▾</a>
+            <a href="#" class="nav-link" onclick="event.preventDefault()">
+              <i class="fa-solid fa-toolbox nav-icon" style="color: #0ea5e9;"></i>
+              <span>${t.toolsAndTests}</span>
+              <i class="fa-solid fa-chevron-down nav-chevron"></i>
+            </a>
             <div class="nav-dropdown-menu">
               <a href="/${locale}/work-permit-eligibility" class="dropdown-item">
-                <i class="fa-solid fa-clipboard-check" style="color: #22c55e;"></i>
+                <i class="fa-solid fa-id-card-clip" style="color: #22c55e;"></i>
                 <span style="font-weight: 700; color: var(--primary);">${t.workPermitEligibility}</span>
               </a>
               <a href="/${locale}/investor-calculator" class="dropdown-item">
-                <i class="fa-solid fa-building-user" style="color: #6366f1;"></i>
+                <i class="fa-solid fa-building-circle-check" style="color: #6366f1;"></i>
                 <span style="font-weight: 700; color: #6366f1;">${t.investorCalculator}</span>
               </a>
               <a href="/${locale}/salary-calculator-2026" class="dropdown-item">
@@ -985,7 +1024,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
                 <span style="font-weight: 700; color: #ec4899;">${t.salaryCalculator2026}</span>
               </a>
               <a href="/${locale}/resume-builder" class="dropdown-item">
-                <i class="fa-solid fa-file-invoice" style="color: #eab308;"></i>
+                <i class="fa-solid fa-file-lines" style="color: #eab308;"></i>
                 <span>${t.cvBuilder}</span>
               </a>
               <a href="/${locale}/work-permit-calculator" class="dropdown-item">
@@ -993,7 +1032,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
                 <span>${t.workPermit}</span>
               </a>
               <a href="/${locale}/turkish-test" class="dropdown-item">
-                <i class="fa-solid fa-graduation-cap" style="color: #14b8a6;"></i>
+                <i class="fa-solid fa-spell-check" style="color: #14b8a6;"></i>
                 <span>${t.turkishTest}</span>
               </a>
               <a href="/${locale}/salary-calculator" class="dropdown-item">
@@ -1015,11 +1054,36 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
             </div>
           </li>
           
-          <li><a href="/${locale}/insights" class="nav-link">📊 ${t.insights}</a></li>
-          <li><a href="/${locale}/blog" class="nav-link">📝 ${t.blog}</a></li>
-          <li><a href="/${locale}/blog/${locale === 'tr' ? 'kuran-i-kerim-namaz-vakitleri-uygulamasi-indir' : 'quran-karim-app-offline-features-download'}" class="nav-link" style="color: #059669; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;"><i class="fa-solid fa-book-quran"></i> <span>${locale === 'ar' ? 'تطبيق القرآن الكريم' : (locale === 'tr' ? 'Kuran Uygulaması' : 'Quran App')}</span></a></li>
-          <li><a href="/${locale}/candidate/dashboard" class="nav-link" style="color: var(--primary);"><i class="fa-solid fa-graduation-cap"></i> ${t.candidatePortal}</a></li>
-          <li><a href="/${locale}/employer/dashboard" class="nav-link nav-cta"><i class="fa-solid fa-user-tie"></i> ${t.employerPortal}</a></li>
+          <li>
+            <a href="/${locale}/insights" class="nav-link">
+              <i class="fa-solid fa-chart-column nav-icon" style="color: #10b981;"></i>
+              <span>${t.insights}</span>
+            </a>
+          </li>
+          <li>
+            <a href="/${locale}/blog" class="nav-link">
+              <i class="fa-solid fa-newspaper nav-icon" style="color: #f59e0b;"></i>
+              <span>${t.blog}</span>
+            </a>
+          </li>
+          <li>
+            <a href="/${locale}/blog/${locale === 'tr' ? 'kuran-i-kerim-namaz-vakitleri-uygulamasi-indir' : 'quran-karim-app-offline-features-download'}" class="nav-link" style="color: #059669; font-weight: 700;">
+              <i class="fa-solid fa-book-quran nav-icon" style="color: #059669;"></i>
+              <span>${locale === 'ar' ? 'تطبيق القرآن الكريم' : (locale === 'tr' ? 'Kuran Uygulaması' : 'Quran App')}</span>
+            </a>
+          </li>
+          <li>
+            <a href="/${locale}/candidate/dashboard" class="nav-link" style="color: var(--primary);">
+              <i class="fa-solid fa-user-graduate nav-icon" style="color: var(--primary);"></i>
+              <span>${t.candidatePortal}</span>
+            </a>
+          </li>
+          <li>
+            <a href="/${locale}/employer/dashboard" class="nav-link nav-cta">
+              <i class="fa-solid fa-user-tie" style="margin-inline-end: 4px;"></i>
+              <span>${t.employerPortal}</span>
+            </a>
+          </li>
           <li>
             <a href="https://t.me/jobsistanbul" target="_blank" rel="noopener" class="nav-link nav-cta" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; color: white !important; font-weight: 800; border-radius: var(--r-sm) !important; padding: 7px 16px !important; display: flex; align-items: center; gap: 8px;">
               <i class="fa-solid fa-paper-plane" style="font-size: 0.9rem;"></i>
@@ -1104,33 +1168,33 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         <button onclick="document.getElementById('mobile-nav').style.display='none'" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <nav style="display:flex; flex-direction:column; gap:6px;">
-        <a href="/${locale}" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">🏠 ${t.home}</a>
-        <a href="/${locale}/insights" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">📊 ${t.insights}</a>
-        <a href="/${locale}/blog" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">📝 ${t.blog}</a>
-        <a href="/${locale}/blog/${locale === 'tr' ? 'kuran-i-kerim-namaz-vakitleri-uygulamasi-indir' : 'quran-karim-app-offline-features-download'}" style="padding:12px 16px; border-radius:var(--r-md); color:#059669; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-book-quran"></i> ${locale === 'ar' ? 'تطبيق القرآن الكريم كامل' : (locale === 'tr' ? 'Kuran-ı Kerim Uygulaması' : 'Quran App')}</a>
+        <a href="/${locale}" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-house-chimney" style="color: var(--primary); width: 20px; text-align: center;"></i><span>${t.home}</span></a>
+        <a href="/${locale}/insights" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-chart-column" style="color: #10b981; width: 20px; text-align: center;"></i><span>${t.insights}</span></a>
+        <a href="/${locale}/blog" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-newspaper" style="color: #f59e0b; width: 20px; text-align: center;"></i><span>${t.blog}</span></a>
+        <a href="/${locale}/blog/${locale === 'tr' ? 'kuran-i-kerim-namaz-vakitleri-uygulamasi-indir' : 'quran-karim-app-offline-features-download'}" style="padding:12px 16px; border-radius:var(--r-md); color:#059669; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-book-quran" style="width: 20px; text-align: center;"></i><span>${locale === 'ar' ? 'تطبيق القرآن الكريم كامل' : (locale === 'tr' ? 'Kuran-ı Kerim Uygulaması' : 'Quran App')}</span></a>
         
-        <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-top:14px; margin-bottom:6px; padding-inline-start:16px; letter-spacing:0.05em;">🤖 ${t.aiTools}</div>
-        <a href="/${locale}/cv-optimizer" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary);"></i> ${t.cvOptimizer}</a>
-        <a href="/${locale}/ats-scanner" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-barcode" style="color: #6366f1;"></i> ${t.atsScanner}</a>
-        <a href="/${locale}/cover-letter-generator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-pen-nib" style="color: var(--accent);"></i> ${t.coverLetter}</a>
-        <a href="/${locale}/interview-prep" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-microphone-lines" style="color: #10b981;"></i> ${t.interviewPrep}</a>
+        <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-top:14px; margin-bottom:6px; padding-inline-start:16px; letter-spacing:0.05em; display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-wand-magic-sparkles" style="color: #6366f1;"></i><span>${t.aiTools}</span></div>
+        <a href="/${locale}/cv-optimizer" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary); width: 20px; text-align: center;"></i> <span>${t.cvOptimizer}</span></a>
+        <a href="/${locale}/ats-scanner" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-shield-halved" style="color: #6366f1; width: 20px; text-align: center;"></i> <span>${t.atsScanner}</span></a>
+        <a href="/${locale}/cover-letter-generator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-envelope-open-text" style="color: var(--accent); width: 20px; text-align: center;"></i> <span>${t.coverLetter}</span></a>
+        <a href="/${locale}/interview-prep" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-comments" style="color: #10b981; width: 20px; text-align: center;"></i> <span>${t.interviewPrep}</span></a>
 
-        <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-top:14px; margin-bottom:6px; padding-inline-start:16px; letter-spacing:0.05em;">🛠 ${t.toolsAndTests}</div>
-        <a href="/${locale}/work-permit-eligibility" style="padding:10px 16px; border-radius:var(--r-md); color:var(--primary); font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-clipboard-check" style="color: #22c55e;"></i> ${t.workPermitEligibility}</a>
-        <a href="/${locale}/investor-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:#6366f1; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-building-user" style="color: #6366f1;"></i> ${t.investorCalculator}</a>
-        <a href="/${locale}/salary-calculator-2026" style="padding:10px 16px; border-radius:var(--r-md); color:#ec4899; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-calculator" style="color: #ec4899;"></i> ${t.salaryCalculator2026}</a>
-        <a href="/${locale}/resume-builder" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-file-invoice" style="color: #eab308;"></i> ${t.cvBuilder}</a>
-        <a href="/${locale}/work-permit-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-passport" style="color: #a855f7;"></i> ${t.workPermit}</a>
-        <a href="/${locale}/turkish-test" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-graduation-cap" style="color: #14b8a6;"></i> ${t.turkishTest}</a>
-        <a href="/${locale}/salary-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-scale-balanced" style="color: #ec4899;"></i> ${t.salaryCalc}</a>
-        <a href="/${locale}/currency-prices" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-coins" style="color: #0ea5e9;"></i> ${t.currencyPrices}</a>
-        <a href="/${locale}/gold-prices" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-gem" style="color: #f59e0b;"></i> ${t.goldPrices}</a>
-        <a href="/${locale}/install" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-mobile-screen-button" style="color: var(--primary);"></i> ${t.installApp}</a>
+        <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-top:14px; margin-bottom:6px; padding-inline-start:16px; letter-spacing:0.05em; display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-toolbox" style="color: #0ea5e9;"></i><span>${t.toolsAndTests}</span></div>
+        <a href="/${locale}/work-permit-eligibility" style="padding:10px 16px; border-radius:var(--r-md); color:var(--primary); font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-id-card-clip" style="color: #22c55e; width: 20px; text-align: center;"></i> <span>${t.workPermitEligibility}</span></a>
+        <a href="/${locale}/investor-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:#6366f1; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-building-circle-check" style="color: #6366f1; width: 20px; text-align: center;"></i> <span>${t.investorCalculator}</span></a>
+        <a href="/${locale}/salary-calculator-2026" style="padding:10px 16px; border-radius:var(--r-md); color:#ec4899; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-calculator" style="color: #ec4899; width: 20px; text-align: center;"></i> <span>${t.salaryCalculator2026}</span></a>
+        <a href="/${locale}/resume-builder" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-file-lines" style="color: #eab308; width: 20px; text-align: center;"></i> <span>${t.cvBuilder}</span></a>
+        <a href="/${locale}/work-permit-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-passport" style="color: #a855f7; width: 20px; text-align: center;"></i> <span>${t.workPermit}</span></a>
+        <a href="/${locale}/turkish-test" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-spell-check" style="color: #14b8a6; width: 20px; text-align: center;"></i> <span>${t.turkishTest}</span></a>
+        <a href="/${locale}/salary-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-scale-balanced" style="color: #ec4899; width: 20px; text-align: center;"></i> <span>${t.salaryCalc}</span></a>
+        <a href="/${locale}/currency-prices" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-coins" style="color: #0ea5e9; width: 20px; text-align: center;"></i> <span>${t.currencyPrices}</span></a>
+        <a href="/${locale}/gold-prices" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-gem" style="color: #f59e0b; width: 20px; text-align: center;"></i> <span>${t.goldPrices}</span></a>
+        <a href="/${locale}/install" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-mobile-screen-button" style="color: var(--primary); width: 20px; text-align: center;"></i> <span>${t.installApp}</span></a>
 
         <div style="margin-top:14px; border-top:1px solid var(--border); padding-top:10px; display:flex; flex-direction:column; gap:6px;">
-          <a href="/${locale}/submit-job" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'">📢 ${t.postJob}</a>
+          <a href="/${locale}/submit-job" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-bullhorn" style="color: #f59e0b; width: 20px; text-align: center;"></i> <span>${t.postJob}</span></a>
           <a href="https://t.me/jobsistanbul" target="_blank" rel="noopener" style="margin-top:6px; padding:14px 16px; border-radius:var(--r-md); background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:white; font-weight:700; display:flex; align-items:center; gap:10px; justify-content:center;"><i class="fa-solid fa-paper-plane"></i> ${locale === 'ar' ? 'أضف إعلانك مجاناً' : (locale === 'tr' ? 'Ücretsiz İlan Ekle' : 'Post a Job Free')}</a>
-          <a href="/${locale}/candidate/dashboard" style="padding:12px 16px; border-radius:var(--r-md); color:var(--primary); font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-graduation-cap"></i> ${t.candidatePortal}</a>
+          <a href="/${locale}/candidate/dashboard" style="padding:12px 16px; border-radius:var(--r-md); color:var(--primary); font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-graduation-cap" style="width: 20px; text-align: center;"></i> ${t.candidatePortal}</a>
           <a href="/${locale}/employer/dashboard" style="margin-top:6px; padding:14px 16px; border-radius:var(--r-md); background:var(--primary); color:white; font-weight:700; display:flex; align-items:center; gap:10px; justify-content:center;"><i class="fa-solid fa-user-tie"></i> ${t.employerPortal}</a>
         </div>
         
@@ -1142,7 +1206,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         <!-- Mobile Actions inside Drawer -->
         <div style="margin-top:24px; padding-top:20px; border-top:1px solid var(--border); display:flex; flex-direction:column; gap:16px; width:100%;">
           <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
-            <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; padding-inline-start:4px; letter-spacing:0.05em;">🌐 ${locale === 'ar' ? 'اللغة' : (locale === 'tr' ? 'Dil' : 'Language')}</div>
+            <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; padding-inline-start:4px; letter-spacing:0.05em; display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-globe" style="color: var(--primary);"></i><span>${locale === 'ar' ? 'اللغة' : (locale === 'tr' ? 'Dil' : 'Language')}</span></div>
             <button id="dark-mode-toggle-mobile" style="width:36px; height:36px; border-radius:var(--r-md); border:1.5px solid var(--border); background:transparent; display:flex; align-items:center; justify-content:center; color:var(--text-body); cursor:pointer; transition:var(--t-base);" title="${t.darkMode}">
               <i class="fa-solid fa-moon"></i>
             </button>

@@ -204,7 +204,7 @@ export const seededArticles: Record<string, any[]> = {
           </ol>
 
           <div style="background: rgba(0, 123, 255, 0.06); border-inline-start: 4px solid var(--primary); padding: 18px; border-radius: 8px; margin: 24px 0;">
-            <h4 style="margin: 0 0 8px 0; color: var(--primary); font-size: 1.05rem; font-weight: 700;">🧮 هل أنت أو شركتك مؤهلون لإذن العمل؟</h4>
+            <h4 style="margin: 0 0 8px 0; color: var(--primary); font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-calculator"></i><span>هل أنت أو شركتك مؤهلون لإذن العمل؟</span></h4>
             <p style="margin: 0; font-size: 0.95rem;">استخدم <a href="/ar/work-permit-eligibility" style="color: var(--primary); font-weight: 700;">أداة حاسبة أهلية إذن العمل 2026</a> لمعرفة نسبة القبول والاشتراطات بدقة.</p>
           </div>
         </div>
@@ -235,7 +235,7 @@ export const seededArticles: Record<string, any[]> = {
           </ul>
 
           <div style="background: rgba(239, 68, 68, 0.08); border-inline-start: 4px solid #ef4444; padding: 18px; border-radius: 8px; margin: 24px 0;">
-            <h4 style="margin: 0 0 8px 0; color: #b91c1c; font-size: 1.05rem; font-weight: 700;">🛡️ نصائح أمنية ضد الاحتيال الوظيفي:</h4>
+            <h4 style="margin: 0 0 8px 0; color: #b91c1c; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-shield-halved"></i><span>نصائح أمنية ضد الاحتيال الوظيفي:</span></h4>
             <p style="margin: 0; font-size: 0.95rem;">احذر تماماً من دفع أي مبالغ مالية مقابل التسجيل في شركات التوظيف أو وعود إذن العمل الوهمية. المنصات الموثوقة والشركات الحقيقية لا تطلب مقابلاً مادياً من الباحث عن عمل.</p>
           </div>
         </div>
@@ -267,7 +267,7 @@ export const seededArticles: Record<string, any[]> = {
           </ul>
 
           <div style="background: rgba(0, 123, 255, 0.06); border-inline-start: 4px solid var(--primary); padding: 18px; border-radius: 8px; margin: 24px 0;">
-            <h4 style="margin: 0 0 8px 0; color: var(--primary); font-size: 1.05rem; font-weight: 700;">🧮 احسب راتبك الصافي بدقة:</h4>
+            <h4 style="margin: 0 0 8px 0; color: var(--primary); font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-calculator"></i><span>احسب راتبك الصافي بدقة:</span></h4>
             <p style="margin: 0; font-size: 0.95rem;">يمكنك استخدام <a href="/ar/salary-calculator-2026" style="color: var(--primary); font-weight: 700;">حاسبة الرواتب والضرائب لعام 2026</a> لحساب صافي وإجمالي الراتب واقتطاعات التأمين.</p>
           </div>
         </div>
@@ -821,7 +821,7 @@ export const seededArticles: Record<string, any[]> = {
             <p style="color: var(--text-body); font-size: 0.98rem; margin-bottom: 20px;">استكشف مئات الوظائف الشاغرة يومياً في المستشفيات والعيادات ومراكز السياحة العلاجية بإسطنبول.</p>
             <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
               <a href="/ar" class="btn btn-primary" style="padding: 10px 24px; border-radius: 30px; font-weight: 700; text-decoration: none;">تصفح وظائف إسطنبول الطبية اليوم ←</a>
-              <a href="/ar/cv-optimizer" class="btn" style="background: var(--bg-card); border: 1px solid var(--border); padding: 10px 24px; border-radius: 30px; font-weight: 700; text-decoration: none; color: var(--text-heading);">طور سيرتك الذاتية الطبية بالذكاء الاصطناعي 🤖</a>
+              <a href="/ar/cv-optimizer" class="btn" style="background: var(--bg-card); border: 1px solid var(--border); padding: 10px 24px; border-radius: 30px; font-weight: 700; text-decoration: none; color: var(--text-heading); display: inline-flex; align-items: center; gap: 8px;"><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary);"></i><span>طور سيرتك الذاتية الطبية بالذكاء الاصطناعي</span></a>
             </div>
           </div>
 
@@ -987,7 +987,7 @@ export const seededArticles: Record<string, any[]> = {
             <p style="color: var(--text-body); font-size: 0.98rem; margin-bottom: 20px;">تصفحي آلاف الوظائف الشاغرة اليومية والمتحقق منها في أفضل الشركات والمؤسسات بإسطنبول.</p>
             <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
               <a href="/ar" class="btn btn-primary" style="padding: 10px 24px; border-radius: 30px; font-weight: 700; text-decoration: none;">تصفحي جميع الوظائف اليوم ←</a>
-              <a href="/ar/cover-letter-generator" class="btn" style="background: var(--bg-card); border: 1px solid var(--border); padding: 10px 24px; border-radius: 30px; font-weight: 700; text-decoration: none; color: var(--text-heading);">اصنعي رسالة تغطية احترافية بالذكاء الاصطناعي 🤖</a>
+              <a href="/ar/cover-letter-generator" class="btn" style="background: var(--bg-card); border: 1px solid var(--border); padding: 10px 24px; border-radius: 30px; font-weight: 700; text-decoration: none; color: var(--text-heading); display: inline-flex; align-items: center; gap: 8px;"><i class="fa-solid fa-envelope-open-text" style="color: var(--primary);"></i><span>اصنعي رسالة تغطية احترافية بالذكاء الاصطناعي</span></a>
             </div>
           </div>
 
@@ -1155,7 +1155,7 @@ export const seededArticles: Record<string, any[]> = {
             <p style="color: var(--text-body); font-size: 0.98rem; margin-bottom: 20px;">استكشف مئات الوظائف الشاغرة يومياً في مراكز خدمة العملاء، الشركات التجارية، والتكنولوجيا بإسطنبول.</p>
             <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
               <a href="/ar" class="btn btn-primary" style="padding: 10px 24px; border-radius: 30px; font-weight: 700; text-decoration: none;">تصفح وظائف إسطنبول اليوم ←</a>
-              <a href="/ar/ats-scanner" class="btn" style="background: var(--bg-card); border: 1px solid var(--border); padding: 10px 24px; border-radius: 30px; font-weight: 700; text-decoration: none; color: var(--text-heading);">افحص سيرتك الذاتية بفاحص ATS 🤖</a>
+              <a href="/ar/ats-scanner" class="btn" style="background: var(--bg-card); border: 1px solid var(--border); padding: 10px 24px; border-radius: 30px; font-weight: 700; text-decoration: none; color: var(--text-heading); display: inline-flex; align-items: center; gap: 8px;"><i class="fa-solid fa-file-circle-check" style="color: var(--primary);"></i><span>افحص سيرتك الذاتية بفاحص ATS</span></a>
             </div>
           </div>
 
@@ -1442,7 +1442,7 @@ export const seededArticles: Record<string, any[]> = {
             <p style="color: var(--text-body); font-size: 0.98rem; margin-bottom: 20px;">تصفح آلاف الوظائف الشاغرة يومياً والمتحقق منها في الشركات والمؤسسات الرائدة في إسطنبول عبر منصتنا.</p>
             <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
               <a href="/ar" class="btn btn-primary" style="padding: 10px 24px; border-radius: 30px; font-weight: 700; text-decoration: none;">تصفح جميع الوظائف الآن ←</a>
-              <a href="/ar/cv-optimizer" class="btn" style="background: var(--bg-card); border: 1px solid var(--border); padding: 10px 24px; border-radius: 30px; font-weight: 700; text-decoration: none; color: var(--text-heading);">حسّن سيرتك الذاتية بالذكاء الاصطناعي 🤖</a>
+              <a href="/ar/cv-optimizer" class="btn" style="background: var(--bg-card); border: 1px solid var(--border); padding: 10px 24px; border-radius: 30px; font-weight: 700; text-decoration: none; color: var(--text-heading); display: inline-flex; align-items: center; gap: 8px;"><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary);"></i><span>حسّن سيرتك الذاتية بالذكاء الاصطناعي</span></a>
             </div>
           </div>
 
@@ -3082,7 +3082,7 @@ export const seededArticles: Record<string, any[]> = {
             <p style="color: var(--text-body); font-size: 0.98rem; margin-bottom: 20px;">Explore verified healthcare openings in Istanbul's top international hospitals.</p>
             <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
               <a href="/en" class="btn btn-primary" style="padding: 10px 24px; border-radius: 30px; font-weight: 700; text-decoration: none;">Browse Jobs in Istanbul ←</a>
-              <a href="/en/cv-optimizer" class="btn" style="background: var(--bg-card); border: 1px solid var(--border); padding: 10px 24px; border-radius: 30px; font-weight: 700; text-decoration: none; color: var(--text-heading);">Optimize Your Resume with AI 🤖</a>
+              <a href="/en/cv-optimizer" class="btn" style="background: var(--bg-card); border: 1px solid var(--border); padding: 10px 24px; border-radius: 30px; font-weight: 700; text-decoration: none; color: var(--text-heading); display: inline-flex; align-items: center; gap: 8px;"><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary);"></i><span>Optimize Your Resume with AI</span></a>
             </div>
           </div>
         </div>

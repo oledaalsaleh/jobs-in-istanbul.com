@@ -115,7 +115,7 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
       colBuy: 'شراء (TRY)',
       colSell: 'بيع (TRY)',
       colChange: 'التغير اليومي',
-      converterTitle: '🧮 محول العملات الذكي',
+      converterTitle: 'محول العملات الذكي',
       amountLabel: 'المبلغ:',
       fromLabel: 'من:',
       toLabel: 'إلى:',
@@ -123,7 +123,7 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
       resultLabel: 'النتيجة التقريبية:',
       textDescription: 'يتم تحديث هذه الأسعار تلقائياً على مدار اليوم من الأسواق التركية الرسمية لمساعدتك في التخطيط المالي وتكاليف المعيشة.',
       flagUrl: (code: string) => `https://cdn101.adwimg.com/static/adwhitv2/svg/flags/1x1/${code.toLowerCase() === 'usd' ? 'us' : (code.toLowerCase() === 'eur' ? 'eu' : (code.toLowerCase() === 'gbp' ? 'gb' : code.toLowerCase().substring(0, 2)))}.svg`,
-      aiTitle: '🤖 تحليل وتوصيات العملات اليوم (Gemini AI)'
+      aiTitle: 'تحليل وتوصيات العملات اليوم (Gemini AI)'
     },
     en: {
       title: 'Currency Prices in Turkey Today',
@@ -133,7 +133,7 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
       colBuy: 'Buy (TRY)',
       colSell: 'Sell (TRY)',
       colChange: 'Daily Change',
-      converterTitle: '🧮 Smart Currency Converter',
+      converterTitle: 'Smart Currency Converter',
       amountLabel: 'Amount:',
       fromLabel: 'From:',
       toLabel: 'To:',
@@ -141,7 +141,7 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
       resultLabel: 'Estimated Result:',
       textDescription: 'These rates are updated automatically throughout the day from official Turkish markets to assist with your financial and living cost estimates.',
       flagUrl: (code: string) => `https://cdn101.adwimg.com/static/adwhitv2/svg/flags/1x1/${code.toLowerCase() === 'usd' ? 'us' : (code.toLowerCase() === 'eur' ? 'eu' : (code.toLowerCase() === 'gbp' ? 'gb' : code.toLowerCase().substring(0, 2)))}.svg`,
-      aiTitle: '🤖 Gemini AI Currency Analysis & Advisory Today'
+      aiTitle: 'Gemini AI Currency Analysis & Advisory Today'
     },
     tr: {
       title: 'Türkiye Döviz Fiyatları Bugün',
@@ -151,7 +151,7 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
       colBuy: 'Alış (TRY)',
       colSell: 'Satış (TRY)',
       colChange: 'Günlük Değişim',
-      converterTitle: '🧮 Akıllı Döviz Çevirici',
+      converterTitle: 'Akıllı Döviz Çevirici',
       amountLabel: 'Tutar:',
       fromLabel: 'Kaynak:',
       toLabel: 'Hedef:',
@@ -159,7 +159,7 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
       resultLabel: 'Tahmini Sonuç:',
       textDescription: 'Bu oranlar, finansal planlamalarınıza ve yaşam maliyeti tahminlerinize yardımcı olmak amacıyla gün boyunca resmi Türkiye piyasalarından otomatik olarak güncellenir.',
       flagUrl: (code: string) => `https://cdn101.adwimg.com/static/adwhitv2/svg/flags/1x1/${code.toLowerCase() === 'usd' ? 'us' : (code.toLowerCase() === 'eur' ? 'eu' : (code.toLowerCase() === 'gbp' ? 'gb' : code.toLowerCase().substring(0, 2)))}.svg`,
-      aiTitle: '🤖 Gemini AI Günlük Döviz Analiz ve Tavsiyeleri'
+      aiTitle: 'Gemini AI Günlük Döviz Analiz ve Tavsiyeleri'
     },
     ru: {
       title: 'Курсы валют в Турции сегодня',
@@ -169,12 +169,12 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
       colBuy: 'Покупка (TRY)',
       colSell: 'Продажа (TRY)',
       colChange: 'Изм. за день',
-      converterTitle: '🧮 Конвертер валют',
+      converterTitle: 'Конвертер валют',
       amountLabel: 'Сумма:',
       fromLabel: 'Из валюты:',
       toLabel: 'В валюту:',
       resultLabel: 'Оценочная общая сумма:',
-      aiTitle: '🤖 Анализ рынка и рекомендации Gemini AI',
+      aiTitle: 'Анализ рынка и рекомендации Gemini AI',
       textDescription: 'Эти курсы валют автоматически обновляются в соответствии со свободным рынком Стамбула и межбанковскими курсами для информирования иностранных специалистов.',
       flagUrl: (code: string) => `https://cdn101.adwimg.com/static/adwhitv2/svg/flags/1x1/${code.toLowerCase() === 'usd' ? 'us' : (code.toLowerCase() === 'eur' ? 'eu' : (code.toLowerCase() === 'gbp' ? 'gb' : code.toLowerCase().substring(0, 2)))}.svg`,
       calcBtn: 'Конвертировать валюту'
@@ -187,12 +187,12 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
       colBuy: 'خرید (TRY)',
       colSell: 'فروش (TRY)',
       colChange: 'تغییر روزانه',
-      converterTitle: '🧮 ماشین حساب تبدیل ارز',
+      converterTitle: 'ماشین حساب تبدیل ارز',
       amountLabel: 'مقدار ارز:',
       fromLabel: 'از ارز:',
       toLabel: 'به ارز:',
       resultLabel: 'ارزش کل تقریبی:',
-      aiTitle: '🤖 تحلیل بازار و توصیه‌های روزانه هوش مصنوعی Gemini',
+      aiTitle: 'تحلیل بازار و توصیه‌های روزانه هوش مصنوعی Gemini',
       textDescription: 'این نرخ‌ها به صورت خودکار از بازار آزاد استانبول و صرافی‌های بانکی ترکیه جهت برنامه‌ریزی مالی شما گردآوری می‌شود.',
       flagUrl: (code: string) => `https://cdn101.adwimg.com/static/adwhitv2/svg/flags/1x1/${code.toLowerCase() === 'usd' ? 'us' : (code.toLowerCase() === 'eur' ? 'eu' : (code.toLowerCase() === 'gbp' ? 'gb' : code.toLowerCase().substring(0, 2)))}.svg`,
       calcBtn: 'تبدیل و محاسبه ارز'
@@ -205,12 +205,12 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
       colBuy: 'خرید (TRY)',
       colSell: 'فروخت (TRY)',
       colChange: 'تبدیلی',
-      converterTitle: '🧮 کرنسی کنورٹر',
+      converterTitle: 'کرنسی کنورٹر',
       amountLabel: 'رقم:',
       fromLabel: 'کرنسی سے:',
       toLabel: 'کرنسی میں:',
       resultLabel: 'تقریبی رقم:',
-      aiTitle: '🤖 اے آئی جیمنی کرنسی رپورٹ اور تجزیہ',
+      aiTitle: 'اے آئی جیمنی کرنسی رپورٹ اور تجزیہ',
       textDescription: 'یہ معلومات استنبول کی اوپن مارکیٹ اور سنٹرل بینک آف ترکی سے خودکار طور پر حاصل کی جاتی ہیں۔',
       flagUrl: (code: string) => `https://cdn101.adwimg.com/static/adwhitv2/svg/flags/1x1/${code.toLowerCase() === 'usd' ? 'us' : (code.toLowerCase() === 'eur' ? 'eu' : (code.toLowerCase() === 'gbp' ? 'gb' : code.toLowerCase().substring(0, 2)))}.svg`,
       calcBtn: 'تبدیل کریں'
@@ -575,7 +575,10 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
         <!-- Calculator Column -->
         <div style="display: flex; flex-direction: column; gap: 30px;">
           <div class="calc-card">
-            <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-dark); margin: 0 0 24px 0; border-bottom: 1px solid var(--border); padding-bottom: 15px; text-align: center;">${t.converterTitle}</h3>
+            <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-dark); margin: 0 0 24px 0; border-bottom: 1px solid var(--border); padding-bottom: 15px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px;">
+              <i class="fa-solid fa-calculator" style="color: var(--primary);"></i>
+              <span>${t.converterTitle}</span>
+            </h3>
             
             <form id="converter-form" onsubmit="event.preventDefault(); convert();" style="direction: ${locale === 'ar' ? 'rtl' : 'ltr'}; text-align: ${locale === 'ar' ? 'right' : 'left'};">
               <div style="margin-bottom: 20px;">

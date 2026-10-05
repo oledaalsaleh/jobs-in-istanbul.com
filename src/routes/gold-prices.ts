@@ -222,14 +222,14 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
       colGoldType: 'النوع عيار الذهب',
       colBuy: 'شراء (TRY)',
       colSell: 'بيع (TRY)',
-      converterTitle: '🧮 حاسبة قيمة الذهب',
+      converterTitle: 'حاسبة قيمة الذهب',
       weightLabel: 'الوزن / الكمية:',
       typeLabel: 'العيار / النوع:',
       modeLabel: 'نوع العملية:',
       modeBuy: 'شراء الذهب (سعر الشراء)',
       modeSell: 'بيع الذهب (سعر البيع)',
       resultLabel: 'القيمة الإجمالية التقريبية:',
-      aiTitle: '🤖 تحليل وتوصيات الذكاء الاصطناعي اليوم (Gemini AI)',
+      aiTitle: 'تحليل وتوصيات الذكاء الاصطناعي اليوم (Gemini AI)',
       textDescription: 'تُستخلص هذه الأسعار تلقائياً على مدار الساعة من أسواق الصاغة التركية لتوفر للمغتربين والمهنيين والمستثمرين مؤشرات دقيقة لإدارة مدخراتهم.',
       liveBadge: 'مباشر: تحديث تلقائي لحظي للأسعار',
       btnRefresh: 'تحديث الآن'
@@ -241,14 +241,14 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
       colGoldType: 'Gold Karat / Type',
       colBuy: 'Buy (TRY)',
       colSell: 'Sell (TRY)',
-      converterTitle: '🧮 Gold Value Calculator',
+      converterTitle: 'Gold Value Calculator',
       weightLabel: 'Weight / Quantity:',
       typeLabel: 'Type / Karat:',
       modeLabel: 'Transaction Type:',
       modeBuy: 'Buy Gold (Buying Rate)',
       modeSell: 'Sell Gold (Selling Rate)',
       resultLabel: 'Estimated Total Value:',
-      aiTitle: '🤖 Gemini AI Market Analysis & Advisory Today',
+      aiTitle: 'Gemini AI Market Analysis & Advisory Today',
       textDescription: 'These gold rates are compiled automatically throughout the day from official Turkish jewelry markets to assist with your saving and investment estimates.',
       liveBadge: 'Live: Real-Time Auto-Updating Rates',
       btnRefresh: 'Refresh'
@@ -260,14 +260,14 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
       colGoldType: 'Altın Ayarı / Türü',
       colBuy: 'Alış (TRY)',
       colSell: 'Satış (TRY)',
-      converterTitle: '🧮 Altın Değer Hesaplayıcı',
+      converterTitle: 'Altın Değer Hesaplayıcı',
       weightLabel: 'Ağırlık / Miktar:',
       typeLabel: 'Ayar / Tür:',
       modeLabel: 'İşlem Türü:',
       modeBuy: 'Altın Alış (Alış Fiyatı)',
       modeSell: 'Altın Satış (Satış Fiyatı)',
       resultLabel: 'Tahmini Toplam Değer:',
-      aiTitle: '🤖 Gemini AI Günlük Altın Piyasası Analiz ve Tavsiyeleri',
+      aiTitle: 'Gemini AI Günlük Altın Piyasası Analiz ve Tavsiyeleri',
       textDescription: 'Bu altın fiyatları, tasarruf ve yatırım tahminlerinize yardımcı olmak amacıyla gün boyunca resmi Türkiye kuyumcular piyasasından otomatik olarak derlenir.',
       liveBadge: 'Canlı: Sürekli Otomatik Güncelleme',
       btnRefresh: 'Şimdi Yenile'
@@ -279,14 +279,14 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
       colGoldType: 'Карат / Тип золота',
       colBuy: 'Покупка (TRY)',
       colSell: 'Продажа (TRY)',
-      converterTitle: '🧮 Калькулятор стоимости золота',
+      converterTitle: 'Калькулятор стоимости золота',
       weightLabel: 'Вес / Количество:',
       typeLabel: 'Тип / Карат:',
       modeLabel: 'Тип операции:',
       modeBuy: 'Покупка золота (курс покупки)',
       modeSell: 'Продажа золота (курс продажи)',
       resultLabel: 'Оценочная общая стоимость:',
-      aiTitle: '🤖 Анализ рынка и рекомендации Gemini AI',
+      aiTitle: 'Анализ рынка и рекомендации Gemini AI',
       textDescription: 'Эти курсы золота автоматически собираются в течение дня с ювелирных рынков Турции для планирования ваших сбережений.',
       liveBadge: 'В прямом эфире: Автообновление цен',
       btnRefresh: 'Обновить'
@@ -298,14 +298,14 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
       colGoldType: 'عیار / نوع طلا',
       colBuy: 'خرید (TRY)',
       colSell: 'فروش (TRY)',
-      converterTitle: '🧮 ماشین حساب محاسبه قیمت طلا',
+      converterTitle: 'ماشین حساب محاسبه قیمت طلا',
       weightLabel: 'وزن / مقدار طلا:',
       typeLabel: 'عیار / نوع طلا:',
       modeLabel: 'نوع تراکنش:',
       modeBuy: 'خرید طلا از ما (نرخ خرید)',
       modeSell: 'فروش طلا به ما (نرخ فروش)',
       resultLabel: 'ارزش کل تقریبی:',
-      aiTitle: '🤖 تحلیل روزانه بازار و توصیه‌های هوش مصنوعی Gemini',
+      aiTitle: 'تحلیل روزانه بازار و توصیه‌های هوش مصنوعی Gemini',
       textDescription: 'این نرخ‌های طلا به صورت خودکار در طول روز از بازار صنف طلافروشان ترکیه جهت برنامه‌ریزی پس‌انداز و سرمایه‌گذاری شما گردآوری می‌شود.',
       liveBadge: 'زنده: به‌روزرسانی خودکار لحظه‌ای',
       btnRefresh: 'به‌روزرسانی اکنون'
@@ -317,14 +317,14 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
       colGoldType: 'قیراط / سونے کی قسم',
       colBuy: 'خرید (TRY)',
       colSell: 'فروخت (TRY)',
-      converterTitle: '🧮 سونا قیمت کیلکولیٹر',
+      converterTitle: 'سونا قیمت کیلکولیٹر',
       weightLabel: 'وزن / سونے کی مقدار:',
       typeLabel: 'قیراط / سونے کی قسم:',
       modeLabel: 'سودے کی قسم:',
       modeBuy: 'ہم سے سونا خریدیں (خرید ریٹ)',
       modeSell: 'ہمیں سونا فروخت کریں (فروخت ریٹ)',
       resultLabel: 'تقریبی کل قیمت:',
-      aiTitle: '🤖 اے آئی جیمنی سونے کی مارکیٹ کی رپورٹ',
+      aiTitle: 'اے آئی جیمنی سونے کی مارکیٹ کی رپورٹ',
       textDescription: 'یہ قیمتیں استنبول کے بازارِ صرافہ سے براہِ راست حاصل کی جاتی ہیں تاکہ آپ سرمایہ کاری کی منصوبہ بندی کر سکیں۔',
       liveBadge: 'لائیو: ریئل ٹائم خودکار اپ ڈیٹ',
       btnRefresh: 'تازہ کریں'
@@ -774,7 +774,10 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
         <!-- Calculator Column -->
         <div style="display: flex; flex-direction: column; gap: 30px;">
           <div class="calc-card">
-            <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-dark); margin: 0 0 24px 0; border-bottom: 1px solid var(--border); padding-bottom: 15px; text-align: center;">${t.converterTitle}</h3>
+            <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-dark); margin: 0 0 24px 0; border-bottom: 1px solid var(--border); padding-bottom: 15px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px;">
+              <i class="fa-solid fa-calculator" style="color: #d97706;"></i>
+              <span>${t.converterTitle}</span>
+            </h3>
             
             <form id="gold-calc-form" onsubmit="event.preventDefault(); calculateGold();" style="direction: ${locale === 'ar' ? 'rtl' : 'ltr'}; text-align: ${locale === 'ar' ? 'right' : 'left'};">
               <div style="margin-bottom: 20px;">
