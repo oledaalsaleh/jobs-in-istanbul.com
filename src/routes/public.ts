@@ -5984,15 +5984,21 @@ publicRouter.get('/:locale/companies/:slug', async (c) => {
 });
 
 // Specialized High-Intent SEO Landing Pages Config & Handler
+interface SpecializedFaq {
+  q: string;
+  a: string;
+}
+
 interface SpecializedSeoConfig {
   type: string;
   icon: string;
   titles: Record<string, string>;
   descriptions: Record<string, string>;
   searchKeywords: string[];
+  faqs?: Record<string, SpecializedFaq[]>;
 }
 
-const SPECIALIZED_PAGES: SpecializedSeoConfig[] = [
+const SPECIALIZED_PAGES = [
   {
     type: 'jobs-for-arabs',
     icon: 'fa-solid fa-earth-americas',
@@ -6006,7 +6012,39 @@ const SPECIALIZED_PAGES: SpecializedSeoConfig[] = [
       en: 'Top job vacancies for Arabic speakers and international expats in Istanbul. Direct hiring in sales, medical tourism, tech, and call centers.',
       tr: 'İstanbul genelinde Arapça ve yabancı dil bilen adaylar için en güncel iş ilanları.'
     },
-    searchKeywords: ['عرب', 'سوري', 'ناطقين', 'خليج', 'عربية', 'arabic', 'expat']
+    searchKeywords: ['عرب', 'سوري', 'ناطقين', 'خليج', 'عربية', 'arabic', 'expat'],
+    faqs: {
+      ar: [
+        {
+          q: 'ما هي أكثر الوظائف طلباً للناطقين بالعربية في إسطنبول لعام 2026؟',
+          a: 'تتصدر وظائف المبيعات الدولية في السياحة العلاجية (زراعة الشعر والتجميل)، والتسويق العقاري، وخدمة العملاء ومراكز الاتصال (Call Center)، والترجمة الفورية، وتدريس اللغات أكثر المهن طلباً برواتب مجزية وعمولات بالعملات الأجنبية.'
+        },
+        {
+          q: 'هل توفر الشركات في إسطنبول إذن عمل (Çalışma İzni) للموظفين العرب؟',
+          a: 'نعم، تشترط القوانين التركية الرسمية استخراج إذن عمل رسمي للموظف الأجنبي. توفر معظم الشركات المعتمدة تصريح العمل والتأمين الصحي والاجتماعي (SGK) بمجرد اجتياز فترة التجربة وتوافق شروط الشركة مع وزارة العمل.'
+        },
+        {
+          q: 'كم يبلغ متوسط رواتب العرب العاملين في إسطنبول لعام 2026؟',
+          a: 'يتراوح الراتب الأساسي بين الحد الأدنى للأجور (نحو 28,000 - 32,000 ليرة) في الوظائف الإدارية والخدمية، ويصل إلى 45,000 - 85,000 ليرة شهرياً في وظائف المبيعات والعقارات والسياحة الطبية مع العمولات الشهرية.'
+        }
+      ],
+      en: [
+        {
+          q: 'What are the top job opportunities for Arabic speakers in Istanbul in 2026?',
+          a: 'The highest demand is in medical tourism consulting, international real estate sales, multilingual customer service centers, and professional translation.'
+        },
+        {
+          q: 'Can expats obtain a formal work permit (Çalışma İzni) in Istanbul?',
+          a: 'Yes, licensed companies in Turkey sponsor work permits and social security (SGK) for qualified foreign employees complying with Turkish Ministry of Labor regulations.'
+        }
+      ],
+      tr: [
+        {
+          q: 'İstanbul\'da Arapça bilen personel arayan sektörler hangileridir?',
+          a: 'Sağlık turizmi klinikleri, gayrimenkul yatırım şirketleri, uluslararası çağrı merkezleri ve dış ticaret firmaları Arapça bilen nitelikli çalışanları yoğun olarak istihdam etmektedir.'
+        }
+      ]
+    }
   },
   {
     type: 'jobs-without-turkish',
@@ -6021,7 +6059,31 @@ const SPECIALIZED_PAGES: SpecializedSeoConfig[] = [
       en: 'Find open jobs in Istanbul that do not require Turkish language skills. English and Arabic speaking roles in tech, call center, and tourism.',
       tr: 'İstanbul\'da yabancı dil ile çalışabileceğiniz, Türkçe bilme şartı aramayan şirket ilanları.'
     },
-    searchKeywords: ['بدون تركي', 'بدون لغة', 'no turkish', 'english only', 'arabic only', 'yabancı', 'english', 'عربي']
+    searchKeywords: ['بدون تركي', 'بدون لغة', 'no turkish', 'english only', 'arabic only', 'yabancı', 'english', 'عربي'],
+    faqs: {
+      ar: [
+        {
+          q: 'هل يمكن بالفعل العمل في إسطنبول دون معرفة اللغة التركية؟',
+          a: 'نعم بالتأكيد، هناك آلاف الشركات الدولية وشركات الاستثمار العربي ومراكز الاتصال التي توجه خدماتها بالكامل لعملاء في الشرق الأوسط وأوروبا وأمريكا، وتعتمد في بيئة عملها اليومية على اللغتين العربية أو الإنجليزية فقط.'
+        },
+        {
+          q: 'ما هي أهم المهن التي لا تطلب إتقان اللغة التركية؟',
+          a: 'البرمجة وهندسة البرمجيات، كتابة المحتوى والترجمة، موظفو المبيعات الدولية في العيادات التجميلية والعقارات، والتعليم في المدارس والمعاهد الدولية.'
+        }
+      ],
+      en: [
+        {
+          q: 'Can I find a job in Istanbul without speaking Turkish?',
+          a: 'Yes, thousands of international companies, software startups, multinational call centers, and foreign-facing clinics operate purely in English or Arabic.'
+        }
+      ],
+      tr: [
+        {
+          q: 'Türkçe bilmeyen yabancılar İstanbul\'da hangi işlerde çalışabilir?',
+          a: 'Yazılım geliştirme, uluslararası çağrı merkezleri, yabancı dilde eğitim veren okullar ve yurtdışı odaklı sağlık turizmi acenteleri Türkçe şartı aramamaktadır.'
+        }
+      ]
+    }
   },
   {
     type: 'entry-level-jobs',
@@ -6036,7 +6098,31 @@ const SPECIALIZED_PAGES: SpecializedSeoConfig[] = [
       en: 'Explore entry-level jobs and internships in Istanbul with on-the-job training and competitive starter salaries.',
       tr: 'İstanbul\'da deneyim gerektirmeyen, yetiştirilmek üzere eleman arayan firmaların güncel ilanları.'
     },
-    searchKeywords: ['بدون خبرة', 'مبتدئ', 'تدريب', 'no experience', 'entry level', 'yetiştirilmek', 'staj']
+    searchKeywords: ['بدون خبرة', 'مبتدئ', 'تدريب', 'no experience', 'entry level', 'yetiştirilmek', 'staj'],
+    faqs: {
+      ar: [
+        {
+          q: 'كيف أجد عملاً في إسطنبول إذا كنت لا أمتلك أي خبرة عملية سابقة؟',
+          a: 'ابدأ بالبحث عن إعلانات الوظائف التي تتضمن عبارات (مبتدئ، تدريب منتهي بالتوظيف، أو Yetiştirilmek üzere). تركز هذه الشركات على التزامك، مهارات التواصل، وإتقان اللغات الأجنبية واستعدادك للتعلم.'
+        },
+        {
+          q: 'هل فترات التدريب في الشركات التركية تكون مدفوعة الأجر؟',
+          a: 'وفقاً لنظام العمل التركي، فإن التدريب العملي الرسمي (Staj) والتأهيل للوظائف يتضمن تعويضاً مالياً وتغطية للتأمين الصحي وبدلات المواصلات والطعام.'
+        }
+      ],
+      en: [
+        {
+          q: 'How to land an entry-level job in Istanbul with no prior experience?',
+          a: 'Target customer care, sales traineeships, and junior content roles that offer comprehensive on-the-job onboarding and evaluate language proficiency over tenure.'
+        }
+      ],
+      tr: [
+        {
+          q: 'Deneyimsiz adaylar için İstanbul\'da en uygun iş alanları nelerdir?',
+          a: 'Müşteri temsilciliği, saha satış asistanlığı, mağaza personeli ve ofis destek rolleri deneyimsiz adaylar için geniş istihdam sunmaktadır.'
+        }
+      ]
+    }
   },
   {
     type: 'driver-jobs',
@@ -6051,7 +6137,31 @@ const SPECIALIZED_PAGES: SpecializedSeoConfig[] = [
       en: 'Discover high-paying driver and courier positions in Istanbul. VIP tourism drivers, private chauffeurs, and logistics couriers.',
       tr: 'İstanbul\'da VIP şoför, şirket şoförü ve kurye arayan firmaların en yeni iş ilanları.'
     },
-    searchKeywords: ['سائق', 'شفر', 'توصيل', 'شحن', 'driver', 'şoför', 'kurye', 'courier', 'vito', 'transfer']
+    searchKeywords: ['سائق', 'شفر', 'توصيل', 'شحن', 'driver', 'şoför', 'kurye', 'courier', 'vito', 'transfer'],
+    faqs: {
+      ar: [
+        {
+          q: 'ما هي الرخص والشهادات المطلوبة للعمل كسائق سياحي في إسطنبول؟',
+          a: 'تشترط الشركات رخصة قيادة تركية سارية، شهادة الفحص النفسي الحركي (Psikoteknik)، وشهادة الكفاءة المهنية (SRC 2 أو SRC 4) مع شهادة TÜRSAB لنقل السياح.'
+        },
+        {
+          q: 'كم يبلغ دخل سائق السياحة الخاص (VIP Vito) في موسم الصيف؟',
+          a: 'يتجاوز دخل السائق السياحي المتقن للعربية والإنجليزية مع الإكراميات وساعات العمل الإضافية 50,000 إلى 75,000 ليرة شهرياً في مواسم الذروة.'
+        }
+      ],
+      en: [
+        {
+          q: 'What licenses are mandatory for tourism chauffeurs in Istanbul?',
+          a: 'Valid Turkish driving license, SRC 2/4 certification, Psychotechnic test clearance, and tourism agency authorization (TÜRSAB).'
+        }
+      ],
+      tr: [
+        {
+          q: 'İstanbul\'da turizm şoförü olmak için hangi belgeler gereklidir?',
+          a: 'En az B sınıfı ehliyet, SRC-2 belgesi, Psikoteknik raporu ve İstanbul Büyükşehir Belediyesi Şoför Kartı zorunludur.'
+        }
+      ]
+    }
   },
   {
     type: 'restaurant-jobs',
@@ -6066,7 +6176,27 @@ const SPECIALIZED_PAGES: SpecializedSeoConfig[] = [
       en: 'Immediate restaurant and cafe vacancies in Istanbul. Chefs, baristas, servers, and kitchen staff with provided meals and housing.',
       tr: 'İstanbul restoran ve kafelerinde garson, aşçı, barista ve mutfak personeli iş ilanları.'
     },
-    searchKeywords: ['مطعم', 'كافيه', 'شيف', 'طاهي', 'ويتر', 'باريستا', 'مطبخ', 'restaurant', 'mutfak', 'aşçı', 'garson', 'cafe', 'barista']
+    searchKeywords: ['مطعم', 'كافيه', 'شيف', 'طاهي', 'ويتر', 'باريستا', 'مطبخ', 'restaurant', 'mutfak', 'aşçı', 'garson', 'cafe', 'barista'],
+    faqs: {
+      ar: [
+        {
+          q: 'هل توفر مطاعم إسطنبول السكن والوجبات اليومية للعاملين؟',
+          a: 'نعم، توفر أغلب المطاعم الكبرى والفنادق السياحية وجبات طعام مجانية أثناء نوبات العمل، وتوفر العديد من المطاعم سكناً مشتركاً (Lojman) للموظفين القادمين من خارج إسطنبول.'
+        }
+      ],
+      en: [
+        {
+          q: 'Do Istanbul restaurants provide staff housing and meals?',
+          a: 'Most hospitality employers provide duty meals, and several offer shared accommodation (Lojman) alongside monthly service tips (Bahşiş).'
+        }
+      ],
+      tr: [
+        {
+          q: 'Restoran ve kafe çalışanlarının yan hakları nelerdir?',
+          a: 'Genellikle yemek, servis/yol ücreti, SGK ve düzenli bahşiş (tip) dağıtımı standart yan haklar arasındadır.'
+        }
+      ]
+    }
   },
   {
     type: 'factory-jobs',
@@ -6081,7 +6211,27 @@ const SPECIALIZED_PAGES: SpecializedSeoConfig[] = [
       en: 'Factory and production line jobs in Istanbul industrial zones (İkitelli, Tuzla). Full benefits, transport shuttle, and meal cards.',
       tr: 'İstanbul organize sanayi bölgelerinde fabrika üretim, paketleme ve depo personeli ilanları.'
     },
-    searchKeywords: ['مصنع', 'إنتاج', 'عمال', 'مستودع', 'تغليف', 'factory', 'fabrika', 'üretim', 'depo', 'paketleme', 'işçi']
+    searchKeywords: ['مصنع', 'إنتاج', 'عمال', 'مستودع', 'تغليف', 'factory', 'fabrika', 'üretim', 'depo', 'paketleme', 'işçi'],
+    faqs: {
+      ar: [
+        {
+          q: 'أين تتواجد أكبر المناطق الصناعية المشغلة للمصانع في إسطنبول؟',
+          a: 'تتركز في المنطقة الصناعية بإيكيتلي (İkitelli OSB)، بيليك دوزو (Beylikdüzü OSB)، هاديمكوي (Hadımköy)، وإسن يورت في الجانب الأوروبي، ودودولو وتوزلا في الجانب الآسيوي.'
+        }
+      ],
+      en: [
+        {
+          q: 'Where are the largest industrial employment zones in Istanbul?',
+          a: 'Key manufacturing clusters include İkitelli OSB, Beylikdüzü OSB, Hadımköy, and Tuzla Free Trade Zone.'
+        }
+      ],
+      tr: [
+        {
+          q: 'Fabrika işlerinde servis ve yemek imkanı sağlanıyor mu?',
+          a: 'Organize sanayi bölgelerindeki fabrikalar genellikle İstanbul\'un pek çok semtine ücretsiz servis ve vardiya yemekleri sunar.'
+        }
+      ]
+    }
   },
   {
     type: 'call-center-jobs',
@@ -6093,10 +6243,30 @@ const SPECIALIZED_PAGES: SpecializedSeoConfig[] = [
     },
     descriptions: {
       ar: 'أعلى رواتب الكول سنتر والمبيعات الهاتفية في إسطنبول لمتحدثي العربية والإنجليزية مع عمولات شهرية مجزية وبيئة عمل حديثة.',
-      en: 'High-paying call center and telesales opportunities in Istanbul for multilingual Arabic and English speakers with solid commissions.',
+      en: 'High-paying call center and customer support positions in Istanbul for multilingual Arabic and English speakers with solid commissions.',
       tr: 'İstanbul\'da yabancı dil bilen çağrı merkezi ve müşteri temsilcisi iş ilanları.'
     },
-    searchKeywords: ['كول سنتر', 'خدمة عملاء', 'مبيعات هاتفية', 'call center', 'customer service', 'çağrı merkezi', 'telesales', 'telemarketing']
+    searchKeywords: ['كول سنتر', 'خدمة عملاء', 'مبيعات هاتفية', 'call center', 'customer service', 'çağrı merkezi', 'telesales', 'telemarketing'],
+    faqs: {
+      ar: [
+        {
+          q: 'كم تبلغ رواتب وعمولات موظف الكول سنتر في إسطنبول لعام 2026؟',
+          a: 'يبدأ الراتب الثابت من 30,000 إلى 42,000 ليرة تركية، وتصل العمولات الإضافية في أقسام المبيعات وحجوزات التجميل والعقارات إلى مبالغ تتراوح بين 15,000 و 40,000 ليرة شهرياً.'
+        }
+      ],
+      en: [
+        {
+          q: 'What is the compensation structure for call center agents in Istanbul?',
+          a: 'Base salary averages 30,000 - 42,000 TRY plus monthly performance bonuses and sales commissions reaching up to 40,000 TRY.'
+        }
+      ],
+      tr: [
+        {
+          q: 'Çağrı merkezi pozisyonlarında uzaktan çalışma (home-office) mümkün mü?',
+          a: 'Evet, birçok uluslararası müşteri hizmetleri şirketi belirli deneme süresi sonrasında hibrit veya tam uzaktan çalışma modeli sunmaktadır.'
+        }
+      ]
+    }
   },
   {
     type: 'jobs-for-women',
@@ -6111,7 +6281,27 @@ const SPECIALIZED_PAGES: SpecializedSeoConfig[] = [
       en: 'Verified job openings for women in Istanbul including remote positions, education, sales, customer care, and fashion design.',
       tr: 'İstanbul\'da kadın adaylar için çalışma ortamı uygun, uzaktan veya yarı zamanlı iş ilanları.'
     },
-    searchKeywords: ['نسائية', 'سيدات', 'عمل عن بعد', 'حضانة', 'خياطة', 'معلمة', 'kadın', 'women', 'bayan', 'home office', 'uzaktan']
+    searchKeywords: ['نسائية', 'سيدات', 'عمل عن بعد', 'حضانة', 'خياطة', 'معلمة', 'kadın', 'women', 'bayan', 'home office', 'uzaktan'],
+    faqs: {
+      ar: [
+        {
+          q: 'ما هي أكثر مجالات العمل طلباً وملاءمة للسيدات في إسطنبول؟',
+          a: 'إدارة وسائل التواصل الاجتماعي، العمل عن بعد في خدمة العملاء، التعليم في المدارس ورياض الأطفال الدولية، الترجمة والتدقيق اللغوي، وتصميم الأزياء والموضة.'
+        }
+      ],
+      en: [
+        {
+          q: 'What are popular flexible roles for women in Istanbul?',
+          a: 'Digital marketing, remote customer assistance, early childhood education, and language instruction with family-friendly working hours.'
+        }
+      ],
+      tr: [
+        {
+          q: 'Kadın istihdamında öne çıkan sektörler hangileridir?',
+          a: 'E-ticaret, eğitim kurumları, dijital pazarlama, müşteri ilişkileri ve moda tasarım sektörleri öne çıkmaktadır.'
+        }
+      ]
+    }
   },
   {
     type: 'student-jobs',
@@ -6126,14 +6316,459 @@ const SPECIALIZED_PAGES: SpecializedSeoConfig[] = [
       en: 'Flexible part-time student jobs in Istanbul. Evening and weekend shifts in cafes, translation, tutoring, and customer care.',
       tr: 'Üniversite öğrencileri için ders saatlerine uygun part-time ve esnek saatli iş fırsatları.'
     },
-    searchKeywords: ['للطلاب', 'طالب', 'جامعي', 'دوام جزئي', 'part time', 'student', 'öğrenci', 'yarı zamanlı', 'part-time']
+    searchKeywords: ['للطلاب', 'طالب', 'جامعي', 'دوام جزئي', 'part time', 'student', 'öğrenci', 'yarı zamanlı', 'part-time'],
+    faqs: {
+      ar: [
+        {
+          q: 'هل يحق للطلاب الأجانب العمل قانونياً في تركيا أثناء الدراسة؟',
+          a: 'نعم، يسمح القانون التركي لطلاب الدراسات العليا وطلاب البكالوريوس (بعد إتمام السنة الأولى) بالعمل دواماً جزئياً بعد استخراج تصريح العمل القانوني بالتنسيق مع الجامعة.'
+        }
+      ],
+      en: [
+        {
+          q: 'Are international students legally allowed to work in Turkey?',
+          a: 'Yes, university students who have completed their first year of undergraduate studies or are in graduate programs can legally work part-time with authorized permits.'
+        }
+      ],
+      tr: [
+        {
+          q: 'Üniversite öğrencileri için haftalık çalışma saatleri nasıldır?',
+          a: 'Part-time işlerde genellikle haftada 20 ila 30 saat arası esnek vardiyalar uygulanmaktadır.'
+        }
+      ]
+    }
+  },
+  {
+    type: 'medical-tourism-jobs',
+    icon: 'fa-solid fa-notes-medical',
+    titles: {
+      ar: 'وظائف السياحة العلاجية في إسطنبول 2026 | زراعة الشعر، التجميل، والأسنان',
+      en: 'Medical Tourism & Aesthetic Clinic Jobs in Istanbul 2026',
+      tr: 'İstanbul Medikal Turizm ve Sağlık Turizmi İş İlanları 2026'
+    },
+    descriptions: {
+      ar: 'أفضل فرص عمل بمجال السياحة الطبية والتجميلية في إسطنبول: مستشارو مبيعات دولية، مترجمون فوريون، ومنسقو مرضى بعمولات مجزية بالدولار واليورو.',
+      en: 'High-paying medical tourism jobs in Istanbul clinics. International sales reps, patient coordinators, and interpreters with foreign currency commissions.',
+      tr: 'İstanbul saç ekimi, diş ve estetik kliniklerinde sağlık turizmi satış danışmanı ve tercüman iş ilanları.'
+    },
+    searchKeywords: ['سياحة علاجية', 'زراعة شعر', 'تجميل', 'أسنان', 'طبي', 'عيادة', 'medical', 'clinic', 'sağlık turizmi', 'saç ekim', 'estetik', 'dental'],
+    faqs: {
+      ar: [
+        {
+          q: 'ما هي متطلبات التوظيف كمستشار مبيعات في عيادات السياحة العلاجية؟',
+          a: 'إتقان اللغات الأجنبية (عربي، إنجليزي، فرنسي، أو روسي)، مهارات إقناع وتفاوض قوية، والقدرة على شرح الخطط العلاجية لزراعة الشعر وتجميل الأسنان.'
+        },
+        {
+          q: 'كم تبلغ العمولات في قطاع السياحة الطبية بإسطنبول لعام 2026؟',
+          a: 'تتراوح العمولات التقديرية بين 50 إلى 200 دولار لكل عملية مؤكدة، مما يجعل الدخل الشهري الإجمالي يتجاوز 60,000 إلى 120,000 ليرة للمستشارين المتميزين.'
+        }
+      ],
+      en: [
+        {
+          q: 'What is the commission rate for medical tourism coordinators in Istanbul?',
+          a: 'Sales reps often earn between $50 to $200 per closed patient procedure in hair transplantation, cosmetic surgery, and dentistry.'
+        }
+      ],
+      tr: [
+        {
+          q: 'Sağlık turizmi satış danışmanlarında aranan başlıca özellikler nelerdir?',
+          a: 'Hedef ülke dillerine (Arapça, İngilizce, Fransızca, Rusça) ileri düzeyde hakimiyet ve yüksek ikna kabiliyeti temel kriterlerdir.'
+        }
+      ]
+    }
+  },
+  {
+    type: 'real-estate-jobs',
+    icon: 'fa-solid fa-city',
+    titles: {
+      ar: 'وظائف تسويق ومبيعات عقارية في إسطنبول 2026 | عمولات دولارية ورواتب مجزية',
+      en: 'Real Estate Sales & Property Consultant Jobs in Istanbul 2026',
+      tr: 'İstanbul Gayrimenkul Satış Danışmanı İş İlanları 2026'
+    },
+    descriptions: {
+      ar: 'شواغر وفرص عمل بشركات الاستثمار والتطوير العقاري في إسطنبول. استشارات عقارية، تسويق رقمي ومبيعات موجهة للمستثمرين الأجانب مع تأمين SGK.',
+      en: 'Premier real estate sales vacancies in Istanbul. Property consultants, digital marketers, and portfolio specialists targeting global investors.',
+      tr: 'İstanbul gayrimenkul ve konut projelerinde yabancı yatırımcılara yönelik satış temsilcisi ilanları.'
+    },
+    searchKeywords: ['عقارات', 'عقاري', 'مبيعات عقارية', 'استثمار', 'real estate', 'property', 'gayrimenkul', 'emlak', 'satış'],
+    faqs: {
+      ar: [
+        {
+          q: 'كيف يعمل نظام العمولات في شركات العقارات بإسطنبول؟',
+          a: 'يحصل المستشار العقاري على نسبة تتراوح بين 15% إلى 35% من عمولة الشركة الإجمالية المحصلة من المطور العقاري لكل صفقة بيع ناجحة.'
+        }
+      ],
+      en: [
+        {
+          q: 'How are real estate commissions structured in Istanbul agencies?',
+          a: 'Agents typically receive a base wage plus 15% to 35% of the total brokerage commission on successful property sales to foreign buyers.'
+        }
+      ],
+      tr: [
+        {
+          q: 'Gayrimenkul sektöründe yabancı yatırımcı satışları için hangi diller gereklidir?',
+          a: 'Körfez ve Ortadoğu pazarı için Arapça, Avrupa ve genel yatırımcılar için ileri düzey İngilizce ve Rusça büyük avantaj sağlar.'
+        }
+      ]
+    }
+  },
+  {
+    type: 'tech-developer-jobs',
+    icon: 'fa-solid fa-code',
+    titles: {
+      ar: 'وظائف برمجة وتقنية معلومات في إسطنبول 2026 | مطورون ومهندسو برمجيات',
+      en: 'Software Developer & Tech Jobs in Istanbul 2026 | Remote & Onsite',
+      tr: 'İstanbul Yazılım ve Bilişim İş İlanları 2026'
+    },
+    descriptions: {
+      ar: 'أحدث الوظائف التقنية للمبرمجين ومطوري الويب وتطبيقات الموبايل ومسؤولي الشبكات في كبرى شركات التقنية وحاضنات الأعمال في إسطنبول.',
+      en: 'Top tech and engineering roles in Istanbul: Frontend, Backend, Fullstack, Mobile developers, DevOps, and UI/UX designers.',
+      tr: 'İstanbul teknoparkları ve yazılım firmalarında yazılım uzmanı, frontend, backend ve mobil geliştirici ilanları.'
+    },
+    searchKeywords: ['برمجة', 'مطور', 'مطور برمجيات', 'تقنية', 'software', 'developer', 'frontend', 'backend', 'yazılım', 'bilişim', 'kodlama'],
+    faqs: {
+      ar: [
+        {
+          q: 'ما هي التقنيات الأكثر طلباً في سوق العمل التقني في إسطنبول؟',
+          a: 'React, Next.js, Node.js, Python, Flutter, Go, و Docker. وتوفر شركات التكنوبارك في إسطنبول مزايا ضريبية وإعفاءات للمطورين والشركات التقنية.'
+        }
+      ],
+      en: [
+        {
+          q: 'What tech stack is most in demand in Istanbul tech hubs?',
+          a: 'Fullstack JavaScript (React, Node.js), Python, Cloud DevOps (AWS, Docker, Kubernetes), and Mobile (Flutter, React Native) are in top demand.'
+        }
+      ],
+      tr: [
+        {
+          q: 'İstanbul teknoparklarında yazılımcılar için sağlanan avantajlar nelerdir?',
+          a: 'Teknoloji Geliştirme Bölgelerinde çalışan AR-GE ve yazılım personeli için gelir vergisi muafiyetleri ve cazip çalışma koşulları sağlanmaktadır.'
+        }
+      ]
+    }
+  },
+  {
+    type: 'translation-jobs',
+    icon: 'fa-solid fa-language',
+    titles: {
+      ar: 'وظائف مترجمين في إسطنبول 2026 | تركي، عربي، وإنجليزي فوري ومكتوب',
+      en: 'Translator & Interpreter Jobs in Istanbul 2026 | Turkish, Arabic & English',
+      tr: 'İstanbul Mütercim Tercüman İş İlanları 2026'
+    },
+    descriptions: {
+      ar: 'وظائف ترجمة فورية وكتابية في إسطنبول: مرافقو وفود، ترجمة قانونية، ترجمة طبية، وتدقيق لغوي برواتب تبدأ من 35,000 ليرة.',
+      en: 'Translator and interpreter openings in Istanbul. Sworn translators, conference interpreters, and bilingual content specialists.',
+      tr: 'İstanbul genelinde Arapça, İngilizce ve Türkçe yeminli tercüman ve mihmandar iş ilanları.'
+    },
+    searchKeywords: ['مترجم', 'ترجمة', 'فوري', 'تنسيق لغوي', 'translator', 'interpreter', 'tercüman', 'çevirmen', 'çeviri'],
+    faqs: {
+      ar: [
+        {
+          q: 'كيف أعمل كمترجم محلف (Yeminli Tercüman) في النوتر التركي؟',
+          a: 'يتطلب ذلك معادلة الشهادة الجامعية في الترجمة أو اللغات، وإثبات إتقان اللغتين، ثم أداء القسم القانوني في أحد مكاتب كاتب العدل (النوتر) في إسطنبول.'
+        }
+      ],
+      en: [
+        {
+          q: 'How to become a sworn notary translator in Istanbul?',
+          a: 'You need an attested university degree in translation or linguistics, official background clearance, and legal swearing-in before a Turkish Notary Public.'
+        }
+      ],
+      tr: [
+        {
+          q: 'İstanbul\'da yeminli tercüman olarak noter kaydı nasıl yapılır?',
+          a: 'İlgili dil bölümü lisans diploması ve noter huzurunda yemin zaptı çıkarılarak noter yeminli tercümanı unvanı alınır.'
+        }
+      ]
+    }
+  },
+  {
+    type: 'accounting-jobs',
+    icon: 'fa-solid fa-calculator',
+    titles: {
+      ar: 'وظائف محاسبين ومالية في إسطنبول 2026 | محاسب عام ومسؤول ضرائب',
+      en: 'Accounting & Finance Jobs in Istanbul 2026 | Certified Accountants',
+      tr: 'İstanbul Muhasebe ve Finans Elemanı İş İlanları 2026'
+    },
+    descriptions: {
+      ar: 'شواغر محاسبة ومراجعة مالية في شركات الاستيراد والتصدير والمكاتب التجارية بإسطنبول. خبرة في البرامج المحاسبية التركية (Logo, Mikro) وتأمين SGK.',
+      en: 'Accounting and financial analyst opportunities in Istanbul. General accountants, tax specialists, and financial controllers.',
+      tr: 'İstanbul dış ticaret ve mali müşavirlik ofislerinde ön muhasebe ve genel muhasebe ilanları.'
+    },
+    searchKeywords: ['محاسب', 'محاسبة', 'مالية', 'ضرائب', 'accountant', 'accounting', 'finance', 'muhasebe', 'finans', 'mali'],
+    faqs: {
+      ar: [
+        {
+          q: 'ما هي أهم البرامج المحاسبية المستخدمة في الشركات بإسطنبول؟',
+          a: 'تعتبر برامج Logo Tiger, Logo Go3, Mikro, و Luca الأكثر شيوعاً في إدارة الفواتير الإلكترونية (E-Fatura) والقيود المالية في تركيا.'
+        }
+      ],
+      en: [
+        {
+          q: 'Which ERP and accounting systems are prevalent in Turkish corporations?',
+          a: 'Logo Tiger/Go3, Mikro Yazılım, and Luca are the industry benchmarks for statutory accounting and E-Invoice integration in Turkey.'
+        }
+      ],
+      tr: [
+        {
+          q: 'Ön muhasebe ve genel muhasebe elemanlarında hangi program bilgisi aranır?',
+          a: 'Logo, Mikro, Luca ve Netsis programlarına hakimiyet ve e-Fatura/e-Defter süreçleri bilgisi önceliklidir.'
+        }
+      ]
+    }
+  },
+  {
+    type: 'jobs-in-fatih',
+    icon: 'fa-solid fa-mosque',
+    titles: {
+      ar: 'وظائف في منطقة الفاتح إسطنبول 2026 | أكسراي، فندكزاده، وياوز سليم',
+      en: 'Jobs in Fatih District Istanbul 2026 | Aksaray, Fındıkzade & Laleli',
+      tr: 'İstanbul Fatih İş İlanları 2026 | Aksaray ve Laleli'
+    },
+    descriptions: {
+      ar: 'أكبر دليل لوظائف بلدية الفاتح وقلب إسطنبول التجاري: شركات شحن، مكاتب ترجمة، مطاعم سياحية، محلات ملابس وتجارة جملة في لالالي وأكسراي.',
+      en: 'Active vacancies in Fatih district, Istanbul. Logistics, wholesale fashion in Laleli, travel agencies, and tourism management.',
+      tr: 'İstanbul Fatih, Aksaray ve Laleli bölgesinde mağaza, lojistik ve ticaret sektörü iş ilanları.'
+    },
+    searchKeywords: ['الفاتح', 'أكسراي', 'فندكزاده', 'لالالي', 'fatih', 'aksaray', 'fındıkzade', 'laleli'],
+    faqs: {
+      ar: [
+        {
+          q: 'ما هي الأنشطة التجارية الأكثر توظيفاً في منطقة الفاتح وأكسراي ولالالي؟',
+          a: 'تجارة الملابس الجملة في لالالي، مكاتب الشحن الدولي، وكالات السياحة والسفر، المطاعم الشرقية، ومكاتب الخدمات والاستشارات القانونية والمالية.'
+        }
+      ],
+      en: [
+        {
+          q: 'What businesses hire most actively in Istanbul Fatih and Aksaray?',
+          a: 'Wholesale textile traders in Laleli, freight forwarders, tourism agencies, and multicultural dining establishments.'
+        }
+      ],
+      tr: [
+        {
+          q: 'Fatih ve Laleli bölgesinde en yoğun istihdam hangi sektörlerdedir?',
+          a: 'Tekstil toptan ticareti, kargo lojistik şirketleri, turizm acenteleri ve otelcilik sektörü başı çekmektedir.'
+        }
+      ]
+    }
+  },
+  {
+    type: 'jobs-in-basaksehir',
+    icon: 'fa-solid fa-tree-city',
+    titles: {
+      ar: 'وظائف في باشاك شهير وكايا شهير إسطنبول 2026 | شركات ومدارس وعيادات',
+      en: 'Jobs in Başakşehir & Kayaşehir Istanbul 2026',
+      tr: 'İstanbul Başakşehir İş İlanları 2026 | İkitelli ve Kayaşehir'
+    },
+    descriptions: {
+      ar: 'شواغر وفرص عمل ببلدية باشاك شهير: وظائف بالمنطقة الصناعية بإيكيتلي، مدارس دولية، عيادات تخصصية، ومكاتب تجارية قريبة من المترو.',
+      en: 'Job openings in Başakşehir and İkitelli Industrial Zone. Private schools, clinics, corporate offices, and commerce hubs.',
+      tr: 'Başakşehir, Kayaşehir ve İkitelli Organize Sanayi Bölgesi güncel iş fırsatları.'
+    },
+    searchKeywords: ['باشاك شهير', 'كايا شهير', 'إيكيتلي', 'basaksehir', 'başakşehir', 'kayaşehir', 'ikitelli'],
+    faqs: {
+      ar: [
+        {
+          q: 'ما هي مميزات العمل في منطقة باشاك شهير للمقيمين العرب؟',
+          a: 'تضم باشاك شهير عشرات المدارس الدولية والمراكز الطبية التخصصية، بالإضافة لقربها من مجمع إيكيتلي الصناعي وسهولة الوصول عبر خط المترو M3 و M9.'
+        }
+      ],
+      en: [
+        {
+          q: 'Why is Başakşehir a prime employment hub in Istanbul?',
+          a: 'It combines the giant İkitelli OSB industrial district with international schools, medical complexes, and rapid metro connectivity.'
+        }
+      ],
+      tr: [
+        {
+          q: 'Başakşehir iş fırsatları hangi alanlarda yoğunlaşmaktadır?',
+          a: 'İkitelli OSB imalat ve sanayi firmaları, özel eğitim kurumları ve sağlık merkezleri en çok istihdam yaratan alanlardır.'
+        }
+      ]
+    }
+  },
+  {
+    type: 'jobs-in-esenyurt',
+    icon: 'fa-solid fa-building-user',
+    titles: {
+      ar: 'وظائف في إسن يورت إسطنبول 2026 | مصانع، شركات، ومعامل كبرى',
+      en: 'Jobs in Esenyurt Istanbul 2026 | Industrial & Commercial Vacancies',
+      tr: 'İstanbul Esenyurt İş İlanları 2026'
+    },
+    descriptions: {
+      ar: 'فرص عمل يومية في إسن يورت: عمال إنتاج وتعبئة، كول سنتر، مبيعات ميدانية، وخدمات لوجستية مع تأمين السكن والسيرفيس ووجبات الطعام.',
+      en: 'Daily vacancies in Esenyurt district: production facilities, international call centers, logistics hubs, and sales positions.',
+      tr: 'Esenyurt sanayi tesisleri, depolar ve kurumsal firmalarda en son iş fırsatları.'
+    },
+    searchKeywords: ['إسن يورت', 'اسنيورت', 'ميدان اسنيورت', 'esenyurt'],
+    faqs: {
+      ar: [
+        {
+          q: 'لماذا تعد إسن يورت من أكثر مناطق إسطنبول وفرة لفرص العمل؟',
+          a: 'تحتوي إسن يورت على آلاف المصانع وشركات الخدمات والمخازن اللوجستية، وتتميز بانخفاض تكاليف الإيجار وقرب مقرات العمل من الأحياء السكنية.'
+        }
+      ],
+      en: [
+        {
+          q: 'What job types are prevalent in Istanbul Esenyurt district?',
+          a: 'Industrial production, assembly lines, warehouse logistics, and field retail operations with widespread transport shuttle coverage.'
+        }
+      ],
+      tr: [
+        {
+          q: 'Esenyurt iş ilanlarında aranan genel koşullar nelerdir?',
+          a: 'Vardiyalı çalışmaya uygunluk, üretim ve depo deneyimi ile bölgede ikamet eden adaylar tercih edilmektedir.'
+        }
+      ]
+    }
+  },
+  {
+    type: 'jobs-in-sisli',
+    icon: 'fa-solid fa-landmark-dome',
+    titles: {
+      ar: 'وظائف في شيشلي ومجيدية كوي إسطنبول 2026 | شركات دولية ومراكز أعمال',
+      en: 'Jobs in Şişli & Mecidiyeköy Istanbul 2026 | Corporate Headquarters',
+      tr: 'İstanbul Şişli ve Mecidiyeköy İş İlanları 2026'
+    },
+    descriptions: {
+      ar: 'أرقى وظائف الشركات ومقرات الأعمال في شيشلي، مجيدية كوي، وبومونتي: تسويق، إدارة، كول سنتر دولي، وخدمات طبية برواتب مرتفعة.',
+      en: 'Executive and multilingual vacancies in Şişli and Mecidiyeköy business towers. Finance, international marketing, and legal firms.',
+      tr: 'Şişli, Mecidiyeköy ve Bomonti merkezli şirketlerde ofis ve kurumsal iş ilanları.'
+    },
+    searchKeywords: ['شيشلي', 'مجيدية كوي', 'بومونتي', 'sisli', 'şişli', 'mecidiyeköy', 'bomonti'],
+    faqs: {
+      ar: [
+        {
+          q: 'ما هي الشركات التي تتخذ من شيشلي ومجيدية كوي مقراً لها؟',
+          a: 'أبراج الأعمال في مجيدية كوي وشيشلي تضم مقرات البنوك، شركات التسويق الرقمي، الوكالات الإعلانية، مراكز الاتصال متعددة اللغات، والمستشفيات التخصصية الكبرى.'
+        }
+      ],
+      en: [
+        {
+          q: 'What types of companies operate in Şişli and Mecidiyeköy?',
+          a: 'Corporate headquarters, finance houses, multinational ad agencies, and elite private medical institutions situated along the M2 metro line.'
+        }
+      ],
+      tr: [
+        {
+          q: 'Şişli ve Mecidiyeköy bölgesinde ofis işleri için ulaşım nasıldır?',
+          a: 'M2 Yenikapı-Hacıosman metrosu, M7 Yıldız-Mahmutbey metrosu ve Metrobüs kesişim noktası olması sebebiyle ulaşım son derece elverişlidir.'
+        }
+      ]
+    }
+  },
+  {
+    type: 'jobs-in-beylikduzu',
+    icon: 'fa-solid fa-industry',
+    titles: {
+      ar: 'وظائف في بيليك دوزو إسطنبول 2026 | الميناء، المنطقة الصناعية، والشركات',
+      en: 'Jobs in Beylikdüzü Istanbul 2026 | Port, OSB & Corporate Roles',
+      tr: 'İstanbul Beylikdüzü İş İlanları 2026 | Beylikdüzü OSB'
+    },
+    descriptions: {
+      ar: 'وظائف شاغرة في بيليك دوزو: المنطقة الصناعية (OSB)، ميناء أمبارلي، شركات التجارة الدولية والمطاعم مع توفير السيرفيس والتأمين.',
+      en: 'Job openings in Beylikdüzü: Ambarlı Port logistics, Beylikdüzü Industrial Zone, international trade offices, and commercial malls.',
+      tr: 'Beylikdüzü Organize Sanayi Bölgesi ve Ambarlı limanı çevresinde iş ilanları.'
+    },
+    searchKeywords: ['بيليك دوزو', 'بيليكدوزو', 'أمبارلي', 'beylikdüzü', 'beylikduzu', 'ambarli'],
+    faqs: {
+      ar: [
+        {
+          q: 'ما هي أهم ميزات العمل في بيليك دوزو؟',
+          a: 'تضم ميناء أمبارلي (أكبر موانئ الحاويات في تركيا)، المنطقة الصناعية المنظمة (BOSB)، وشبكة مواصلات المتروبوس على مدار 24 ساعة.'
+        }
+      ],
+      en: [
+        {
+          q: 'What are the main economic drivers in Beylikdüzü?',
+          a: 'Ambarlı Container Port maritime logistics, Beylikdüzü OSB manufacturing, and extensive retail commercial centers.'
+        }
+      ],
+      tr: [
+        {
+          q: 'Beylikdüzü Organize Sanayi Bölgesinde hangi sektörler aktiftir?',
+          a: 'Plastik, mermer, bakır, makine imalatı ve dış ticaret lojistiği en aktif istihdam sağlayan branşlardır.'
+        }
+      ]
+    }
+  },
+  {
+    type: 'jobs-in-taksim',
+    icon: 'fa-solid fa-hotel',
+    titles: {
+      ar: 'وظائف في تقسيم وبي أوغلو إسطنبول 2026 | فنادق، سياحة، ومطاعم',
+      en: 'Jobs in Taksim & Beyoğlu Istanbul 2026 | Hotels, Tourism & Retail',
+      tr: 'İstanbul Taksim ve Beyoğlu İş İlanları 2026 | Turizm ve Otelcilik'
+    },
+    descriptions: {
+      ar: 'شواغر القطاع السياحي والخدمي في ميدان تقسيم وشارع الاستقلال: موظفو استقبال فنادق، مرشدون، ويترز، ومبيعات تجزئة باللغات الأجنبية.',
+      en: 'Hospitality and tourism positions in Taksim Square and İstiklal Avenue. Hotel front desk, concierges, fine dining servers, and store managers.',
+      tr: 'Taksim, İstiklal Caddesi ve Beyoğlu otel, restoran ve mağazacılık iş ilanları.'
+    },
+    searchKeywords: ['تقسيم', 'بي أوغلو', 'شارع الاستقلال', 'taksim', 'beyoğlu', 'istiklal'],
+    faqs: {
+      ar: [
+        {
+          q: 'ما هي أكثر الوظائف طلباً في منطقة تقسيم وبي أوغلو؟',
+          a: 'موظفو الاستقبال (Front Desk) في الفنادق، النوادل والباريستا، مسؤولو المبيعات في متاجر شارع الاستقلال، ومرشدو السياحة باللغات العربية والإنجليزية.'
+        }
+      ],
+      en: [
+        {
+          q: 'What roles dominate hiring around Taksim Square and Beyoğlu?',
+          a: 'Hotel front office staff, multilingual guest relations, barista/waitstaff, and retail store management along İstiklal Street.'
+        }
+      ],
+      tr: [
+        {
+          q: 'Taksim ve Beyoğlu\'nda turizm işlerinde yabancı dil ne kadar önemlidir?',
+          a: 'Yabancı turist yoğunluğu nedeniyle en az bir veya iki yabancı dil (özellikle İngilizce ve Arapça) bilmek neredeyse tüm otel ve restoranlarda zorunludur.'
+        }
+      ]
+    }
+  },
+  {
+    type: 'jobs-in-kadikoy',
+    icon: 'fa-solid fa-ship',
+    titles: {
+      ar: 'وظائف في كاديكوي والجانب الآسيوي إسطنبول 2026 | كافيهات، تعليم، وتقنية',
+      en: 'Jobs in Kadıköy & Asian Side Istanbul 2026 | Creative & Tech',
+      tr: 'İstanbul Kadıköy İş İlanları 2026 | Anadolu Yakası'
+    },
+    descriptions: {
+      ar: 'أحدث الوظائف بالجانب الآسيوي (كاديكوي، مودا، أوسكودار): معاهد لغات، شركات ناشئة، كافيهات راقية، وتصميم برمجيات برواتب منافسة.',
+      en: 'Employment opportunities in Kadıköy, Moda, and Üsküdar. Language academies, boutique cafes, tech startups, and creative media agencies.',
+      tr: 'Kadıköy, Moda ve Üsküdar genelinde eğitim, yazılım ve hizmet sektörü ilanları.'
+    },
+    searchKeywords: ['كاديكوي', 'الجانب الآسيوي', 'أوسكودار', 'kadıköy', 'kadikoy', 'anadolu yakası', 'üsküdar'],
+    faqs: {
+      ar: [
+        {
+          q: 'ما هي بيئة العمل في كاديكوي والجانب الآسيوي لإسطنبول؟',
+          a: 'تتميز كاديكوي بأجواء حيوية وثقافية عالية، وتضم مئات الكافيهات العصرية ومراكز الفنون والشركات الناشئة ومعاهد اللغات والترجمة، ويسهل الوصول إليها بالعبارات البحرية ومترو مرمراي و M4.'
+        }
+      ],
+      en: [
+        {
+          q: 'What industries flourish in Kadıköy and the Asian side of Istanbul?',
+          a: 'Specialty coffee houses, foreign language academies, creative digital agencies, and software startups, easily accessible via Marmaray and ferries.'
+        }
+      ],
+      tr: [
+        {
+          q: 'Kadıköy\'de hizmet ve eğitim sektöründe çalışma koşulları nasıldır?',
+          a: 'Kültürel ve sosyal dinamizmin yüksek olduğu Kadıköy\'de kafeler, dil kursları ve yazılım ajansları genç ve dinamik çalışma ortamları sunmaktadır.'
+        }
+      ]
+    }
   }
 ];
 
 const renderSpecializedLandingHandler = async (c: any, pageConfig: SpecializedSeoConfig, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur') => {
   const db = (c.env as any).DB;
-  const pageTitle = pageConfig.titles[locale] || pageConfig.titles.en || pageConfig.titles.ar;
-  const pageDesc = pageConfig.descriptions[locale] || pageConfig.descriptions.en || pageConfig.descriptions.ar;
+  const pageTitle = (pageConfig.titles as any)[locale] || pageConfig.titles.en || pageConfig.titles.ar;
+  const pageDesc = (pageConfig.descriptions as any)[locale] || pageConfig.descriptions.en || pageConfig.descriptions.ar;
+  const faqs = (pageConfig.faqs && ((pageConfig.faqs as any)[locale] || pageConfig.faqs['ar'] || [])) || [];
 
   let jobs: any[] = [];
   try {
@@ -6167,6 +6802,9 @@ const renderSpecializedLandingHandler = async (c: any, pageConfig: SpecializedSe
     console.error('Error fetching specialized landing page jobs:', err);
   }
 
+  const siteUrl = 'https://jobs-in-istanbul.com';
+  const pageUrl = `${siteUrl}/${locale}/${pageConfig.type}`;
+
   const html = `
     <div class="container" style="padding-top: 30px; padding-bottom: 60px;">
       <nav style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
@@ -6199,7 +6837,7 @@ const renderSpecializedLandingHandler = async (c: any, pageConfig: SpecializedSe
       <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 24px;">
         ${SPECIALIZED_PAGES.map(p => `
           <a href="/${locale}/${p.type}" style="padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; text-decoration: none; white-space: nowrap; border: 1px solid var(--border); background: ${p.type === pageConfig.type ? 'var(--primary)' : 'var(--bg-card)'}; color: ${p.type === pageConfig.type ? '#fff !important' : 'var(--text-dark)'};">
-            <i class="${p.icon}"></i> ${p.titles[locale]?.split('|')[0] || p.titles.ar.split('|')[0]}
+            <i class="${p.icon}"></i> ${(p.titles as any)[locale]?.split('|')[0] || p.titles.ar.split('|')[0]}
           </a>
         `).join('')}
       </div>
@@ -6243,19 +6881,90 @@ const renderSpecializedLandingHandler = async (c: any, pageConfig: SpecializedSe
           `;
         }).join('')}
       </div>
+
+      <!-- Interactive Rich FAQ Accordion Section (Boosts Google Rich Snippets & UX) -->
+      ${faqs.length > 0 ? `
+        <div style="margin-top: 48px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-sm);">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+            <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(0, 123, 255, 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+              <i class="fa-solid fa-circle-question"></i>
+            </div>
+            <div>
+              <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--text-dark); margin: 0;">
+                ${locale === 'ar' ? 'الأسئلة الشائعة وإرشادات العمل' : (locale === 'tr' ? 'Sıkça Sorulan Sorular ve Rehber' : 'Frequently Asked Questions & Guide')}
+              </h2>
+              <p style="font-size: 0.9rem; color: var(--text-muted); margin: 4px 0 0 0;">
+                ${locale === 'ar' ? 'كل ما تحتاج لمعرفته حول الشروط، الرواتب، وتصاريح العمل' : (locale === 'tr' ? 'Şartlar, maaşlar ve çalışma izinleri hakkında tüm detaylar' : 'Everything you need to know about salaries, work permits, and hiring requirements')}
+              </p>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            ${faqs.map((faq: SpecializedFaq, idx: number) => `
+              <details style="background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; transition: all 0.2s ease;" ${idx === 0 ? 'open' : ''}>
+                <summary style="font-weight: 700; font-size: 1.02rem; color: var(--text-dark); cursor: pointer; display: flex; justify-content: space-between; align-items: center; list-style: none;">
+                  <span>${faq.q}</span>
+                  <i class="fa-solid fa-chevron-down" style="font-size: 0.85rem; color: var(--primary); transition: transform 0.2s ease;"></i>
+                </summary>
+                <div style="margin-top: 12px; font-size: 0.95rem; line-height: 1.7; color: var(--text-body); border-top: 1px dashed var(--border); padding-top: 12px;">
+                  ${faq.a}
+                </div>
+              </details>
+            `).join('')}
+          </div>
+        </div>
+      ` : ''}
     </div>
   `;
+
+  // Build JSON-LD Breadcrumbs and FAQPage Structured Data for Google Rich Snippets
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: locale === 'ar' ? 'الرئيسية' : (locale === 'tr' ? 'Anasayfa' : 'Home'),
+        item: `${siteUrl}/${locale}`
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: pageTitle.split('|')[0].trim(),
+        item: pageUrl
+      }
+    ]
+  };
+
+  let jsonLdHtml = `\n<script type="application/ld+json">${JSON.stringify(breadcrumbSchema)}</script>`;
+
+  if (faqs.length > 0) {
+    const faqSchema = {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faqs.map((f: SpecializedFaq) => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: f.a.replace(/<[^>]+>/g, '')
+        }
+      }))
+    };
+    jsonLdHtml += `\n<script type="application/ld+json">${JSON.stringify(faqSchema)}</script>`;
+  }
 
   const seoHtml = generateMetaTags(locale, 'home', {
     title: pageTitle,
     seoDescription: pageDesc,
     seoKeywords: pageConfig.searchKeywords.join(', ')
-  });
+  }) + jsonLdHtml;
 
   return c.html(renderLayout(c, pageTitle, html, locale, seoHtml));
 };
 
-// Register all 9 Specialized Landing Page Routes
+// Register all 21 Specialized Landing Page Routes
 SPECIALIZED_PAGES.forEach(pageConfig => {
   publicRouter.get(`/:locale/${pageConfig.type}`, (c) => {
     const locale = (c.req.param('locale') || 'ar') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
@@ -6265,6 +6974,3 @@ SPECIALIZED_PAGES.forEach(pageConfig => {
     return renderSpecializedLandingHandler(c, pageConfig, locale);
   });
 });
-
-
-

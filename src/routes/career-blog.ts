@@ -42,6 +42,11 @@ import {
   tourismHotelSalariesArticleEn,
   tourismHotelSalariesArticleTr
 } from '../data/articles/tourism-hotel-salaries-istanbul-2026'
+import {
+  workPermitTransferAr as workPermitTransferArticleAr,
+  workPermitTransferEn as workPermitTransferArticleEn,
+  workPermitTransferTr as workPermitTransferArticleTr
+} from '../data/articles/work-permit-transfer-turkey-2026'
 
 export const careerBlogRouter = new Hono()
 
@@ -67,6 +72,7 @@ careerBlogRouter.get('/blog', (c) => {
 // Fallback hardcoded seeded articles if the database is empty
 export const seededArticles: Record<string, any[]> = {
   ar: [
+    workPermitTransferArticleAr,
     tourismHotelSalariesArticleAr,
     costOfLivingArticleAr,
     remoteWorkArticleAr,
@@ -2893,6 +2899,7 @@ export const seededArticles: Record<string, any[]> = {
     }
   ],
   en: [
+    workPermitTransferArticleEn,
     tourismHotelSalariesArticleEn,
     costOfLivingArticleEn,
     remoteWorkArticleEn,
@@ -3737,6 +3744,7 @@ export const seededArticles: Record<string, any[]> = {
     }
   ],
   tr: [
+    workPermitTransferArticleTr,
     tourismHotelSalariesArticleTr,
     costOfLivingArticleTr,
     remoteWorkArticleTr,

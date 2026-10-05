@@ -222,7 +222,10 @@ export default {
       '/salary-calculator-2026', '/investor-calculator', '/work-permit-eligibility', 
       '/cv-optimizer', '/resume-builder', '/ai-job-matcher',
       '/jobs-for-arabs', '/jobs-without-turkish', '/entry-level-jobs', '/driver-jobs',
-      '/restaurant-jobs', '/factory-jobs', '/call-center-jobs', '/jobs-for-women', '/student-jobs'
+      '/restaurant-jobs', '/factory-jobs', '/call-center-jobs', '/jobs-for-women', '/student-jobs',
+      '/medical-tourism-jobs', '/real-estate-jobs', '/tech-developer-jobs', '/translation-jobs',
+      '/accounting-jobs', '/jobs-in-fatih', '/jobs-in-basaksehir', '/jobs-in-esenyurt',
+      '/jobs-in-sisli', '/jobs-in-beylikduzu', '/jobs-in-taksim', '/jobs-in-kadikoy'
     ];
 
     if (bareRoutes.includes(normalizedPath)) {
