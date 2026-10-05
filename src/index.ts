@@ -191,28 +191,50 @@ export default {
       });
     }
 
-    // Redirect /blog to /ar/blog (fix 404)
-    if (url.pathname === '/blog') {
-      return Response.redirect(`${url.origin}/ar/blog`, 302);
-    }
-    // Redirect tool & specialized landing routes without locale prefix to preferred language
+    // Normalize alias paths to canonical paths
+    const routeAliases: Record<string, string> = {
+      '/about-us': '/about',
+      '/contact-us': '/contact',
+      '/terms-of-service': '/terms',
+      '/terms-and-conditions': '/terms',
+      '/privacy-policy': '/privacy',
+      '/cookie-policy': '/privacy',
+      '/app-privacy': '/privacy',
+    };
+    const normalizedPath = routeAliases[url.pathname] || url.pathname;
+
+    // Detect visitor language preference from Accept-Language header
+    const getTargetLocale = (): 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur' => {
+      const acceptLang = (request.headers.get('accept-language') || '').toLowerCase();
+      if (acceptLang.startsWith('en')) return 'en';
+      if (acceptLang.startsWith('tr')) return 'tr';
+      if (acceptLang.startsWith('ru')) return 'ru';
+      if (acceptLang.startsWith('fa')) return 'fa';
+      if (acceptLang.startsWith('ur')) return 'ur';
+      return 'ar';
+    };
+
+    // Redirect essential pages without locale prefix to localized version
     const bareRoutes = [
+      '/about', '/contact', '/terms', '/privacy', '/blog', '/insights',
+      '/currency-prices', '/gold-prices', '/workplace-quiz', '/ats-scanner',
+      '/submit-job', '/install', '/salary-calculator',
       '/salary-calculator-2026', '/investor-calculator', '/work-permit-eligibility', 
-      '/cv-optimizer', '/workplace-quiz', '/resume-builder', '/ai-job-matcher',
+      '/cv-optimizer', '/resume-builder', '/ai-job-matcher',
       '/jobs-for-arabs', '/jobs-without-turkish', '/entry-level-jobs', '/driver-jobs',
       '/restaurant-jobs', '/factory-jobs', '/call-center-jobs', '/jobs-for-women', '/student-jobs'
     ];
-    if (bareRoutes.includes(url.pathname)) {
-      const acceptLang = request.headers.get('accept-language') || '';
-      let targetLocale = 'ar';
-      if (acceptLang.toLowerCase().startsWith('en')) targetLocale = 'en';
-      else if (acceptLang.toLowerCase().startsWith('tr')) targetLocale = 'tr';
-      else if (acceptLang.toLowerCase().startsWith('ru')) targetLocale = 'ru';
-      else if (acceptLang.toLowerCase().startsWith('fa')) targetLocale = 'fa';
-      else if (acceptLang.toLowerCase().startsWith('ur')) targetLocale = 'ur';
-      return Response.redirect(`${url.origin}/${targetLocale}${url.pathname}`, 302);
+
+    if (bareRoutes.includes(normalizedPath)) {
+      const targetLocale = getTargetLocale();
+      return Response.redirect(`${url.origin}/${targetLocale}${normalizedPath}`, 302);
     }
-    // Redirect /{locale}/jobs (without slug) to /{locale} (homepage shows jobs)
+
+    // Redirect bare /jobs or /{locale}/jobs (without slug) to homepage
+    if (url.pathname === '/jobs' || url.pathname === '/jobs/') {
+      const targetLocale = getTargetLocale();
+      return Response.redirect(`${url.origin}/${targetLocale}`, 301);
+    }
     const jobsListMatch = url.pathname.match(/^\/(ar|en|tr|ru|fa|ur)\/jobs\/?$/);
     if (jobsListMatch) {
       return Response.redirect(`${url.origin}/${jobsListMatch[1]}`, 301);

@@ -1678,6 +1678,54 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
     <i class="fa-brands fa-telegram"></i>
     <span>${locale === 'ar' ? 'أضف إعلانك مجاناً' : (locale === 'tr' ? 'Ücretsiz İlan Ekle' : 'Post a Job Free')}</span>
   </a>
+
+  <!-- Cookie Consent Banner for Google AdSense & GDPR/KVKK Compliance -->
+  <div id="cookie-consent-banner" style="display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 99999; background: rgba(15, 23, 42, 0.96); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); color: #f8fafc; padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.12); box-shadow: 0 -8px 24px rgba(0,0,0,0.25);">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;">
+      <div style="flex: 1 1 500px; display: flex; align-items: flex-start; gap: 12px;">
+        <span style="font-size: 1.5rem; line-height: 1;">🍪</span>
+        <div style="font-size: 0.9rem; line-height: 1.6; color: #e2e8f0;">
+          ${locale === 'ar' 
+            ? `نحن نستخدم ملفات تعريف الارتباط (Cookies) بما في ذلك إعلانات Google AdSense وGoogle Analytics لتحسين تجربتك، وتخصيص الإعلانات والمحتوى، وتحليل حركة الزوار. لمزيد من التفاصيل، يرجى مراجعة <a href="/${locale}/privacy" style="color: #60a5fa; text-decoration: underline; font-weight: 600;">سياسة الخصوصية وملفات تعريف الارتباط</a>.`
+            : locale === 'tr'
+            ? `Web sitemizde gezinme deneyiminizi geliştirmek, Google AdSense ve Google Analytics ile kişiselleştirilmiş reklam ve içerikler sunmak ve ziyaretçi trafiğini analiz etmek için çerezler (cookies) kullanılmaktadır. Detaylar: <a href="/${locale}/privacy" style="color: #60a5fa; text-decoration: underline; font-weight: 600;">Gizlilik ve Çerez Politikası</a>.`
+            : `We use cookies (including Google AdSense and Google Analytics) to improve your experience, serve personalized ads and content, and analyze our web traffic. For details, please review our <a href="/${locale}/privacy" style="color: #60a5fa; text-decoration: underline; font-weight: 600;">Privacy & Cookie Policy</a>.`
+          }
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <button id="btn-accept-cookies" onclick="acceptAllCookies()" style="background: #2563eb; color: #ffffff; border: none; padding: 9px 20px; border-radius: 8px; font-weight: 700; font-size: 0.88rem; cursor: pointer; transition: background 0.2s;">
+          ${locale === 'ar' ? 'قبول الكل' : (locale === 'tr' ? 'Tümünü Kabul Et' : 'Accept All')}
+        </button>
+        <button id="btn-essential-cookies" onclick="acceptEssentialCookies()" style="background: rgba(255,255,255,0.1); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.2); padding: 9px 18px; border-radius: 8px; font-weight: 600; font-size: 0.88rem; cursor: pointer; transition: background 0.2s;">
+          ${locale === 'ar' ? 'الضرورية فقط' : (locale === 'tr' ? 'Yalnızca Zorunlu' : 'Essential Only')}
+        </button>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function() {
+      try {
+        var consent = localStorage.getItem('site_cookie_consent');
+        if (!consent) {
+          setTimeout(function() {
+            var banner = document.getElementById('cookie-consent-banner');
+            if (banner) banner.style.display = 'block';
+          }, 600);
+        }
+      } catch (e) {}
+    })();
+    function acceptAllCookies() {
+      try { localStorage.setItem('site_cookie_consent', 'all'); } catch(e) {}
+      var banner = document.getElementById('cookie-consent-banner');
+      if (banner) banner.style.display = 'none';
+    }
+    function acceptEssentialCookies() {
+      try { localStorage.setItem('site_cookie_consent', 'essential'); } catch(e) {}
+      var banner = document.getElementById('cookie-consent-banner');
+      if (banner) banner.style.display = 'none';
+    }
+  </script>
 </body>
 </html>`;
 }
@@ -3976,8 +4024,12 @@ publicRouter.post(
       // Invalidate recent jobs cache and edge cache so newly published job shows immediately on homepage
       const envAny = c.env as any;
       if (envAny?.CACHE_KV) {
-        await envAny.CACHE_KV.delete('kv_jobs_recent').catch(() => {});
-        await envAny.CACHE_KV.put('edge_cache_version', 'v_' + Date.now()).catch(() => {});
+        if (typeof envAny.CACHE_KV.delete === 'function') {
+          await envAny.CACHE_KV.delete('kv_jobs_recent').catch(() => {});
+        }
+        if (typeof envAny.CACHE_KV.put === 'function') {
+          await envAny.CACHE_KV.put('edge_cache_version', 'v_' + Date.now()).catch(() => {});
+        }
       }
 
       return c.json({ success: true, slug, id });
@@ -4734,10 +4786,10 @@ publicRouter.get('/:locale/contact', (c) => {
             </div>
           </div>
           <div class="glass-card contact-card-box">
-            <div style="width: 46px; height: 46px; border-radius: var(--r-full); background: #f0fdf4; color: #166534; display: flex; align-items: center; justify-content: center; font-size: 1.35rem; flex-shrink: 0;"><i class="fa-brands fa-whatsapp"></i></div>
+            <div style="width: 46px; height: 46px; border-radius: var(--r-full); background: #f0fdf4; color: #166534; display: flex; align-items: center; justify-content: center; font-size: 1.35rem; flex-shrink: 0;"><i class="fa-solid fa-headset"></i></div>
             <div>
               <div style="font-weight: 800; color: var(--text-dark); margin-bottom: 2px;">${t.cardPhone}</div>
-              <span style="color: #166534; font-weight: 600; font-size: 0.92rem; direction: ltr; display: inline-block;">+90 555 555 55 55</span>
+              <a href="mailto:support@jobs-in-istanbul.com" style="color: #166534; font-weight: 600; font-size: 0.92rem;">support@jobs-in-istanbul.com</a>
             </div>
           </div>
           <div class="glass-card contact-card-box">
@@ -4816,26 +4868,29 @@ publicRouter.get('/:locale/privacy', (c) => {
       <div class="glass-card" style="padding: 35px 30px; border-radius: var(--radius-lg); text-align: center; margin-bottom: 30px; border-top: 4px solid var(--primary); background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(245,247,250,0.95) 100%); shadow: 0 10px 30px rgba(0,0,0,0.05);">
         <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(37, 99, 235, 0.08); color: var(--primary); font-size: 0.85rem; font-weight: 700; padding: 6px 16px; border-radius: 50px; margin-bottom: 16px;">
           <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-5.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8subscriptionz"/></svg>
-          Google Play & App Store Compliant
+          Google AdSense, Google Play, GDPR & KVKK Compliant
         </div>
         
         <h1 class="hero-title-gradient" style="font-size: 2.1rem; font-weight: 800; margin-bottom: 12px; line-height: 1.3;">
-          ${locale === 'ar' ? 'سياسة الخصوصية لـ وظائف في إسطنبول' : 'Privacy Policy for Jobs in Istanbul'}
+          ${locale === 'ar' ? 'سياسة الخصوصية وملفات تعريف الارتباط لـ وظائف في إسطنبول' : 'Privacy & Cookie Policy for Jobs in Istanbul'}
         </h1>
         <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">
-          Jobs in Istanbul (وظائف في إسطنبول) &bull; <code>com.jobsistanbul.app</code>
+          Jobs in Istanbul (وظائف في إسطنبول) &bull; <strong>jobs-in-istanbul.com</strong> &bull; <code>com.jobsistanbul.app</code>
         </p>
 
         <!-- Key Meta Info Tags -->
         <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; font-size: 0.85rem; color: var(--text-dark);">
           <span style="background: var(--bg-surface); padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border-color); font-weight: 600;">
-            📅 ${locale === 'ar' ? 'تاريخ النفاذ:' : 'Effective Date:'} July 23, 2026
+            📅 ${locale === 'ar' ? 'تاريخ التحديث:' : 'Last Updated:'} July 2026
           </span>
           <span style="background: var(--bg-surface); padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border-color); font-weight: 600;">
-            📱 ${locale === 'ar' ? 'اسم الحزمة:' : 'Package Name:'} <code>com.jobsistanbul.app</code>
+            🌐 ${locale === 'ar' ? 'الموقع الإلكتروني:' : 'Website:'} <code>jobs-in-istanbul.com</code>
           </span>
           <span style="background: var(--bg-surface); padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border-color); font-weight: 600;">
-            ✉️ ${locale === 'ar' ? 'الدعم:' : 'Support:'} support@jobsistanbul.app
+            📱 ${locale === 'ar' ? 'التطبيق:' : 'Mobile App:'} <code>com.jobsistanbul.app</code>
+          </span>
+          <span style="background: var(--bg-surface); padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border-color); font-weight: 600;">
+            ✉️ ${locale === 'ar' ? 'الدعم:' : 'Support:'} support@jobs-in-istanbul.com
           </span>
         </div>
       </div>
@@ -4857,69 +4912,93 @@ publicRouter.get('/:locale/privacy', (c) => {
       <div id="ar-tab" class="privacy-content-section" style="display: ${locale === 'ar' || locale === 'fa' || locale === 'ur' ? 'block' : 'none'}; text-align: right; direction: rtl;">
         <div class="glass-card" style="padding: 40px; border-radius: var(--radius-lg); margin-bottom: 25px;">
           <h2 style="font-size: 1.6rem; font-weight: 800; color: var(--primary); margin-bottom: 16px; border-bottom: 2px solid rgba(0,0,0,0.06); padding-bottom: 10px;">
-            1. العربية (Arabic Version)
+            1. العربية (Arabic Version) - سياسة الخصوصية وملفات تعريف الارتباط
           </h2>
           
-          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-top: 24px; margin-bottom: 12px;">المقدمة</h3>
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-top: 24px; margin-bottom: 12px;">المقدمة ونطاق التطبيق</h3>
           <p style="font-size: 1.02rem; line-height: 1.8; color: var(--text-body); margin-bottom: 24px;">
-            نحن في تطبيق <strong>وظائف في إسطنبول (Jobs in Istanbul)</strong> نلتزم باحترام وحماية خصوصية مستخدمينا. تشرح سياسة الخصوصية هذه كيفية جمع البيانات واستخدامها وحمايتها عند استخدام تطبيقنا والخدمات المتاحة فيه (بما في ذلك منصة الوظائف، وحدة تعلم اللغة التركية، ماسح الـ QR والباربود، محول العملات، منشئ المعاملات والخطابات القانونية، خريطة المناطق الصناعية، وبطاقات الأعمال الرقمية).
+            نحن في <strong>فرص عمل في إسطنبول (Jobs in Istanbul)</strong> نلتزم باحترام وحماية خصوصية جميع زوارنا ومستخدمينا. تنطبق سياسة الخصوصية هذه على موقعنا الإلكتروني الرسمي <strong>jobs-in-istanbul.com</strong> وتطبيقنا الرسمي على الهواتف الذكية (<code>com.jobsistanbul.app</code>)، وتشرح كيفية جمع البيانات واستخدامها وحمايتها، بما في ذلك سياسات ملفات تعريف الارتباط والإعلانات.
           </p>
 
           <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
 
-          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">1.1 المعلومات التي نجمعها وكيفية استخدامها</h3>
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">1.1 إعلانات جوجل وملفات تعريف الارتباط (Google AdSense & Cookies)</h3>
+          <div style="background: rgba(37, 99, 235, 0.04); padding: 20px; border-radius: 12px; border-right: 4px solid var(--primary); margin-bottom: 20px;">
+            <p style="font-size: 0.98rem; line-height: 1.8; color: var(--text-body); margin-bottom: 12px;">
+              يستخدم موقعنا شبكة إعلانات <strong>Google AdSense</strong> لعرض الإعلانات عند زيارتكم لموقعنا الإلكتروني. يُرجى ملاحظة البنود الأساسية التالية وفقاً لسياسات Google AdSense وبرامج الإعلانات:
+            </p>
+            <ul style="line-height: 1.8; color: var(--text-body); padding-right: 20px; font-size: 0.96rem; margin-bottom: 0;">
+              <li style="margin-bottom: 10px;">
+                <strong>استخدام ملفات تعريف الارتباط من جهات خارجية:</strong> تستخدم جهات خارجية، بما في ذلك Google، ملفات تعريف الارتباط (Cookies) لخدمة الإعلانات استنادًا إلى زيارات المستخدم السابقة لموقعنا الإلكتروني أو لمواقع أخرى على الويب.
+              </li>
+              <li style="margin-bottom: 10px;">
+                <strong>ملف تعريف الارتباط للإعلانات (DoubleClick Cookie):</strong> يتيح استخدام Google لملفات تعريف ارتباط الإعلانات لها ولشركائها عرض إعلانات لمستخدمينا استنادًا إلى زيارتهم لموقعنا و/أو مواقع أخرى على شبكة الإنترنت.
+              </li>
+              <li style="margin-bottom: 10px;">
+                <strong>إلغاء الاشتراك في الإعلانات المخصصة:</strong> يمكن للمستخدمين إلغاء الاشتراك في الإعلانات المخصصة من خلال زيارة <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer" style="color: var(--primary); font-weight: 700; text-decoration: underline;">إعدادات إعلانات Google (Ads Settings)</a>.
+              </li>
+              <li style="margin-bottom: 0;">
+                <strong>خيارات الإلغاء الإضافية:</strong> يمكن للمستخدمين أيضاً إلغاء الاشتراك في استخدام جهات خارجية لملفات تعريف الارتباط للإعلانات المخصصة عن طريق زيارة <a href="https://www.aboutads.info/choices/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); font-weight: 700; text-decoration: underline;">www.aboutads.info</a> أو <a href="https://www.youronlinechoices.com/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); font-weight: 700; text-decoration: underline;">www.youronlinechoices.com</a>.
+              </li>
+            </ul>
+          </div>
 
-          <h4 style="font-size: 1.08rem; font-weight: 700; color: var(--primary); margin-top: 16px; margin-bottom: 10px;">أ. البيانات المجمعة تلقائياً (تحليلات وإعلانات)</h4>
+          <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
+
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">1.2 تحليلات الموقع والتطبيق (Google Analytics & Firebase)</h3>
           <ul style="line-height: 1.8; color: var(--text-body); padding-right: 20px; margin-bottom: 20px; font-size: 0.98rem;">
             <li style="margin-bottom: 10px;">
-              <strong>خدمات تحليلات الفايربيس (Firebase Analytics):</strong> نستخدم خدمات تحليلات جوجل لجمع بيانات إحصائية مجمعة وغير معرّفة لشخصيتك، مثل نوع الجهاز، ونظام التشغيل، ومدة استخدام التطبيق، والأخطاء الفنية (Crash Reports)، بهدف تحسين أداء التطبيق وتجربة المستخدم.
+              <strong>Google Analytics 4 (GA4):</strong> نستخدم تحليلات Google على الموقع الإلكتروني لجمع مقاييس استخدام مجهولة الهوية مثل عدد الزيارات والصفحات الأكثر تفاعلاً والبلد/المدينة، بهدف تحسين الخدمات والبحث عن الوظائف وتجربة التصفح.
             </li>
             <li style="margin-bottom: 10px;">
-              <strong>إعلانات جوجل موبايل (Google Mobile Ads / AdMob):</strong> يحتوي التطبيق على إعلانات مقدمة من شبكة Google AdMob. قد تقوم AdMob بنادراً بجمع واستخدام معرفات الإعلانات التابعة للجهاز (مثل GAID) لتقديم إعلانات ملاءمة وغير شخصية وفقاً لسياسات Google AdMob.
-            </li>
-          </ul>
-
-          <h4 style="font-size: 1.08rem; font-weight: 700; color: var(--primary); margin-top: 16px; margin-bottom: 10px;">ب. الأذونات المطلوبة على الهاتف</h4>
-          <ul style="line-height: 1.8; color: var(--text-body); padding-right: 20px; margin-bottom: 24px; font-size: 0.98rem;">
-            <li style="margin-bottom: 10px;">
-              <strong>الكاميرا (Camera Permission):</strong> تُستخدم الكاميرا حصراً عند تشغيل "ماسح الباربود والـ QR Code". لا نقوم بتسجيل أو حفظ أي صور أو فيديوهات من كاميرا جهازك على خوادمنا.
-            </li>
-            <li style="margin-bottom: 10px;">
-              <strong>التخزين والملفات (Storage & Files Permission):</strong> يُستخدم إذن التخزين فقط لحفظ المستندات والخطابات القانونية (PDF) التي تقوم بإنشائها أو حفظ صورة بطاقة الأعمال الرقمية على جهازك الشخصي.
-            </li>
-            <li style="margin-bottom: 10px;">
-              <strong>الاتصال بالإنترنت (Internet Access):</strong> يُستخدم لجلب أحدث فرص العمل، وأسعار الصرف والذهب المباشرة، وبيانات الخرائط الإقليمية، وحملات الإعلانات.
+              <strong>تحليلات وتنبيهات التطبيق (Firebase & AdMob):</strong> يستخدم تطبيق الهاتف Google Firebase Analytics وGoogle AdMob لجمع مقاييس الأداء الفني وتتبع الأخطاء البرمجية وتقديم إعلانات متوافقة مع سياسات Google Play.
             </li>
           </ul>
 
           <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
 
-          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">1.2 تخزين البيانات وخصوصيتك</h3>
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">1.3 أذونات تطبيق الهاتف المحمول (Android App Permissions)</h3>
           <ul style="line-height: 1.8; color: var(--text-body); padding-right: 20px; margin-bottom: 24px; font-size: 0.98rem;">
             <li style="margin-bottom: 10px;">
-              <strong>تخزين محلي آمن:</strong> كافة بياناتك الشخصية المعالجة داخل الأدوات (مثل نص الخطاب القانوني أو بطاقة الأعمال الرقمية) تُخزن محلياً على جهازك باستخدام تقنيات تشفير التخزين المحلي (Hive Storage).
+              <strong>الكاميرا (Camera Permission):</strong> تُستخدم الكاميرا حصراً عند تشغيل "ماسح الباركود والـ QR Code" في التطبيق. لا نقوم بتسجيل أو حفظ أو إرسال أي صور من كاميرا جهازك إلى خوادمنا.
             </li>
             <li style="margin-bottom: 10px;">
-              <strong>عدم المشاركة مع أطراف ثالثة:</strong> نحن لا نبيع ولا نؤجر ولا نشارك معلوماتك الشخصية أو محتوى ملفاتك مع أي طرف ثالث خارج الخدمات المشروحة في هذه السياسة (Google Analytics و AdMob).
+              <strong>التخزين والملفات (Storage & Files Permission):</strong> يُستخدم إذن التخزين فقط لحفظ المستندات والخطابات القانونية بصيغة PDF التي تنشئها، أو لحفظ بطاقات الأعمال الرقمية على جهازك الشخصي.
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>الاتصال بالإنترنت (Internet Access):</strong> يُستخدم لجلب أحدث فرص العمل، وأسعار الصرف والذهب المباشرة، وبيانات الخرائط الإقليمية.
             </li>
           </ul>
 
           <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
 
-          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">1.3 حماية الأطفال</h3>
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">1.4 حماية البيانات والامتثال للأنظمة (GDPR & KVKK)</h3>
+          <p style="font-size: 1rem; line-height: 1.8; color: var(--text-body); margin-bottom: 16px;">
+            نلتزم باللائحة العامة لحماية البيانات في الاتحاد الأوروبي (GDPR) وقانون حماية البيانات الشخصية في الجمهورية التركية رقم 6698 (KVKK). يحق لك في أي وقت:
+          </p>
+          <ul style="line-height: 1.8; color: var(--text-body); padding-right: 20px; margin-bottom: 20px; font-size: 0.98rem;">
+            <li style="margin-bottom: 8px;">معرفة ما إذا كانت بياناتك الشخصية قد تمت معالجتها أم لا.</li>
+            <li style="margin-bottom: 8px;">طلب تصحيح أو تحديث أي بيانات غير دقيقة.</li>
+            <li style="margin-bottom: 8px;">طلب حذف أو إتلاف بياناتك الشخصية من خوادمنا.</li>
+            <li style="margin-bottom: 8px;">سحب الموافقة على ملفات تعريف الارتباط في أي وقت عبر إعدادات المتصفح أو بنر الكوكيز.</li>
+          </ul>
+
+          <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
+
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">1.5 حماية خصوصية الأطفال</h3>
           <p style="font-size: 1rem; line-height: 1.8; color: var(--text-body); margin-bottom: 24px;">
-            تطبيقنا مخصص لعامة الجمهور والباحثين عن العمل والخدمات في إسطنبول، ولا يستهدف الأطفال دون سن 13 عاماً بشكل خاص. نحن لا نجمع بشكل متعمد أي معلومات تعريف شخصية من الأطفال.
+            موقعنا وتطبيقنا موجهان للجمهور العام والباحثين عن العمل في تركيا وإسطنبول، ولا نقوم عن قصد بجمع أي معلومات شخصية من الأطفال دون سن 13 عاماً.
           </p>
 
           <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
 
-          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">1.4 حقوقك والتواصل معنا</h3>
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">1.6 التواصل والاستفسارات</h3>
           <p style="font-size: 1rem; line-height: 1.8; color: var(--text-body); margin-bottom: 16px;">
-            يحق لك في أي وقت حذف بيانات التطبيق المخزنة محلياً عن طريق مسح بيانات التطبيق من إعدادات جهازك أو إلغاء تثبيت التطبيق.
+            لأي استفسارات أو أسئلة تتعلق بسياسة الخصوصية وملفات تعريف الارتباط أو لممارسة حقوقك القانونية، يُرجى التواصل معنا عبر:
           </p>
           <div style="background: rgba(37, 99, 235, 0.05); padding: 18px 24px; border-radius: 12px; border-right: 4px solid var(--primary); font-size: 0.98rem; color: var(--text-dark);">
-            لأي استفسارات أو أسئلة تتعلق بسياسة الخصوصية، يمكنك التواصل معنا عبر البريد الإلكتروني: <br />
-            <a href="mailto:support@jobsistanbul.app" style="color: var(--primary); font-weight: 700; font-family: monospace; font-size: 1.05rem;">support@jobsistanbul.app</a>
+            البريد الإلكتروني الرسمي للدعم: <br />
+            <a href="mailto:support@jobs-in-istanbul.com" style="color: var(--primary); font-weight: 700; font-family: monospace; font-size: 1.05rem;">support@jobs-in-istanbul.com</a>
           </div>
         </div>
       </div>
@@ -4928,69 +5007,93 @@ publicRouter.get('/:locale/privacy', (c) => {
       <div id="en-tab" class="privacy-content-section" style="display: ${locale === 'en' || locale === 'ru' ? 'block' : 'none'}; text-align: left; direction: ltr;">
         <div class="glass-card" style="padding: 40px; border-radius: var(--radius-lg); margin-bottom: 25px;">
           <h2 style="font-size: 1.6rem; font-weight: 800; color: var(--primary); margin-bottom: 16px; border-bottom: 2px solid rgba(0,0,0,0.06); padding-bottom: 10px;">
-            2. English Version
+            2. English Version - Privacy & Cookie Policy
           </h2>
 
-          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-top: 24px; margin-bottom: 12px;">Introduction</h3>
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-top: 24px; margin-bottom: 12px;">Introduction & Scope</h3>
           <p style="font-size: 1.02rem; line-height: 1.8; color: var(--text-body); margin-bottom: 24px;">
-            At <strong>Jobs in Istanbul (<code>com.jobsistanbul.app</code>)</strong>, we are committed to respecting and protecting your privacy. This Privacy Policy explains how data is collected, used, and safeguarded when you use our mobile application and related modules (including job listings, Turkish language learning, QR & barcode scanner, live currency converter, legal Dilekçe generator, industrial zones map, and digital business cards).
+            At <strong>Jobs in Istanbul</strong>, accessible from <strong>jobs-in-istanbul.com</strong> and our official Android application (<code>com.jobsistanbul.app</code>), we are dedicated to protecting your personal data and respecting your privacy rights. This Privacy & Cookie Policy details how we collect, use, and safeguard your data when using our website and mobile platform.
           </p>
 
           <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
 
-          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">2.1 Information We Collect & How It Is Used</h3>
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">2.1 Google AdSense & Advertising Cookies</h3>
+          <div style="background: rgba(37, 99, 235, 0.04); padding: 20px; border-radius: 12px; border-left: 4px solid var(--primary); margin-bottom: 20px;">
+            <p style="font-size: 0.98rem; line-height: 1.8; color: var(--text-body); margin-bottom: 12px;">
+              Our website uses <strong>Google AdSense</strong> to display advertisements. In accordance with Google AdSense program policies, please take note of the following mandatory disclosures:
+            </p>
+            <ul style="line-height: 1.8; color: var(--text-body); padding-left: 20px; font-size: 0.96rem; margin-bottom: 0;">
+              <li style="margin-bottom: 10px;">
+                <strong>Third-Party Cookie Usage:</strong> Third-party vendors, including Google, use cookies to serve ads based on a user's prior visits to our website or other websites across the Internet.
+              </li>
+              <li style="margin-bottom: 10px;">
+                <strong>DoubleClick & Advertising Cookies:</strong> Google's use of advertising cookies enables it and its partners to serve ads to our visitors based on their visit to our site and/or other sites on the Internet.
+              </li>
+              <li style="margin-bottom: 10px;">
+                <strong>Opting Out of Personalized Ads:</strong> Users may opt out of personalized advertising by visiting <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer" style="color: var(--primary); font-weight: 700; text-decoration: underline;">Google Ads Settings</a>.
+              </li>
+              <li style="margin-bottom: 0;">
+                <strong>Alternative Opt-Out Mechanisms:</strong> Alternatively, users can opt out of a third-party vendor's use of cookies for personalized advertising by visiting <a href="https://www.aboutads.info/choices/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); font-weight: 700; text-decoration: underline;">www.aboutads.info</a> or <a href="https://www.youronlinechoices.com/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); font-weight: 700; text-decoration: underline;">www.youronlinechoices.com</a>.
+              </li>
+            </ul>
+          </div>
 
-          <h4 style="font-size: 1.08rem; font-weight: 700; color: var(--primary); margin-top: 16px; margin-bottom: 10px;">A. Automatically Collected Data (Analytics & Ads)</h4>
+          <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
+
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">2.2 Web Analytics (Google Analytics 4)</h3>
           <ul style="line-height: 1.8; color: var(--text-body); padding-left: 20px; margin-bottom: 20px; font-size: 0.98rem;">
             <li style="margin-bottom: 10px;">
-              <strong>Firebase Analytics:</strong> We use Google Firebase Analytics to collect anonymized usage metrics, device information, operating system versions, and performance logs to continuously improve application quality and stability.
+              <strong>Google Analytics 4 (GA4):</strong> We use Google Analytics on our website to collect aggregated, non-personally identifiable traffic metrics (such as page views, visitor regions, and job search interactions) to improve usability and content quality.
             </li>
             <li style="margin-bottom: 10px;">
-              <strong>Google Mobile Ads (AdMob):</strong> Our app displays advertisements served by Google AdMob. AdMob may utilize unique advertising identifiers (such as Android Advertising ID) to serve non-personalized and contextual advertisements in compliance with Google Play Policies.
-            </li>
-          </ul>
-
-          <h4 style="font-size: 1.08rem; font-weight: 700; color: var(--primary); margin-top: 16px; margin-bottom: 10px;">B. Device Permissions Required</h4>
-          <ul style="line-height: 1.8; color: var(--text-body); padding-left: 20px; margin-bottom: 24px; font-size: 0.98rem;">
-            <li style="margin-bottom: 10px;">
-              <strong>Camera Access:</strong> Used solely for scanning barcodes and QR codes using the built-in scanner tool. We do not store or transmit any camera feeds or photos to external servers.
-            </li>
-            <li style="margin-bottom: 10px;">
-              <strong>Storage / Media Access:</strong> Used strictly to export generated legal PDFs (Dilekçe) and digital business card images to your local device storage.
-            </li>
-            <li style="margin-bottom: 10px;">
-              <strong>Internet Connection:</strong> Required for fetching real-time job offers, live currency rates, regional maps, and ad units.
+              <strong>Firebase Analytics & AdMob:</strong> The mobile app uses Google Firebase to track technical stability, crash reports, and Google AdMob to deliver banner and interstitial ads compliant with Google Play Store policies.
             </li>
           </ul>
 
           <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
 
-          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">2.2 Local Data Retention & Privacy Assurance</h3>
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">2.3 Mobile Application Permissions</h3>
           <ul style="line-height: 1.8; color: var(--text-body); padding-left: 20px; margin-bottom: 24px; font-size: 0.98rem;">
             <li style="margin-bottom: 10px;">
-              <strong>Local Processing:</strong> All user-generated content (such as customized legal letter drafts or business card details) remains strictly stored on your local device memory using secure local key-value storage (Hive Storage).
+              <strong>Camera Access:</strong> Used solely for scanning barcodes and QR codes using the in-app tool. No camera feeds or photos are stored or transmitted to external servers.
             </li>
             <li style="margin-bottom: 10px;">
-              <strong>No Third-Party Selling:</strong> We do not sell, rent, or trade any personal data to third parties.
+              <strong>Storage / Files:</strong> Used strictly to export generated legal PDFs (Dilekçe) and digital business cards to your device storage.
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>Internet Connection:</strong> Required to query live vacancies, currency exchange rates, regional maps, and ad units.
             </li>
           </ul>
 
           <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
 
-          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">2.3 Children’s Privacy</h3>
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">2.4 Data Protection & User Rights (GDPR & Turkish KVKK)</h3>
+          <p style="font-size: 1rem; line-height: 1.8; color: var(--text-body); margin-bottom: 16px;">
+            In accordance with the EU General Data Protection Regulation (GDPR) and Turkish Personal Data Protection Law No. 6698 (KVKK), you have the right to:
+          </p>
+          <ul style="line-height: 1.8; color: var(--text-body); padding-left: 20px; margin-bottom: 20px; font-size: 0.98rem;">
+            <li style="margin-bottom: 8px;">Request access to any personal data we hold about you.</li>
+            <li style="margin-bottom: 8px;">Request correction of inaccurate or incomplete personal records.</li>
+            <li style="margin-bottom: 8px;">Request erasure of your data ("right to be forgotten").</li>
+            <li style="margin-bottom: 8px;">Withdraw cookie consent at any time via your browser settings or our cookie consent banner.</li>
+          </ul>
+
+          <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
+
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">2.5 Children's Privacy</h3>
           <p style="font-size: 1rem; line-height: 1.8; color: var(--text-body); margin-bottom: 24px;">
-            Our application is designed for job seekers and general audiences. It is not directed to children under the age of 13, and we do not knowingly collect personal information from children.
+            Our website and application are directed to job seekers and general audiences in Istanbul and Turkey. We do not knowingly collect personal information from children under the age of 13.
           </p>
 
           <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
 
-          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">2.4 Contact Us</h3>
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">2.6 Contact & Inquiries</h3>
           <p style="font-size: 1rem; line-height: 1.8; color: var(--text-body); margin-bottom: 16px;">
-            For any privacy inquiries or support, please contact us at:
+            If you have any questions about this Privacy Policy or wish to exercise your data rights, please contact our support team at:
           </p>
           <div style="background: rgba(37, 99, 235, 0.05); padding: 18px 24px; border-radius: 12px; border-left: 4px solid var(--primary); font-size: 0.98rem; color: var(--text-dark);">
             Support Email: <br />
-            <a href="mailto:support@jobsistanbul.app" style="color: var(--primary); font-weight: 700; font-family: monospace; font-size: 1.05rem;">support@jobsistanbul.app</a>
+            <a href="mailto:support@jobs-in-istanbul.com" style="color: var(--primary); font-weight: 700; font-family: monospace; font-size: 1.05rem;">support@jobs-in-istanbul.com</a>
           </div>
         </div>
       </div>
@@ -4999,29 +5102,52 @@ publicRouter.get('/:locale/privacy', (c) => {
       <div id="tr-tab" class="privacy-content-section" style="display: ${locale === 'tr' ? 'block' : 'none'}; text-align: left; direction: ltr;">
         <div class="glass-card" style="padding: 40px; border-radius: var(--radius-lg); margin-bottom: 25px;">
           <h2 style="font-size: 1.6rem; font-weight: 800; color: var(--primary); margin-bottom: 16px; border-bottom: 2px solid rgba(0,0,0,0.06); padding-bottom: 10px;">
-            3. Türkçe (Turkish Version)
+            3. Türkçe (Turkish Version) - Gizlilik ve Çerez Politikası
           </h2>
 
-          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-top: 24px; margin-bottom: 12px;">Giriş</h3>
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-top: 24px; margin-bottom: 12px;">Giriş ve Kapsam</h3>
           <p style="font-size: 1.02rem; line-height: 1.8; color: var(--text-body); margin-bottom: 24px;">
-            <strong>Jobs in Istanbul (<code>com.jobsistanbul.app</code>)</strong> olarak gizliliğinize saygı duymayı ve verilerinizi korumayı taahhüt ediyoruz. Bu Gizlilik Politikası, mobil uygulamamızı ve ilgili modülleri (iş ilanları, Türkçe dil öğrenme modülü, QR ve barkod okuyucu, canlı döviz çevirici, dilekçe oluşturucu, organize sanayi bölgeleri haritası ve dijital kartvizitler) kullandığınızda verilerin nasıl toplandığını, kullanıldığını ve korunduğunu açıklamaktadır.
+            <strong>Jobs in Istanbul</strong> olarak (<strong>jobs-in-istanbul.com</strong> web sitemiz ve <code>com.jobsistanbul.app</code> Android uygulamamız), kişisel verilerinizin korunmasına ve gizliliğinize en üst düzeyde önem veriyoruz. Bu Gizlilik ve Çerez Politikası, web sitemizi ve mobil uygulamamızı kullandığınızda verilerinizin nasıl toplandığını, işlendiğini ve çerezlerin nasıl kullanıldığını açıklamaktadır.
           </p>
 
           <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
 
-          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">3.1 Toplanan Bilgiler ve Kullanım Amacı</h3>
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">3.1 Google AdSense ve Reklam Çerezleri</h3>
+          <div style="background: rgba(37, 99, 235, 0.04); padding: 20px; border-radius: 12px; border-left: 4px solid var(--primary); margin-bottom: 20px;">
+            <p style="font-size: 0.98rem; line-height: 1.8; color: var(--text-body); margin-bottom: 12px;">
+              Web sitemizde reklam sunumu için <strong>Google AdSense</strong> kullanılmaktadır. Google AdSense program politikaları gereğince lütfen aşağıdaki zorunlu bilgilendirmeleri inceleyiniz:
+            </p>
+            <ul style="line-height: 1.8; color: var(--text-body); padding-left: 20px; font-size: 0.96rem; margin-bottom: 0;">
+              <li style="margin-bottom: 10px;">
+                <strong>Üçüncü Taraf Çerez Kullanımı:</strong> Google dahil üçüncü taraf tedarikçiler, kullanıcıların web sitemize veya diğer web sitelerine daha önce yaptığı ziyaretlere dayalı olarak reklam yayınlamak üzere çerezleri (cookies) kullanır.
+              </li>
+              <li style="margin-bottom: 10px;">
+                <strong>DoubleClick ve Reklam Çerezleri:</strong> Google'ın reklam çerezlerini kullanması, kendisinin ve iş ortaklarının kullanıcılarımıza sitemize ve/veya internetteki diğer sitelere yaptıkları ziyaretlere dayalı reklamlar sunmasını sağlar.
+              </li>
+              <li style="margin-bottom: 10px;">
+                <strong>Kişiselleştirilmiş Reklamları Devre Dışı Bırakma:</strong> Kullanıcılar, kişiselleştirilmiş reklamcılığı <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer" style="color: var(--primary); font-weight: 700; text-decoration: underline;">Google Reklam Ayarları (Ads Settings)</a> sayfasını ziyaret ederek devre dışı bırakabilirler.
+              </li>
+              <li style="margin-bottom: 0;">
+                <strong>Alternatif Çerez Tercihleri:</strong> Kullanıcılar alternatif olarak, kişiselleştirilmiş reklamcılık amaçlı üçüncü taraf çerez kullanımını <a href="https://www.aboutads.info/choices/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); font-weight: 700; text-decoration: underline;">www.aboutads.info</a> veya <a href="https://www.youronlinechoices.com/" target="_blank" rel="noopener noreferrer" style="color: var(--primary); font-weight: 700; text-decoration: underline;">www.youronlinechoices.com</a> adreslerini ziyaret ederek kapatabilirler.
+              </li>
+            </ul>
+          </div>
 
-          <h4 style="font-size: 1.08rem; font-weight: 700; color: var(--primary); margin-top: 16px; margin-bottom: 10px;">A. Otomatik Olarak Toplanan Veriler (Analitik ve Reklamlar)</h4>
+          <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
+
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">3.2 Web ve Mobil Analitik (Google Analytics 4 & Firebase)</h3>
           <ul style="line-height: 1.8; color: var(--text-body); padding-left: 20px; margin-bottom: 20px; font-size: 0.98rem;">
             <li style="margin-bottom: 10px;">
-              <strong>Firebase Analytics:</strong> Uygulama kalitesini ve performansını sürekli iyileştirmek amacıyla cihaz bilgileri, işletim sistemi sürümleri ve performans günlükleri gibi anonim kullanım verilerini toplamak için Google Firebase Analytics kullanıyoruz.
+              <strong>Google Analytics 4 (GA4):</strong> Web sitemizde sayfa görüntüleme, popüler iş kategorileri ve genel kullanım istatistiklerini anonim ve toplu olarak ölçmek amacıyla GA4 kullanıyoruz.
             </li>
             <li style="margin-bottom: 10px;">
-              <strong>Google Mobil Reklamlar (AdMob):</strong> Uygulamamız Google AdMob tarafından sunulan reklamları içerir. AdMob, Google Play Politikalarına uygun olarak kişiselleştirilmemiş ve bağlamsal reklamlar sunmak için benzersiz reklam kimliklerini (ör. Android Reklam Kimliği - GAID) kullanabilir.
+              <strong>Firebase ve Mobil Reklamlar (AdMob):</strong> Mobil uygulamamız, teknik kararlılık günlükleri için Firebase Analytics ve Google Play uyumlu reklamlar sunmak amacıyla Google AdMob kullanır.
             </li>
           </ul>
 
-          <h4 style="font-size: 1.08rem; font-weight: 700; color: var(--primary); margin-top: 16px; margin-bottom: 10px;">B. Gerekli Cihaz İzinleri</h4>
+          <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
+
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">3.3 Gerekli Cihaz İzinleri (Mobil Uygulama)</h3>
           <ul style="line-height: 1.8; color: var(--text-body); padding-left: 20px; margin-bottom: 24px; font-size: 0.98rem;">
             <li style="margin-bottom: 10px;">
               <strong>Kamera Erişimi:</strong> Yalnızca yerleşik QR ve barkod tarayıcı aracını çalıştırmak için kullanılır. Kamera görüntüleri sunucularımıza kaydedilmez veya aktarılmaz.
@@ -5030,38 +5156,40 @@ publicRouter.get('/:locale/privacy', (c) => {
               <strong>Depolama / Medya Erişimi:</strong> Yalnızca oluşturulan hukuki dilekçeleri (PDF) veya dijital kartvizit görsellerini cihazınızın yerel depolama alanına kaydetmek için kullanılır.
             </li>
             <li style="margin-bottom: 10px;">
-              <strong>İnternet Bağlantısı:</strong> Güncel iş fırsatlarını, canlı döviz ve altın fiyatlarını, bölgesel harita verilerini ve reklamları getirmek için gereklidir.
+              <strong>İnternet Bağlantısı:</strong> Güncel iş fırsatlarını, canlı döviz ve altın fiyatlarını ve bölgesel harita verilerini sunmak için gereklidir.
             </li>
           </ul>
 
           <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
 
-          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">3.2 Yerel Veri Saklama ve Gizlilik Güvencesi</h3>
-          <ul style="line-height: 1.8; color: var(--text-body); padding-left: 20px; margin-bottom: 24px; font-size: 0.98rem;">
-            <li style="margin-bottom: 10px;">
-              <strong>Yerel İşleme:</strong> Kullanıcı tarafından oluşturulan tüm içerikler (dilekçe taslakları veya kartvizit bilgileri) güvenli yerel anahtar-değer depolama (Hive Storage) kullanılarak yalnızca cihazınızda saklanır.
-            </li>
-            <li style="margin-bottom: 10px;">
-              <strong>Üçüncü Taraflarla Paylaşılmama:</strong> Kişisel verilerinizi veya dosya içeriklerinizi üçüncü taraflara satmıyoruz, kiralamıyoruz veya paylaşmıyoruz.
-            </li>
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">3.4 KVKK (6698 Sayılı Kanun) ve GDPR Kapsamındaki Haklarınız</h3>
+          <p style="font-size: 1rem; line-height: 1.8; color: var(--text-body); margin-bottom: 16px;">
+            6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) ve Avrupa Genel Veri Koruma Tüzüğü (GDPR) kapsamında veri sahibi olarak aşağıdaki haklara sahipsiniz:
+          </p>
+          <ul style="line-height: 1.8; color: var(--text-body); padding-left: 20px; margin-bottom: 20px; font-size: 0.98rem;">
+            <li style="margin-bottom: 8px;">Kişisel verilerinizin işlenip işlenmediğini öğrenme,</li>
+            <li style="margin-bottom: 8px;">Kişisel verileriniz işlenmişse buna ilişkin bilgi talep etme,</li>
+            <li style="margin-bottom: 8px;">Eksik veya yanlış işlenmiş verilerin düzeltilmesini isteme,</li>
+            <li style="margin-bottom: 8px;">KVKK madde 7 uyarınca kişisel verilerin silinmesini veya yok edilmesini talep etme,</li>
+            <li style="margin-bottom: 8px;">Çerez onayınızı tarayıcı ayarlarınız veya çerez bildirim panelimiz üzerinden dilediğiniz an geri çekme.</li>
           </ul>
 
           <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
 
-          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">3.3 Çocukların Gizliliği</h3>
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">3.5 Çocukların Gizliliği</h3>
           <p style="font-size: 1rem; line-height: 1.8; color: var(--text-body); margin-bottom: 24px;">
-            Uygulamamız genel kitleye ve iş arayanlara yöneliktir. 13 yaşın altındaki çocuklara yönelik değildir ve çocuklardan bilerek kişisel bilgi toplamıyoruz.
+            Web sitemiz ve mobil uygulamamız genel iş arayan kitlesine yöneliktir. 13 yaşın altındaki çocuklara yönelik değildir ve bilerek çocuklardan kişisel veri toplamıyoruz.
           </p>
 
           <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;" />
 
-          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">3.4 İletişim</h3>
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 14px;">3.6 İletişim ve Veri Sorumlusu</h3>
           <p style="font-size: 1rem; line-height: 1.8; color: var(--text-body); margin-bottom: 16px;">
-            Her türlü gizlilik sorusu ve destek talebiniz için bizimle iletişime geçebilirsiniz:
+            Gizlilik politikamız ve çerez uygulamalarımız hakkındaki tüm soru, talep ve başvurularınız için bizimle iletişime geçebilirsiniz:
           </p>
           <div style="background: rgba(37, 99, 235, 0.05); padding: 18px 24px; border-radius: 12px; border-left: 4px solid var(--primary); font-size: 0.98rem; color: var(--text-dark);">
-            Destek E-postası: <br />
-            <a href="mailto:support@jobsistanbul.app" style="color: var(--primary); font-weight: 700; font-family: monospace; font-size: 1.05rem;">support@jobsistanbul.app</a>
+            Destek ve KVKK İletişim E-postası: <br />
+            <a href="mailto:support@jobs-in-istanbul.com" style="color: var(--primary); font-weight: 700; font-family: monospace; font-size: 1.05rem;">support@jobs-in-istanbul.com</a>
           </div>
         </div>
       </div>

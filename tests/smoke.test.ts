@@ -111,7 +111,8 @@ describe('Istanbul Jobs Portal Smoke Tests', () => {
     DB: mockDb,
     CACHE_KV: {
       get: async () => null,
-      put: async () => {}
+      put: async () => {},
+      delete: async () => {}
     },
     MEDIA_BUCKET: {
       put: async (key: string, value: any, options: any) => ({}),

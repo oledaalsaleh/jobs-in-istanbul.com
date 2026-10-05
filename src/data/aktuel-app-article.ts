@@ -285,12 +285,7 @@ export const aktuelAppArticleAr = {
         </a>
       </div>
 
-      <!-- App Developer Verification & AdMob Network (app-ads.txt) -->
-      <div style="position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; opacity: 0.001; pointer-events: none;" aria-hidden="true">
-        google.com, pub-2220383290034920, DIRECT, f08c47fec0942fa0
-      </div>
-      <div style="display: none;" aria-hidden="true">google.com, pub-2220383290034920, DIRECT, f08c47fec0942fa0</div>
-      <!-- google.com, pub-2220383290034920, DIRECT, f08c47fec0942fa0 -->
+
 
     </div>
   `
@@ -519,12 +514,7 @@ export const aktuelAppArticleTr = {
         </a>
       </div>
 
-      <!-- App Developer Verification & AdMob Network (app-ads.txt) -->
-      <div style="position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; opacity: 0.001; pointer-events: none;" aria-hidden="true">
-        google.com, pub-2220383290034920, DIRECT, f08c47fec0942fa0
-      </div>
-      <div style="display: none;" aria-hidden="true">google.com, pub-2220383290034920, DIRECT, f08c47fec0942fa0</div>
-      <!-- google.com, pub-2220383290034920, DIRECT, f08c47fec0942fa0 -->
+
 
     </div>
   `
@@ -702,12 +692,7 @@ export const aktuelAppArticleEn = {
         </a>
       </div>
 
-      <!-- App Developer Verification & AdMob Network (app-ads.txt) -->
-      <div style="position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; opacity: 0.001; pointer-events: none;" aria-hidden="true">
-        google.com, pub-2220383290034920, DIRECT, f08c47fec0942fa0
-      </div>
-      <div style="display: none;" aria-hidden="true">google.com, pub-2220383290034920, DIRECT, f08c47fec0942fa0</div>
-      <!-- google.com, pub-2220383290034920, DIRECT, f08c47fec0942fa0 -->
+
 
     </div>
   `

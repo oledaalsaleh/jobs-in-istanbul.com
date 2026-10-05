@@ -9,7 +9,10 @@ export const seoRouter = new Hono()
 
 // robots.txt handler
 seoRouter.get('/robots.txt', (c) => {
-  const robots = `User-agent: *
+  const robots = `User-agent: Mediapartners-Google
+Allow: /
+
+User-agent: *
 Allow: /
 Disallow: /admin/
 Disallow: /api/
