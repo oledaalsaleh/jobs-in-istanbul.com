@@ -32,6 +32,11 @@ import {
   remoteWorkArticleEn,
   remoteWorkArticleTr
 } from '../data/articles/remote-work-turkey'
+import {
+  costOfLivingArticleAr,
+  costOfLivingArticleEn,
+  costOfLivingArticleTr
+} from '../data/articles/cost-of-living-istanbul-2026'
 
 export const careerBlogRouter = new Hono()
 
@@ -57,6 +62,7 @@ careerBlogRouter.get('/blog', (c) => {
 // Fallback hardcoded seeded articles if the database is empty
 export const seededArticles: Record<string, any[]> = {
   ar: [
+    costOfLivingArticleAr,
     remoteWorkArticleAr,
     istanbulAppArticleAr,
     aktuelAppArticleAr,
@@ -2881,6 +2887,7 @@ export const seededArticles: Record<string, any[]> = {
     }
   ],
   en: [
+    costOfLivingArticleEn,
     remoteWorkArticleEn,
     istanbulAppArticleEn,
     aktuelAppArticleEn,
@@ -3723,6 +3730,7 @@ export const seededArticles: Record<string, any[]> = {
     }
   ],
   tr: [
+    costOfLivingArticleTr,
     remoteWorkArticleTr,
     istanbulAppArticleTr,
     aktuelAppArticleTr,
@@ -5160,6 +5168,12 @@ function getCategory(slug: string, locale: any): { name: string; color: string }
       en: 'Freelance & Taxes',
       tr: 'Freelance ve Vergi',
       ru: 'Фриланс и налоги'
+    },
+    'cost-of-living-istanbul-2026-guide': {
+      ar: 'تكاليف المعيشة والسكن',
+      en: 'Cost of Living & Housing',
+      tr: 'Yaşam Maliyeti ve Konut',
+      ru: 'Стоимость жизни и жилье'
     }
   };
 
@@ -5176,6 +5190,7 @@ function getCategory(slug: string, locale: any): { name: string; color: string }
   };
 
   const colors: Record<string, string> = {
+    'cost-of-living-istanbul-2026-guide': '#059669', // emerald
     'remote-work-turkey-freelance-company-tax-2026': '#0284c7', // sky blue
     'jobs-in-istanbul-app-official-guide-2026': '#0284c7',
     'quran-karim-app-offline-features-download': '#047857', // emerald green
