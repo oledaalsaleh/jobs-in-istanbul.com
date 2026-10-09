@@ -2794,6 +2794,53 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
               </div>
             </div>
           </div>
+
+          <!-- FEATURED APP & ARTICLE: TRABZON TRAVEL GUIDE APP -->
+          <div class="trabzon-app-promo" style="margin-bottom: 24px; padding: 22px 24px; border-radius: 20px; background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #0f172a 100%); color: white; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(4, 120, 87, 0.35); border: 1px solid rgba(52, 211, 153, 0.35);">
+            <div style="position: absolute; right: -20px; bottom: -20px; font-size: 160px; opacity: 0.05; color: #34d399; pointer-events: none;">
+              <i class="fa-solid fa-mountain-sun"></i>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; position: relative; z-index: 2;">
+              <div style="display: flex; align-items: center; gap: 18px; flex: 1; min-width: 280px;">
+                <a href="/${locale}/blog/trabzon-travel-guide-app-tourism-turkey-2026" style="flex-shrink: 0; text-decoration: none;">
+                  <img src="/public/images/trabzon-app/01_trabzon_app_hero_mockup.jpg" alt="Trabzon Travel Guide App Icon" style="width: 84px; height: 84px; border-radius: 18px; object-fit: cover; box-shadow: 0 8px 20px rgba(0,0,0,0.4); border: 2px solid rgba(255,255,255,0.25); display: block;">
+                </a>
+                <div>
+                  <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(52, 211, 153, 0.2); border: 1px solid rgba(52, 211, 153, 0.5); padding: 3px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 700; color: #6ee7b7; margin-bottom: 8px;">
+                    <i class="fa-brands fa-google-play"></i> ${locale === 'ar' ? 'دليل السياحة والمسافر في الشمال التركي 2026' : (locale === 'tr' ? 'Öne Çıkan Karadeniz Gezi Uygulaması' : 'Featured Trabzon Turkey Travel Guide')}
+                  </div>
+                  <h2 style="font-size: clamp(1.1rem, 3.5vw, 1.35rem); font-weight: 900; color: white; margin: 0 0 6px 0; line-height: 1.3;">
+                    <a href="/${locale}/blog/trabzon-travel-guide-app-tourism-turkey-2026" style="color: white; text-decoration: none;" onmouseover="this.style.color='#6ee7b7'" onmouseout="this.style.color='white'">
+                      ${locale === 'ar' ? 'دليل طرابزون وأوزنجول وآيدر السياحي: استكشف جنة الشمال بدون إنترنت' : (locale === 'tr' ? 'Trabzon, Uzungöl ve Ayder Gezi Rehberi: İnternetsiz Seyahat Edin' : 'Trabzon, Uzungöl & Ayder Travel Guide: Explore Northern Turkey Offline')}
+                    </a>
+                  </h2>
+                  <p style="font-size: 0.86rem; color: #cbd5e1; line-height: 1.5; margin: 0 0 12px 0;">
+                    ${locale === 'ar' ? 'تطبيق مجاني للأندرويد يحتوي على خرائط GPS أوفلاين، إحداثيات الشلالات، خطط الجولات، وأرقام الطوارئ.' : (locale === 'tr' ? 'Çevrimdışı GPS haritaları, şelaleler, yaylalar ve acil durum numaraları içeren ücretsiz Android gezi rehberi.' : 'Free Android travel app with offline GPS maps, waterfall trails, plateau guides, and emergency contacts.')}
+                  </p>
+                  <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+                    <a href="/${locale}/blog/trabzon-travel-guide-app-tourism-turkey-2026" style="background: rgba(255,255,255,0.15); color: white; padding: 8px 16px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.25);">
+                      <i class="fa-solid fa-compass"></i>
+                      <span>${locale === 'ar' ? 'قراءة دليل طرابزون الكامل' : (locale === 'tr' ? 'Trabzon Rehberini Oku' : 'Read Trabzon Guide')}</span>
+                    </a>
+                    <a href="https://play.google.com/store/apps/details?id=com.trabzon.turkey.travel.guide" target="_blank" rel="noopener" style="background: #047857; color: white; padding: 8px 18px; border-radius: 10px; font-weight: 800; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(4, 120, 87, 0.4);">
+                      <i class="fa-brands fa-google-play"></i>
+                      <span>${locale === 'ar' ? 'تثبيت من Google Play' : (locale === 'tr' ? 'Google Play\'den Yükle' : 'Install on Google Play')}</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <a href="https://play.google.com/store/apps/details?id=com.trabzon.turkey.travel.guide" target="_blank" rel="noopener" style="text-decoration: none;">
+                  <div style="background: white; padding: 8px; border-radius: 12px; text-align: center; box-shadow: 0 6px 16px rgba(0,0,0,0.3);">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=90x90&data=${encodeURIComponent('https://play.google.com/store/apps/details?id=com.trabzon.turkey.travel.guide')}" alt="Google Play QR Code" style="width: 80px; height: 80px; display: block; border-radius: 6px;">
+                    <span style="font-size: 0.65rem; font-weight: 800; color: #1e293b; display: block; margin-top: 4px;">
+                      <i class="fa-solid fa-qrcode"></i> ${locale === 'ar' ? 'امسح للتحميل' : 'Scan to Install'}
+                    </span>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
         </section>
       </div>
     </div>
@@ -4392,6 +4439,34 @@ publicRouter.get('/public/images/istanbul-app/:filename', async (c) => {
     }
   } catch (err: any) {
     console.error('Failed to load istanbul-app image from R2:', err);
+  }
+
+  return c.text('Image not found.', 404);
+});
+
+// Serve Trabzon App images from R2 bucket
+publicRouter.get('/public/images/trabzon-app/:filename', async (c) => {
+  const env: any = c.env;
+  const rawFilename = c.req.param('filename');
+  const filename = decodeURIComponent(rawFilename);
+  const key = `public/images/trabzon-app/${filename}`;
+
+  try {
+    const bucket = env.MEDIA_BUCKET;
+    if (bucket) {
+      const object = await bucket.get(key);
+      if (object) {
+        const headers = new Headers();
+        object.writeHttpMetadata(headers);
+        headers.set('etag', object.httpEtag);
+        const contentType = filename.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
+        headers.set('Content-Type', contentType);
+        headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+        return c.body(object.body, 200, Object.fromEntries(headers.entries()));
+      }
+    }
+  } catch (err: any) {
+    console.error('Failed to load trabzon-app image from R2:', err);
   }
 
   return c.text('Image not found.', 404);

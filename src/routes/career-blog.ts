@@ -20,6 +20,11 @@ import {
   aktuelAppArticleTr
 } from '../data/aktuel-app-article'
 import {
+  trabzonAppArticleAr,
+  trabzonAppArticleEn,
+  trabzonAppArticleTr
+} from '../data/trabzon-app-article'
+import {
   istanbulAppArticleAr,
   istanbulAppArticleEn,
   istanbulAppArticleTr,
@@ -84,6 +89,7 @@ export const seededArticles: Record<string, any[]> = {
     remoteWorkArticleAr,
     istanbulAppArticleAr,
     aktuelAppArticleAr,
+    trabzonAppArticleAr,
     quranAppArticleAr,
     {
       title: 'دليل رواتب السائقين في إسطنبول 2026: السائق الخاص، السياحي، والتوصيل',
@@ -2912,6 +2918,7 @@ export const seededArticles: Record<string, any[]> = {
     remoteWorkArticleEn,
     istanbulAppArticleEn,
     aktuelAppArticleEn,
+    trabzonAppArticleEn,
     quranAppArticleEn,
     {
       title: 'Jobs in Istanbul App: Your Ultimate Mobile Guide to Finding Work & Living in Turkey',
@@ -3758,6 +3765,7 @@ export const seededArticles: Record<string, any[]> = {
     remoteWorkArticleTr,
     istanbulAppArticleTr,
     aktuelAppArticleTr,
+    trabzonAppArticleTr,
     quranAppArticleTr,
     {
       title: 'İstanbul İş İlanları Uygulaması: İş Bulma ve Türkiye\'de Yaşam Rehberiniz',
@@ -5085,6 +5093,18 @@ function getReadingTime(content: string, locale: any): string {
 // Helper to get category
 function getCategory(slug: string, locale: any): { name: string; color: string } {
   const maps: Record<string, Partial<Record<'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur' | 'id' | 'fr' | 'bn' | 'de', string>>> = {
+    'trabzon-travel-guide-app-tourism-turkey-2026': {
+      ar: 'سياحة ودليل المسافر',
+      en: 'Travel & Tourism Guide',
+      tr: 'Seyahat & Gezi Rehberi',
+      ru: 'Туризм и путеводитель',
+      fa: 'گردشگری و راهنمای سفر',
+      ur: 'سیاحت اور سفری گائیڈ',
+      id: 'Panduan Wisata',
+      fr: 'Guide de voyage',
+      bn: 'ভ্রমণ নির্দেশিকা',
+      de: 'Reiseführer'
+    },
     'jobs-in-istanbul-app-official-guide-2026': {
       ar: 'تطبيق إسطنبول الرسمي',
       en: 'Official Mobile App',
@@ -5233,6 +5253,7 @@ function getCategory(slug: string, locale: any): { name: string; color: string }
 
   const colors: Record<string, string> = {
     'tourism-hotel-salaries-istanbul-2026-guide': '#4338ca', // indigo
+    'trabzon-travel-guide-app-tourism-turkey-2026': '#047857', // forest green
     'most-in-demand-jobs-turkey-2026': '#2563eb', // Royal Blue
     'cost-of-living-istanbul-2026-guide': '#059669', // emerald
     'remote-work-turkey-freelance-company-tax-2026': '#0284c7', // sky blue
