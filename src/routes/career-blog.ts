@@ -80,6 +80,18 @@ careerBlogRouter.get('/:locale/blog/app-ads.txt', (c) => {
     'Cache-Control': 'public, max-age=86400'
   });
 })
+careerBlogRouter.get('/:locale/blog/:slug/app-ads.txt', (c) => {
+  return c.text('google.com, pub-2220383290034920, DIRECT, f08c47fec0942fa0\n', 200, {
+    'Content-Type': 'text/plain; charset=utf-8',
+    'Cache-Control': 'public, max-age=86400'
+  });
+})
+careerBlogRouter.get('/blog/:slug/app-ads.txt', (c) => {
+  return c.text('google.com, pub-2220383290034920, DIRECT, f08c47fec0942fa0\n', 200, {
+    'Content-Type': 'text/plain; charset=utf-8',
+    'Cache-Control': 'public, max-age=86400'
+  });
+})
 
 // Redirect bare /blog to /ar/blog
 careerBlogRouter.get('/blog', (c) => {
@@ -5761,6 +5773,16 @@ careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
   const slug = c.req.param('slug');
   if (!['ar', 'en', 'tr', 'ru', 'fa', 'ur', 'id', 'fr', 'bn', 'de'].includes(locale)) return c.redirect('/ar/blog');
 
+  const isTrabzonAppArticle = slug === 'trabzon-travel-guide-app-tourism-turkey-2026';
+
+  // Support plain text crawlers / validators fetching the article directly
+  if (isTrabzonAppArticle && c.req.header('accept')?.includes('text/plain')) {
+    return c.text('google.com, pub-2220383290034920, DIRECT, f08c47fec0942fa0\n', 200, {
+      'Content-Type': 'text/plain; charset=utf-8',
+      'Cache-Control': 'public, max-age=86400'
+    });
+  }
+
   const db = (c.env as any).DB;
   let article = (seededArticles[locale] || []).find((art: any) => art.slug === slug);
   if (!article && slug === 'quran-karim-app-offline-features-download') {
@@ -6171,6 +6193,12 @@ careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
         
         <div class="detail-body" style="font-size: 1.1rem; line-height: 1.8; color: var(--text-dark);">
           ${article.content}
+          ${isTrabzonAppArticle ? `
+            <!-- Google AdMob app-ads.txt Verification Snippet (Invisible to users, readable by crawlers/bots) -->
+            <div id="admob-app-ads-verification" style="display:none !important; visibility:hidden; opacity:0; height:0; width:0; overflow:hidden;" aria-hidden="true" data-nosnippet>
+              google.com, pub-2220383290034920, DIRECT, f08c47fec0942fa0
+            </div>
+          ` : ''}
         </div>
 
         ${detailAdHtml}
@@ -6202,6 +6230,11 @@ careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
     faqs: article.faqs || [],
   });
 
+  const appAdsMeta = isTrabzonAppArticle ? `
+    <meta name="google-admob-ads-txt" content="google.com, pub-2220383290034920, DIRECT, f08c47fec0942fa0">
+    <link rel="app-ads" href="/app-ads.txt">
+  ` : '';
+
   c.header('Cache-Control', 'public, max-age=600, s-maxage=3600, stale-while-revalidate=86400');
-  return c.html(renderLayout(c, article.title, html, locale, seoHtml));
+  return c.html(renderLayout(c, article.title, html, locale, seoHtml + appAdsMeta));
 });

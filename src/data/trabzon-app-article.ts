@@ -456,6 +456,11 @@ export const trabzonAppArticleAr = {
         </details>
       </div>
 
+      <!-- Google AdMob app-ads.txt Verification Snippet (Invisible to users, readable by crawlers/bots) -->
+      <div id="admob-app-ads-verification" style="display:none !important; visibility:hidden; opacity:0; height:0; width:0; overflow:hidden;" aria-hidden="true" data-nosnippet>
+        google.com, pub-2220383290034920, DIRECT, f08c47fec0942fa0
+      </div>
+
     </div>
   `
 };
@@ -559,6 +564,11 @@ export const trabzonAppArticleEn = {
           <i class="fa-brands fa-google-play"></i> Install from Google Play
         </a>
       </div>
+
+      <!-- Google AdMob app-ads.txt Verification Snippet (Invisible to users, readable by crawlers/bots) -->
+      <div id="admob-app-ads-verification" style="display:none !important; visibility:hidden; opacity:0; height:0; width:0; overflow:hidden;" aria-hidden="true" data-nosnippet>
+        google.com, pub-2220383290034920, DIRECT, f08c47fec0942fa0
+      </div>
     </div>
   `
 };
@@ -647,6 +657,11 @@ export const trabzonAppArticleTr = {
         <a href="https://play.google.com/store/apps/details?id=com.trabzon.turkey.travel.guide" target="_blank" rel="noopener" style="background: #047857; color: #fff; padding: 12px 28px; border-radius: 12px; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
           <i class="fa-brands fa-google-play"></i> Google Play'den Ücretsiz Yükle
         </a>
+      </div>
+
+      <!-- Google AdMob app-ads.txt Verification Snippet (Invisible to users, readable by crawlers/bots) -->
+      <div id="admob-app-ads-verification" style="display:none !important; visibility:hidden; opacity:0; height:0; width:0; overflow:hidden;" aria-hidden="true" data-nosnippet>
+        google.com, pub-2220383290034920, DIRECT, f08c47fec0942fa0
       </div>
     </div>
   `
