@@ -4,7 +4,14 @@ import { fileURLToPath } from 'url'
 import { 
   trabzonAppArticleAr, 
   trabzonAppArticleEn, 
-  trabzonAppArticleTr
+  trabzonAppArticleTr,
+  trabzonAppArticleRu,
+  trabzonAppArticleFa,
+  trabzonAppArticleUr,
+  trabzonAppArticleId,
+  trabzonAppArticleFr,
+  trabzonAppArticleBn,
+  trabzonAppArticleDe
 } from '../src/data/trabzon-app-article'
 
 const __filename = fileURLToPath(import.meta.url);
@@ -32,6 +39,48 @@ const articlesToSeed = [
     slug: trabzonAppArticleTr.slug,
     title: trabzonAppArticleTr.title,
     content: trabzonAppArticleTr.content
+  },
+  {
+    id: 'blog-post-trabzon-app-ru',
+    slug: trabzonAppArticleRu.slug,
+    title: trabzonAppArticleRu.title,
+    content: trabzonAppArticleRu.content
+  },
+  {
+    id: 'blog-post-trabzon-app-fa',
+    slug: trabzonAppArticleFa.slug,
+    title: trabzonAppArticleFa.title,
+    content: trabzonAppArticleFa.content
+  },
+  {
+    id: 'blog-post-trabzon-app-ur',
+    slug: trabzonAppArticleUr.slug,
+    title: trabzonAppArticleUr.title,
+    content: trabzonAppArticleUr.content
+  },
+  {
+    id: 'blog-post-trabzon-app-id',
+    slug: trabzonAppArticleId.slug,
+    title: trabzonAppArticleId.title,
+    content: trabzonAppArticleId.content
+  },
+  {
+    id: 'blog-post-trabzon-app-fr',
+    slug: trabzonAppArticleFr.slug,
+    title: trabzonAppArticleFr.title,
+    content: trabzonAppArticleFr.content
+  },
+  {
+    id: 'blog-post-trabzon-app-bn',
+    slug: trabzonAppArticleBn.slug,
+    title: trabzonAppArticleBn.title,
+    content: trabzonAppArticleBn.content
+  },
+  {
+    id: 'blog-post-trabzon-app-de',
+    slug: trabzonAppArticleDe.slug,
+    title: trabzonAppArticleDe.title,
+    content: trabzonAppArticleDe.content
   }
 ];
 
@@ -64,4 +113,4 @@ VALUES (
 
 const sqlPath = path.join(__dirname, 'seed-trabzon-article.sql');
 fs.writeFileSync(sqlPath, sqlStatements, 'utf8');
-console.log(`✓ SQL seed file written to ${sqlPath}`);
+console.log(`✓ SQL seed file for all 10 languages written to ${sqlPath}`);

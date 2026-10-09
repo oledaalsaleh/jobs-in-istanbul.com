@@ -651,3 +651,14 @@ export const trabzonAppArticleTr = {
     </div>
   `
 };
+
+// ------------------------------------------------------------------------------------------------
+// 4. EXTENDED MULTI-LANGUAGE ARTICLES (All 10 Website Locales)
+// ------------------------------------------------------------------------------------------------
+export { trabzonAppArticleRu } from './articles/trabzon-app/ru';
+export { trabzonAppArticleFa } from './articles/trabzon-app/fa';
+export { trabzonAppArticleUr } from './articles/trabzon-app/ur';
+export { trabzonAppArticleId } from './articles/trabzon-app/id';
+export { trabzonAppArticleFr } from './articles/trabzon-app/fr';
+export { trabzonAppArticleBn } from './articles/trabzon-app/bn';
+export { trabzonAppArticleDe } from './articles/trabzon-app/de';

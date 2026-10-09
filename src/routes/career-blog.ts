@@ -22,7 +22,14 @@ import {
 import {
   trabzonAppArticleAr,
   trabzonAppArticleEn,
-  trabzonAppArticleTr
+  trabzonAppArticleTr,
+  trabzonAppArticleRu,
+  trabzonAppArticleFa,
+  trabzonAppArticleUr,
+  trabzonAppArticleId,
+  trabzonAppArticleFr,
+  trabzonAppArticleBn,
+  trabzonAppArticleDe
 } from '../data/trabzon-app-article'
 import {
   istanbulAppArticleAr,
@@ -4247,6 +4254,7 @@ export const seededArticles: Record<string, any[]> = {
   ],
   ru: [
     istanbulAppArticleRu,
+    trabzonAppArticleRu,
     quranAppArticleRu,
     {
       title: 'Разница между туристическим ВНЖ и разрешением на работу в Турции: преимущества, недостатки и процедура смены статуса в 2026 году',
@@ -4524,6 +4532,7 @@ export const seededArticles: Record<string, any[]> = {
   ],
   ur: [
     istanbulAppArticleUr,
+    trabzonAppArticleUr,
     quranAppArticleUr,
     {
       title: 'ترکی میں سیاحتی اقامت اور ورک پرمٹ کے درمیان فرق: فوائد، نقصانات اور تبدیلی کے مراحل ۲۰۲۶',
@@ -4785,6 +4794,7 @@ export const seededArticles: Record<string, any[]> = {
   ],
   fa: [
     istanbulAppArticleFa,
+    trabzonAppArticleFa,
     quranAppArticleFa,
     {
       title: 'تفاوت اقامت توریستی و اجازه کار در ترکیه: مزایا، معایب و نحوه تبدیل اقامت در سال ۲۰۲۶',
@@ -5049,15 +5059,19 @@ export const seededArticles: Record<string, any[]> = {
     }
   ],
   id: [
+    trabzonAppArticleId,
     quranAppArticleId
   ],
   fr: [
+    trabzonAppArticleFr,
     quranAppArticleFr
   ],
   bn: [
+    trabzonAppArticleBn,
     quranAppArticleBn
   ],
   de: [
+    trabzonAppArticleDe,
     quranAppArticleDe
   ]
 };
