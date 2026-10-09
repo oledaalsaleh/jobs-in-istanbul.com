@@ -135,6 +135,12 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       pageType = 'currency-prices';
     } else if (path.includes('/gold-prices')) {
       pageType = 'gold-prices';
+    } else if (path.includes('/nobetci-eczane') || path.includes('/pharmacies-on-duty')) {
+      pageType = 'duty-pharmacies';
+    } else if (path.includes('/kira-artis-orani') || path.includes('/rent-calculator') || path.includes('/rent-increase-calculator')) {
+      pageType = 'rent-calculator';
+    } else if (path.includes('/akaryakit-fiyatlari') || path.includes('/fuel-prices')) {
+      pageType = 'fuel-prices';
     } else if (path.includes('/insights')) {
       pageType = 'insights';
     } else if (path.includes('/about')) {
@@ -201,6 +207,9 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       workplaceQuiz: 'اختبار ملاءمة بيئة العمل التركية',
       currencyPrices: 'أسعار العملات في تركيا',
       goldPrices: 'أسعار الذهب في تركيا',
+      dutyPharmacies: 'صيدليات الحراسة في إسطنبول',
+      kiraArtis: 'حاسبة زيادة الإيجار القانونية TÜİK',
+      fuelPrices: 'أسعار المحروقات والوقود اليوم',
       insights: 'إحصائيات السوق',
       blog: 'مدونة المهنة',
       candidatePortal: 'بوابة الباحث',
@@ -257,6 +266,9 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       workplaceQuiz: 'Turkish Workplace Fit Quiz',
       currencyPrices: 'TRY Currency Prices',
       goldPrices: 'Gold Prices in Turkey',
+      dutyPharmacies: 'Duty Pharmacies in Istanbul',
+      kiraArtis: 'Turkey Rent Increase Calculator',
+      fuelPrices: 'Fuel & Petrol Prices Today',
       insights: 'Market Insights',
       blog: 'Career Blog',
       candidatePortal: 'Candidate Portal',
@@ -313,6 +325,9 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       workplaceQuiz: 'İş Yeri Kültür Testi',
       currencyPrices: 'Türkiye Döviz Fiyatları',
       goldPrices: 'Türkiye Altın Fiyatları',
+      dutyPharmacies: 'İstanbul Nöbetçi Eczaneler',
+      kiraArtis: 'Kira Artış Oranı Hesaplama',
+      fuelPrices: 'Akaryakıt Fiyatları Bugün',
       insights: 'Piyasa Analizleri',
       blog: 'Kariyer Blogu',
       candidatePortal: 'Aday Portalı',
@@ -369,6 +384,9 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       workplaceQuiz: 'Тест на адаптацию в коллективе',
       currencyPrices: 'Курсы валют в Турции',
       goldPrices: 'Цены на золото в Турции',
+      dutyPharmacies: 'Дежурные аптеки Стамбула',
+      kiraArtis: 'Калькулятор повышения аренды',
+      fuelPrices: 'Цены на топливо в Стамбуле',
       insights: 'Аналитика рынка',
       blog: 'Блог о карьере',
       candidatePortal: 'Портал кандидата',
@@ -425,6 +443,9 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       workplaceQuiz: 'آزمون انطباق با محیط کار ترکیه',
       currencyPrices: 'نرخ ارز در ترکیه امروز',
       goldPrices: 'قیمت طلا در ترکیه امروز',
+      dutyPharmacies: 'داروخانه‌های شبانه‌روزی استانبول',
+      kiraArtis: 'محاسبه درصد افزایش اجاره در ترکیه',
+      fuelPrices: 'قیمت بنزین و سوخت در استانبول',
       insights: 'آمار و تحلیل بازار کار',
       blog: 'وبلاگ کاریابی',
       candidatePortal: 'پورتال کارجویان',
@@ -481,6 +502,9 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       workplaceQuiz: 'ترکی کام کے ماحول کا کوئز',
       currencyPrices: 'ترکی میں کرنسی کی قیمتیں',
       goldPrices: 'ترکی میں سونے کی قیمتیں',
+      dutyPharmacies: 'استنبول ڈیوٹی فارمیسیز',
+      kiraArtis: 'ترکی کرایہ اضافہ کیلکولیٹر',
+      fuelPrices: 'استنبول میں ایندھن کی قیمتیں',
       insights: 'مارکیٹ کے اعداد و شمار',
       blog: 'کیریئر بلاگ',
       candidatePortal: 'امیدوار کا پورٹل',
@@ -537,6 +561,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       workplaceQuiz: 'Kuis Budaya Kerja Turki',
       currencyPrices: 'Kurs Mata Uang Turki',
       goldPrices: 'Harga Emas di Turki',
+      dutyPharmacies: 'Apotek Jaga di Istanbul',
+      kiraArtis: 'Kalkulator Kenaikan Sewa Turki',
       insights: 'Analisis Pasar',
       blog: 'Blog Karier & Islami',
       candidatePortal: 'Portal Pelamar',
@@ -593,6 +619,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       workplaceQuiz: 'Test d\'intégration en entreprise',
       currencyPrices: 'Taux de change en Turquie',
       goldPrices: 'Cours de l\'or en Turquie',
+      dutyPharmacies: 'Pharmacies de garde à Istanbul',
+      kiraArtis: 'Calculateur d\'augmentation de loyer',
       insights: 'Analyses du marché',
       blog: 'Blog Carrière & Vie',
       candidatePortal: 'Portail Candidat',
@@ -649,6 +677,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       workplaceQuiz: 'কর্মপরিবেশ কুইজ',
       currencyPrices: 'তুরস্কে মুদ্রার বিনিময় হার',
       goldPrices: 'তুরস্কে সোনার দাম',
+      dutyPharmacies: 'ইস্তাম্বুলে অন-ডিউটি ফার্মেসি',
+      kiraArtis: 'ভাড়া বৃদ্ধি ক্যালকুলেটর',
       insights: 'বাজার বিশ্লেষণ',
       blog: 'ক্যারিয়ার ও ইসলামিক ব্লগ',
       candidatePortal: 'প্রার্থী পোর্টাল',
@@ -705,6 +735,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       workplaceQuiz: 'Arbeitskultur-Test',
       currencyPrices: 'Wechselkurse in der Türkei',
       goldPrices: 'Goldpreise in der Türkei',
+      dutyPharmacies: 'Notdienstapotheken in Istanbul',
+      kiraArtis: 'Mietsteigerungsrechner Türkei',
       insights: 'Marktanalysen',
       blog: 'Karriere & Lifestyle Blog',
       candidatePortal: 'Bewerberportal',
@@ -777,6 +809,10 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
     langSwitchUrl = `/${oppositeLocale}/currency-prices`;
   } else if (requestPath.includes('/gold-prices')) {
     langSwitchUrl = `/${oppositeLocale}/gold-prices`;
+  } else if (requestPath.includes('/nobetci-eczane') || requestPath.includes('/pharmacies-on-duty')) {
+    langSwitchUrl = `/${oppositeLocale}/nobetci-eczane`;
+  } else if (requestPath.includes('/kira-artis-orani') || requestPath.includes('/rent-calculator') || requestPath.includes('/rent-increase-calculator')) {
+    langSwitchUrl = `/${oppositeLocale}/kira-artis-orani`;
   }
 
   void langSwitchUrl;
@@ -1047,6 +1083,18 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
                 <i class="fa-solid fa-gem" style="color: #f59e0b;"></i>
                 <span>${t.goldPrices}</span>
               </a>
+              <a href="/${locale}/nobetci-eczane" class="dropdown-item">
+                <i class="fa-solid fa-notes-medical" style="color: #10b981;"></i>
+                <span>${t.dutyPharmacies}</span>
+              </a>
+              <a href="/${locale}/kira-artis-orani" class="dropdown-item">
+                <i class="fa-solid fa-house-chimney-crack" style="color: #0284c7;"></i>
+                <span>${t.kiraArtis}</span>
+              </a>
+              <a href="/${locale}/akaryakit-fiyatlari" class="dropdown-item">
+                <i class="fa-solid fa-gas-pump" style="color: #ea580c;"></i>
+                <span style="font-weight: 700; color: #ea580c;">${t.fuelPrices}</span>
+              </a>
               <a href="/${locale}/install" class="dropdown-item">
                 <i class="fa-solid fa-mobile-screen-button" style="color: var(--primary);"></i>
                 <span>${t.installApp}</span>
@@ -1189,6 +1237,9 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         <a href="/${locale}/salary-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-scale-balanced" style="color: #ec4899; width: 20px; text-align: center;"></i> <span>${t.salaryCalc}</span></a>
         <a href="/${locale}/currency-prices" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-coins" style="color: #0ea5e9; width: 20px; text-align: center;"></i> <span>${t.currencyPrices}</span></a>
         <a href="/${locale}/gold-prices" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-gem" style="color: #f59e0b; width: 20px; text-align: center;"></i> <span>${t.goldPrices}</span></a>
+        <a href="/${locale}/nobetci-eczane" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-notes-medical" style="color: #10b981; width: 20px; text-align: center;"></i> <span>${t.dutyPharmacies}</span></a>
+        <a href="/${locale}/kira-artis-orani" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-house-chimney-crack" style="color: #0284c7; width: 20px; text-align: center;"></i> <span>${t.kiraArtis}</span></a>
+        <a href="/${locale}/akaryakit-fiyatlari" style="padding:10px 16px; border-radius:var(--r-md); color:#ea580c; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-gas-pump" style="color: #ea580c; width: 20px; text-align: center;"></i> <span>${t.fuelPrices}</span></a>
         <a href="/${locale}/install" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-mobile-screen-button" style="color: var(--primary); width: 20px; text-align: center;"></i> <span>${t.installApp}</span></a>
 
         <div style="margin-top:14px; border-top:1px solid var(--border); padding-top:10px; display:flex; flex-direction:column; gap:6px;">
@@ -1290,6 +1341,9 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           <li><a href="/${locale}/salary-calculator">${t.salaryCalc}</a></li>
           <li><a href="/${locale}/currency-prices">${t.currencyPrices}</a></li>
           <li><a href="/${locale}/gold-prices">${t.goldPrices}</a></li>
+          <li><a href="/${locale}/nobetci-eczane" style="color: #34d399; font-weight: 700;"><i class="fa-solid fa-notes-medical" style="margin-inline-end:6px;"></i>${t.dutyPharmacies}</a></li>
+          <li><a href="/${locale}/kira-artis-orani" style="color: #38bdf8; font-weight: 700;"><i class="fa-solid fa-house-chimney-crack" style="margin-inline-end:6px;"></i>${t.kiraArtis}</a></li>
+          <li><a href="/${locale}/akaryakit-fiyatlari" style="color: #fb923c; font-weight: 700;"><i class="fa-solid fa-gas-pump" style="margin-inline-end:6px;"></i>${t.fuelPrices}</a></li>
           <li><a href="/${locale}/install" style="font-weight: 700; color: var(--primary);"><i class="fa-solid fa-mobile-screen-button" style="margin-inline-end:6px;"></i>${t.installApp}</a></li>
         </ul>
         <ul class="footer-links">

@@ -3,6 +3,9 @@ import type { Context } from 'hono';
 import { safeQuery } from '../utils/db-helper';
 import { sendFcmNotification } from '../services/fcm';
 import { runGoldScraper } from '../services/gold-scraper';
+import { getCachedOrFallbackPharmacies } from '../services/pharmacy-scraper';
+import { OFFICIAL_TUIK_RENT_RATES } from './rent-calculator';
+import { getCachedOrFallbackFuelPrices } from '../services/fuel-scraper';
 
 export const mobileApiRouter = new Hono();
 
@@ -233,6 +236,117 @@ async function handleGold(c: Context) {
     lastUpdateIso: new Date(updatedAt).toISOString(),
     metals: mappedMetals,
     advice
+  });
+}
+
+// ----------------------------------------------------
+// 2.5 Duty Pharmacies Handler
+// ----------------------------------------------------
+async function handleDutyPharmacies(c: Context) {
+  const dataset = await getCachedOrFallbackPharmacies(c.env);
+  const district = c.req.query('district')?.toLowerCase();
+  const side = c.req.query('side')?.toLowerCase();
+
+  let list = dataset.pharmacies;
+  if (district) {
+    list = list.filter((p: any) => p.districtSlug.toLowerCase() === district || p.district.toLowerCase() === district);
+  }
+  if (side === 'european' || side === 'asian') {
+    list = list.filter((p: any) => p.side === side);
+  }
+
+  c.header('Cache-Control', 'public, max-age=300, s-maxage=1200');
+  return c.json({
+    success: true,
+    date: dataset.date,
+    updatedAt: dataset.updatedAt,
+    dutyRange: dataset.dutyRange,
+    count: list.length,
+    pharmacies: list
+  });
+}
+
+// ----------------------------------------------------
+// 2.6 Rent Increase Calculator Handler (TÜİK TÜFE)
+// ----------------------------------------------------
+async function handleRentIncrease(c: Context) {
+  const currentRent = parseFloat(c.req.query('rent') || '0');
+  const monthKey = c.req.query('month') || '2026-10'; // YYYY-MM
+  const customRate = parseFloat(c.req.query('rate') || '0');
+  const tenure = parseInt(c.req.query('tenure') || '1', 10);
+  const locale = (c.req.query('locale') || 'ar').toLowerCase();
+
+  let chosenRate = 48.15; // default fallback (October 2026 official)
+  let foundMonth = OFFICIAL_TUIK_RENT_RATES.find(
+    r => `${r.year}-${String(r.month).padStart(2, '0')}` === monthKey
+  );
+  if (foundMonth) {
+    chosenRate = foundMonth.rate;
+  }
+  if (customRate > 0) {
+    chosenRate = customRate;
+  }
+
+  const increaseAmount = currentRent * (chosenRate / 100);
+  const newRent = currentRent + increaseAmount;
+  const annualOld = currentRent * 12;
+  const annualNew = newRent * 12;
+  const annualIncrease = increaseAmount * 12;
+  const isUnder5Years = tenure < 5;
+
+  c.header('Cache-Control', 'public, max-age=3600, s-maxage=7200');
+  return c.json({
+    success: true,
+    currency: 'TRY',
+    currentRent,
+    ratePercentage: chosenRate,
+    increaseAmount: Math.round(increaseAmount * 100) / 100,
+    newMonthlyRent: Math.round(newRent * 100) / 100,
+    annualCurrentRent: Math.round(annualOld * 100) / 100,
+    annualNewRent: Math.round(annualNew * 100) / 100,
+    annualIncrease: Math.round(annualIncrease * 100) / 100,
+    monthKey,
+    monthName: foundMonth?.monthName ? (foundMonth.monthName as any)[locale] || foundMonth.monthName.ar : monthKey,
+    tenureYears: tenure,
+    legalCapStrictlyApplies: isUnder5Years,
+    legalNotice: isUnder5Years 
+      ? 'ينطبق السقف القانوني الرسمي (معدل التضخم TÜFE) بصرامة، ولا يحق للمالك المطالبة بأي زيادة إضافية وفقاً للمادة 344 من قانون الالتزامات التركي.'
+      : 'تجاوز العقد 5 سنوات؛ يحق للمالك أو المستأجر قانونياً فتح دعوى تحديد إيجار قضائية (Kira Tespit Davası) لتقييم أجر المثل وفقاً للمادة 344/3.',
+    ratesTable: OFFICIAL_TUIK_RENT_RATES
+  });
+}
+
+// ----------------------------------------------------
+// 2.7 Istanbul Fuel Prices Handler (Akaryakıt Fiyatları)
+// ----------------------------------------------------
+async function handleFuelPrices(c: Context) {
+  const dataset = await getCachedOrFallbackFuelPrices(c.env);
+  const sideParam = c.req.query('side')?.toLowerCase();
+  const locale = (c.req.query('locale') || 'ar').toLowerCase();
+
+  const targetSide = sideParam === 'anadolu' ? 'anadolu' : 'avrupa';
+
+  c.header('Cache-Control', 'public, max-age=300, s-maxage=1200');
+  return c.json({
+    success: true,
+    currency: dataset.currency,
+    updatedAt: dataset.updatedAt,
+    dateStr: dataset.dateStr,
+    alert: {
+      status: dataset.alert.status,
+      title: (dataset.alert.title as any)[locale] || dataset.alert.title.ar,
+      message: (dataset.alert.message as any)[locale] || dataset.alert.message.ar,
+      brentOilPriceUsd: dataset.alert.brentOilPriceUsd,
+      usdTryRate: dataset.alert.usdTryRate,
+      expectedAdjustment: dataset.alert.expectedAdjustment
+    },
+    side: targetSide,
+    prices: dataset[targetSide as 'avrupa' | 'anadolu'],
+    bothSides: {
+      avrupa: dataset.avrupa,
+      anadolu: dataset.anadolu
+    },
+    history: dataset.history
   });
 }
 
@@ -618,6 +732,21 @@ mobileApiRouter.get('/api/mobile/currencies', handleCurrencies);
 mobileApiRouter.get('/api/v1/gold', handleGold);
 mobileApiRouter.get('/api/gold', handleGold);
 mobileApiRouter.get('/api/mobile/gold', handleGold);
+
+mobileApiRouter.get('/api/v1/nobetci-eczaneler', handleDutyPharmacies);
+mobileApiRouter.get('/api/nobetci-eczaneler', handleDutyPharmacies);
+mobileApiRouter.get('/api/mobile/nobetci-eczaneler', handleDutyPharmacies);
+
+mobileApiRouter.get('/api/v1/kira-artis-orani', handleRentIncrease);
+mobileApiRouter.get('/api/kira-artis-orani', handleRentIncrease);
+mobileApiRouter.get('/api/mobile/kira-artis-orani', handleRentIncrease);
+
+mobileApiRouter.get('/api/v1/akaryakit-fiyatlari', handleFuelPrices);
+mobileApiRouter.get('/api/akaryakit-fiyatlari', handleFuelPrices);
+mobileApiRouter.get('/api/mobile/akaryakit-fiyatlari', handleFuelPrices);
+mobileApiRouter.get('/api/v1/fuel-prices', handleFuelPrices);
+mobileApiRouter.get('/api/fuel-prices', handleFuelPrices);
+mobileApiRouter.get('/api/mobile/fuel-prices', handleFuelPrices);
 
 mobileApiRouter.get('/api/v1/jobs', handleJobs);
 mobileApiRouter.get('/api/jobs', handleJobs);

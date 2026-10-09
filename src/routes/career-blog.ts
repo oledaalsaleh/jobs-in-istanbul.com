@@ -47,6 +47,11 @@ import {
   workPermitTransferEn as workPermitTransferArticleEn,
   workPermitTransferTr as workPermitTransferArticleTr
 } from '../data/articles/work-permit-transfer-turkey-2026'
+import {
+  mostInDemandJobsArticleAr,
+  mostInDemandJobsArticleEn,
+  mostInDemandJobsArticleTr
+} from '../data/articles/most-in-demand-jobs-turkey-2026'
 
 export const careerBlogRouter = new Hono()
 
@@ -72,6 +77,7 @@ careerBlogRouter.get('/blog', (c) => {
 // Fallback hardcoded seeded articles if the database is empty
 export const seededArticles: Record<string, any[]> = {
   ar: [
+    mostInDemandJobsArticleAr,
     workPermitTransferArticleAr,
     tourismHotelSalariesArticleAr,
     costOfLivingArticleAr,
@@ -2899,6 +2905,7 @@ export const seededArticles: Record<string, any[]> = {
     }
   ],
   en: [
+    mostInDemandJobsArticleEn,
     workPermitTransferArticleEn,
     tourismHotelSalariesArticleEn,
     costOfLivingArticleEn,
@@ -3744,6 +3751,7 @@ export const seededArticles: Record<string, any[]> = {
     }
   ],
   tr: [
+    mostInDemandJobsArticleTr,
     workPermitTransferArticleTr,
     tourismHotelSalariesArticleTr,
     costOfLivingArticleTr,
@@ -5196,6 +5204,18 @@ function getCategory(slug: string, locale: any): { name: string; color: string }
       en: 'Tourism & Hospitality',
       tr: 'Turizm ve Otelcilik',
       ru: 'Туризм и гостиницы'
+    },
+    'most-in-demand-jobs-turkey-2026': {
+      ar: 'سوق العمل والوظائف',
+      en: 'Job Market & Careers',
+      tr: 'İş Piyasası ve Meslekler',
+      ru: 'Рынок труда и карьеры',
+      fa: 'بازار کار و مشاغل',
+      ur: 'ملازمت کی منڈی',
+      id: 'Pasar Kerja & Karier',
+      fr: 'Marché de l\'emploi',
+      bn: 'কাজের বাজার ও পেশা',
+      de: 'Arbeitsmarkt & Berufe'
     }
   };
 
@@ -5213,6 +5233,7 @@ function getCategory(slug: string, locale: any): { name: string; color: string }
 
   const colors: Record<string, string> = {
     'tourism-hotel-salaries-istanbul-2026-guide': '#4338ca', // indigo
+    'most-in-demand-jobs-turkey-2026': '#2563eb', // Royal Blue
     'cost-of-living-istanbul-2026-guide': '#059669', // emerald
     'remote-work-turkey-freelance-company-tax-2026': '#0284c7', // sky blue
     'jobs-in-istanbul-app-official-guide-2026': '#0284c7',

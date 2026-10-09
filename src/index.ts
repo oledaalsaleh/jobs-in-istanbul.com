@@ -119,12 +119,17 @@ import { careerBlogRouter } from './routes/career-blog'
 import { insightsRouter } from './routes/insights'
 import { currencyPricesRouter } from './routes/currency-prices'
 import { goldPricesRouter } from './routes/gold-prices'
+import { dutyPharmacyRouter } from './routes/duty-pharmacy'
+import { rentCalculatorRouter } from './routes/rent-calculator'
+import { fuelPricesRouter } from './routes/fuel-prices'
 import { mobileApiRouter } from './routes/mobile-api'
 import { runScraper } from './services/scraper'
 import { runTelegramScraper } from './services/telegram-scraper'
 import { optimizeSeoWithGemini } from './services/gemini-seo'
 import { runCurrencyScraper } from './services/currency-scraper'
 import { runGoldScraper } from './services/gold-scraper'
+import { runPharmacyScraper } from './services/pharmacy-scraper'
+import { runFuelScraper } from './services/fuel-scraper'
 import { sendFcmRatesNotification } from './services/fcm'
 import { autoIndexUnindexedJobs } from './services/auto-indexing'
 
@@ -140,6 +145,9 @@ app.route('/', careerBlogRouter)
 app.route('/', insightsRouter)
 app.route('/', currencyPricesRouter)
 app.route('/', goldPricesRouter)
+app.route('/', dutyPharmacyRouter)
+app.route('/', rentCalculatorRouter)
+app.route('/', fuelPricesRouter)
 app.route('/', mobileApiRouter)
 
 // Helper: Global HTTP Security Headers for comprehensive hardening
@@ -164,6 +172,10 @@ export default {
       url.pathname.startsWith('/api/v1/') ||
       url.pathname === '/api/currencies' ||
       url.pathname === '/api/gold' ||
+      url.pathname === '/api/nobetci-eczaneler' ||
+      url.pathname === '/api/kira-artis-orani' ||
+      url.pathname === '/api/akaryakit-fiyatlari' ||
+      url.pathname === '/api/fuel-prices' ||
       url.pathname === '/api/jobs' ||
       url.pathname === '/api/feed' ||
       url.pathname === '/api/config' ||
@@ -217,7 +229,8 @@ export default {
     // Redirect essential pages without locale prefix to localized version
     const bareRoutes = [
       '/about', '/contact', '/terms', '/privacy', '/blog', '/insights',
-      '/currency-prices', '/gold-prices', '/workplace-quiz', '/ats-scanner',
+      '/currency-prices', '/gold-prices', '/nobetci-eczane', '/kira-artis-orani',
+      '/akaryakit-fiyatlari', '/fuel-prices', '/workplace-quiz', '/ats-scanner',
       '/submit-job', '/install', '/salary-calculator',
       '/salary-calculator-2026', '/investor-calculator', '/work-permit-eligibility', 
       '/cv-optimizer', '/resume-builder', '/ai-job-matcher',
@@ -275,13 +288,14 @@ export default {
     // In Cloudflare Workers, caches.default represents the global zone cache
     const edgeCache = (typeof caches !== 'undefined' && (caches as any).default) ? (caches as any).default : null;
     const hasAuthHeader = request.headers.has('Authorization');
-    const isCacheEligible = isPublicRoute && !hasAuthHeader && !url.searchParams.has('nocache');
+    // Only cache GET requests (HEAD requests must never poison the cache with 0-byte bodies)
+    const isCacheEligible = request.method === 'GET' && isPublicRoute && !hasAuthHeader && !url.searchParams.has('nocache');
 
     // Build unique cache key URL with dynamic cache versioning for instant global edge invalidation
-    let cacheVersion = 'v1';
+    let cacheVersion = 'v3';
     if (env.CACHE_KV) {
       try {
-        cacheVersion = (await env.CACHE_KV.get('edge_cache_version')) || 'v1';
+        cacheVersion = (await env.CACHE_KV.get('edge_cache_version')) || 'v3';
       } catch (e) {}
     }
     const cacheUrl = new URL(url.toString());
@@ -298,14 +312,21 @@ export default {
       try {
         const cachedResponse = await edgeCache.match(cacheKey);
         if (cachedResponse) {
-          const hitHeaders = new Headers(cachedResponse.headers);
-          hitHeaders.set('X-Edge-Cache', 'HIT');
-          applySecurityHeaders(hitHeaders);
-          return new Response(cachedResponse.body, {
-            status: cachedResponse.status,
-            statusText: cachedResponse.statusText,
-            headers: hitHeaders
-          });
+          const cachedBody = await cachedResponse.text();
+          // Ensure cached content is genuine and non-empty (avoid serving poisoned 0-byte entries)
+          if (cachedBody && cachedBody.length > 50) {
+            const hitHeaders = new Headers(cachedResponse.headers);
+            hitHeaders.set('X-Edge-Cache', 'HIT');
+            applySecurityHeaders(hitHeaders);
+            return new Response(cachedBody, {
+              status: cachedResponse.status,
+              statusText: cachedResponse.statusText,
+              headers: hitHeaders
+            });
+          } else {
+            // Evict corrupted/empty entry in background
+            ctx.waitUntil(edgeCache.delete(cacheKey));
+          }
         }
       } catch (cacheMatchErr) {
         console.warn('[EDGE CACHE MATCH ERROR]', cacheMatchErr);
@@ -335,22 +356,31 @@ export default {
 
       if (isContentCacheable) {
         try {
-          const cacheHeaders = new Headers(response.headers);
-          // Strip set-cookie so Cloudflare Edge doesn't treat public pages as private sessions
-          cacheHeaders.delete('set-cookie');
-          // Browser always revalidates (max-age=0, must-revalidate), edge cache for 2 minutes (s-maxage=120)
-          cacheHeaders.set('Cache-Control', 'public, max-age=0, must-revalidate, s-maxage=120, stale-while-revalidate=300');
-          cacheHeaders.set('X-Edge-Cache', 'MISS');
-          applySecurityHeaders(cacheHeaders);
+          const bodyText = await response.text();
+          // Only cache non-empty responses to prevent 0-byte cache poisoning
+          if (bodyText && bodyText.length > 50) {
+            const cacheHeaders = new Headers(response.headers);
+            // Strip set-cookie so Cloudflare Edge doesn't treat public pages as private sessions
+            cacheHeaders.delete('set-cookie');
+            // Browser always revalidates (max-age=0, must-revalidate), edge cache for 2 minutes (s-maxage=120)
+            cacheHeaders.set('Cache-Control', 'public, max-age=0, must-revalidate, s-maxage=120, stale-while-revalidate=300');
+            cacheHeaders.set('X-Edge-Cache', 'MISS');
+            applySecurityHeaders(cacheHeaders);
 
-          const responseToCache = new Response(response.clone().body, {
-            status: response.status,
-            statusText: response.statusText,
-            headers: cacheHeaders
-          });
+            const responseToCache = new Response(bodyText, {
+              status: response.status,
+              statusText: response.statusText,
+              headers: cacheHeaders
+            });
 
-          ctx.waitUntil(edgeCache.put(cacheKey, responseToCache.clone()));
-          return responseToCache;
+            ctx.waitUntil(edgeCache.put(cacheKey, responseToCache));
+
+            return new Response(bodyText, {
+              status: response.status,
+              statusText: response.statusText,
+              headers: cacheHeaders
+            });
+          }
         } catch (cachePutErr) {
           console.warn('[EDGE CACHE PUT ERROR]', cachePutErr);
         }
@@ -410,6 +440,24 @@ export default {
         }
       } catch (goldErr) {
         console.error('[CRON GOLD] Gold scraper execution error:', goldErr);
+      }
+
+      // ----------------------------------------------------
+      // 2.5 Pharmacy Scraper (Istanbul 39 Districts On-Duty Sync)
+      // ----------------------------------------------------
+      try {
+        await runPharmacyScraper(env);
+      } catch (pharmErr) {
+        console.error('[CRON PHARMACY] Pharmacy scraper error:', pharmErr);
+      }
+
+      // ----------------------------------------------------
+      // 2.6 Fuel Scraper (Istanbul Fuel Prices Sync)
+      // ----------------------------------------------------
+      try {
+        await runFuelScraper(env);
+      } catch (fuelErr) {
+        console.error('[CRON FUEL] Fuel scraper error:', fuelErr);
       }
 
       // Fast Currency & Gold scrapers run every 15 minutes!
