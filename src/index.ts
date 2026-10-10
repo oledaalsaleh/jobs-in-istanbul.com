@@ -44,7 +44,7 @@ const config: SonicJSConfig = {
   },
     middleware: {
     beforeAuth: [
-      async (c, next) => {
+      (async (c: any, next: any): Promise<any> => {
         if (c.req.path === '/' || c.req.path === '') {
           let ctx: any;
           try { ctx = c.executionCtx; } catch (e) {}
@@ -57,7 +57,8 @@ const config: SonicJSConfig = {
         if (c.req.path.startsWith('/auth/') && c.res) {
           c.res.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
         }
-      }
+        return;
+      }) as any
     ]
   }
 }

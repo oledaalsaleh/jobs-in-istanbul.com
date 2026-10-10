@@ -19,6 +19,8 @@ import {
 export const publicRouter = new Hono()
 
 export const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.jobsistanbul.app';
+export const TURKEY_TRAVEL_GUIDE_PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.trabzon.turkey.travel.guide';
+export const TURKEY_TRAVEL_GUIDE_BANNER_IMG = '/public/images/trabzon-app/turkey_travel_guide_offline_banner.jpg';
 
 export function renderGooglePlayBadge(t: any, size: 'sm' | 'md' | 'lg' = 'md') {
   const iconSize = size === 'sm' ? 16 : (size === 'lg' ? 26 : 20);
@@ -237,7 +239,17 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       modalTitle: 'حمّل تطبيق فرص عمل في إسطنبول الرسمي',
       modalSubtitle: 'احصل على إشعارات فورية بكل الوظائف الجديدة والتقديم السريع بلمسة واحدة من هاتفك المحمول!',
       dontShowToday: 'عدم الإظهار مجدداً اليوم',
-      close: 'إغلاق'
+      close: 'إغلاق',
+      turkeyGuideNavTitle: 'دليل تركيا السياحي بدون نت',
+      turkeyGuideTopBar: 'تطبيق الساحة للسياحة والسفر | استكشف طرابزون وإسطنبول وعموم تركيا بخرائط GPS بدون إنترنت!',
+      turkeyGuideModalTitle: 'دليل تركيا السياحي بدون نت 🇹🇷',
+      turkeyGuideModalTag: 'تطبيق الساحة للسياحة والسفر',
+      turkeyGuideModalSub: 'استكشف تركيا كما لم ترها من قبل! رفيقك الأمثل في السفر والسياحة: جولات سياحية متكاملة، وحجوزات مميزة، وخرائط GPS تعمل 100% بدون نت في طرابزون، الشمال، إسطنبول، وبورصة.',
+      turkeyGuideDownloadBtn: 'تحميل التطبيق مجاناً من Google Play',
+      turkeyGuideReviewBtn: 'مراجعة وتفاصيل التطبيق الشاملة',
+      turkeyGuideFloatingTitle: 'دليل تركيا السياحي',
+      turkeyGuideFloatingSub: 'بدون إنترنت',
+      turkeyGuideDontShowToday: 'عدم الإظهار مجدداً اليوم'
     },
     en: {
       siteName: 'Istanbul Jobs',
@@ -296,7 +308,17 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       modalTitle: 'Download Official Jobs in Istanbul App',
       modalSubtitle: 'Get instant notifications for all new job openings and apply in one tap directly from your phone!',
       dontShowToday: "Don't show again today",
-      close: 'Close'
+      close: 'Close',
+      turkeyGuideNavTitle: 'Turkey Offline Travel Guide',
+      turkeyGuideTopBar: 'Al-Saha Travel & Tourism App | Explore Trabzon, Istanbul & all of Turkey with offline GPS maps!',
+      turkeyGuideModalTitle: 'Turkey Travel Guide Offline 🇹🇷',
+      turkeyGuideModalTag: 'Al-Saha Travel & Tourism App',
+      turkeyGuideModalSub: 'Explore Turkey like never before! Complete travel tours and 100% offline GPS navigation without internet in Trabzon, Black Sea, Istanbul, Cappadocia, and Bursa.',
+      turkeyGuideDownloadBtn: 'Download Free on Google Play',
+      turkeyGuideReviewBtn: 'Read Detailed App Review',
+      turkeyGuideFloatingTitle: 'Turkey Travel Guide',
+      turkeyGuideFloatingSub: 'Offline App',
+      turkeyGuideDontShowToday: "Don't show again today"
     },
     tr: {
       siteName: 'İstanbul İş İlanları',
@@ -355,7 +377,17 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       modalTitle: 'Resmi İstanbul İş İlanları Uygulamasını İndirin',
       modalSubtitle: 'Yeni iş ilanları için anlık bildirimler alın ve tek tıkla telefonunuzdan başvurun!',
       dontShowToday: 'Bugün bir daha gösterme',
-      close: 'Kapat'
+      close: 'Kapat',
+      turkeyGuideNavTitle: 'İnternetsiz Türkiye Gezi Rehberi',
+      turkeyGuideTopBar: 'Al-Saha Seyahat Uygulaması | Trabzon, Karadeniz, İstanbul ve tüm Türkiye’yi internetsiz GPS ile keşfedin!',
+      turkeyGuideModalTitle: 'İnternetsiz Türkiye Gezi Rehberi 🇹🇷',
+      turkeyGuideModalTag: 'Al-Saha Seyahat & Turizm Uygulaması',
+      turkeyGuideModalSub: 'Türkiye\'yi daha önce hiç görmediğiniz gibi keşfedin! Trabzon, Uzungöl, Ayder, İstanbul ve Kapadokya için %100 internetsiz GPS haritaları ve gezi turları.',
+      turkeyGuideDownloadBtn: 'Google Play\'den Ücretsiz İndirin',
+      turkeyGuideReviewBtn: 'Rehber ve Uygulama Detayları',
+      turkeyGuideFloatingTitle: 'Türkiye Gezi Rehberi',
+      turkeyGuideFloatingSub: 'İnternetsiz GPS',
+      turkeyGuideDontShowToday: 'Bugün bir daha gösterme'
     },
     ru: {
       siteName: 'Работа в Стамбуле',
@@ -914,6 +946,35 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
   </script>
   <div class="page-wrapper">
 
+  <!-- Turkey Travel Guide Persistent Top Bar -->
+  <div id="turkey-travel-top-bar" style="background: linear-gradient(90deg, #022c22 0%, #064e3b 45%, #047857 100%); color: #ffffff; padding: 7px 16px; border-bottom: 1px solid rgba(52, 211, 153, 0.35); font-size: 0.84rem; position: relative; z-index: 9998; box-shadow: 0 2px 10px rgba(0,0,0,0.15);">
+    <div style="max-width: 1360px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 10px; flex: 1 1 auto; min-width: 250px;">
+        <span style="font-size: 1.15rem; line-height: 1;">🇹🇷</span>
+        <div style="line-height: 1.35;">
+          <strong style="color: #fef08a; font-weight: 800; margin-inline-end: 6px;">${t.turkeyGuideModalTitle || 'دليل تركيا السياحي بدون نت 🇹🇷'}</strong>
+          <span style="color: #e2e8f0; font-size: 0.8rem;" class="turkey-top-bar-sub">${t.turkeyGuideTopBar || 'تطبيق الساحة للسياحة والسفر | جولات سياحية وخرائط GPS أوفلاين'}</span>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
+        <a href="${TURKEY_TRAVEL_GUIDE_PLAY_STORE_URL}" target="_blank" rel="noopener" style="background: #ffffff; color: #064e3b !important; padding: 5px 14px; border-radius: 20px; font-weight: 800; font-size: 0.78rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'">
+          <i class="fa-brands fa-google-play" style="color: #01875f;"></i>
+          <span>${t.turkeyGuideDownloadBtn || 'تحميل التطبيق'}</span>
+        </a>
+        <button onclick="document.getElementById('turkey-travel-top-bar').style.display='none'; try{sessionStorage.setItem('hideTurkeyTopBar', '1');}catch(e){}" style="background: transparent; border: none; color: #cbd5e1; font-size: 1.1rem; cursor: pointer; padding: 4px; line-height: 1;" title="${t.close || 'إغلاق'}">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  <script>
+    try {
+      if (sessionStorage.getItem('hideTurkeyTopBar')) {
+        document.getElementById('turkey-travel-top-bar').style.display = 'none';
+      }
+    } catch(e) {}
+  </script>
+
   <!-- HEADER -->
   <header class="site-header" id="site-header">
     <div class="container header-inner" style="max-width:1360px">
@@ -1100,6 +1161,11 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
                 <i class="fa-solid fa-mobile-screen-button" style="color: var(--primary);"></i>
                 <span>${t.installApp}</span>
               </a>
+              <a href="${TURKEY_TRAVEL_GUIDE_PLAY_STORE_URL}" target="_blank" rel="noopener" class="dropdown-item" style="background: rgba(4,120,87,0.08); color: #047857; font-weight: 700;">
+                <i class="fa-solid fa-map-location-dot" style="color: #047857;"></i>
+                <span>${t.turkeyGuideNavTitle || 'دليل تركيا السياحي بدون نت'}</span>
+                <span style="background: #047857; color: white; font-size: 0.62rem; padding: 2px 6px; border-radius: 4px; margin-inline-start: auto;">Google Play</span>
+              </a>
             </div>
           </li>
           
@@ -1160,6 +1226,10 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         <a href="${PLAY_STORE_URL}" target="_blank" rel="noopener" class="header-playstore-btn" title="${t.downloadOnPlayStore}">
           <i class="fa-brands fa-google-play"></i>
           <span>Google Play</span>
+        </a>
+        <a href="${TURKEY_TRAVEL_GUIDE_PLAY_STORE_URL}" target="_blank" rel="noopener" class="header-turkey-guide-btn" title="${t.turkeyGuideModalTitle || 'دليل تركيا السياحي بدون نت'}">
+          <i class="fa-solid fa-map-location-dot"></i>
+          <span>${locale === 'ar' ? 'دليل تركيا' : (locale === 'tr' ? 'Gezi Rehberi' : 'Turkey Guide')}</span>
         </a>
         <a href="/${locale}/install" class="header-install-btn" title="${t.installApp}">
           <i class="fa-solid fa-mobile-screen-button"></i>
@@ -1249,6 +1319,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         <a href="/${locale}/kira-artis-orani" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-house-chimney-crack" style="color: #0284c7; width: 20px; text-align: center;"></i> <span>${t.kiraArtis}</span></a>
         <a href="/${locale}/akaryakit-fiyatlari" style="padding:10px 16px; border-radius:var(--r-md); color:#ea580c; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-gas-pump" style="color: #ea580c; width: 20px; text-align: center;"></i> <span>${t.fuelPrices}</span></a>
         <a href="/${locale}/install" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-mobile-screen-button" style="color: var(--primary); width: 20px; text-align: center;"></i> <span>${t.installApp}</span></a>
+        <a href="${TURKEY_TRAVEL_GUIDE_PLAY_STORE_URL}" target="_blank" rel="noopener" style="padding:10px 16px; border-radius:var(--r-md); color:#047857; font-weight:700; display:flex; align-items:center; gap:10px; background:rgba(4,120,87,0.08); transition:var(--t-base);"><i class="fa-solid fa-map-location-dot" style="color: #047857; width: 20px; text-align: center;"></i> <span>${t.turkeyGuideNavTitle || 'دليل تركيا السياحي بدون نت'}</span><span style="background: #047857; color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; margin-inline-start: auto;">Google Play</span></a>
 
         <div style="margin-top:14px; border-top:1px solid var(--border); padding-top:10px; display:flex; flex-direction:column; gap:6px;">
           <a href="/${locale}/submit-job" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-bullhorn" style="color: #f59e0b; width: 20px; text-align: center;"></i> <span>${t.postJob}</span></a>
@@ -1339,6 +1410,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         <ul class="footer-links">
           <li class="footer-col-title">${t.smartTools}</li>
           <li><a href="${PLAY_STORE_URL}" target="_blank" rel="noopener" style="font-weight: 800; color: #4ade80;"><i class="fa-brands fa-google-play" style="margin-inline-end:6px;"></i>${locale === 'ar' ? 'تطبيق إسطنبول للوظائف (Google Play)' : (locale === 'tr' ? 'İstanbul İş İlanları Uygulaması' : 'Jobs in Istanbul App')}</a></li>
+          <li><a href="${TURKEY_TRAVEL_GUIDE_PLAY_STORE_URL}" target="_blank" rel="noopener" style="font-weight: 800; color: #34d399;"><i class="fa-solid fa-map-location-dot" style="margin-inline-end:6px;"></i>${locale === 'ar' ? 'دليل تركيا السياحي بدون نت (Google Play)' : (locale === 'tr' ? 'İnternetsiz Türkiye Gezi Rehberi' : 'Turkey Offline Travel Guide App')}</a></li>
           <li><a href="/${locale}/work-permit-eligibility" style="font-weight: 700; color: #22c55e;"><i class="fa-solid fa-clipboard-check" style="margin-inline-end:6px;"></i>${t.workPermitEligibility}</a></li>
           <li><a href="/${locale}/investor-calculator" style="font-weight: 700; color: #6366f1;"><i class="fa-solid fa-building-user" style="margin-inline-end:6px;"></i>${t.investorCalculator}</a></li>
           <li><a href="/${locale}/salary-calculator-2026" style="font-weight: 700; color: #ec4899;"><i class="fa-solid fa-calculator" style="margin-inline-end:6px;"></i>${t.salaryCalculator2026}</a></li>
@@ -1399,6 +1471,25 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       transform: translateY(-1px);
       box-shadow: 0 6px 16px rgba(1, 135, 95, 0.35);
     }
+    .header-turkey-guide-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+      color: white !important;
+      padding: 8px 14px;
+      border-radius: var(--r-full);
+      font-size: 0.82rem;
+      font-weight: 700;
+      transition: var(--t-base);
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(4, 120, 87, 0.25);
+    }
+    .header-turkey-guide-btn:hover {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(4, 120, 87, 0.4);
+    }
     .header-telegram-btn {
       display: flex;
       align-items: center;
@@ -1438,7 +1529,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       box-shadow: 0 6px 16px var(--primary-light);
     }
     @media (max-width: 768px) {
-      .header-telegram-btn, .header-install-btn {
+      .header-telegram-btn, .header-install-btn, .header-turkey-guide-btn {
         display: none !important;
       }
     }
@@ -1803,6 +1894,277 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
     <i class="fa-brands fa-telegram"></i>
     <span>${locale === 'ar' ? 'أضف إعلانك مجاناً' : (locale === 'tr' ? 'Ücretsiz İlan Ekle' : 'Post a Job Free')}</span>
   </a>
+
+  <!-- Turkey Travel Guide Permanent Floating Corner Badge -->
+  <div id="turkey-guide-floating-widget" class="turkey-guide-floating-widget" onclick="openTurkeyGuideModal()" title="${t.turkeyGuideModalTitle || 'دليل تركيا السياحي بدون نت 🇹🇷'}">
+    <div class="icon-circle">
+      🇹🇷
+    </div>
+    <div class="widget-text" style="display: flex; flex-direction: column; text-align: ${isRtl ? 'right' : 'left'};">
+      <strong style="font-size: 0.82rem; color: #ffffff; line-height: 1.2;">${t.turkeyGuideFloatingTitle || 'دليل تركيا السياحي'}</strong>
+      <span style="font-size: 0.7rem; color: #a7f3d0; display: flex; align-items: center; gap: 4px;"><i class="fa-brands fa-google-play"></i> ${t.turkeyGuideFloatingSub || 'بدون إنترنت'}</span>
+    </div>
+    <span class="turkey-pulse-dot"></span>
+  </div>
+
+  <!-- Turkey Travel Guide Expert Popup Modal -->
+  <div id="turkey-travel-modal-overlay" class="turkey-travel-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="turkey-guide-modal-heading">
+    <div id="turkey-travel-modal-card" class="turkey-travel-modal-card">
+      
+      <!-- Top Tag & Close Button -->
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+        <span style="background: rgba(4, 120, 87, 0.12); color: #047857; padding: 5px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(4, 120, 87, 0.25);">
+          <i class="fa-solid fa-map-location-dot"></i>
+          <span>${t.turkeyGuideModalTag || 'تطبيق الساحة للسياحة والسفر'}</span>
+        </span>
+        <button onclick="closeTurkeyGuideModal()" style="width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg-subtle, #f1f5f9); color: var(--text-muted); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; cursor: pointer; transition: all 0.2s;" aria-label="${t.close || 'إغلاق'}">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Banner Image (Clickable directly to Google Play) -->
+      <a href="${TURKEY_TRAVEL_GUIDE_PLAY_STORE_URL}" target="_blank" rel="noopener" style="display: block; position: relative; border-radius: 16px; overflow: hidden; margin-bottom: 16px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); border: 1.5px solid rgba(4,120,87,0.25); background: #000;">
+        <img src="${TURKEY_TRAVEL_GUIDE_BANNER_IMG}" alt="دليل تركيا السياحي بدون نت - تطبيق الساحة للسياحة والسفر" style="width: 100%; height: auto; display: block; object-fit: cover; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'" loading="eager" />
+        <div style="position: absolute; bottom: 10px; ${isRtl ? 'left: 10px;' : 'right: 10px;'}; background: rgba(0,0,0,0.8); color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; backdrop-filter: blur(4px); display: flex; align-items: center; gap: 5px;">
+          <i class="fa-brands fa-google-play" style="color: #34d399;"></i> Google Play
+        </div>
+      </a>
+
+      <!-- Title & Description -->
+      <div style="margin-bottom: 16px; text-align: ${isRtl ? 'right' : 'left'};">
+        <h3 id="turkey-guide-modal-heading" style="font-size: 1.25rem; font-weight: 900; margin: 0 0 6px 0; line-height: 1.35; color: var(--text-heading);">
+          ${t.turkeyGuideModalTitle || 'دليل تركيا السياحي بدون نت 🇹🇷'}
+        </h3>
+        <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.55; margin: 0;">
+          ${t.turkeyGuideModalSub || 'استكشف تركيا كما لم ترها من قبل! رفيقك الأمثل في السفر والسياحة: جولات سياحية متكاملة، وحجوزات مميزة، وخرائط GPS تعمل 100% بدون نت في طرابزون، الشمال، إسطنبول، وبورصة.'}
+        </p>
+      </div>
+
+      <!-- Key Value Chips -->
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 18px;">
+        <div class="turkey-modal-chip" style="display: flex; align-items: center; gap: 8px; background: var(--bg-subtle, #f8fafc); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); font-size: 0.8rem; font-weight: 700; color: var(--text-heading);">
+          <i class="fa-solid fa-wifi" style="color: #10b981; font-size: 0.9rem;"></i>
+          <span>${locale === 'ar' ? '100% بدون إنترنت (GPS)' : (locale === 'tr' ? '%100 İnternetsiz GPS' : '100% Offline GPS')}</span>
+        </div>
+        <div class="turkey-modal-chip" style="display: flex; align-items: center; gap: 8px; background: var(--bg-subtle, #f8fafc); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); font-size: 0.8rem; font-weight: 700; color: var(--text-heading);">
+          <i class="fa-solid fa-star" style="color: #f59e0b; font-size: 0.9rem;"></i>
+          <span>${locale === 'ar' ? 'تقييم 4.9 في Google Play' : (locale === 'tr' ? '4.9 Google Play Puanı' : '4.9 Rated on Play Store')}</span>
+        </div>
+        <div class="turkey-modal-chip" style="display: flex; align-items: center; gap: 8px; background: var(--bg-subtle, #f8fafc); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); font-size: 0.8rem; font-weight: 700; color: var(--text-heading);">
+          <i class="fa-solid fa-mountain-sun" style="color: #0284c7; font-size: 0.9rem;"></i>
+          <span>${locale === 'ar' ? 'طرابزون والشمال وإسطنبول' : (locale === 'tr' ? 'Trabzon, Rize, İstanbul' : 'Trabzon, Rize & Istanbul')}</span>
+        </div>
+        <div class="turkey-modal-chip" style="display: flex; align-items: center; gap: 8px; background: var(--bg-subtle, #f8fafc); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); font-size: 0.8rem; font-weight: 700; color: var(--text-heading);">
+          <i class="fa-solid fa-car" style="color: #8b5cf6; font-size: 0.9rem;"></i>
+          <span>${locale === 'ar' ? 'تأجير سيارات ومسارات' : (locale === 'tr' ? 'Araç Kiralama & Rotalar' : 'Car Rental & Routes')}</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <a href="${TURKEY_TRAVEL_GUIDE_PLAY_STORE_URL}" target="_blank" rel="noopener" style="background: linear-gradient(135deg, #047857 0%, #065f46 100%); color: #ffffff !important; padding: 13px 20px; border-radius: 14px; font-weight: 800; font-size: 0.98rem; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 6px 20px rgba(4, 120, 87, 0.35); transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+          <i class="fa-brands fa-google-play" style="font-size: 1.25rem;"></i>
+          <span>${t.turkeyGuideDownloadBtn || 'تحميل التطبيق مجاناً من Google Play'}</span>
+        </a>
+        <a href="/${locale}/blog/trabzon-travel-guide-app-tourism-turkey-2026" class="turkey-modal-secondary-btn" style="background: var(--bg-subtle, #f1f5f9); color: var(--text-heading); padding: 10px 18px; border-radius: 12px; font-weight: 700; font-size: 0.84rem; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid var(--border);">
+          <i class="fa-solid fa-book-open" style="color: #047857;"></i>
+          <span>${t.turkeyGuideReviewBtn || 'قراءة تفاصيل ومراجعة التطبيق في الموقع'}</span>
+        </a>
+      </div>
+
+      <!-- Dismiss footer -->
+      <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+        <button onclick="dismissTurkeyGuideForToday()" style="background: transparent; border: none; color: var(--text-muted); font-size: 0.78rem; cursor: pointer; text-decoration: underline; padding: 0;">
+          ${t.turkeyGuideDontShowToday || 'عدم الإظهار مجدداً اليوم'}
+        </button>
+        <button onclick="closeTurkeyGuideModal()" style="background: transparent; border: none; color: var(--text-muted); font-size: 0.78rem; font-weight: 700; cursor: pointer;">
+          ${t.close || 'إغلاق'}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <style>
+    .turkey-guide-floating-widget {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9990;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #022c22 0%, #064e3b 50%, #047857 100%);
+      color: #ffffff !important;
+      padding: 10px 18px;
+      border-radius: var(--r-full, 50px);
+      font-weight: 800;
+      font-size: 0.85rem;
+      box-shadow: 0 8px 24px rgba(4, 120, 87, 0.45);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+      text-decoration: none;
+      border: 1.5px solid rgba(52, 211, 153, 0.4);
+      user-select: none;
+    }
+    .turkey-guide-floating-widget:hover {
+      transform: scale(1.05) translateY(-2px);
+      box-shadow: 0 12px 30px rgba(4, 120, 87, 0.6);
+      border-color: #6ee7b7;
+    }
+    .turkey-guide-floating-widget .icon-circle {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .turkey-pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      animation: turkeyPulse 2s infinite;
+    }
+    @keyframes turkeyPulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+    @media (max-width: 480px) {
+      .turkey-guide-floating-widget {
+        bottom: 20px;
+        right: 14px;
+        padding: 9px 12px;
+      }
+      .turkey-guide-floating-widget .widget-text {
+        display: none;
+      }
+      .turkey-guide-floating-widget {
+        width: 46px;
+        height: 46px;
+        padding: 0;
+        justify-content: center;
+      }
+      .turkey-top-bar-sub {
+        display: none !important;
+      }
+    }
+    .turkey-travel-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.78);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 100000;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .turkey-travel-modal-card {
+      background: var(--bg-card, #ffffff);
+      color: var(--text-body, #1e293b);
+      border-radius: 24px;
+      max-width: 560px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border, #e2e8f0);
+      transform: scale(0.92) translateY(20px);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 24px;
+      position: relative;
+    }
+    .dark-mode .turkey-travel-modal-card {
+      background: #0f172a !important;
+      border-color: rgba(255, 255, 255, 0.12) !important;
+      color: #f8fafc !important;
+    }
+    .dark-mode .turkey-modal-chip {
+      background: rgba(255, 255, 255, 0.06) !important;
+      border-color: rgba(255, 255, 255, 0.1) !important;
+      color: #f1f5f9 !important;
+    }
+    .dark-mode .turkey-modal-secondary-btn {
+      background: rgba(255, 255, 255, 0.08) !important;
+      border-color: rgba(255, 255, 255, 0.15) !important;
+      color: #f1f5f9 !important;
+    }
+  </style>
+
+  <script>
+    function openTurkeyGuideModal() {
+      var overlay = document.getElementById('turkey-travel-modal-overlay');
+      var card = document.getElementById('turkey-travel-modal-card');
+      if (overlay && card) {
+        overlay.style.display = 'flex';
+        requestAnimationFrame(function() {
+          overlay.style.opacity = '1';
+          card.style.transform = 'scale(1) translateY(0)';
+        });
+      }
+    }
+
+    function closeTurkeyGuideModal() {
+      var overlay = document.getElementById('turkey-travel-modal-overlay');
+      var card = document.getElementById('turkey-travel-modal-card');
+      if (overlay && card) {
+        overlay.style.opacity = '0';
+        card.style.transform = 'scale(0.92) translateY(20px)';
+        setTimeout(function() {
+          overlay.style.display = 'none';
+        }, 280);
+      }
+    }
+
+    function dismissTurkeyGuideForToday() {
+      try {
+        localStorage.setItem('hide_turkey_guide_popup', Date.now().toString());
+      } catch(e) {}
+      closeTurkeyGuideModal();
+    }
+
+    (function() {
+      try {
+        var lastHidden = localStorage.getItem('hide_turkey_guide_popup');
+        var isHiddenToday = false;
+        if (lastHidden) {
+          var diffHours = (Date.now() - parseInt(lastHidden, 10)) / (1000 * 60 * 60);
+          if (diffHours < 24) isHiddenToday = true;
+        }
+        if (!isHiddenToday) {
+          setTimeout(function() {
+            openTurkeyGuideModal();
+          }, 3200);
+        }
+      } catch(e) {}
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeTurkeyGuideModal();
+      });
+      document.addEventListener('DOMContentLoaded', function() {
+        var overlay = document.getElementById('turkey-travel-modal-overlay');
+        if (overlay) {
+          overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) closeTurkeyGuideModal();
+          });
+        }
+      });
+    })();
+  </script>
 
   <!-- Cookie Consent Banner for Google AdSense & GDPR/KVKK Compliance -->
   <div id="cookie-consent-banner" style="display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 99999; background: rgba(15, 23, 42, 0.96); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); color: #f8fafc; padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.12); box-shadow: 0 -8px 24px rgba(0,0,0,0.25);">
@@ -2664,6 +3026,41 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
             </a>
           </div>
 
+          <!-- Turkey Travel Guide App Promo Sidebar Card -->
+          <div class="turkey-guide-sidebar-card" style="margin-top:20px; padding:18px; border-radius:var(--radius-lg); background:linear-gradient(135deg, #064e3b 0%, #047857 100%); color:white; position:relative; overflow:hidden; box-shadow:0 8px 24px rgba(4, 120, 87, 0.3); border: 1px solid rgba(52, 211, 153, 0.35); transition:all 0.3s ease;">
+            <div style="position:absolute; right:-15px; bottom:-15px; font-size:110px; opacity:0.08; transform:rotate(-15deg); color:#34d399; pointer-events:none;">
+              <i class="fa-solid fa-map-location-dot"></i>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+              <div style="width:40px; height:40px; border-radius:12px; background:rgba(255,255,255,0.18); border:1.5px solid rgba(255,255,255,0.3); display:flex; align-items:center; justify-content:center; font-size:1.3rem; flex-shrink:0;">
+                🇹🇷
+              </div>
+              <div>
+                <span style="font-size:0.68rem; font-weight:800; color:#a7f3d0; text-transform:uppercase; letter-spacing:0.5px; display:block;">${locale === 'ar' ? 'تطبيق الساحة للسياحة' : (locale === 'tr' ? 'Al-Saha Turizm Uygulaması' : 'Al-Saha Travel App')}</span>
+                <h4 style="font-size:0.92rem; font-weight:800; margin:0; color:white; line-height:1.3;">${locale === 'ar' ? 'دليل تركيا السياحي بدون نت' : (locale === 'tr' ? 'İnternetsiz Türkiye Gezi Rehberi' : 'Turkey Travel Guide Offline')}</h4>
+              </div>
+            </div>
+            <a href="${TURKEY_TRAVEL_GUIDE_PLAY_STORE_URL}" target="_blank" rel="noopener" style="display:block; border-radius:10px; overflow:hidden; margin-bottom:12px; border:1px solid rgba(255,255,255,0.25); box-shadow:0 4px 12px rgba(0,0,0,0.25);">
+              <img src="${TURKEY_TRAVEL_GUIDE_BANNER_IMG}" alt="دليل تركيا السياحي بدون نت" style="width:100%; height:auto; display:block; object-fit:cover;" loading="lazy" />
+            </a>
+            <p style="font-size:0.78rem; line-height:1.45; opacity:0.92; margin:0 0 14px 0; color:#e2e8f0;">
+              ${locale === 'ar'
+                ? 'استكشف طرابزون وأوزنجول وإسطنبول وعموم تركيا بخرائط تفاعلية وجولات كاملة تعمل 100% بدون إنترنت!'
+                : (locale === 'tr' ? 'Trabzon, Uzungöl, İstanbul ve tüm Türkiye\'yi internetsiz GPS haritalarıyla keşfedin!' : 'Explore Trabzon, Istanbul and all of Turkey with 100% offline GPS maps and travel tours!')
+              }
+            </p>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <a href="${TURKEY_TRAVEL_GUIDE_PLAY_STORE_URL}" target="_blank" rel="noopener" style="background:#ffffff; color:#064e3b !important; padding:9px 14px; border-radius:8px; font-weight:800; font-size:0.82rem; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:6px; box-shadow:0 4px 10px rgba(0,0,0,0.15); transition:all 0.2s ease;">
+                <i class="fa-brands fa-google-play" style="color: #01875f;"></i>
+                <span>${locale === 'ar' ? 'تحميل من Google Play' : (locale === 'tr' ? 'Google Play\'den İndir' : 'Download on Google Play')}</span>
+              </a>
+              <a href="/${locale}/blog/trabzon-travel-guide-app-tourism-turkey-2026" style="background:rgba(255,255,255,0.12); color:white; padding:8px 14px; border-radius:8px; font-weight:700; font-size:0.78rem; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:6px; border:1px solid rgba(255,255,255,0.25);">
+                <i class="fa-solid fa-book-open"></i>
+                <span>${locale === 'ar' ? 'تفاصيل ومراجعة الدليل' : (locale === 'tr' ? 'Rehber İncelemesi' : 'Read Guide Details')}</span>
+              </a>
+            </div>
+          </div>
+
           <!-- Workplace Turkish Quiz & Tools Sidebar Card -->
           <div class="quiz-sidebar-card" style="margin-top:20px; padding:20px; border-radius:var(--radius-lg); background:linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); color:white; position:relative; overflow:hidden; box-shadow:0 8px 24px rgba(49, 46, 129, 0.3); border: 1px solid rgba(129, 140, 248, 0.3); transition:all 0.3s ease;">
             <div style="position:absolute; right:-15px; bottom:-15px; font-size:110px; opacity:0.08; transform:rotate(-15deg); color:#818cf8; pointer-events:none;">
@@ -2720,6 +3117,73 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
             ${jobsHtml}
           </div>
           ${paginationHtml}
+
+          <!-- TURKEY TRAVEL GUIDE FEATURED SHOWCASE BANNER -->
+          <div class="turkey-travel-showcase-card" style="margin-top: 32px; margin-bottom: 32px; border-radius: 20px; background: linear-gradient(135deg, #022c22 0%, #064e3b 50%, #047857 100%); color: white; border: 1px solid rgba(52, 211, 153, 0.35); box-shadow: 0 12px 35px -8px rgba(4, 120, 87, 0.4); overflow: hidden; position: relative;">
+            <div style="padding: 28px 24px; position: relative; z-index: 2;">
+              <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px;">
+                <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(52, 211, 153, 0.2); border: 1px solid rgba(52, 211, 153, 0.4); padding: 5px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 800; color: #a7f3d0;">
+                  <i class="fa-solid fa-plane-departure"></i>
+                  <span>${locale === 'ar' ? 'تطبيق الساحة للسياحة والسفر' : (locale === 'tr' ? 'Al-Saha Turizm & Seyahat Uygulaması' : 'Al-Saha Turkey Travel Guide')}</span>
+                  <span style="background: #10b981; color: white; font-size: 0.65rem; padding: 2px 7px; border-radius: 10px; margin-inline-start: 4px;">OFFLINE GPS</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px; color: #fef08a; font-size: 0.85rem; font-weight: 800;">
+                  <i class="fa-solid fa-star"></i>
+                  <i class="fa-solid fa-star"></i>
+                  <i class="fa-solid fa-star"></i>
+                  <i class="fa-solid fa-star"></i>
+                  <i class="fa-solid fa-star"></i>
+                  <span style="color: white; margin-inline-start: 4px;">4.9 / 5.0 (Google Play)</span>
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; align-items: center;">
+                <div>
+                  <h3 style="font-size: clamp(1.25rem, 3.5vw, 1.55rem); font-weight: 900; line-height: 1.35; margin: 0 0 12px 0; color: #ffffff;">
+                    ${locale === 'ar' ? 'دليل تركيا السياحي بدون نت 🇹🇷' : (locale === 'tr' ? 'İnternetsiz Türkiye ve Trabzon Gezi Rehberi 🇹🇷' : 'Turkey & Trabzon Travel Guide Offline 🇹🇷')}
+                  </h3>
+                  <p style="font-size: 0.9rem; line-height: 1.6; color: #e2e8f0; margin: 0 0 20px 0;">
+                    ${locale === 'ar'
+                      ? 'استكشف تركيا كما لم ترها من قبل! رفيقك الأمثل في السفر والسياحة: جولات سياحية متكاملة، وإرشادات حجز الفنادق والسيارات، وخرائط GPS تعمل 100% بدون نت في طرابزون، الشمال التركي، إسطنبول، كابادوكيا، وبورصة.'
+                      : (locale === 'tr'
+                        ? 'Türkiye\'yi daha önce hiç görmediğiniz gibi keşfedin! Trabzon, Uzungöl, Karadeniz ve İstanbul için %100 internetsiz GPS navigasyon, detaylı gezi rotaları ve otel rehberi.'
+                        : 'Explore Turkey like never before! 100% offline GPS navigation, complete travel tours, hotel booking guides, and curated trips across Trabzon, Black Sea, Istanbul, and Cappadocia.'
+                      )
+                    }
+                  </p>
+                  
+                  <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px;">
+                    <span style="background: rgba(255,255,255,0.12); padding: 6px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; color: #a7f3d0; border: 1px solid rgba(255,255,255,0.15);">
+                      <i class="fa-solid fa-wifi" style="margin-inline-end: 5px;"></i> ${locale === 'ar' ? 'يعمل 100% بدون إنترنت' : '%100 Offline GPS'}
+                    </span>
+                    <span style="background: rgba(255,255,255,0.12); padding: 6px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; color: #a7f3d0; border: 1px solid rgba(255,255,255,0.15);">
+                      <i class="fa-solid fa-location-crosshairs" style="margin-inline-end: 5px;"></i> ${locale === 'ar' ? 'ملاحة وتوجيه GPS دقيق' : 'Accurate GPS Navigation'}
+                    </span>
+                    <span style="background: rgba(255,255,255,0.12); padding: 6px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; color: #a7f3d0; border: 1px solid rgba(255,255,255,0.15);">
+                      <i class="fa-solid fa-umbrella-beach" style="margin-inline-end: 5px;"></i> ${locale === 'ar' ? 'طرابزون والشمال وإسطنبول' : 'Trabzon & Istanbul'}
+                    </span>
+                  </div>
+
+                  <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+                    <a href="${TURKEY_TRAVEL_GUIDE_PLAY_STORE_URL}" target="_blank" rel="noopener" style="background: #ffffff; color: #064e3b !important; padding: 12px 22px; border-radius: 12px; font-weight: 900; font-size: 0.92rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.25); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+                      <i class="fa-brands fa-google-play" style="font-size: 1.2rem; color: #01875f;"></i>
+                      <span>${locale === 'ar' ? 'تحميل التطبيق مجاناً' : (locale === 'tr' ? 'Uygulamayı Ücretsiz İndir' : 'Download Free on Google Play')}</span>
+                    </a>
+                    <a href="/${locale}/blog/trabzon-travel-guide-app-tourism-turkey-2026" style="background: rgba(255,255,255,0.15); color: #ffffff; padding: 11px 18px; border-radius: 12px; font-weight: 700; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,0.25);">
+                      <i class="fa-solid fa-circle-info"></i>
+                      <span>${locale === 'ar' ? 'عرض تفاصيل الدليل' : (locale === 'tr' ? 'Rehber Bilgileri' : 'Explore Guide')}</span>
+                    </a>
+                  </div>
+                </div>
+
+                <div style="text-align: center;">
+                  <a href="${TURKEY_TRAVEL_GUIDE_PLAY_STORE_URL}" target="_blank" rel="noopener" style="display: block; border-radius: 16px; overflow: hidden; box-shadow: 0 16px 36px rgba(0,0,0,0.35); border: 2px solid rgba(255,255,255,0.2); transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                    <img src="${TURKEY_TRAVEL_GUIDE_BANNER_IMG}" alt="دليل تركيا السياحي بدون نت - تطبيق الساحة" style="width: 100%; max-height: 280px; object-fit: cover; display: block;" loading="lazy" />
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
 
           <!-- FEATURED CAREER GUIDES & WORKPLACE INTELLIGENCE 2026 -->
           <div class="career-guides-section" style="margin-top: 40px; margin-bottom: 24px; padding: 28px 24px; border-radius: 20px; background: var(--bg-card); border: 1px solid var(--border); box-shadow: var(--shadow-sm);">
