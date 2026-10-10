@@ -120,6 +120,21 @@ describe('Istanbul Jobs Portal Smoke Tests', () => {
     }
   };
 
+  test('GET / loads root homepage directly with 200 OK and Google AdSense verification meta tag', async () => {
+    const res = await app.request('/', {}, mockEnv)
+    expect(res.status).toBe(200)
+    const text = await res.text()
+    expect(text).toContain('name="google-adsense-account"')
+    expect(text).toContain('ca-pub-2220383290034920')
+    expect(text).toContain('pagead2.googlesyndication.com')
+    expect(text).toContain('href="/ar/about"')
+    expect(text).toContain('href="/ar/contact"')
+    expect(text).toContain('career-guides-section')
+    expect(text).not.toContain('quran-app-promo')
+    expect(text).not.toContain('aktuel-app-promo')
+    expect(text).not.toContain('trabzon-app-promo')
+  })
+
   test('GET /ar loads successfully with Arabic text', async () => {
     const res = await app.request('/ar', {}, mockEnv)
     expect(res.status).toBe(200)

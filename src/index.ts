@@ -14,6 +14,7 @@ import categoriesCollection from './collections/categories.collection'
 import companiesCollection from './collections/companies.collection'
 import jobsCollection from './collections/jobs.collection'
 import applicationsCollection from './collections/applications.collection'
+import { publicRouter } from './routes/public'
 
 // Register collections BEFORE creating the app
 // This ensures they are synced to the database on startup
@@ -41,9 +42,14 @@ const config: SonicJSConfig = {
       return opts;
     }
   },
-  middleware: {
+    middleware: {
     beforeAuth: [
       async (c, next) => {
+        if (c.req.path === '/' || c.req.path === '') {
+          let ctx: any;
+          try { ctx = c.executionCtx; } catch (e) {}
+          return publicRouter.fetch(c.req.raw, c.env, ctx);
+        }
         if (c.req.path.startsWith('/auth/')) {
           c.header('X-Robots-Tag', 'noindex, nofollow, noarchive');
         }
@@ -79,6 +85,8 @@ app.onError((err, c) => {
       <head>
         <title>Service Temporarily Unavailable</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="google-adsense-account" content="ca-pub-2220383290034920">
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2220383290034920" crossorigin="anonymous"></script>
         <style>
           body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; padding: 50px 20px; background: #f8fafc; color: #334155; }
           .container { max-width: 500px; margin: 0 auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
@@ -108,7 +116,6 @@ app.onError((err, c) => {
 
 
 // Import routers
-import { publicRouter } from './routes/public'
 import { seoRouter } from './routes/seo'
 import { adminAiRouter } from './routes/admin-ai'
 import { scraperRouter } from './routes/scraper-router'
@@ -192,6 +199,18 @@ export default {
       });
     }
 
+    // Direct Root "/" dispatch: serves 200 OK directly with full HTML and AdSense verification tags
+    if (url.pathname === '/' || url.pathname === '') {
+      const res = await publicRouter.fetch(request, env, ctx);
+      const secureHeaders = new Headers(res.headers);
+      applySecurityHeaders(secureHeaders);
+      return new Response(res.body, {
+        status: res.status,
+        statusText: res.statusText,
+        headers: secureHeaders
+      });
+    }
+
     // Serve app-ads.txt and ads.txt on root, /blog, /:locale/blog, or any subpath (Google AdMob / IAB Tech Lab verification)
     if (url.pathname === '/app-ads.txt' || url.pathname === '/ads.txt' || url.pathname.endsWith('/app-ads.txt') || url.pathname.endsWith('/ads.txt')) {
       return new Response('google.com, pub-2220383290034920, DIRECT, f08c47fec0942fa0\n', {
@@ -255,25 +274,8 @@ export default {
     if (jobsListMatch) {
       return Response.redirect(`${url.origin}/${jobsListMatch[1]}`, 301);
     }
-    if (url.pathname === '/' || url.pathname === '') {
-      const acceptLang = request.headers.get('accept-language') || '';
-      if (acceptLang.toLowerCase().startsWith('ur')) {
-        return Response.redirect(`${url.origin}/ur`, 302);
-      }
-      if (acceptLang.toLowerCase().startsWith('fa')) {
-        return Response.redirect(`${url.origin}/fa`, 302);
-      }
-      if (acceptLang.toLowerCase().startsWith('ru')) {
-        return Response.redirect(`${url.origin}/ru`, 302);
-      }
-      if (acceptLang.toLowerCase().startsWith('tr')) {
-        return Response.redirect(`${url.origin}/tr`, 302);
-      }
-      if (acceptLang.toLowerCase().startsWith('en')) {
-        return Response.redirect(`${url.origin}/en`, 302);
-      }
-      return Response.redirect(`${url.origin}/ar`, 302);
-    }
+    // Note: Root "/" is handled directly by publicRouter to return 200 OK with full HTML for Google AdSense verification
+
 
     // --- High-Performance Cloudflare Edge Caching Layer ---
     // Protects D1 database from hitting row read limits by serving public pages from Edge

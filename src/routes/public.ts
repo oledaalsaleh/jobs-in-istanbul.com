@@ -833,7 +833,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
     gtag('js', new Date());
     gtag('config', '${c.env?.GA4_MEASUREMENT_ID || 'G-9DQNV5MNFF'}', { send_page_view: true });
   </script>
-  <!-- Google AdSense -->
+  <!-- Google AdSense Account Verification & Auto-Ads -->
+  <meta name="google-adsense-account" content="ca-pub-2220383290034920">
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2220383290034920" crossorigin="anonymous"></script>
   ${seoHtml ? seoHtml : `<title>${title} | ${t.tagline}</title>`}
 
@@ -1115,9 +1116,15 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
             </a>
           </li>
           <li>
-            <a href="/${locale}/blog/${locale === 'tr' ? 'kuran-i-kerim-namaz-vakitleri-uygulamasi-indir' : 'quran-karim-app-offline-features-download'}" class="nav-link" style="color: #059669; font-weight: 700;">
-              <i class="fa-solid fa-book-quran nav-icon" style="color: #059669;"></i>
-              <span>${locale === 'ar' ? 'تطبيق القرآن الكريم' : (locale === 'tr' ? 'Kuran Uygulaması' : 'Quran App')}</span>
+            <a href="/${locale}/about" class="nav-link">
+              <i class="fa-solid fa-circle-info nav-icon" style="color: #3b82f6;"></i>
+              <span>${t.about}</span>
+            </a>
+          </li>
+          <li>
+            <a href="/${locale}/contact" class="nav-link">
+              <i class="fa-solid fa-envelope nav-icon" style="color: #10b981;"></i>
+              <span>${t.contact}</span>
             </a>
           </li>
           <li>
@@ -1219,7 +1226,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         <a href="/${locale}" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-house-chimney" style="color: var(--primary); width: 20px; text-align: center;"></i><span>${t.home}</span></a>
         <a href="/${locale}/insights" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-chart-column" style="color: #10b981; width: 20px; text-align: center;"></i><span>${t.insights}</span></a>
         <a href="/${locale}/blog" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-newspaper" style="color: #f59e0b; width: 20px; text-align: center;"></i><span>${t.blog}</span></a>
-        <a href="/${locale}/blog/${locale === 'tr' ? 'kuran-i-kerim-namaz-vakitleri-uygulamasi-indir' : 'quran-karim-app-offline-features-download'}" style="padding:12px 16px; border-radius:var(--r-md); color:#059669; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-book-quran" style="width: 20px; text-align: center;"></i><span>${locale === 'ar' ? 'تطبيق القرآن الكريم كامل' : (locale === 'tr' ? 'Kuran-ı Kerim Uygulaması' : 'Quran App')}</span></a>
+        <a href="/${locale}/about" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-circle-info" style="color: #3b82f6; width: 20px; text-align: center;"></i><span>${t.about}</span></a>
+        <a href="/${locale}/contact" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-envelope" style="color: #10b981; width: 20px; text-align: center;"></i><span>${t.contact}</span></a>
         
         <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-top:14px; margin-bottom:6px; padding-inline-start:16px; letter-spacing:0.05em; display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-wand-magic-sparkles" style="color: #6366f1;"></i><span>${t.aiTools}</span></div>
         <a href="/${locale}/cv-optimizer" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary); width: 20px; text-align: center;"></i> <span>${t.cvOptimizer}</span></a>
@@ -1322,7 +1330,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           <li class="footer-col-title">${t.platform}</li>
           <li><a href="/${locale}">${t.allJobs}</a></li>
           <li><a href="/${locale}/blog">${t.blog}</a></li>
-          <li><a href="/${locale}/blog/${locale === 'tr' ? 'kuran-i-kerim-namaz-vakitleri-uygulamasi-indir' : 'quran-karim-app-offline-features-download'}" style="color: #34d399; font-weight: 700;"><i class="fa-solid fa-book-quran" style="margin-inline-end:6px;"></i>${locale === 'ar' ? 'تطبيق القرآن الكريم كامل' : (locale === 'tr' ? 'Kuran-ı Kerim Uygulaması' : 'Holy Quran App')}</a></li>
+          <li><a href="/${locale}/workplace-quiz" style="color: #38bdf8; font-weight: 700;"><i class="fa-solid fa-spell-check" style="margin-inline-end:6px;"></i>${locale === 'ar' ? 'اختبار لغة العمل التركية' : (locale === 'tr' ? 'İş Türkçesi Testi' : 'Workplace Turkish Quiz')}</a></li>
           <li><a href="/${locale}/insights">${t.insights}</a></li>
           <li><a href="/${locale}/about">${t.about}</a></li>
           <li><a href="/${locale}/contact">${t.contact}</a></li>
@@ -1330,8 +1338,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         </ul>
         <ul class="footer-links">
           <li class="footer-col-title">${t.smartTools}</li>
-          <li><a href="https://play.google.com/store/apps/details?id=com.quran.karim.kamel.bidon.net.murtal.tilaat.smart" target="_blank" rel="noopener" style="font-weight: 800; color: #34d399;"><i class="fa-brands fa-google-play" style="margin-inline-end:6px;"></i>${locale === 'ar' ? 'تطبيق القرآن الكريم (Google Play)' : 'Holy Quran App (Google Play)'}</a></li>
-          <li><a href="${PLAY_STORE_URL}" target="_blank" rel="noopener" style="font-weight: 800; color: #4ade80;"><i class="fa-brands fa-google-play" style="margin-inline-end:6px;"></i>Google Play App</a></li>
+          <li><a href="${PLAY_STORE_URL}" target="_blank" rel="noopener" style="font-weight: 800; color: #4ade80;"><i class="fa-brands fa-google-play" style="margin-inline-end:6px;"></i>${locale === 'ar' ? 'تطبيق إسطنبول للوظائف (Google Play)' : (locale === 'tr' ? 'İstanbul İş İlanları Uygulaması' : 'Jobs in Istanbul App')}</a></li>
           <li><a href="/${locale}/work-permit-eligibility" style="font-weight: 700; color: #22c55e;"><i class="fa-solid fa-clipboard-check" style="margin-inline-end:6px;"></i>${t.workPermitEligibility}</a></li>
           <li><a href="/${locale}/investor-calculator" style="font-weight: 700; color: #6366f1;"><i class="fa-solid fa-building-user" style="margin-inline-end:6px;"></i>${t.investorCalculator}</a></li>
           <li><a href="/${locale}/salary-calculator-2026" style="font-weight: 700; color: #ec4899;"><i class="fa-solid fa-calculator" style="margin-inline-end:6px;"></i>${t.salaryCalculator2026}</a></li>
@@ -1848,10 +1855,21 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
 </html>`;
 }
 
-// Redirect root to default language (ar)
-publicRouter.get('/', (c) => {
-  return c.redirect('/ar');
-})
+// Direct Root Homepage - Serves 200 OK directly for Google AdSense automated site verification
+publicRouter.get(
+  '/',
+  cache({ cacheName: 'istanbul-jobs-root', cacheControl: 'max-age=60' }),
+  (c) => {
+    const acceptLang = (c.req.header('accept-language') || '').toLowerCase();
+    let loc: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur' = 'ar';
+    if (acceptLang.startsWith('en')) loc = 'en';
+    else if (acceptLang.startsWith('tr')) loc = 'tr';
+    else if (acceptLang.startsWith('ru')) loc = 'ru';
+    else if (acceptLang.startsWith('fa')) loc = 'fa';
+    else if (acceptLang.startsWith('ur')) loc = 'ur';
+    return homeHandler(c, loc);
+  }
+)
 
 // Homepage for listing jobs
 const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur') => {
@@ -2646,32 +2664,34 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
             </a>
           </div>
 
-          <!-- Quran App Sidebar Card -->
-          <div class="quran-sidebar-card" style="margin-top:20px; padding:20px; border-radius:var(--radius-lg); background:linear-gradient(135deg, #064e3b 0%, #022c22 100%); color:white; position:relative; overflow:hidden; box-shadow:0 8px 24px rgba(6, 78, 59, 0.3); border: 1px solid rgba(16, 185, 129, 0.3); transition:all 0.3s ease;">
-            <div style="position:absolute; right:-15px; bottom:-15px; font-size:110px; opacity:0.08; transform:rotate(-15deg); color:#10b981; pointer-events:none;">
-              <i class="fa-solid fa-book-quran"></i>
+          <!-- Workplace Turkish Quiz & Tools Sidebar Card -->
+          <div class="quiz-sidebar-card" style="margin-top:20px; padding:20px; border-radius:var(--radius-lg); background:linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); color:white; position:relative; overflow:hidden; box-shadow:0 8px 24px rgba(49, 46, 129, 0.3); border: 1px solid rgba(129, 140, 248, 0.3); transition:all 0.3s ease;">
+            <div style="position:absolute; right:-15px; bottom:-15px; font-size:110px; opacity:0.08; transform:rotate(-15deg); color:#818cf8; pointer-events:none;">
+              <i class="fa-solid fa-spell-check"></i>
             </div>
             <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
-              <img src="/public/images/quran-app/00_App_Icon_3D_Logo.jpg" alt="Quran App" style="width:48px; height:48px; border-radius:12px; object-fit:cover; border:1.5px solid rgba(255,255,255,0.3); flex-shrink:0;">
+              <div style="width:48px; height:48px; border-radius:12px; background:rgba(129, 140, 248, 0.25); border:1.5px solid rgba(255,255,255,0.3); display:flex; align-items:center; justify-content:center; font-size:1.5rem; color:#a5b4fc; flex-shrink:0;">
+                <i class="fa-solid fa-brain"></i>
+              </div>
               <div>
-                <span style="font-size:0.7rem; font-weight:800; color:#34d399; text-transform:uppercase; letter-spacing:0.5px; display:block;">Google Play</span>
-                <h4 style="font-size:0.95rem; font-weight:800; margin:0; color:white; line-height:1.3;">${locale === 'ar' ? 'القرآن الكريم كامل بدون نت' : (locale === 'tr' ? 'Kuran-ı Kerim İnternetsiz' : 'Holy Quran Offline')}</h4>
+                <span style="font-size:0.7rem; font-weight:800; color:#a5b4fc; text-transform:uppercase; letter-spacing:0.5px; display:block;">${locale === 'ar' ? 'اختبر مهاراتك' : (locale === 'tr' ? 'Kendini Test Et' : 'Self Assessment')}</span>
+                <h4 style="font-size:0.95rem; font-weight:800; margin:0; color:white; line-height:1.3;">${locale === 'ar' ? 'اختبار لغة العمل التركية' : (locale === 'tr' ? 'İş Yeri Türkçe Testi' : 'Workplace Turkish Quiz')}</h4>
               </div>
             </div>
             <p style="font-size:0.8rem; line-height:1.45; opacity:0.9; margin:0 0 14px 0; color:#cbd5e1;">
               ${locale === 'ar'
-                ? 'مصحف مرتل، مواقيت الصلاة، اتجاه القبلة، وأذكار حصن المسلم مجاناً بالكامل.'
-                : (locale === 'tr' ? 'Namaz vakitleri, sesli Kuran, kıble pusulası ve zikirler %100 internetsiz.' : 'Complete Quran with recitations, prayer times, and Qibla compass.')
+                ? 'اختبر مستواك في أهم مصطلحات ومفردات بيئة العمل التركية وقوانين المقابلات الرسمية.'
+                : (locale === 'tr' ? 'İş ortamında en çok kullanılan terimleri ve çalışma mülakatlarını test edin.' : 'Master essential Turkish workplace vocabulary and interview questions.')
               }
             </p>
             <div style="display:flex; flex-direction:column; gap:8px;">
-              <a href="https://play.google.com/store/apps/details?id=com.quran.karim.kamel.bidon.net.murtal.tilaat.smart" target="_blank" rel="noopener" style="background:#047857; color:white; padding:9px 14px; border-radius:8px; font-weight:800; font-size:0.82rem; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:6px; box-shadow:0 4px 10px rgba(4,120,87,0.3);">
-                <i class="fa-brands fa-google-play"></i>
-                <span>${locale === 'ar' ? 'تثبيت من Google Play' : 'Install on Google Play'}</span>
+              <a href="/${locale}/workplace-quiz" style="background:#4f46e5; color:white; padding:9px 14px; border-radius:8px; font-weight:800; font-size:0.82rem; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:6px; box-shadow:0 4px 10px rgba(79,70,229,0.3);">
+                <i class="fa-solid fa-circle-play"></i>
+                <span>${locale === 'ar' ? 'ابدأ الاختبار الآن' : (locale === 'tr' ? 'Testi Başlat' : 'Start Quiz Now')}</span>
               </a>
-              <a href="/${locale}/blog/${locale === 'tr' ? 'kuran-i-kerim-namaz-vakitleri-uygulamasi-indir' : 'quran-karim-app-offline-features-download'}" style="background:rgba(255,255,255,0.1); color:white; padding:8px 14px; border-radius:8px; font-weight:700; font-size:0.8rem; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:6px; border:1px solid rgba(255,255,255,0.2);">
-                <i class="fa-solid fa-book-open"></i>
-                <span>${locale === 'ar' ? 'عرض تفاصيل المقالة' : 'Read Article'}</span>
+              <a href="/${locale}/work-permit-eligibility" style="background:rgba(255,255,255,0.1); color:white; padding:8px 14px; border-radius:8px; font-weight:700; font-size:0.8rem; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:6px; border:1px solid rgba(255,255,255,0.2);">
+                <i class="fa-solid fa-clipboard-check"></i>
+                <span>${locale === 'ar' ? 'حاسبة أهلية إذن العمل' : (locale === 'tr' ? 'Çalışma İzni Hesaplama' : 'Work Permit Eligibility')}</span>
               </a>
             </div>
           </div>
@@ -2701,142 +2721,96 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
           </div>
           ${paginationHtml}
 
-          <!-- FEATURED APP & ARTICLE: QURAN KARIM APP -->
-          <div class="quran-app-promo" style="margin-top: 36px; margin-bottom: 24px; padding: 22px 24px; border-radius: 20px; background: linear-gradient(135deg, #064e3b 0%, #0f172a 100%); color: white; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(6, 78, 59, 0.35); border: 1px solid rgba(16, 185, 129, 0.35);">
-            <div style="position: absolute; right: -20px; bottom: -20px; font-size: 170px; opacity: 0.05; color: #10b981; pointer-events: none;">
-              <i class="fa-solid fa-book-quran"></i>
-            </div>
-            <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; position: relative; z-index: 2;">
-              <div style="display: flex; align-items: center; gap: 18px; flex: 1; min-width: 280px;">
-                <a href="/${locale}/blog/${locale === 'tr' ? 'kuran-i-kerim-namaz-vakitleri-uygulamasi-indir' : 'quran-karim-app-offline-features-download'}" style="flex-shrink: 0; text-decoration: none;">
-                  <img src="/public/images/quran-app/00_App_Icon_3D_Logo.jpg" alt="Quran Karim App Icon" style="width: 84px; height: 84px; border-radius: 18px; object-fit: cover; box-shadow: 0 8px 20px rgba(0,0,0,0.4); border: 2px solid rgba(255,255,255,0.25); display: block;">
-                </a>
-                <div>
-                  <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.5); padding: 3px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 700; color: #34d399; margin-bottom: 8px;">
-                    <i class="fa-brands fa-google-play"></i> ${locale === 'ar' ? 'تطبيق إسلامي موصى به على Google Play' : (locale === 'tr' ? 'Öne Çıkan İslami Uygulama' : 'Featured Islamic Android App')}
-                  </div>
-                  <h2 style="font-size: clamp(1.1rem, 3.5vw, 1.35rem); font-weight: 900; color: white; margin: 0 0 6px 0; line-height: 1.3;">
-                    <a href="/${locale}/blog/${locale === 'tr' ? 'kuran-i-kerim-namaz-vakitleri-uygulamasi-indir' : 'quran-karim-app-offline-features-download'}" style="color: white; text-decoration: none;" onmouseover="this.style.color='#34d399'" onmouseout="this.style.color='white'">
-                      ${locale === 'ar' ? 'تحميل تطبيق القرآن الكريم كامل بدون نت: المصحف، مواقيت الصلاة، والأذكار' : (locale === 'tr' ? 'Kuran-ı Kerim İnternetsiz İndir: Namaz Vakitleri & Kıble' : 'Holy Quran Complete Offline App: Prayer Times & Athkar')}
-                    </a>
-                  </h2>
-                  <p style="font-size: 0.86rem; color: #cbd5e1; line-height: 1.5; margin: 0 0 12px 0;">
-                    ${locale === 'ar' ? 'تطبيق مجاني شامل يعمل بدون إنترنت مع تلاوات خاشعة، بوصلة القبلة، وحصن المسلم.' : (locale === 'tr' ? 'İnternetsiz eksiksiz Kuran-ı Kerim, ezan alarmı ve kıble pusulası uygulaması.' : 'Complete offline Holy Quran app with recitations, prayer times, and Qibla compass.')}
-                  </p>
-                  <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
-                    <a href="/${locale}/blog/${locale === 'tr' ? 'kuran-i-kerim-namaz-vakitleri-uygulamasi-indir' : 'quran-karim-app-offline-features-download'}" style="background: rgba(255,255,255,0.15); color: white; padding: 8px 16px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.25);">
-                      <i class="fa-solid fa-book-open-reader"></i>
-                      <span>${locale === 'ar' ? 'قراءة تفاصيل المقالة' : (locale === 'tr' ? 'Makaleyi Oku' : 'Read Article')}</span>
-                    </a>
-                    <a href="https://play.google.com/store/apps/details?id=com.quran.karim.kamel.bidon.net.murtal.tilaat.smart" target="_blank" rel="noopener" style="background: #047857; color: white; padding: 8px 18px; border-radius: 10px; font-weight: 800; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(4, 120, 87, 0.4);">
-                      <i class="fa-brands fa-google-play"></i>
-                      <span>${locale === 'ar' ? 'تثبيت من Google Play' : (locale === 'tr' ? 'Google Play\'den Yükle' : 'Install on Google Play')}</span>
-                    </a>
-                  </div>
+          <!-- FEATURED CAREER GUIDES & WORKPLACE INTELLIGENCE 2026 -->
+          <div class="career-guides-section" style="margin-top: 40px; margin-bottom: 24px; padding: 28px 24px; border-radius: 20px; background: var(--bg-card); border: 1px solid var(--border); box-shadow: var(--shadow-sm);">
+            <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border);">
+              <div>
+                <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; color: #2563eb; margin-bottom: 8px;">
+                  <i class="fa-solid fa-graduation-cap"></i> ${locale === 'ar' ? 'أدلة التوظيف وقوانين العمل 2026' : (locale === 'tr' ? 'Kariyer ve Çalışma Rehberleri 2026' : 'Career & Labor Law Guides 2026')}
                 </div>
+                <h2 style="font-size: clamp(1.2rem, 3.5vw, 1.45rem); font-weight: 800; color: var(--text-heading); margin: 0 0 4px 0; line-height: 1.3;">
+                  ${locale === 'ar' ? 'أهم المقالات والإرشادات القانونية والمهنية للباحثين عن عمل' : (locale === 'tr' ? 'İş Arayanlar ve Çalışanlar İçin Kapsamlı Rehberler' : 'Essential Legal & Professional Guides for Job Seekers')}
+                </h2>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+                  ${locale === 'ar' ? 'كل ما تحتاج معرفته عن إذن العمل، قوانين الإقامة، ومتوسط الرواتب في السوق التركي' : (locale === 'tr' ? 'Çalışma izni, asgari ücret maliyetleri ve kariyer ipuçları' : 'Work permit regulations, salary benchmarks, and expat living in Istanbul')}
+                </p>
               </div>
-              <div style="display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                <a href="https://play.google.com/store/apps/details?id=com.quran.karim.kamel.bidon.net.murtal.tilaat.smart" target="_blank" rel="noopener" style="text-decoration: none;">
-                  <div style="background: white; padding: 8px; border-radius: 12px; text-align: center; box-shadow: 0 6px 16px rgba(0,0,0,0.3);">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=90x90&data=${encodeURIComponent('https://play.google.com/store/apps/details?id=com.quran.karim.kamel.bidon.net.murtal.tilaat.smart')}" alt="Google Play QR Code" style="width: 80px; height: 80px; display: block; border-radius: 6px;">
-                    <span style="font-size: 0.65rem; font-weight: 800; color: #1e293b; display: block; margin-top: 4px;">
-                      <i class="fa-solid fa-qrcode"></i> ${locale === 'ar' ? 'امسح للتحميل' : 'Scan to Install'}
-                    </span>
-                  </div>
-                </a>
-              </div>
+              <a href="/${locale}/blog" style="display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.88rem; color: var(--primary); text-decoration: none; padding: 8px 16px; border-radius: 10px; background: var(--bg-subtle); border: 1px solid var(--border);">
+                <span>${locale === 'ar' ? 'تصفح كل مقالات المدونة' : (locale === 'tr' ? 'Tüm Rehberleri Gör' : 'View All Guides')}</span>
+                <i class="fa-solid fa-arrow-left" style="${locale === 'en' ? 'transform: rotate(180deg);' : ''}"></i>
+              </a>
             </div>
-          </div>
 
-          <!-- FEATURED APP & ARTICLE: AKTUEL URUNLER (BIM, A101, SOK) APP -->
-          <div class="aktuel-app-promo" style="margin-bottom: 24px; padding: 22px 24px; border-radius: 20px; background: linear-gradient(135deg, #0284c7 0%, #0f172a 100%); color: white; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(2, 132, 199, 0.35); border: 1px solid rgba(56, 189, 248, 0.35);">
-            <div style="position: absolute; right: -20px; bottom: -20px; font-size: 160px; opacity: 0.05; color: #38bdf8; pointer-events: none;">
-              <i class="fa-solid fa-cart-shopping"></i>
-            </div>
-            <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; position: relative; z-index: 2;">
-              <div style="display: flex; align-items: center; gap: 18px; flex: 1; min-width: 280px;">
-                <a href="/${locale}/blog/${locale === 'tr' ? 'bim-a101-sok-aktuel-katalog-indirim-rehberi' : (locale === 'ar' ? 'bim-a101-sok-aktuel-urunler-shopping-guide-turkey' : 'smart-shopping-turkey-bim-a101-sok-aktuel-catalogs-guide')}" style="flex-shrink: 0; text-decoration: none;">
-                  <img src="/public/images/aktuel-app/01_aktuel_supermarket_app_hero.jpg" alt="Aktuel App Icon" style="width: 84px; height: 84px; border-radius: 18px; object-fit: cover; box-shadow: 0 8px 20px rgba(0,0,0,0.4); border: 2px solid rgba(255,255,255,0.25); display: block;">
-                </a>
-                <div>
-                  <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(56, 189, 248, 0.2); border: 1px solid rgba(56, 189, 248, 0.5); padding: 3px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 700; color: #7dd3fc; margin-bottom: 8px;">
-                    <i class="fa-brands fa-google-play"></i> ${locale === 'ar' ? 'تطبيق توفير ميزانية التسوق في تركيا' : (locale === 'tr' ? 'Öne Çıkan Market İndirim Uygulaması' : 'Featured Smart Shopping App in Turkey')}
-                  </div>
-                  <h2 style="font-size: clamp(1.1rem, 3.5vw, 1.35rem); font-weight: 900; color: white; margin: 0 0 6px 0; line-height: 1.3;">
-                    <a href="/${locale}/blog/${locale === 'tr' ? 'bim-a101-sok-aktuel-katalog-indirim-rehberi' : (locale === 'ar' ? 'bim-a101-sok-aktuel-urunler-shopping-guide-turkey' : 'smart-shopping-turkey-bim-a101-sok-aktuel-catalogs-guide')}" style="color: white; text-decoration: none;" onmouseover="this.style.color='#7dd3fc'" onmouseout="this.style.color='white'">
-                      ${locale === 'ar' ? 'عروض وتخفيضات بيم، يوزبير، وشوك: تصفح الكتالوجات الأسبوعية ووفر حتى 50%' : (locale === 'tr' ? 'BİM, A101, ŞOK Aktüel Ürünler Katalogları: İndirimleri Yakalayın' : 'BİM, A101 & ŞOK Weekly Catalog App: Save up to 50% on Groceries')}
-                    </a>
-                  </h2>
-                  <p style="font-size: 0.86rem; color: #cbd5e1; line-height: 1.5; margin: 0 0 12px 0;">
-                    ${locale === 'ar' ? 'تطبيق مجاني لعرض بروشورات وتخفيضات المتاجر التركية بدقة HD مع تنبيهات فورية لقوائم الأسعار.' : (locale === 'tr' ? 'Tüm zincir marketlerin güncel aktüel broşürlerini HD kalitede inceleyin ve anlık bildirim alın.' : 'Inspect weekly promotional brochures in crystal-clear HD with real-time deal alerts across Turkey.')}
-                  </p>
-                  <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
-                    <a href="/${locale}/blog/${locale === 'tr' ? 'bim-a101-sok-aktuel-katalog-indirim-rehberi' : (locale === 'ar' ? 'bim-a101-sok-aktuel-urunler-shopping-guide-turkey' : 'smart-shopping-turkey-bim-a101-sok-aktuel-catalogs-guide')}" style="background: rgba(255,255,255,0.15); color: white; padding: 8px 16px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.25);">
-                      <i class="fa-solid fa-newspaper"></i>
-                      <span>${locale === 'ar' ? 'قراءة تفاصيل المقالة' : (locale === 'tr' ? 'Makaleyi Oku' : 'Read Article')}</span>
-                    </a>
-                    <a href="https://play.google.com/store/apps/details?id=com.aktuel.bim.a101.sok" target="_blank" rel="noopener" style="background: #0284c7; color: white; padding: 8px 18px; border-radius: 10px; font-weight: 800; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4);">
-                      <i class="fa-brands fa-google-play"></i>
-                      <span>${locale === 'ar' ? 'تثبيت من Google Play' : (locale === 'tr' ? 'Google Play\'den Yükle' : 'Install on Google Play')}</span>
-                    </a>
-                  </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+              <!-- Guide Card 1: Work Permit -->
+              <div style="display: flex; flex-direction: column; background: var(--bg-subtle); border-radius: 14px; padding: 20px; border: 1px solid var(--border); transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                  <span style="width: 36px; height: 36px; border-radius: 10px; background: rgba(16, 185, 129, 0.15); color: #059669; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                    <i class="fa-solid fa-id-card"></i>
+                  </span>
+                  <span style="font-size: 0.75rem; font-weight: 700; color: #059669; text-transform: uppercase;">
+                    ${locale === 'ar' ? 'قانون العمل التركي' : (locale === 'tr' ? 'Çalışma Mevzuatı' : 'Labor Regulations')}
+                  </span>
                 </div>
-              </div>
-              <div style="display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                <a href="https://play.google.com/store/apps/details?id=com.aktuel.bim.a101.sok" target="_blank" rel="noopener" style="text-decoration: none;">
-                  <div style="background: white; padding: 8px; border-radius: 12px; text-align: center; box-shadow: 0 6px 16px rgba(0,0,0,0.3);">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=90x90&data=${encodeURIComponent('https://play.google.com/store/apps/details?id=com.aktuel.bim.a101.sok')}" alt="Google Play QR Code" style="width: 80px; height: 80px; display: block; border-radius: 6px;">
-                    <span style="font-size: 0.65rem; font-weight: 800; color: #1e293b; display: block; margin-top: 4px;">
-                      <i class="fa-solid fa-qrcode"></i> ${locale === 'ar' ? 'امسح للتحميل' : 'Scan to Install'}
-                    </span>
-                  </div>
+                <h3 style="font-size: 1.05rem; font-weight: 800; line-height: 1.4; margin: 0 0 8px 0;">
+                  <a href="/${locale}/blog/${locale === 'tr' ? 'turkey-work-permit-residency-laws' : (locale === 'ar' ? 'turkey-work-permit-guide-2026' : 'work-permit-turkey-syrians-arabs-2026-guide')}" style="color: var(--text-heading); text-decoration: none;">
+                    ${locale === 'ar' ? 'دليل استخراج إذن وتصريح العمل في تركيا للأجانب 2026: الشروط والخطوات' : (locale === 'tr' ? 'Yabancılar İçin Türkiye Çalışma İzni ve İkamet Yönetmeliği (2026)' : 'How to Get a Work Permit in Turkey for Foreigners (2026): Procedures & Fees')}
+                  </a>
+                </h3>
+                <p style="font-size: 0.84rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 16px 0; flex-grow: 1;">
+                  ${locale === 'ar' ? 'شروط الـ 5 أتراك والاستثناءات الجديدة، ورسوم إذن العمل، وحسابات الضمان الاجتماعي SGK.' : (locale === 'tr' ? '5 Türk istihdam şartı, muafiyetler ve e-İzin sistemi üzerinden resmi başvuru süreci.' : 'The 5-Turkish employee rule, exemptions, official e-İzin portal steps, and SGK social security.')}
+                </p>
+                <a href="/${locale}/blog/${locale === 'tr' ? 'turkey-work-permit-residency-laws' : (locale === 'ar' ? 'turkey-work-permit-guide-2026' : 'work-permit-turkey-syrians-arabs-2026-guide')}" style="color: var(--primary); font-weight: 700; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                  <span>${locale === 'ar' ? 'قراءة الدليل القانوني' : (locale === 'tr' ? 'Rehberi Oku' : 'Read Guide')}</span>
+                  <i class="fa-solid fa-angle-left" style="${locale === 'en' ? 'transform: rotate(180deg);' : ''}"></i>
                 </a>
               </div>
-            </div>
-          </div>
 
-          <!-- FEATURED APP & ARTICLE: TRABZON TRAVEL GUIDE APP -->
-          <div class="trabzon-app-promo" style="margin-bottom: 24px; padding: 22px 24px; border-radius: 20px; background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #0f172a 100%); color: white; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(4, 120, 87, 0.35); border: 1px solid rgba(52, 211, 153, 0.35);">
-            <div style="position: absolute; right: -20px; bottom: -20px; font-size: 160px; opacity: 0.05; color: #34d399; pointer-events: none;">
-              <i class="fa-solid fa-mountain-sun"></i>
-            </div>
-            <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; position: relative; z-index: 2;">
-              <div style="display: flex; align-items: center; gap: 18px; flex: 1; min-width: 280px;">
-                <a href="/${locale}/blog/trabzon-travel-guide-app-tourism-turkey-2026" style="flex-shrink: 0; text-decoration: none;">
-                  <img src="/public/images/trabzon-app/01_trabzon_app_hero_mockup.jpg" alt="Trabzon Travel Guide App Icon" style="width: 84px; height: 84px; border-radius: 18px; object-fit: cover; box-shadow: 0 8px 20px rgba(0,0,0,0.4); border: 2px solid rgba(255,255,255,0.25); display: block;">
-                </a>
-                <div>
-                  <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(52, 211, 153, 0.2); border: 1px solid rgba(52, 211, 153, 0.5); padding: 3px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 700; color: #6ee7b7; margin-bottom: 8px;">
-                    <i class="fa-brands fa-google-play"></i> ${locale === 'ar' ? 'دليل السياحة والمسافر في الشمال التركي 2026' : (locale === 'tr' ? 'Öne Çıkan Karadeniz Gezi Uygulaması' : 'Featured Trabzon Turkey Travel Guide')}
-                  </div>
-                  <h2 style="font-size: clamp(1.1rem, 3.5vw, 1.35rem); font-weight: 900; color: white; margin: 0 0 6px 0; line-height: 1.3;">
-                    <a href="/${locale}/blog/trabzon-travel-guide-app-tourism-turkey-2026" style="color: white; text-decoration: none;" onmouseover="this.style.color='#6ee7b7'" onmouseout="this.style.color='white'">
-                      ${locale === 'ar' ? 'دليل طرابزون وأوزنجول وآيدر السياحي: استكشف جنة الشمال بدون إنترنت' : (locale === 'tr' ? 'Trabzon, Uzungöl ve Ayder Gezi Rehberi: İnternetsiz Seyahat Edin' : 'Trabzon, Uzungöl & Ayder Travel Guide: Explore Northern Turkey Offline')}
-                    </a>
-                  </h2>
-                  <p style="font-size: 0.86rem; color: #cbd5e1; line-height: 1.5; margin: 0 0 12px 0;">
-                    ${locale === 'ar' ? 'تطبيق مجاني للأندرويد يحتوي على خرائط GPS أوفلاين، إحداثيات الشلالات، خطط الجولات، وأرقام الطوارئ.' : (locale === 'tr' ? 'Çevrimdışı GPS haritaları, şelaleler, yaylalar ve acil durum numaraları içeren ücretsiz Android gezi rehberi.' : 'Free Android travel app with offline GPS maps, waterfall trails, plateau guides, and emergency contacts.')}
-                  </p>
-                  <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
-                    <a href="/${locale}/blog/trabzon-travel-guide-app-tourism-turkey-2026" style="background: rgba(255,255,255,0.15); color: white; padding: 8px 16px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.25);">
-                      <i class="fa-solid fa-compass"></i>
-                      <span>${locale === 'ar' ? 'قراءة دليل طرابزون الكامل' : (locale === 'tr' ? 'Trabzon Rehberini Oku' : 'Read Trabzon Guide')}</span>
-                    </a>
-                    <a href="https://play.google.com/store/apps/details?id=com.trabzon.turkey.travel.guide" target="_blank" rel="noopener" style="background: #047857; color: white; padding: 8px 18px; border-radius: 10px; font-weight: 800; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(4, 120, 87, 0.4);">
-                      <i class="fa-brands fa-google-play"></i>
-                      <span>${locale === 'ar' ? 'تثبيت من Google Play' : (locale === 'tr' ? 'Google Play\'den Yükle' : 'Install on Google Play')}</span>
-                    </a>
-                  </div>
+              <!-- Guide Card 2: Salaries & Cost of Living -->
+              <div style="display: flex; flex-direction: column; background: var(--bg-subtle); border-radius: 14px; padding: 20px; border: 1px solid var(--border); transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                  <span style="width: 36px; height: 36px; border-radius: 10px; background: rgba(59, 130, 246, 0.15); color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                    <i class="fa-solid fa-coins"></i>
+                  </span>
+                  <span style="font-size: 0.75rem; font-weight: 700; color: #2563eb; text-transform: uppercase;">
+                    ${locale === 'ar' ? 'تقرير الرواتب' : (locale === 'tr' ? 'Ücret İstatistikleri' : 'Salary Benchmarks')}
+                  </span>
                 </div>
+                <h3 style="font-size: 1.05rem; font-weight: 800; line-height: 1.4; margin: 0 0 8px 0;">
+                  <a href="/${locale}/blog/${locale === 'tr' ? 'turkey-minimum-wage-employer-cost-2026' : (locale === 'ar' ? 'istanbul-salaries-guide-2026' : 'cost-of-living-istanbul-2026')}" style="color: var(--text-heading); text-decoration: none;">
+                    ${locale === 'ar' ? 'دليل رواتب المهن والحد الأدنى للأجور في إسطنبول لعام 2026' : (locale === 'tr' ? 'Türkiye Asgari Ücret ve İşveren Maliyeti 2026: Kapsamlı Rehber' : 'Cost of Living in Istanbul vs Average Salaries Benchmark 2026')}
+                  </a>
+                </h3>
+                <p style="font-size: 0.84rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 16px 0; flex-grow: 1;">
+                  ${locale === 'ar' ? 'جدول رواتب المهن الحرفية والتقنية والإدارية، وتكاليف المعيشة وتأمين السكن والمواصلات.' : (locale === 'tr' ? 'Net asgari ücret, brüt maliyet, SGK primleri ve sektörlere göre ortalama maaş dağılımı.' : 'Detailed net salary breakdown across tech, hospitality, logistics, and real living cost in Istanbul.')}
+                </p>
+                <a href="/${locale}/blog/${locale === 'tr' ? 'turkey-minimum-wage-employer-cost-2026' : (locale === 'ar' ? 'istanbul-salaries-guide-2026' : 'cost-of-living-istanbul-2026')}" style="color: var(--primary); font-weight: 700; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                  <span>${locale === 'ar' ? 'عرض جدول الرواتب' : (locale === 'tr' ? 'Raporu İncele' : 'View Salaries')}</span>
+                  <i class="fa-solid fa-angle-left" style="${locale === 'en' ? 'transform: rotate(180deg);' : ''}"></i>
+                </a>
               </div>
-              <div style="display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                <a href="https://play.google.com/store/apps/details?id=com.trabzon.turkey.travel.guide" target="_blank" rel="noopener" style="text-decoration: none;">
-                  <div style="background: white; padding: 8px; border-radius: 12px; text-align: center; box-shadow: 0 6px 16px rgba(0,0,0,0.3);">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=90x90&data=${encodeURIComponent('https://play.google.com/store/apps/details?id=com.trabzon.turkey.travel.guide')}" alt="Google Play QR Code" style="width: 80px; height: 80px; display: block; border-radius: 6px;">
-                    <span style="font-size: 0.65rem; font-weight: 800; color: #1e293b; display: block; margin-top: 4px;">
-                      <i class="fa-solid fa-qrcode"></i> ${locale === 'ar' ? 'امسح للتحميل' : 'Scan to Install'}
-                    </span>
-                  </div>
+
+              <!-- Guide Card 3: Jobs without Turkish / Resume Tips -->
+              <div style="display: flex; flex-direction: column; background: var(--bg-subtle); border-radius: 14px; padding: 20px; border: 1px solid var(--border); transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                  <span style="width: 36px; height: 36px; border-radius: 10px; background: rgba(245, 158, 11, 0.15); color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                    <i class="fa-solid fa-briefcase"></i>
+                  </span>
+                  <span style="font-size: 0.75rem; font-weight: 700; color: #d97706; text-transform: uppercase;">
+                    ${locale === 'ar' ? 'نصائح التوظيف' : (locale === 'tr' ? 'Kariyer Tavsiyesi' : 'Career Advices')}
+                  </span>
+                </div>
+                <h3 style="font-size: 1.05rem; font-weight: 800; line-height: 1.4; margin: 0 0 8px 0;">
+                  <a href="/${locale}/blog/${locale === 'tr' ? 'optimize-resume-to-pass-ats-systems' : (locale === 'ar' ? 'jobs-without-turkish-in-turkey-2026' : 'how-to-write-cv-for-turkish-companies')}" style="color: var(--text-heading); text-decoration: none;">
+                    ${locale === 'ar' ? 'أفضل وظائف في إسطنبول للعرب بدون لغة تركية لعام 2026' : (locale === 'tr' ? 'Modern ATS Yazılımlarını Geçmek İçin Özgeçmişinizi Optimize Edin' : 'How to Write a CV for Turkish Companies? Resume Guide 2026')}
+                  </a>
+                </h3>
+                <p style="font-size: 0.84rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 16px 0; flex-grow: 1;">
+                  ${locale === 'ar' ? 'أكثر من 10 مجالات وظيفية مثل الكول سنتر، السياحة العلاجية، الترجمة، البرمجة، والتسويق.' : (locale === 'tr' ? 'İK ve ATS filtrelerini aşan profesyonel CV hazırlama teknikleri ve anahtar kelime ipuçları.' : 'Resume formatting standards for HR in Turkey, ATS keyword strategies, and interview tips.')}
+                </p>
+                <a href="/${locale}/blog/${locale === 'tr' ? 'optimize-resume-to-pass-ats-systems' : (locale === 'ar' ? 'jobs-without-turkish-in-turkey-2026' : 'how-to-write-cv-for-turkish-companies')}" style="color: var(--primary); font-weight: 700; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                  <span>${locale === 'ar' ? 'قراءة النصائح' : (locale === 'tr' ? 'İpuçlarını Oku' : 'Read Tips')}</span>
+                  <i class="fa-solid fa-angle-left" style="${locale === 'en' ? 'transform: rotate(180deg);' : ''}"></i>
                 </a>
               </div>
             </div>
@@ -2852,7 +2826,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
     seoMetaOpts.category = matchedCategory.slug;
   }
   const seoHtml = generateMetaTags(locale, 'home', seoMetaOpts) + generateJsonLd(locale, 'home', seoMetaOpts);
-  c.header('Cache-Control', 'public, max-age=60, s-maxage=600, stale-while-revalidate=3600');
+  c.header('Cache-Control', 'public, max-age=60, s-maxage=60, stale-while-revalidate=120');
   return c.html(renderLayout(c, locale === 'ar' ? 'فرص عمل في إسطنبول' : 'Istanbul Jobs Vacancies', html, locale, seoHtml));
 }
 
