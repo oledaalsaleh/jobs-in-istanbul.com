@@ -7,8 +7,10 @@ import { themeCss } from '../public/css/theme'
 import { sendTelegramAlert } from '../services/telegram'
 import { assignJobImage } from '../services/scraper'
 import { optimizeSeoWithGemini } from '../services/gemini-seo'
-import { FAVICON_BASE64 } from '../utils/logo-base64'
+import { FAVICON_BASE64, LOGO_BASE64 } from '../utils/logo-base64'
 import { autoIndexAndNotifyJob } from '../services/auto-indexing'
+import { ICONS_3D_BASE64 } from '../data/icons-3d-data'
+import { TURKEY_GUIDE_APP_ICON_BASE64 } from '../data/turkey-guide-app-icon'
 import { 
   getFallbackJobs, 
   getFallbackCategories, 
@@ -43,6 +45,135 @@ export function renderGooglePlayBadge(t: any, size: 'sm' | 'md' | 'lg' = 'md') {
     </a>
   `;
 }
+
+/**
+ * In-Feed Google Play Native Sponsored Ad Banner for Turkey Travel Guide Offline App
+ */
+export function renderTravelGuideInFeedAd(locale: string): string {
+  const isRtl = locale === 'ar' || locale === 'fa' || locale === 'ur';
+
+  const translations: Record<string, {
+    sponsorText: string;
+    adTag: string;
+    appTitle: string;
+    freeBadge: string;
+    appDescription: string;
+    chip1: string;
+    chip2: string;
+    chip3: string;
+    chip4: string;
+    compatibility: string;
+    ctaSub: string;
+    ctaMain: string;
+  }> = {
+    ar: {
+      sponsorText: 'تطبيق موصى به للمقيمين والسياح في تركيا',
+      adTag: 'إعلان',
+      appTitle: 'دليل تركيا السياحي بدون نت',
+      freeBadge: 'مجاني 100%',
+      appDescription: 'دليلك السياحي الشامل لإسطنبول، طرابزون، الشمال التركي وجميع معالم تركيا. خرائط تفاعلية وإحداثيات سياحية وجداول يومية تعمل بالكامل دون الحاجة لإنترنت إطلاقاً.',
+      chip1: 'يعمل بدون إنترنت 📴',
+      chip2: 'إسطنبول وطرابزون 🌲',
+      chip3: 'خرائط وإحداثيات GPS 🗺️',
+      chip4: 'جداول سياحية يومية 📅',
+      compatibility: 'متوافق مع هواتف أندرويد • آمن وموثوق',
+      ctaSub: 'متاح الآن مجاناً',
+      ctaMain: 'تثبيت من Google Play'
+    },
+    en: {
+      sponsorText: 'Recommended App for Visitors & Expats in Turkey',
+      adTag: 'Sponsored',
+      appTitle: 'Turkey Travel Guide Offline',
+      freeBadge: '100% Free',
+      appDescription: 'Your complete offline travel guide to Istanbul, Trabzon, Black Sea & top Turkish destinations. Interactive offline maps, GPS spots, and curated itineraries with zero mobile data required.',
+      chip1: '100% Offline 📴',
+      chip2: 'Istanbul & Trabzon 🌲',
+      chip3: 'GPS Offline Maps 🗺️',
+      chip4: 'Daily Itineraries 📅',
+      compatibility: 'Compatible with all Android phones • Verified & Safe',
+      ctaSub: 'GET IT ON',
+      ctaMain: 'Install on Google Play'
+    },
+    tr: {
+      sponsorText: 'Türkiye Gezi ve Seyahat Rehberi Uygulaması',
+      adTag: 'Sponsorlu',
+      appTitle: 'İnternetsiz Türkiye Gezi Rehberi',
+      freeBadge: '%100 Ücretsiz',
+      appDescription: 'İstanbul, Trabzon, Karadeniz ve tüm Türkiye için kapsamlı çevrimdışı gezi rehberi. İnternet olmadan çalışan haritalar, GPS konumları ve hazır gezi rotaları.',
+      chip1: 'Çevrimdışı Çalışır 📴',
+      chip2: 'İstanbul & Trabzon 🌲',
+      chip3: 'GPS Haritaları 🗺️',
+      chip4: 'Günlük Gezi Rotaları 📅',
+      compatibility: 'Tüm Android cihazlarla uyumlu • Güvenli',
+      ctaSub: 'GOOGLE PLAY\'DEN',
+      ctaMain: 'Hemen Ücretsiz Yükle'
+    }
+  };
+
+  const ad = translations[locale] || translations.en;
+
+  return `
+  <!-- IN-FEED NATIVE GOOGLE PLAY SPONSORED CARD -->
+  <div class="native-ad-feed-card" data-ad-unit="google-play-turkey-guide">
+    <div class="ad-header-row">
+      <div class="ad-badge-group">
+        <span class="ad-tag-pill">${ad.adTag}</span>
+        <span class="ad-sponsor-label">
+          <i class="fa-brands fa-google-play" style="color: #00c353;"></i>
+          ${ad.sponsorText}
+        </span>
+      </div>
+      <div class="ad-rating-box" title="4.9 / 5.0 Rating">
+        <span class="ad-rating-stars">★★★★★</span>
+        <span>4.9</span>
+        <span class="ad-rating-count">(50K+)</span>
+      </div>
+    </div>
+
+    <div class="ad-content-wrapper">
+      <div class="ad-top-flex-mobile">
+        <a href="${TURKEY_TRAVEL_GUIDE_PLAY_STORE_URL}" target="_blank" rel="noopener noreferrer sponsored" class="ad-icon-box" title="${ad.appTitle}">
+          <img src="/public/images/turkey-guide-app.png" alt="${ad.appTitle}" class="ad-app-img" width="72" height="72" loading="lazy" onerror="this.src='/public/images/3d-icons/tourism.png';">
+          <span class="ad-offline-tag"><i class="fa-solid fa-wifi-slash"></i> Offline</span>
+        </a>
+        <div class="ad-info-box">
+          <div class="ad-headline-row">
+            <a href="${TURKEY_TRAVEL_GUIDE_PLAY_STORE_URL}" target="_blank" rel="noopener noreferrer sponsored" class="ad-app-title">${ad.appTitle}</a>
+            <span class="ad-pill-free">${ad.freeBadge}</span>
+          </div>
+          <p class="ad-text-desc">${ad.appDescription}</p>
+          <div class="ad-tags-row">
+            <span class="ad-chip-item"><i class="fa-solid fa-cloud-arrow-down"></i> ${ad.chip1}</span>
+            <span class="ad-chip-item"><i class="fa-solid fa-mountain-sun"></i> ${ad.chip2}</span>
+            <span class="ad-chip-item"><i class="fa-solid fa-location-dot"></i> ${ad.chip3}</span>
+            <span class="ad-chip-item"><i class="fa-solid fa-calendar-check"></i> ${ad.chip4}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ad-cta-side">
+        <a href="${TURKEY_TRAVEL_GUIDE_PLAY_STORE_URL}" target="_blank" rel="noopener noreferrer sponsored" class="ad-play-button" title="${ad.ctaMain}">
+          <svg viewBox="0 0 512 512" width="22" height="22" aria-hidden="true" style="flex-shrink: 0;">
+            <path fill="#410599" d="M32.5 17.5C30.2 19.9 29 23.3 29 27.6v456.8c0 4.3 1.2 7.7 3.5 10.1l1.3 1.2L290.4 239v-6L33.8 16.3l-1.3 1.2z"/>
+            <path fill="#F44336" d="M376.6 325.2l-86.2-86.2V233l86.2-86.2 1.3.7 102.2 58.1c2.9 1.7 4.9 4.8 4.9 8.4s-2 6.7-4.9 8.4l-102.2 58.1-1.3.7z"/>
+            <path fill="#FFC107" d="M377.9 324.5L290.4 237 33.8 493.6c3.1 3.3 8.3 4.2 13 1.5l331.1-170.6"/>
+            <path fill="#00E676" d="M377.9 187.5L46.8 16.9c-4.7-2.7-9.9-1.8-13 1.5L290.4 255l87.5-67.5z"/>
+          </svg>
+          <div class="ad-btn-texts">
+            <span class="ad-btn-sub">${ad.ctaSub}</span>
+            <span class="ad-btn-title">${ad.ctaMain}</span>
+          </div>
+          <i class="fa-solid fa-arrow-${isRtl ? 'left' : 'right'}" style="margin-inline-start: 4px; font-size: 0.85rem; opacity: 0.85;"></i>
+        </a>
+        <div class="ad-sub-note">
+          <i class="fa-solid fa-shield-halved" style="color: #10b981;"></i>
+          <span>${ad.compatibility}</span>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
 
 export const ISTANBUL_DISTRICTS = [
   { en: 'Adalar', ar: 'الأمراء' },
@@ -872,11 +1003,13 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
 
   <!-- كود ربط ملف معلومات التطبيق Manifest -->
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#007bff">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Jobs in Istanbul">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="apple-touch-icon" href="/icon-192.png">
+  <meta name="theme-color" content="#0c1832">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Jobs in Istanbul">
   
   <!-- Preconnect for performance -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -890,19 +1023,22 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
   <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="/css/theme.css?v=3.0.0">
+  <link rel="stylesheet" href="/css/theme.css?v=3.3.0">
   
   <!-- Critical inline CSS for zero flash -->
   <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
     html, body {
       width: 100% !important;
-      max-width: 100% !important;
-      overflow-x: hidden !important;
+      max-width: 100vw !important;
+      overflow-x: clip !important;
     }
     .page-wrapper {
       width: 100% !important;
-      max-width: 100% !important;
-      overflow-x: hidden !important;
+      max-width: 100vw !important;
+      overflow-x: clip !important;
       position: relative !important;
       display: flex;
       flex-direction: column;
@@ -910,9 +1046,515 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
     }
     body { font-family: ${isRtl ? "'Cairo', sans-serif" : "'Plus Jakarta Sans', sans-serif"}; }
     .site-header { transform: translateY(0); }
+
+    /* IN-FEED NATIVE GOOGLE PLAY AD CARD */
+    .native-ad-feed-card {
+      position: relative;
+      background: var(--bg-card);
+      border: 1.5px solid rgba(16, 185, 129, 0.32);
+      border-radius: var(--r-xl);
+      padding: 22px 24px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: var(--t-base);
+      box-shadow: 0 4px 18px rgba(16, 185, 129, 0.07), var(--shadow-xs);
+      overflow: hidden;
+      box-sizing: border-box;
+      width: 100%;
+      max-width: 100%;
+    }
+    .native-ad-feed-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 5px;
+      left: 0;
+      background: linear-gradient(180deg, #10b981 0%, #0284c7 100%);
+      border-radius: 0 var(--r-xs) var(--r-xs) 0;
+      transition: width 0.2s ease;
+    }
+    .rtl .native-ad-feed-card::before {
+      left: auto;
+      right: 0;
+      border-radius: var(--r-xs) 0 0 var(--r-xs);
+    }
+    .native-ad-feed-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(16, 185, 129, 0.55);
+      box-shadow: 0 12px 30px rgba(16, 185, 129, 0.16), var(--shadow-card-hover);
+    }
+    .native-ad-feed-card:hover::before {
+      width: 7px;
+    }
+    body.dark-mode .native-ad-feed-card {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(20, 30, 48, 0.95) 100%);
+      border-color: rgba(16, 185, 129, 0.35);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 16px rgba(16, 185, 129, 0.12);
+    }
+    .ad-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      border-bottom: 1px dashed rgba(16, 185, 129, 0.22);
+      padding-bottom: 10px;
+    }
+    .ad-badge-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ad-tag-pill {
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #059669;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 2px 8px;
+      border-radius: 4px;
+      line-height: 1.2;
+    }
+    body.dark-mode .ad-tag-pill {
+      color: #34d399;
+      background: rgba(16, 185, 129, 0.2);
+      border-color: rgba(52, 211, 153, 0.4);
+    }
+    .ad-sponsor-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .ad-rating-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #d97706;
+      background: rgba(245, 158, 11, 0.12);
+      padding: 3px 10px;
+      border-radius: var(--r-full);
+    }
+    .ad-rating-stars {
+      letter-spacing: 1.5px;
+    }
+    .ad-rating-count {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .ad-content-wrapper {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 20px;
+    }
+    .ad-top-flex-mobile {
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+      min-width: 0;
+    }
+    .ad-icon-box {
+      position: relative;
+      width: 72px;
+      height: 72px;
+      flex-shrink: 0;
+      border-radius: 18px;
+      text-decoration: none;
+      display: block;
+    }
+    .ad-app-img {
+      width: 72px;
+      height: 72px;
+      border-radius: 18px;
+      object-fit: cover;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
+      transition: transform 0.25s ease;
+      display: block;
+    }
+    .native-ad-feed-card:hover .ad-app-img {
+      transform: scale(1.06) rotate(-1deg);
+    }
+    .ad-offline-tag {
+      position: absolute;
+      bottom: -6px;
+      right: -6px;
+      background: #059669;
+      color: #ffffff;
+      font-size: 0.62rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: var(--r-full);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      white-space: nowrap;
+    }
+    .rtl .ad-offline-tag {
+      right: auto;
+      left: -6px;
+    }
+    .ad-info-box {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+    .ad-headline-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .ad-app-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text-heading);
+      text-decoration: none;
+      line-height: 1.3;
+      margin: 0;
+      transition: color var(--t-fast);
+    }
+    .ad-app-title:hover {
+      color: var(--primary);
+    }
+    .ad-pill-free {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: #059669;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.28);
+      padding: 2px 9px;
+      border-radius: var(--r-full);
+      line-height: 1.3;
+    }
+    body.dark-mode .ad-pill-free {
+      color: #34d399;
+      background: rgba(52, 211, 153, 0.18);
+    }
+    .ad-text-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin: 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .ad-tags-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .ad-chip-item {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--text-base);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      padding: 3px 10px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      line-height: 1.3;
+    }
+    .ad-chip-item i {
+      color: #10b981;
+      font-size: 0.76rem;
+    }
+    .ad-cta-side {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+    }
+    .rtl .ad-cta-side {
+      align-items: flex-start;
+    }
+    .ad-play-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #0f172a;
+      color: #ffffff !important;
+      padding: 10px 18px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-family: inherit;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.22);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      white-space: nowrap;
+    }
+    body.dark-mode .ad-play-button {
+      background: #020617;
+      border-color: rgba(16, 185, 129, 0.4);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45), 0 0 14px rgba(16, 185, 129, 0.25);
+    }
+    .ad-play-button:hover {
+      transform: translateY(-2px);
+      background: #000000;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.38);
+      border-color: #10b981;
+    }
+    .ad-btn-texts {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.15;
+      text-align: start;
+    }
+    .ad-btn-sub {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      opacity: 0.82;
+      font-weight: 600;
+    }
+    .ad-btn-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+    }
+    .ad-sub-note {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    @media (max-width: 768px) {
+      .container { padding: 0 14px !important; max-width: 100% !important; }
+      .site-header { height: 60px !important; width: 100% !important; }
+      .header-inner { padding: 0 14px !important; width: 100% !important; justify-content: space-between !important; }
+      .header-playstore-btn, .header-turkey-guide-btn, .header-telegram-btn, .header-install-btn, .lang-btn, #dark-mode-toggle, #desktop-nav {
+        display: none !important;
+      }
+      #mobile-menu-btn {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+      }
+      #turkey-travel-top-bar, .turkey-travel-top-bar {
+        display: none !important;
+      }
+      #smart-app-banner {
+        padding: 6px 12px !important;
+      }
+      #smart-app-banner strong { font-size: 0.78rem !important; }
+      #smart-app-banner span { font-size: 0.68rem !important; }
+      #smart-app-banner a { padding: 5px 10px !important; font-size: 0.72rem !important; }
+      .hero { padding: 26px 0 40px !important; }
+      .hero-title { font-size: clamp(1.45rem, 5.5vw, 1.85rem) !important; line-height: 1.25 !important; margin-bottom: 10px !important; }
+      .hero-subtitle { font-size: 0.88rem !important; margin-bottom: 16px !important; line-height: 1.5 !important; }
+      .hero-eyebrow { font-size: 0.74rem !important; padding: 4px 12px !important; margin-bottom: 12px !important; }
+      .hero-stats { display: none !important; }
+      .search-section { margin-top: -22px !important; margin-bottom: 26px !important; }
+      .search-card { padding: 10px !important; gap: 8px !important; border-radius: 16px !important; flex-direction: column !important; }
+      .search-field-wrap { min-height: 46px !important; padding: 0 14px !important; width: 100% !important; box-sizing: border-box !important; }
+      .search-district-wrap { flex: 1 1 auto !important; width: 100% !important; min-height: 46px !important; }
+      .btn-search { min-height: 46px !important; padding: 12px !important; font-size: 0.95rem !important; width: 100% !important; justify-content: center !important; }
+
+      /* MAIN LAYOUT & SIDEBAR ON MOBILE */
+      .main-layout {
+        grid-template-columns: 100% !important;
+        gap: 16px !important;
+        margin-bottom: 36px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+      }
+      .filters-sidebar {
+        position: static !important;
+        margin-bottom: 16px !important;
+        padding: 16px 14px !important;
+        border-radius: 16px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+      }
+      .filter-header {
+        margin-bottom: 12px !important;
+        padding-bottom: 10px !important;
+      }
+      .filter-main-title {
+        font-size: 0.95rem !important;
+      }
+      .filter-group {
+        margin-bottom: 14px !important;
+      }
+      .filter-group-title {
+        font-size: 0.72rem !important;
+        margin-bottom: 8px !important;
+      }
+      .filter-options {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+      .filter-radio {
+        flex: 1 1 calc(50% - 6px) !important;
+        min-width: 110px !important;
+        max-width: 100% !important;
+        padding: 9px 12px !important;
+        font-size: 0.82rem !important;
+        border-radius: var(--r-full) !important;
+        border: 1.5px solid var(--border) !important;
+        background: var(--bg-card) !important;
+        justify-content: center !important;
+        text-align: center !important;
+        box-sizing: border-box !important;
+        gap: 6px !important;
+        margin: 0 !important;
+      }
+      .filter-radio input {
+        display: none !important;
+      }
+      .filter-radio.selected {
+        background: var(--primary) !important;
+        color: #ffffff !important;
+        border-color: var(--primary) !important;
+        box-shadow: 0 2px 8px var(--primary-glow) !important;
+        font-weight: 700 !important;
+      }
+      .filters-sidebar a.btn-primary {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        justify-content: center !important;
+        padding: 12px 16px !important;
+        font-size: 0.88rem !important;
+        border-radius: var(--r-md) !important;
+      }
+      .telegram-cta {
+        margin-top: 14px !important;
+        padding: 14px 12px !important;
+        border-radius: 14px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+      }
+      .telegram-cta h3 {
+        font-size: 0.95rem !important;
+        margin-bottom: 6px !important;
+      }
+      .telegram-cta p {
+        font-size: 0.78rem !important;
+        line-height: 1.35 !important;
+        margin-bottom: 12px !important;
+      }
+      .telegram-cta .telegram-btn {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 9px 12px !important;
+        font-size: 0.82rem !important;
+        justify-content: center !important;
+        border-radius: 8px !important;
+      }
+      .telegram-cta > div[style*="font-size:120px"] {
+        display: none !important;
+      }
+      .job-card {
+        grid-template-columns: 100% !important;
+        padding: 16px 14px !important;
+        border-radius: 16px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+      }
+      .btn-apply {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        justify-content: center !important;
+        padding: 11px !important;
+        font-size: 0.88rem !important;
+      }
+      .native-ad-feed-card {
+        padding: 16px 14px !important;
+        gap: 12px !important;
+        border-radius: 16px !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+      }
+      .ad-content-wrapper {
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+      }
+      .ad-top-flex-mobile {
+        display: flex !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+      }
+      .ad-icon-box {
+        width: 60px !important;
+        height: 60px !important;
+        border-radius: 14px !important;
+      }
+      .ad-app-img {
+        width: 60px !important;
+        height: 60px !important;
+        border-radius: 14px !important;
+      }
+      .ad-app-title {
+        font-size: 1.05rem !important;
+      }
+      .ad-text-desc {
+        font-size: 0.84rem !important;
+        -webkit-line-clamp: 3 !important;
+      }
+      .ad-tags-row {
+        gap: 5px !important;
+      }
+      .ad-chip-item {
+        font-size: 0.72rem !important;
+        padding: 2px 8px !important;
+      }
+      .ad-cta-side {
+        width: 100% !important;
+        align-items: stretch !important;
+      }
+      .ad-play-button {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        justify-content: center !important;
+        padding: 12px 16px !important;
+        border-radius: var(--r-full) !important;
+      }
+      .ad-sub-note {
+        justify-content: center !important;
+        width: 100% !important;
+        margin-top: 2px !important;
+      }
+    }
     @media (max-width: 480px) {
-      .hero-title { font-size: 1.7rem !important; }
-      .hero-subtitle { font-size: 0.95rem !important; margin-bottom: 24px !important; }
+      .logo-text span { display: none !important; }
+      .logo-text strong { font-size: 0.92rem !important; }
+      .logo-icon { width: 38px !important; height: 38px !important; border-radius: 10px !important; }
+      .hero { padding: 24px 0 36px !important; }
+      .hero-title { font-size: 1.5rem !important; }
+      .hero-subtitle { font-size: 0.85rem !important; margin-bottom: 14px !important; }
     }
   </style>
 </head>
@@ -946,35 +1588,6 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
   </script>
   <div class="page-wrapper">
 
-  <!-- Turkey Travel Guide Persistent Top Bar -->
-  <div id="turkey-travel-top-bar" style="background: linear-gradient(90deg, #022c22 0%, #064e3b 45%, #047857 100%); color: #ffffff; padding: 7px 16px; border-bottom: 1px solid rgba(52, 211, 153, 0.35); font-size: 0.84rem; position: relative; z-index: 9998; box-shadow: 0 2px 10px rgba(0,0,0,0.15);">
-    <div style="max-width: 1360px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
-      <div style="display: flex; align-items: center; gap: 10px; flex: 1 1 auto; min-width: 250px;">
-        <span style="font-size: 1.15rem; line-height: 1;">🇹🇷</span>
-        <div style="line-height: 1.35;">
-          <strong style="color: #fef08a; font-weight: 800; margin-inline-end: 6px;">${t.turkeyGuideModalTitle || 'دليل تركيا السياحي بدون نت 🇹🇷'}</strong>
-          <span style="color: #e2e8f0; font-size: 0.8rem;" class="turkey-top-bar-sub">${t.turkeyGuideTopBar || 'تطبيق الساحة للسياحة والسفر | جولات سياحية وخرائط GPS أوفلاين'}</span>
-        </div>
-      </div>
-      <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
-        <a href="${TURKEY_TRAVEL_GUIDE_PLAY_STORE_URL}" target="_blank" rel="noopener" style="background: #ffffff; color: #064e3b !important; padding: 5px 14px; border-radius: 20px; font-weight: 800; font-size: 0.78rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'">
-          <i class="fa-brands fa-google-play" style="color: #01875f;"></i>
-          <span>${t.turkeyGuideDownloadBtn || 'تحميل التطبيق'}</span>
-        </a>
-        <button onclick="document.getElementById('turkey-travel-top-bar').style.display='none'; try{sessionStorage.setItem('hideTurkeyTopBar', '1');}catch(e){}" style="background: transparent; border: none; color: #cbd5e1; font-size: 1.1rem; cursor: pointer; padding: 4px; line-height: 1;" title="${t.close || 'إغلاق'}">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-    </div>
-  </div>
-  <script>
-    try {
-      if (sessionStorage.getItem('hideTurkeyTopBar')) {
-        document.getElementById('turkey-travel-top-bar').style.display = 'none';
-      }
-    } catch(e) {}
-  </script>
-
   <!-- HEADER -->
   <header class="site-header" id="site-header">
     <div class="container header-inner" style="max-width:1360px">
@@ -982,7 +1595,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       <!-- Logo -->
       <a href="/${locale}" class="logo">
         <div class="logo-icon">
-          <i class="fa-solid fa-briefcase"></i>
+          <img src="/public/images/logo.png" alt="${t.siteName}" class="logo-img" width="44" height="44">
         </div>
         <div class="logo-text">
           <strong>${t.siteName}</strong>
@@ -1110,61 +1723,56 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
             </a>
             <div class="nav-dropdown-menu">
               <a href="/${locale}/work-permit-eligibility" class="dropdown-item">
-                <i class="fa-solid fa-id-card-clip" style="color: #22c55e;"></i>
+                <img src="/public/images/3d-icons/justice.png" alt="Eligibility" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
                 <span style="font-weight: 700; color: var(--primary);">${t.workPermitEligibility}</span>
               </a>
               <a href="/${locale}/investor-calculator" class="dropdown-item">
-                <i class="fa-solid fa-building-circle-check" style="color: #6366f1;"></i>
+                <img src="/public/images/3d-icons/realestate.png" alt="Investor" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
                 <span style="font-weight: 700; color: #6366f1;">${t.investorCalculator}</span>
               </a>
               <a href="/${locale}/salary-calculator-2026" class="dropdown-item">
-                <i class="fa-solid fa-calculator" style="color: #ec4899;"></i>
+                <img src="/public/images/3d-icons/calculator.png" alt="Calculator" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
                 <span style="font-weight: 700; color: #ec4899;">${t.salaryCalculator2026}</span>
               </a>
               <a href="/${locale}/resume-builder" class="dropdown-item">
-                <i class="fa-solid fa-file-lines" style="color: #eab308;"></i>
+                <img src="/public/images/3d-icons/document.png" alt="CV" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
                 <span>${t.cvBuilder}</span>
               </a>
               <a href="/${locale}/work-permit-calculator" class="dropdown-item">
-                <i class="fa-solid fa-passport" style="color: #a855f7;"></i>
+                <img src="/public/images/3d-icons/justice.png" alt="Work Permit" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
                 <span>${t.workPermit}</span>
               </a>
               <a href="/${locale}/turkish-test" class="dropdown-item">
-                <i class="fa-solid fa-spell-check" style="color: #14b8a6;"></i>
+                <img src="/public/images/3d-icons/quiz.png" alt="Turkish Test" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
                 <span>${t.turkishTest}</span>
               </a>
               <a href="/${locale}/salary-calculator" class="dropdown-item">
-                <i class="fa-solid fa-scale-balanced" style="color: #ec4899;"></i>
+                <img src="/public/images/3d-icons/calculator.png" alt="Salary" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
                 <span>${t.salaryCalc}</span>
               </a>
               <a href="/${locale}/currency-prices" class="dropdown-item">
-                <i class="fa-solid fa-coins" style="color: #0ea5e9;"></i>
-                <span>${t.currencyPrices}</span>
+                <img src="/public/images/3d-icons/coins.png" alt="Currency" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
+                <span style="font-weight: 700; color: #0284c7;">${t.currencyPrices}</span>
               </a>
               <a href="/${locale}/gold-prices" class="dropdown-item">
-                <i class="fa-solid fa-gem" style="color: #f59e0b;"></i>
-                <span>${t.goldPrices}</span>
+                <img src="/public/images/3d-icons/gold.png" alt="Gold" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
+                <span style="font-weight: 700; color: #d97706;">${t.goldPrices}</span>
               </a>
               <a href="/${locale}/nobetci-eczane" class="dropdown-item">
-                <i class="fa-solid fa-notes-medical" style="color: #10b981;"></i>
-                <span>${t.dutyPharmacies}</span>
+                <img src="/public/images/3d-icons/pharmacy.png" alt="Pharmacy" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
+                <span style="font-weight: 700; color: #059669;">${t.dutyPharmacies}</span>
               </a>
               <a href="/${locale}/kira-artis-orani" class="dropdown-item">
-                <i class="fa-solid fa-house-chimney-crack" style="color: #0284c7;"></i>
+                <img src="/public/images/3d-icons/calculator.png" alt="Rent" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
                 <span>${t.kiraArtis}</span>
               </a>
               <a href="/${locale}/akaryakit-fiyatlari" class="dropdown-item">
-                <i class="fa-solid fa-gas-pump" style="color: #ea580c;"></i>
+                <img src="/public/images/3d-icons/fuel.png" alt="Fuel" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
                 <span style="font-weight: 700; color: #ea580c;">${t.fuelPrices}</span>
               </a>
               <a href="/${locale}/install" class="dropdown-item">
-                <i class="fa-solid fa-mobile-screen-button" style="color: var(--primary);"></i>
+                <img src="/public/images/3d-icons/globe.png" alt="App" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
                 <span>${t.installApp}</span>
-              </a>
-              <a href="${TURKEY_TRAVEL_GUIDE_PLAY_STORE_URL}" target="_blank" rel="noopener" class="dropdown-item" style="background: rgba(4,120,87,0.08); color: #047857; font-weight: 700;">
-                <i class="fa-solid fa-map-location-dot" style="color: #047857;"></i>
-                <span>${t.turkeyGuideNavTitle || 'دليل تركيا السياحي بدون نت'}</span>
-                <span style="background: #047857; color: white; font-size: 0.62rem; padding: 2px 6px; border-radius: 4px; margin-inline-start: auto;">Google Play</span>
               </a>
             </div>
           </li>
@@ -1274,7 +1882,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           </div>
         </div>
         <!-- Mobile hamburger -->
-        <button class="icon-btn" id="mobile-menu-btn" style="display:none">
+        <button class="icon-btn" id="mobile-menu-btn" onclick="document.getElementById('mobile-nav').style.display='block'" title="${locale === 'ar' ? 'القائمة' : (locale === 'tr' ? 'Menü' : 'Menu')}" aria-label="Menu">
           <i class="fa-solid fa-bars"></i>
         </button>
       </div>
@@ -1283,11 +1891,11 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
   </header>
 
   <!-- Mobile Nav Drawer -->
-  <div id="mobile-nav" style="display:none; position:fixed; inset:0; z-index:300; background:rgba(0,0,0,0.5)" onclick="closeMobileNav(this,event)">
+  <div id="mobile-nav" style="display:none; position:fixed; inset:0; z-index:9995; background:rgba(0,0,0,0.5)" onclick="closeMobileNav(this,event)">
     <div style="position:absolute; ${isRtl ? 'right:0' : 'left:0'}; top:0; bottom:0; width:min(300px,85vw); background:var(--bg-card); padding:24px; overflow-y:auto; box-shadow:var(--shadow-xl); animation: slideIn${isRtl ? 'Right' : 'Left'} 0.3s var(--ease-out);">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:28px;">
         <a href="/${locale}" class="logo" style="font-size:1.2rem">
-          <div class="logo-icon"><i class="fa-solid fa-briefcase"></i></div>
+          <div class="logo-icon"><img src="/public/images/logo.png" alt="${t.siteName}" class="logo-img" width="40" height="40"></div>
           <div class="logo-text"><strong>${t.siteName}</strong></div>
         </a>
         <button onclick="document.getElementById('mobile-nav').style.display='none'" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
@@ -1306,20 +1914,19 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         <a href="/${locale}/interview-prep" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-comments" style="color: #10b981; width: 20px; text-align: center;"></i> <span>${t.interviewPrep}</span></a>
 
         <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-top:14px; margin-bottom:6px; padding-inline-start:16px; letter-spacing:0.05em; display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-toolbox" style="color: #0ea5e9;"></i><span>${t.toolsAndTests}</span></div>
-        <a href="/${locale}/work-permit-eligibility" style="padding:10px 16px; border-radius:var(--r-md); color:var(--primary); font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-id-card-clip" style="color: #22c55e; width: 20px; text-align: center;"></i> <span>${t.workPermitEligibility}</span></a>
-        <a href="/${locale}/investor-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:#6366f1; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-building-circle-check" style="color: #6366f1; width: 20px; text-align: center;"></i> <span>${t.investorCalculator}</span></a>
-        <a href="/${locale}/salary-calculator-2026" style="padding:10px 16px; border-radius:var(--r-md); color:#ec4899; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-calculator" style="color: #ec4899; width: 20px; text-align: center;"></i> <span>${t.salaryCalculator2026}</span></a>
-        <a href="/${locale}/resume-builder" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-file-lines" style="color: #eab308; width: 20px; text-align: center;"></i> <span>${t.cvBuilder}</span></a>
-        <a href="/${locale}/work-permit-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-passport" style="color: #a855f7; width: 20px; text-align: center;"></i> <span>${t.workPermit}</span></a>
-        <a href="/${locale}/turkish-test" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-spell-check" style="color: #14b8a6; width: 20px; text-align: center;"></i> <span>${t.turkishTest}</span></a>
-        <a href="/${locale}/salary-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-scale-balanced" style="color: #ec4899; width: 20px; text-align: center;"></i> <span>${t.salaryCalc}</span></a>
-        <a href="/${locale}/currency-prices" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-coins" style="color: #0ea5e9; width: 20px; text-align: center;"></i> <span>${t.currencyPrices}</span></a>
-        <a href="/${locale}/gold-prices" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-gem" style="color: #f59e0b; width: 20px; text-align: center;"></i> <span>${t.goldPrices}</span></a>
-        <a href="/${locale}/nobetci-eczane" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-notes-medical" style="color: #10b981; width: 20px; text-align: center;"></i> <span>${t.dutyPharmacies}</span></a>
-        <a href="/${locale}/kira-artis-orani" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-house-chimney-crack" style="color: #0284c7; width: 20px; text-align: center;"></i> <span>${t.kiraArtis}</span></a>
-        <a href="/${locale}/akaryakit-fiyatlari" style="padding:10px 16px; border-radius:var(--r-md); color:#ea580c; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-gas-pump" style="color: #ea580c; width: 20px; text-align: center;"></i> <span>${t.fuelPrices}</span></a>
-        <a href="/${locale}/install" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-mobile-screen-button" style="color: var(--primary); width: 20px; text-align: center;"></i> <span>${t.installApp}</span></a>
-        <a href="${TURKEY_TRAVEL_GUIDE_PLAY_STORE_URL}" target="_blank" rel="noopener" style="padding:10px 16px; border-radius:var(--r-md); color:#047857; font-weight:700; display:flex; align-items:center; gap:10px; background:rgba(4,120,87,0.08); transition:var(--t-base);"><i class="fa-solid fa-map-location-dot" style="color: #047857; width: 20px; text-align: center;"></i> <span>${t.turkeyGuideNavTitle || 'دليل تركيا السياحي بدون نت'}</span><span style="background: #047857; color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; margin-inline-start: auto;">Google Play</span></a>
+        <a href="/${locale}/work-permit-eligibility" style="padding:10px 16px; border-radius:var(--r-md); color:var(--primary); font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/justice.png" alt="Eligibility" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.workPermitEligibility}</span></a>
+        <a href="/${locale}/investor-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:#6366f1; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/realestate.png" alt="Investor" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.investorCalculator}</span></a>
+        <a href="/${locale}/salary-calculator-2026" style="padding:10px 16px; border-radius:var(--r-md); color:#ec4899; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/calculator.png" alt="Calculator" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.salaryCalculator2026}</span></a>
+        <a href="/${locale}/resume-builder" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/document.png" alt="CV" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.cvBuilder}</span></a>
+        <a href="/${locale}/work-permit-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/justice.png" alt="Work Permit" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.workPermit}</span></a>
+        <a href="/${locale}/turkish-test" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/quiz.png" alt="Quiz" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.turkishTest}</span></a>
+        <a href="/${locale}/salary-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/calculator.png" alt="Salary" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.salaryCalc}</span></a>
+        <a href="/${locale}/currency-prices" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/coins.png" alt="Currency" class="icon-3d-img" style="width:24px; height:24px;"> <span style="font-weight:700; color:#0284c7;">${t.currencyPrices}</span></a>
+        <a href="/${locale}/gold-prices" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/gold.png" alt="Gold" class="icon-3d-img" style="width:24px; height:24px;"> <span style="font-weight:700; color:#d97706;">${t.goldPrices}</span></a>
+        <a href="/${locale}/nobetci-eczane" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/pharmacy.png" alt="Pharmacy" class="icon-3d-img" style="width:24px; height:24px;"> <span style="font-weight:700; color:#059669;">${t.dutyPharmacies}</span></a>
+        <a href="/${locale}/kira-artis-orani" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/calculator.png" alt="Rent" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.kiraArtis}</span></a>
+        <a href="/${locale}/akaryakit-fiyatlari" style="padding:10px 16px; border-radius:var(--r-md); color:#ea580c; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/fuel.png" alt="Fuel" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.fuelPrices}</span></a>
+        <a href="/${locale}/install" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/globe.png" alt="App" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.installApp}</span></a>
 
         <div style="margin-top:14px; border-top:1px solid var(--border); padding-top:10px; display:flex; flex-direction:column; gap:6px;">
           <a href="/${locale}/submit-job" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-bullhorn" style="color: #f59e0b; width: 20px; text-align: center;"></i> <span>${t.postJob}</span></a>
@@ -1381,7 +1988,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
     <div class="container footer-inner" style="max-width:1360px">
       <div class="footer-brand">
         <div class="logo" style="margin-bottom:16px; color:white;">
-          <div class="logo-icon"><i class="fa-solid fa-briefcase"></i></div>
+          <div class="logo-icon"><img src="/public/images/logo.png" alt="${t.siteName}" class="logo-img" width="44" height="44"></div>
           <div class="logo-text" style="color:white;">
             <strong style="color:white;">${t.siteName}</strong>
             <span style="color:rgba(255,255,255,0.5);">${t.realOpportunities}</span>
@@ -1401,7 +2008,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           <li class="footer-col-title">${t.platform}</li>
           <li><a href="/${locale}">${t.allJobs}</a></li>
           <li><a href="/${locale}/blog">${t.blog}</a></li>
-          <li><a href="/${locale}/workplace-quiz" style="color: #38bdf8; font-weight: 700;"><i class="fa-solid fa-spell-check" style="margin-inline-end:6px;"></i>${locale === 'ar' ? 'اختبار لغة العمل التركية' : (locale === 'tr' ? 'İş Türkçesi Testi' : 'Workplace Turkish Quiz')}</a></li>
+          <li><a href="/${locale}/workplace-quiz" style="color: #38bdf8; font-weight: 700; display:inline-flex; align-items:center; gap:6px;"><img src="/public/images/3d-icons/quiz.png" alt="" class="icon-3d-img" style="width:16px; height:16px;"><span>${locale === 'ar' ? 'اختبار لغة العمل التركية' : (locale === 'tr' ? 'İş Türkçesi Testi' : 'Workplace Turkish Quiz')}</span></a></li>
           <li><a href="/${locale}/insights">${t.insights}</a></li>
           <li><a href="/${locale}/about">${t.about}</a></li>
           <li><a href="/${locale}/contact">${t.contact}</a></li>
@@ -1413,16 +2020,16 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           <li><a href="${TURKEY_TRAVEL_GUIDE_PLAY_STORE_URL}" target="_blank" rel="noopener" style="font-weight: 800; color: #34d399;"><i class="fa-solid fa-map-location-dot" style="margin-inline-end:6px;"></i>${locale === 'ar' ? 'دليل تركيا السياحي بدون نت (Google Play)' : (locale === 'tr' ? 'İnternetsiz Türkiye Gezi Rehberi' : 'Turkey Offline Travel Guide App')}</a></li>
           <li><a href="/${locale}/work-permit-eligibility" style="font-weight: 700; color: #22c55e;"><i class="fa-solid fa-clipboard-check" style="margin-inline-end:6px;"></i>${t.workPermitEligibility}</a></li>
           <li><a href="/${locale}/investor-calculator" style="font-weight: 700; color: #6366f1;"><i class="fa-solid fa-building-user" style="margin-inline-end:6px;"></i>${t.investorCalculator}</a></li>
-          <li><a href="/${locale}/salary-calculator-2026" style="font-weight: 700; color: #ec4899;"><i class="fa-solid fa-calculator" style="margin-inline-end:6px;"></i>${t.salaryCalculator2026}</a></li>
+          <li><a href="/${locale}/salary-calculator-2026" style="font-weight: 700; color: #ec4899;"><img src="/public/images/3d-icons/calculator.png" alt="" class="icon-3d-img" style="width:16px; height:16px; margin-inline-end:6px; vertical-align:middle;"><span>${t.salaryCalculator2026}</span></a></li>
           <li><a href="/${locale}/cv-optimizer">${t.cvOptimizer}</a></li>
           <li><a href="/${locale}/ats-scanner">${t.atsScanner}</a></li>
           <li><a href="/${locale}/resume-builder">${t.cvBuilder}</a></li>
           <li><a href="/${locale}/salary-calculator">${t.salaryCalc}</a></li>
-          <li><a href="/${locale}/currency-prices">${t.currencyPrices}</a></li>
-          <li><a href="/${locale}/gold-prices">${t.goldPrices}</a></li>
-          <li><a href="/${locale}/nobetci-eczane" style="color: #34d399; font-weight: 700;"><i class="fa-solid fa-notes-medical" style="margin-inline-end:6px;"></i>${t.dutyPharmacies}</a></li>
-          <li><a href="/${locale}/kira-artis-orani" style="color: #38bdf8; font-weight: 700;"><i class="fa-solid fa-house-chimney-crack" style="margin-inline-end:6px;"></i>${t.kiraArtis}</a></li>
-          <li><a href="/${locale}/akaryakit-fiyatlari" style="color: #fb923c; font-weight: 700;"><i class="fa-solid fa-gas-pump" style="margin-inline-end:6px;"></i>${t.fuelPrices}</a></li>
+          <li><a href="/${locale}/currency-prices" style="display:inline-flex; align-items:center; gap:6px;"><img src="/public/images/3d-icons/coins.png" alt="" class="icon-3d-img" style="width:16px; height:16px;"><span>${t.currencyPrices}</span></a></li>
+          <li><a href="/${locale}/gold-prices" style="display:inline-flex; align-items:center; gap:6px;"><img src="/public/images/3d-icons/gold.png" alt="" class="icon-3d-img" style="width:16px; height:16px;"><span>${t.goldPrices}</span></a></li>
+          <li><a href="/${locale}/nobetci-eczane" style="color: #34d399; font-weight: 700; display:inline-flex; align-items:center; gap:6px;"><img src="/public/images/3d-icons/pharmacy.png" alt="" class="icon-3d-img" style="width:16px; height:16px;"><span>${t.dutyPharmacies}</span></a></li>
+          <li><a href="/${locale}/kira-artis-orani" style="color: #38bdf8; font-weight: 700; display:inline-flex; align-items:center; gap:6px;"><img src="/public/images/3d-icons/calculator.png" alt="" class="icon-3d-img" style="width:16px; height:16px;"><span>${t.kiraArtis}</span></a></li>
+          <li><a href="/${locale}/akaryakit-fiyatlari" style="color: #fb923c; font-weight: 700; display:inline-flex; align-items:center; gap:6px;"><img src="/public/images/3d-icons/fuel.png" alt="" class="icon-3d-img" style="width:16px; height:16px;"><span>${t.fuelPrices}</span></a></li>
           <li><a href="/${locale}/install" style="font-weight: 700; color: var(--primary);"><i class="fa-solid fa-mobile-screen-button" style="margin-inline-end:6px;"></i>${t.installApp}</a></li>
         </ul>
         <ul class="footer-links">
@@ -1529,15 +2136,20 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       box-shadow: 0 6px 16px var(--primary-light);
     }
     @media (max-width: 768px) {
-      .header-telegram-btn, .header-install-btn, .header-turkey-guide-btn {
+      .header-telegram-btn, .header-install-btn, .header-turkey-guide-btn, .header-playstore-btn {
         display: none !important;
+      }
+      #mobile-menu-btn {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
       }
     }
     .floating-post-job-badge {
       position: fixed;
       bottom: 24px;
       left: 24px;
-      z-index: 250;
+      z-index: 150;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -1559,15 +2171,27 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
     .floating-post-job-badge i {
       font-size: 1.25rem;
     }
-    @media (max-width: 480px) {
-      .floating-post-job-badge span {
-        display: none;
-      }
+    @media (max-width: 768px) {
       .floating-post-job-badge {
-        padding: 12px;
-        width: 46px;
-        height: 46px;
-        justify-content: center;
+        bottom: 18px !important;
+        left: 16px !important;
+        width: 46px !important;
+        height: 46px !important;
+        min-width: 46px !important;
+        max-width: 46px !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        justify-content: center !important;
+        overflow: hidden !important;
+        z-index: 150 !important;
+        box-shadow: 0 4px 16px rgba(0, 136, 204, 0.35) !important;
+      }
+      .floating-post-job-badge span {
+        display: none !important;
+      }
+      .floating-post-job-badge i {
+        font-size: 1.25rem !important;
+        margin: 0 !important;
       }
     }
   </style>
@@ -1898,277 +2522,6 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
     <span>${locale === 'ar' ? 'أضف إعلانك مجاناً' : (locale === 'tr' ? 'Ücretsiz İlan Ekle' : 'Post a Job Free')}</span>
   </a>
 
-  <!-- Turkey Travel Guide Permanent Floating Corner Badge -->
-  <div id="turkey-guide-floating-widget" class="turkey-guide-floating-widget" onclick="openTurkeyGuideModal()" title="${t.turkeyGuideModalTitle || 'دليل تركيا السياحي بدون نت 🇹🇷'}">
-    <div class="icon-circle">
-      🇹🇷
-    </div>
-    <div class="widget-text" style="display: flex; flex-direction: column; text-align: ${isRtl ? 'right' : 'left'};">
-      <strong style="font-size: 0.82rem; color: #ffffff; line-height: 1.2;">${t.turkeyGuideFloatingTitle || 'دليل تركيا السياحي'}</strong>
-      <span style="font-size: 0.7rem; color: #a7f3d0; display: flex; align-items: center; gap: 4px;"><i class="fa-brands fa-google-play"></i> ${t.turkeyGuideFloatingSub || 'بدون إنترنت'}</span>
-    </div>
-    <span class="turkey-pulse-dot"></span>
-  </div>
-
-  <!-- Turkey Travel Guide Expert Popup Modal -->
-  <div id="turkey-travel-modal-overlay" class="turkey-travel-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="turkey-guide-modal-heading">
-    <div id="turkey-travel-modal-card" class="turkey-travel-modal-card">
-      
-      <!-- Top Tag & Close Button -->
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-        <span style="background: rgba(4, 120, 87, 0.12); color: #047857; padding: 5px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(4, 120, 87, 0.25);">
-          <i class="fa-solid fa-map-location-dot"></i>
-          <span>${t.turkeyGuideModalTag || 'تطبيق الساحة للسياحة والسفر'}</span>
-        </span>
-        <button onclick="closeTurkeyGuideModal()" style="width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg-subtle, #f1f5f9); color: var(--text-muted); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; cursor: pointer; transition: all 0.2s;" aria-label="${t.close || 'إغلاق'}">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <!-- Banner Image (Clickable directly to Google Play) -->
-      <a href="${TURKEY_TRAVEL_GUIDE_PLAY_STORE_URL}" target="_blank" rel="noopener" style="display: block; position: relative; border-radius: 16px; overflow: hidden; margin-bottom: 16px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); border: 1.5px solid rgba(4,120,87,0.25); background: #000;">
-        <img src="${TURKEY_TRAVEL_GUIDE_BANNER_IMG}" alt="دليل تركيا السياحي بدون نت - تطبيق الساحة للسياحة والسفر" style="width: 100%; height: auto; display: block; object-fit: cover; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'" loading="eager" />
-        <div style="position: absolute; bottom: 10px; ${isRtl ? 'left: 10px;' : 'right: 10px;'}; background: rgba(0,0,0,0.8); color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; backdrop-filter: blur(4px); display: flex; align-items: center; gap: 5px;">
-          <i class="fa-brands fa-google-play" style="color: #34d399;"></i> Google Play
-        </div>
-      </a>
-
-      <!-- Title & Description -->
-      <div style="margin-bottom: 16px; text-align: ${isRtl ? 'right' : 'left'};">
-        <h3 id="turkey-guide-modal-heading" style="font-size: 1.25rem; font-weight: 900; margin: 0 0 6px 0; line-height: 1.35; color: var(--text-heading);">
-          ${t.turkeyGuideModalTitle || 'دليل تركيا السياحي بدون نت 🇹🇷'}
-        </h3>
-        <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.55; margin: 0;">
-          ${t.turkeyGuideModalSub || 'استكشف تركيا كما لم ترها من قبل! رفيقك الأمثل في السفر والسياحة: جولات سياحية متكاملة، وحجوزات مميزة، وخرائط GPS تعمل 100% بدون نت في طرابزون، الشمال، إسطنبول، وبورصة.'}
-        </p>
-      </div>
-
-      <!-- Key Value Chips -->
-      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 18px;">
-        <div class="turkey-modal-chip" style="display: flex; align-items: center; gap: 8px; background: var(--bg-subtle, #f8fafc); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); font-size: 0.8rem; font-weight: 700; color: var(--text-heading);">
-          <i class="fa-solid fa-wifi" style="color: #10b981; font-size: 0.9rem;"></i>
-          <span>${locale === 'ar' ? '100% بدون إنترنت (GPS)' : (locale === 'tr' ? '%100 İnternetsiz GPS' : '100% Offline GPS')}</span>
-        </div>
-        <div class="turkey-modal-chip" style="display: flex; align-items: center; gap: 8px; background: var(--bg-subtle, #f8fafc); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); font-size: 0.8rem; font-weight: 700; color: var(--text-heading);">
-          <i class="fa-solid fa-star" style="color: #f59e0b; font-size: 0.9rem;"></i>
-          <span>${locale === 'ar' ? 'تقييم 4.9 في Google Play' : (locale === 'tr' ? '4.9 Google Play Puanı' : '4.9 Rated on Play Store')}</span>
-        </div>
-        <div class="turkey-modal-chip" style="display: flex; align-items: center; gap: 8px; background: var(--bg-subtle, #f8fafc); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); font-size: 0.8rem; font-weight: 700; color: var(--text-heading);">
-          <i class="fa-solid fa-mountain-sun" style="color: #0284c7; font-size: 0.9rem;"></i>
-          <span>${locale === 'ar' ? 'طرابزون والشمال وإسطنبول' : (locale === 'tr' ? 'Trabzon, Rize, İstanbul' : 'Trabzon, Rize & Istanbul')}</span>
-        </div>
-        <div class="turkey-modal-chip" style="display: flex; align-items: center; gap: 8px; background: var(--bg-subtle, #f8fafc); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); font-size: 0.8rem; font-weight: 700; color: var(--text-heading);">
-          <i class="fa-solid fa-car" style="color: #8b5cf6; font-size: 0.9rem;"></i>
-          <span>${locale === 'ar' ? 'تأجير سيارات ومسارات' : (locale === 'tr' ? 'Araç Kiralama & Rotalar' : 'Car Rental & Routes')}</span>
-        </div>
-      </div>
-
-      <!-- Action Buttons -->
-      <div style="display: flex; flex-direction: column; gap: 10px;">
-        <a href="${TURKEY_TRAVEL_GUIDE_PLAY_STORE_URL}" target="_blank" rel="noopener" style="background: linear-gradient(135deg, #047857 0%, #065f46 100%); color: #ffffff !important; padding: 13px 20px; border-radius: 14px; font-weight: 800; font-size: 0.98rem; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 6px 20px rgba(4, 120, 87, 0.35); transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-          <i class="fa-brands fa-google-play" style="font-size: 1.25rem;"></i>
-          <span>${t.turkeyGuideDownloadBtn || 'تحميل التطبيق مجاناً من Google Play'}</span>
-        </a>
-        <a href="/${locale}/blog/trabzon-travel-guide-app-tourism-turkey-2026" class="turkey-modal-secondary-btn" style="background: var(--bg-subtle, #f1f5f9); color: var(--text-heading); padding: 10px 18px; border-radius: 12px; font-weight: 700; font-size: 0.84rem; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid var(--border);">
-          <i class="fa-solid fa-book-open" style="color: #047857;"></i>
-          <span>${t.turkeyGuideReviewBtn || 'قراءة تفاصيل ومراجعة التطبيق في الموقع'}</span>
-        </a>
-      </div>
-
-      <!-- Dismiss footer -->
-      <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
-        <button onclick="dismissTurkeyGuideForToday()" style="background: transparent; border: none; color: var(--text-muted); font-size: 0.78rem; cursor: pointer; text-decoration: underline; padding: 0;">
-          ${t.turkeyGuideDontShowToday || 'عدم الإظهار مجدداً اليوم'}
-        </button>
-        <button onclick="closeTurkeyGuideModal()" style="background: transparent; border: none; color: var(--text-muted); font-size: 0.78rem; font-weight: 700; cursor: pointer;">
-          ${t.close || 'إغلاق'}
-        </button>
-      </div>
-
-    </div>
-  </div>
-
-  <style>
-    .turkey-guide-floating-widget {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      z-index: 9990;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: linear-gradient(135deg, #022c22 0%, #064e3b 50%, #047857 100%);
-      color: #ffffff !important;
-      padding: 10px 18px;
-      border-radius: var(--r-full, 50px);
-      font-weight: 800;
-      font-size: 0.85rem;
-      box-shadow: 0 8px 24px rgba(4, 120, 87, 0.45);
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      cursor: pointer;
-      text-decoration: none;
-      border: 1.5px solid rgba(52, 211, 153, 0.4);
-      user-select: none;
-    }
-    .turkey-guide-floating-widget:hover {
-      transform: scale(1.05) translateY(-2px);
-      box-shadow: 0 12px 30px rgba(4, 120, 87, 0.6);
-      border-color: #6ee7b7;
-    }
-    .turkey-guide-floating-widget .icon-circle {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.15rem;
-      flex-shrink: 0;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
-    .turkey-pulse-dot {
-      width: 8px;
-      height: 8px;
-      background: #10b981;
-      border-radius: 50%;
-      position: absolute;
-      top: 6px;
-      right: 6px;
-      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-      animation: turkeyPulse 2s infinite;
-    }
-    @keyframes turkeyPulse {
-      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-    }
-    @media (max-width: 480px) {
-      .turkey-guide-floating-widget {
-        bottom: 20px;
-        right: 14px;
-        padding: 9px 12px;
-      }
-      .turkey-guide-floating-widget .widget-text {
-        display: none;
-      }
-      .turkey-guide-floating-widget {
-        width: 46px;
-        height: 46px;
-        padding: 0;
-        justify-content: center;
-      }
-      .turkey-top-bar-sub {
-        display: none !important;
-      }
-    }
-    .turkey-travel-modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.78);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      z-index: 100000;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      opacity: 0;
-      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .turkey-travel-modal-card {
-      background: var(--bg-card, #ffffff);
-      color: var(--text-body, #1e293b);
-      border-radius: 24px;
-      max-width: 560px;
-      width: 100%;
-      max-height: 90vh;
-      overflow-y: auto;
-      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.1);
-      border: 1px solid var(--border, #e2e8f0);
-      transform: scale(0.92) translateY(20px);
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      padding: 24px;
-      position: relative;
-    }
-    .dark-mode .turkey-travel-modal-card {
-      background: #0f172a !important;
-      border-color: rgba(255, 255, 255, 0.12) !important;
-      color: #f8fafc !important;
-    }
-    .dark-mode .turkey-modal-chip {
-      background: rgba(255, 255, 255, 0.06) !important;
-      border-color: rgba(255, 255, 255, 0.1) !important;
-      color: #f1f5f9 !important;
-    }
-    .dark-mode .turkey-modal-secondary-btn {
-      background: rgba(255, 255, 255, 0.08) !important;
-      border-color: rgba(255, 255, 255, 0.15) !important;
-      color: #f1f5f9 !important;
-    }
-  </style>
-
-  <script>
-    function openTurkeyGuideModal() {
-      var overlay = document.getElementById('turkey-travel-modal-overlay');
-      var card = document.getElementById('turkey-travel-modal-card');
-      if (overlay && card) {
-        overlay.style.display = 'flex';
-        requestAnimationFrame(function() {
-          overlay.style.opacity = '1';
-          card.style.transform = 'scale(1) translateY(0)';
-        });
-      }
-    }
-
-    function closeTurkeyGuideModal() {
-      var overlay = document.getElementById('turkey-travel-modal-overlay');
-      var card = document.getElementById('turkey-travel-modal-card');
-      if (overlay && card) {
-        overlay.style.opacity = '0';
-        card.style.transform = 'scale(0.92) translateY(20px)';
-        setTimeout(function() {
-          overlay.style.display = 'none';
-        }, 280);
-      }
-    }
-
-    function dismissTurkeyGuideForToday() {
-      try {
-        localStorage.setItem('hide_turkey_guide_popup', Date.now().toString());
-      } catch(e) {}
-      closeTurkeyGuideModal();
-    }
-
-    (function() {
-      try {
-        var lastHidden = localStorage.getItem('hide_turkey_guide_popup');
-        var isHiddenToday = false;
-        if (lastHidden) {
-          var diffHours = (Date.now() - parseInt(lastHidden, 10)) / (1000 * 60 * 60);
-          if (diffHours < 24) isHiddenToday = true;
-        }
-        if (!isHiddenToday) {
-          setTimeout(function() {
-            openTurkeyGuideModal();
-          }, 3200);
-        }
-      } catch(e) {}
-
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') closeTurkeyGuideModal();
-      });
-      document.addEventListener('DOMContentLoaded', function() {
-        var overlay = document.getElementById('turkey-travel-modal-overlay');
-        if (overlay) {
-          overlay.addEventListener('click', function(e) {
-            if (e.target === overlay) closeTurkeyGuideModal();
-          });
-        }
-      });
-    })();
-  </script>
-
   <!-- Cookie Consent Banner for Google AdSense & GDPR/KVKK Compliance -->
   <div id="cookie-consent-banner" style="display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 99999; background: rgba(15, 23, 42, 0.96); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); color: #f8fafc; padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.12); box-shadow: 0 -8px 24px rgba(0,0,0,0.25);">
     <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;">
@@ -2223,7 +2576,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
 // Direct Root Homepage - Serves 200 OK directly for Google AdSense automated site verification
 publicRouter.get(
   '/',
-  cache({ cacheName: 'istanbul-jobs-root', cacheControl: 'max-age=60' }),
+  cache({ cacheName: 'istanbul-jobs-root-v305', cacheControl: 'max-age=60' }),
   (c) => {
     const acceptLang = (c.req.header('accept-language') || '').toLowerCase();
     let loc: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur' = 'ar';
@@ -2613,12 +2966,34 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
     }
   }[locale];
 
-  // Render Categories HTML
+  // Render Categories HTML with 3D Squircle Icons
   const categoriesHtml = categories.map((cat: any) => {
     const name = locale === 'ar' ? (cat.name_ar || cat.name_en) : (locale === 'tr' ? (cat.name_tr || cat.name_en) : (locale === 'fa' ? (cat.name_fa || cat.name_en) : (locale === 'ur' ? (cat.name_ur || cat.name_en) : (locale === 'ru' ? (cat.name_ru || cat.name_en) : cat.name_en))));
     const activeClass = queryCategory === cat.id ? 'active' : '';
+
+    // 3D icon mapping
+    let icon3d = '/public/images/3d-icons/it-software.png';
+    const catSlug = (cat.slug || cat.id || '').toLowerCase();
+    if (catSlug.includes('tour') || catSlug.includes('hotel') || catSlug.includes('hospit')) {
+      icon3d = '/public/images/3d-icons/tourism.png';
+    } else if (catSlug.includes('real') || catSlug.includes('estate') || catSlug.includes('sale') || catSlug.includes('build')) {
+      icon3d = '/public/images/3d-icons/realestate.png';
+    } else if (catSlug.includes('edu') || catSlug.includes('teach') || catSlug.includes('school')) {
+      icon3d = '/public/images/3d-icons/education.png';
+    } else if (catSlug.includes('cust') || catSlug.includes('translat') || catSlug.includes('call') || catSlug.includes('service')) {
+      icon3d = '/public/images/3d-icons/customer.png';
+    } else if (catSlug.includes('it') || catSlug.includes('soft') || catSlug.includes('tech') || catSlug.includes('dev')) {
+      icon3d = '/public/images/3d-icons/it-software.png';
+    } else if (catSlug.includes('med') || catSlug.includes('health') || catSlug.includes('pharm')) {
+      icon3d = '/public/images/3d-icons/pharmacy.png';
+    } else if (catSlug.includes('finan') || catSlug.includes('account')) {
+      icon3d = '/public/images/3d-icons/calculator.png';
+    }
+
     return `<a href="/${locale}?category=${cat.id}" class="category-card ${activeClass}">
-      <div class="cat-emoji">${cat.icon || '💼'}</div>
+      <div class="cat-3d-icon-wrap">
+        <img src="${icon3d}" alt="${name}" class="cat-3d-icon" loading="lazy" />
+      </div>
       <div class="category-name">${name}</div>
     </a>`;
   }).join('');
@@ -2627,7 +3002,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
   const activeCategoryName = activeCategoryObj ? (locale === 'ar' ? (activeCategoryObj.name_ar || activeCategoryObj.name_en) : (locale === 'tr' ? (activeCategoryObj.name_tr || activeCategoryObj.name_en) : (locale === 'fa' ? (activeCategoryObj.name_fa || activeCategoryObj.name_en) : (locale === 'ur' ? (activeCategoryObj.name_ur || activeCategoryObj.name_en) : (locale === 'ru' ? (activeCategoryObj.name_ru || activeCategoryObj.name_en) : activeCategoryObj.name_en))))) : '';
 
   // Render Jobs HTML
-  const jobsHtml = paginatedJobs.length > 0 ? paginatedJobs.map((job: any) => {
+  const jobsHtml = paginatedJobs.length > 0 ? paginatedJobs.map((job: any, index: number) => {
     const title = locale === 'ar' ? (job.title_ar || job.title_en) : (locale === 'tr' ? (job.title_tr || job.title_en) : (locale === 'fa' ? (job.title_fa || job.title_en) : (locale === 'ur' ? (job.title_ur || job.title_en) : (locale === 'ru' ? (job.title_ru || job.title_en) : job.title_en))));
     const location = locale === 'ar' ? (job.location_ar || job.location_en) : (locale === 'tr' ? (job.location_tr || job.location_en) : (locale === 'fa' ? (job.location_fa || job.location_en) : (locale === 'ur' ? (job.location_ur || job.location_en) : (locale === 'ru' ? (job.location_ru || job.location_en) : job.location_en))));
     const typeKey = job.jobType === 'full-time' ? 'fullTime' : job.jobType === 'part-time' ? 'partTime' : job.jobType === 'remote' ? 'remote' : 'internship';
@@ -2637,7 +3012,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
     const logoPlaceholder = job.companyObj.name.charAt(0).toUpperCase();
     const isNew = (Date.now() - new Date(job.publishedAt).getTime()) < 3 * 24 * 60 * 60 * 1000;
 
-    return `
+    let card = `
     <div class="job-card ${job.featured ? 'featured' : ''}" data-job-id="${job.id}">
       <div class="co-logo">
         ${job.companyObj.logo
@@ -2671,6 +3046,13 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
         </div>
       </div>
     </div>`;
+
+    // Seamless In-Feed Google Play Travel Guide Ad (after 3rd job or after last job if <3 jobs)
+    if (index === 2 || (paginatedJobs.length < 3 && index === paginatedJobs.length - 1)) {
+      card += renderTravelGuideInFeedAd(locale);
+    }
+
+    return card;
   }).join('') : `<div class="jobs-empty">
     <i class="fa-solid fa-magnifying-glass-minus"></i>
     <p>${t.noJobs}</p>
@@ -2840,14 +3222,9 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
               
               <!-- Tool 1: Resume Builder -->
               <div class="tool-card glass-card" style="padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px);">
-                <div style="position: absolute; right: -15px; top: -15px; font-size: 90px; opacity: 0.04; color: var(--text-dark); pointer-events: none;">
-                  <i class="fa-solid fa-file-invoice"></i>
-                </div>
                 <div>
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-                    <div class="tool-icon-wrapper" style="width: 48px; height: 48px; border-radius: var(--radius-md); background: linear-gradient(135deg, #facc15 0%, #eab308 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem;">
-                      <i class="fa-solid fa-file-invoice"></i>
-                    </div>
+                    <img src="/public/images/3d-icons/document.png" alt="Resume Builder" class="icon-3d-img" style="width:52px; height:52px;">
                     <span class="tag-status" style="font-size: 0.75rem; font-weight: 700; background: #fef08a; color: #854d0e; padding: 4px 10px; border-radius: var(--r-full);">
                       ${locale === 'ar' ? 'مجاني 100%' : '100% Free'}
                     </span>
@@ -2868,14 +3245,9 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
 
               <!-- Tool 2: Salary Calculator -->
               <div class="tool-card glass-card" style="padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px);">
-                <div style="position: absolute; right: -15px; top: -15px; font-size: 90px; opacity: 0.04; color: var(--text-dark); pointer-events: none;">
-                  <i class="fa-solid fa-calculator"></i>
-                </div>
                 <div>
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-                    <div class="tool-icon-wrapper" style="width: 48px; height: 48px; border-radius: var(--radius-md); background: linear-gradient(135deg, #10b981 0%, #059669 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem;">
-                      <i class="fa-solid fa-calculator"></i>
-                    </div>
+                    <img src="/public/images/3d-icons/calculator.png" alt="Salary Calculator" class="icon-3d-img" style="width:52px; height:52px;">
                     <span class="tag-status" style="font-size: 0.75rem; font-weight: 700; background: #d1fae5; color: #065f46; padding: 4px 10px; border-radius: var(--r-full);">
                       ${locale === 'ar' ? 'مؤشر محدّث' : 'Live Index'}
                     </span>
@@ -2896,14 +3268,9 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
 
               <!-- Tool 3: Infinite Scroll & Search -->
               <div class="tool-card glass-card" style="padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px);">
-                <div style="position: absolute; right: -15px; top: -15px; font-size: 90px; opacity: 0.04; color: var(--text-dark); pointer-events: none;">
-                  <i class="fa-solid fa-list-check"></i>
-                </div>
                 <div>
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-                    <div class="tool-icon-wrapper" style="width: 48px; height: 48px; border-radius: var(--radius-md); background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem;">
-                      <i class="fa-solid fa-list-check"></i>
-                    </div>
+                    <img src="/public/images/3d-icons/globe.png" alt="Smart Search" class="icon-3d-img" style="width:52px; height:52px;">
                     <span class="tag-status" style="font-size: 0.75rem; font-weight: 700; background: #e0e7ff; color: #3730a3; padding: 4px 10px; border-radius: var(--r-full);">
                       ${locale === 'ar' ? 'تصفح ذكي' : 'Smart Search'}
                     </span>
@@ -2924,14 +3291,9 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
 
               <!-- Tool 4: Career Guides -->
               <div class="tool-card glass-card" style="padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px);">
-                <div style="position: absolute; right: -15px; top: -15px; font-size: 90px; opacity: 0.04; color: var(--text-dark); pointer-events: none;">
-                  <i class="fa-solid fa-book-open"></i>
-                </div>
                 <div>
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-                    <div class="tool-icon-wrapper" style="width: 48px; height: 48px; border-radius: var(--radius-md); background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem;">
-                      <i class="fa-solid fa-book-open"></i>
-                    </div>
+                    <img src="/public/images/3d-icons/justice.png" alt="Career Guides" class="icon-3d-img" style="width:52px; height:52px;">
                     <span class="tag-status" style="font-size: 0.75rem; font-weight: 700; background: #ffedd5; color: #9a3412; padding: 4px 10px; border-radius: var(--r-full);">
                       ${locale === 'ar' ? 'أدلة مهنية' : 'Career Guides'}
                     </span>
@@ -3035,73 +3397,6 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
               <i class="fa-solid fa-paper-plane"></i>
             </a>
           </div>
-
-          <!-- Turkey Travel Guide App Promo Sidebar Card -->
-          <div class="turkey-guide-sidebar-card" style="margin-top:20px; padding:18px; border-radius:var(--radius-lg); background:linear-gradient(135deg, #064e3b 0%, #047857 100%); color:white; position:relative; overflow:hidden; box-shadow:0 8px 24px rgba(4, 120, 87, 0.3); border: 1px solid rgba(52, 211, 153, 0.35); transition:all 0.3s ease;">
-            <div style="position:absolute; right:-15px; bottom:-15px; font-size:110px; opacity:0.08; transform:rotate(-15deg); color:#34d399; pointer-events:none;">
-              <i class="fa-solid fa-map-location-dot"></i>
-            </div>
-            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-              <div style="width:40px; height:40px; border-radius:12px; background:rgba(255,255,255,0.18); border:1.5px solid rgba(255,255,255,0.3); display:flex; align-items:center; justify-content:center; font-size:1.3rem; flex-shrink:0;">
-                🇹🇷
-              </div>
-              <div>
-                <span style="font-size:0.68rem; font-weight:800; color:#a7f3d0; text-transform:uppercase; letter-spacing:0.5px; display:block;">${locale === 'ar' ? 'تطبيق الساحة للسياحة' : (locale === 'tr' ? 'Al-Saha Turizm Uygulaması' : 'Al-Saha Travel App')}</span>
-                <h4 style="font-size:0.92rem; font-weight:800; margin:0; color:white; line-height:1.3;">${locale === 'ar' ? 'دليل تركيا السياحي بدون نت' : (locale === 'tr' ? 'İnternetsiz Türkiye Gezi Rehberi' : 'Turkey Travel Guide Offline')}</h4>
-              </div>
-            </div>
-            <a href="${TURKEY_TRAVEL_GUIDE_PLAY_STORE_URL}" target="_blank" rel="noopener" style="display:block; border-radius:10px; overflow:hidden; margin-bottom:12px; border:1px solid rgba(255,255,255,0.25); box-shadow:0 4px 12px rgba(0,0,0,0.25);">
-              <img src="${TURKEY_TRAVEL_GUIDE_BANNER_IMG}" alt="دليل تركيا السياحي بدون نت" style="width:100%; height:auto; display:block; object-fit:cover;" loading="lazy" />
-            </a>
-            <p style="font-size:0.78rem; line-height:1.45; opacity:0.92; margin:0 0 14px 0; color:#e2e8f0;">
-              ${locale === 'ar'
-                ? 'استكشف طرابزون وأوزنجول وإسطنبول وعموم تركيا بخرائط تفاعلية وجولات كاملة تعمل 100% بدون إنترنت!'
-                : (locale === 'tr' ? 'Trabzon, Uzungöl, İstanbul ve tüm Türkiye\'yi internetsiz GPS haritalarıyla keşfedin!' : 'Explore Trabzon, Istanbul and all of Turkey with 100% offline GPS maps and travel tours!')
-              }
-            </p>
-            <div style="display:flex; flex-direction:column; gap:8px;">
-              <a href="${TURKEY_TRAVEL_GUIDE_PLAY_STORE_URL}" target="_blank" rel="noopener" style="background:#ffffff; color:#064e3b !important; padding:9px 14px; border-radius:8px; font-weight:800; font-size:0.82rem; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:6px; box-shadow:0 4px 10px rgba(0,0,0,0.15); transition:all 0.2s ease;">
-                <i class="fa-brands fa-google-play" style="color: #01875f;"></i>
-                <span>${locale === 'ar' ? 'تحميل من Google Play' : (locale === 'tr' ? 'Google Play\'den İndir' : 'Download on Google Play')}</span>
-              </a>
-              <a href="/${locale}/blog/trabzon-travel-guide-app-tourism-turkey-2026" style="background:rgba(255,255,255,0.12); color:white; padding:8px 14px; border-radius:8px; font-weight:700; font-size:0.78rem; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:6px; border:1px solid rgba(255,255,255,0.25);">
-                <i class="fa-solid fa-book-open"></i>
-                <span>${locale === 'ar' ? 'تفاصيل ومراجعة الدليل' : (locale === 'tr' ? 'Rehber İncelemesi' : 'Read Guide Details')}</span>
-              </a>
-            </div>
-          </div>
-
-          <!-- Workplace Turkish Quiz & Tools Sidebar Card -->
-          <div class="quiz-sidebar-card" style="margin-top:20px; padding:20px; border-radius:var(--radius-lg); background:linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); color:white; position:relative; overflow:hidden; box-shadow:0 8px 24px rgba(49, 46, 129, 0.3); border: 1px solid rgba(129, 140, 248, 0.3); transition:all 0.3s ease;">
-            <div style="position:absolute; right:-15px; bottom:-15px; font-size:110px; opacity:0.08; transform:rotate(-15deg); color:#818cf8; pointer-events:none;">
-              <i class="fa-solid fa-spell-check"></i>
-            </div>
-            <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
-              <div style="width:48px; height:48px; border-radius:12px; background:rgba(129, 140, 248, 0.25); border:1.5px solid rgba(255,255,255,0.3); display:flex; align-items:center; justify-content:center; font-size:1.5rem; color:#a5b4fc; flex-shrink:0;">
-                <i class="fa-solid fa-brain"></i>
-              </div>
-              <div>
-                <span style="font-size:0.7rem; font-weight:800; color:#a5b4fc; text-transform:uppercase; letter-spacing:0.5px; display:block;">${locale === 'ar' ? 'اختبر مهاراتك' : (locale === 'tr' ? 'Kendini Test Et' : 'Self Assessment')}</span>
-                <h4 style="font-size:0.95rem; font-weight:800; margin:0; color:white; line-height:1.3;">${locale === 'ar' ? 'اختبار لغة العمل التركية' : (locale === 'tr' ? 'İş Yeri Türkçe Testi' : 'Workplace Turkish Quiz')}</h4>
-              </div>
-            </div>
-            <p style="font-size:0.8rem; line-height:1.45; opacity:0.9; margin:0 0 14px 0; color:#cbd5e1;">
-              ${locale === 'ar'
-                ? 'اختبر مستواك في أهم مصطلحات ومفردات بيئة العمل التركية وقوانين المقابلات الرسمية.'
-                : (locale === 'tr' ? 'İş ortamında en çok kullanılan terimleri ve çalışma mülakatlarını test edin.' : 'Master essential Turkish workplace vocabulary and interview questions.')
-              }
-            </p>
-            <div style="display:flex; flex-direction:column; gap:8px;">
-              <a href="/${locale}/workplace-quiz" style="background:#4f46e5; color:white; padding:9px 14px; border-radius:8px; font-weight:800; font-size:0.82rem; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:6px; box-shadow:0 4px 10px rgba(79,70,229,0.3);">
-                <i class="fa-solid fa-circle-play"></i>
-                <span>${locale === 'ar' ? 'ابدأ الاختبار الآن' : (locale === 'tr' ? 'Testi Başlat' : 'Start Quiz Now')}</span>
-              </a>
-              <a href="/${locale}/work-permit-eligibility" style="background:rgba(255,255,255,0.1); color:white; padding:8px 14px; border-radius:8px; font-weight:700; font-size:0.8rem; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:6px; border:1px solid rgba(255,255,255,0.2);">
-                <i class="fa-solid fa-clipboard-check"></i>
-                <span>${locale === 'ar' ? 'حاسبة أهلية إذن العمل' : (locale === 'tr' ? 'Çalışma İzni Hesaplama' : 'Work Permit Eligibility')}</span>
-              </a>
-            </div>
-          </div>
           
           <style>
             .telegram-cta:hover {
@@ -3128,73 +3423,6 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
           </div>
           ${paginationHtml}
 
-          <!-- TURKEY TRAVEL GUIDE FEATURED SHOWCASE BANNER -->
-          <div class="turkey-travel-showcase-card" style="margin-top: 32px; margin-bottom: 32px; border-radius: 20px; background: linear-gradient(135deg, #022c22 0%, #064e3b 50%, #047857 100%); color: white; border: 1px solid rgba(52, 211, 153, 0.35); box-shadow: 0 12px 35px -8px rgba(4, 120, 87, 0.4); overflow: hidden; position: relative;">
-            <div style="padding: 28px 24px; position: relative; z-index: 2;">
-              <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px;">
-                <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(52, 211, 153, 0.2); border: 1px solid rgba(52, 211, 153, 0.4); padding: 5px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 800; color: #a7f3d0;">
-                  <i class="fa-solid fa-plane-departure"></i>
-                  <span>${locale === 'ar' ? 'تطبيق الساحة للسياحة والسفر' : (locale === 'tr' ? 'Al-Saha Turizm & Seyahat Uygulaması' : 'Al-Saha Turkey Travel Guide')}</span>
-                  <span style="background: #10b981; color: white; font-size: 0.65rem; padding: 2px 7px; border-radius: 10px; margin-inline-start: 4px;">OFFLINE GPS</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 6px; color: #fef08a; font-size: 0.85rem; font-weight: 800;">
-                  <i class="fa-solid fa-star"></i>
-                  <i class="fa-solid fa-star"></i>
-                  <i class="fa-solid fa-star"></i>
-                  <i class="fa-solid fa-star"></i>
-                  <i class="fa-solid fa-star"></i>
-                  <span style="color: white; margin-inline-start: 4px;">4.9 / 5.0 (Google Play)</span>
-                </div>
-              </div>
-
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; align-items: center;">
-                <div>
-                  <h3 style="font-size: clamp(1.25rem, 3.5vw, 1.55rem); font-weight: 900; line-height: 1.35; margin: 0 0 12px 0; color: #ffffff;">
-                    ${locale === 'ar' ? 'دليل تركيا السياحي بدون نت 🇹🇷' : (locale === 'tr' ? 'İnternetsiz Türkiye ve Trabzon Gezi Rehberi 🇹🇷' : 'Turkey & Trabzon Travel Guide Offline 🇹🇷')}
-                  </h3>
-                  <p style="font-size: 0.9rem; line-height: 1.6; color: #e2e8f0; margin: 0 0 20px 0;">
-                    ${locale === 'ar'
-                      ? 'استكشف تركيا كما لم ترها من قبل! رفيقك الأمثل في السفر والسياحة: جولات سياحية متكاملة، وإرشادات حجز الفنادق والسيارات، وخرائط GPS تعمل 100% بدون نت في طرابزون، الشمال التركي، إسطنبول، كابادوكيا، وبورصة.'
-                      : (locale === 'tr'
-                        ? 'Türkiye\'yi daha önce hiç görmediğiniz gibi keşfedin! Trabzon, Uzungöl, Karadeniz ve İstanbul için %100 internetsiz GPS navigasyon, detaylı gezi rotaları ve otel rehberi.'
-                        : 'Explore Turkey like never before! 100% offline GPS navigation, complete travel tours, hotel booking guides, and curated trips across Trabzon, Black Sea, Istanbul, and Cappadocia.'
-                      )
-                    }
-                  </p>
-                  
-                  <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px;">
-                    <span style="background: rgba(255,255,255,0.12); padding: 6px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; color: #a7f3d0; border: 1px solid rgba(255,255,255,0.15);">
-                      <i class="fa-solid fa-wifi" style="margin-inline-end: 5px;"></i> ${locale === 'ar' ? 'يعمل 100% بدون إنترنت' : '%100 Offline GPS'}
-                    </span>
-                    <span style="background: rgba(255,255,255,0.12); padding: 6px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; color: #a7f3d0; border: 1px solid rgba(255,255,255,0.15);">
-                      <i class="fa-solid fa-location-crosshairs" style="margin-inline-end: 5px;"></i> ${locale === 'ar' ? 'ملاحة وتوجيه GPS دقيق' : 'Accurate GPS Navigation'}
-                    </span>
-                    <span style="background: rgba(255,255,255,0.12); padding: 6px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; color: #a7f3d0; border: 1px solid rgba(255,255,255,0.15);">
-                      <i class="fa-solid fa-umbrella-beach" style="margin-inline-end: 5px;"></i> ${locale === 'ar' ? 'طرابزون والشمال وإسطنبول' : 'Trabzon & Istanbul'}
-                    </span>
-                  </div>
-
-                  <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
-                    <a href="${TURKEY_TRAVEL_GUIDE_PLAY_STORE_URL}" target="_blank" rel="noopener" style="background: #ffffff; color: #064e3b !important; padding: 12px 22px; border-radius: 12px; font-weight: 900; font-size: 0.92rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.25); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
-                      <i class="fa-brands fa-google-play" style="font-size: 1.2rem; color: #01875f;"></i>
-                      <span>${locale === 'ar' ? 'تحميل التطبيق مجاناً' : (locale === 'tr' ? 'Uygulamayı Ücretsiz İndir' : 'Download Free on Google Play')}</span>
-                    </a>
-                    <a href="/${locale}/blog/trabzon-travel-guide-app-tourism-turkey-2026" style="background: rgba(255,255,255,0.15); color: #ffffff; padding: 11px 18px; border-radius: 12px; font-weight: 700; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,0.25);">
-                      <i class="fa-solid fa-circle-info"></i>
-                      <span>${locale === 'ar' ? 'عرض تفاصيل الدليل' : (locale === 'tr' ? 'Rehber Bilgileri' : 'Explore Guide')}</span>
-                    </a>
-                  </div>
-                </div>
-
-                <div style="text-align: center;">
-                  <a href="${TURKEY_TRAVEL_GUIDE_PLAY_STORE_URL}" target="_blank" rel="noopener" style="display: block; border-radius: 16px; overflow: hidden; box-shadow: 0 16px 36px rgba(0,0,0,0.35); border: 2px solid rgba(255,255,255,0.2); transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-                    <img src="${TURKEY_TRAVEL_GUIDE_BANNER_IMG}" alt="دليل تركيا السياحي بدون نت - تطبيق الساحة" style="width: 100%; max-height: 280px; object-fit: cover; display: block;" loading="lazy" />
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <!-- FEATURED CAREER GUIDES & WORKPLACE INTELLIGENCE 2026 -->
           <div class="career-guides-section" style="margin-top: 40px; margin-bottom: 24px; padding: 28px 24px; border-radius: 20px; background: var(--bg-card); border: 1px solid var(--border); box-shadow: var(--shadow-sm);">
             <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border);">
@@ -3219,9 +3447,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
               <!-- Guide Card 1: Work Permit -->
               <div style="display: flex; flex-direction: column; background: var(--bg-subtle); border-radius: 14px; padding: 20px; border: 1px solid var(--border); transition: transform 0.2s ease, box-shadow 0.2s ease;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-                  <span style="width: 36px; height: 36px; border-radius: 10px; background: rgba(16, 185, 129, 0.15); color: #059669; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
-                    <i class="fa-solid fa-id-card"></i>
-                  </span>
+                  <img src="/public/images/3d-icons/justice.png" alt="Labor Regulations" class="icon-3d-img" style="width: 36px; height: 36px; flex-shrink: 0;">
                   <span style="font-size: 0.75rem; font-weight: 700; color: #059669; text-transform: uppercase;">
                     ${locale === 'ar' ? 'قانون العمل التركي' : (locale === 'tr' ? 'Çalışma Mevzuatı' : 'Labor Regulations')}
                   </span>
@@ -3243,9 +3469,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
               <!-- Guide Card 2: Salaries & Cost of Living -->
               <div style="display: flex; flex-direction: column; background: var(--bg-subtle); border-radius: 14px; padding: 20px; border: 1px solid var(--border); transition: transform 0.2s ease, box-shadow 0.2s ease;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-                  <span style="width: 36px; height: 36px; border-radius: 10px; background: rgba(59, 130, 246, 0.15); color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
-                    <i class="fa-solid fa-coins"></i>
-                  </span>
+                  <img src="/public/images/3d-icons/coins.png" alt="Salary Benchmarks" class="icon-3d-img" style="width: 36px; height: 36px; flex-shrink: 0;">
                   <span style="font-size: 0.75rem; font-weight: 700; color: #2563eb; text-transform: uppercase;">
                     ${locale === 'ar' ? 'تقرير الرواتب' : (locale === 'tr' ? 'Ücret İstatistikleri' : 'Salary Benchmarks')}
                   </span>
@@ -3267,9 +3491,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
               <!-- Guide Card 3: Jobs without Turkish / Resume Tips -->
               <div style="display: flex; flex-direction: column; background: var(--bg-subtle); border-radius: 14px; padding: 20px; border: 1px solid var(--border); transition: transform 0.2s ease, box-shadow 0.2s ease;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-                  <span style="width: 36px; height: 36px; border-radius: 10px; background: rgba(245, 158, 11, 0.15); color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
-                    <i class="fa-solid fa-briefcase"></i>
-                  </span>
+                  <img src="/public/images/3d-icons/document.png" alt="Career Advices" class="icon-3d-img" style="width: 36px; height: 36px; flex-shrink: 0;">
                   <span style="font-size: 0.75rem; font-weight: 700; color: #d97706; text-transform: uppercase;">
                     ${locale === 'ar' ? 'نصائح التوظيف' : (locale === 'tr' ? 'Kariyer Tavsiyesi' : 'Career Advices')}
                   </span>
@@ -3306,37 +3528,37 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
 
 publicRouter.get(
   '/ar',
-  cache({ cacheName: 'istanbul-jobs-ar-v300', cacheControl: 'max-age=30' }),
+  cache({ cacheName: 'istanbul-jobs-ar-v305', cacheControl: 'max-age=30' }),
   (c) => homeHandler(c, 'ar')
 )
 
 publicRouter.get(
   '/en',
-  cache({ cacheName: 'istanbul-jobs-en-v300', cacheControl: 'max-age=30' }),
+  cache({ cacheName: 'istanbul-jobs-en-v305', cacheControl: 'max-age=30' }),
   (c) => homeHandler(c, 'en')
 )
 
 publicRouter.get(
   '/tr',
-  cache({ cacheName: 'istanbul-jobs-tr-v300', cacheControl: 'max-age=30' }),
+  cache({ cacheName: 'istanbul-jobs-tr-v305', cacheControl: 'max-age=30' }),
   (c) => homeHandler(c, 'tr')
 )
 
 publicRouter.get(
   '/ru',
-  cache({ cacheName: 'istanbul-jobs-ru-v300', cacheControl: 'max-age=30' }),
+  cache({ cacheName: 'istanbul-jobs-ru-v305', cacheControl: 'max-age=30' }),
   (c) => homeHandler(c, 'ru')
 )
 
 publicRouter.get(
   '/fa',
-  cache({ cacheName: 'istanbul-jobs-fa-v300', cacheControl: 'max-age=30' }),
+  cache({ cacheName: 'istanbul-jobs-fa-v305', cacheControl: 'max-age=30' }),
   (c) => homeHandler(c, 'fa')
 )
 
 publicRouter.get(
   '/ur',
-  cache({ cacheName: 'istanbul-jobs-ur-v300', cacheControl: 'max-age=30' }),
+  cache({ cacheName: 'istanbul-jobs-ur-v305', cacheControl: 'max-age=30' }),
   (c) => homeHandler(c, 'ur')
 )
 
@@ -4892,6 +5114,21 @@ publicRouter.get('/public/images/istanbul-app/:filename', async (c) => {
   return c.text('Image not found.', 404);
 });
 
+// Serve 3D Glossy Squircle Icons
+publicRouter.get('/public/images/3d-icons/:filename', (c) => {
+  const rawFilename = c.req.param('filename');
+  const name = decodeURIComponent(rawFilename).replace(/\.png$/i, '');
+  const b64 = ICONS_3D_BASE64[name];
+  if (!b64) {
+    return c.text('3D Icon not found.', 404);
+  }
+  const buf = Buffer.from(b64, 'base64');
+  return c.body(buf, 200, {
+    'Content-Type': 'image/png',
+    'Cache-Control': 'public, max-age=31536000, immutable'
+  });
+});
+
 // Serve Trabzon App images from R2 bucket
 publicRouter.get('/public/images/trabzon-app/:filename', async (c) => {
   const env: any = c.env;
@@ -4920,75 +5157,38 @@ publicRouter.get('/public/images/trabzon-app/:filename', async (c) => {
   return c.text('Image not found.', 404);
 });
 
-// Serve logo.png from R2 bucket with fallback to built-in logo and automatic R2 backfill
+// Serve logo.png with high-speed in-memory delivery and immutable cache
 publicRouter.get('/public/images/logo.png', async (c) => {
-  const env: any = c.env;
-  try {
-    const bucket = env.MEDIA_BUCKET;
-    if (bucket) {
-      let object = await bucket.get('public/images/logo.png');
-      if (!object) {
-        // Backfill logo.png to R2 using built-in logo
-        const logoBuffer = Buffer.from(FAVICON_BASE64, 'base64');
-        await bucket.put('public/images/logo.png', logoBuffer, {
-          httpMetadata: { contentType: 'image/png' }
-        });
-        object = await bucket.get('public/images/logo.png');
-      }
-      if (object) {
-        const headers = new Headers();
-        object.writeHttpMetadata(headers);
-        headers.set('etag', object.httpEtag);
-        headers.set('Content-Type', 'image/png');
-        headers.set('Cache-Control', 'public, max-age=86400');
-        return c.body(object.body, 200, Object.fromEntries(headers.entries()));
-      }
-    }
-  } catch (err: any) {
-    console.error('Failed to load/backfill logo from R2, using fallback:', err);
-  }
-
-  // Fallback to built-in logo
-  const logoBuffer = Buffer.from(FAVICON_BASE64, 'base64');
+  const logoBuffer = Buffer.from(LOGO_BASE64, 'base64');
   return c.body(logoBuffer, 200, {
     'Content-Type': 'image/png',
-    'Cache-Control': 'public, max-age=86400'
+    'Cache-Control': 'public, max-age=31536000, immutable'
   });
 });
 
-// Serve favicon.ico directly from R2 bucket with fallback and automatic R2 backfill
-publicRouter.get('/favicon.ico', async (c) => {
-  const env: any = c.env;
-  try {
-    const bucket = env.MEDIA_BUCKET;
-    if (bucket) {
-      let object = await bucket.get('public/images/favicon.ico');
-      if (!object) {
-        // Backfill favicon.ico to R2 using built-in logo
-        const logoBuffer = Buffer.from(FAVICON_BASE64, 'base64');
-        await bucket.put('public/images/favicon.ico', logoBuffer, {
-          httpMetadata: { contentType: 'image/x-icon' }
-        });
-        object = await bucket.get('public/images/favicon.ico');
-      }
-      if (object) {
-        const headers = new Headers();
-        object.writeHttpMetadata(headers);
-        headers.set('etag', object.httpEtag);
-        headers.set('Content-Type', 'image/x-icon');
-        headers.set('Cache-Control', 'public, max-age=86400');
-        return c.body(object.body, 200, Object.fromEntries(headers.entries()));
-      }
-    }
-  } catch (err: any) {
-    console.error('Failed to load/backfill favicon from R2, using fallback:', err);
-  }
+// Serve turkey-guide-app.png with high-speed in-memory delivery and immutable cache
+publicRouter.get('/public/images/turkey-guide-app.png', async (c) => {
+  const iconBuffer = Buffer.from(TURKEY_GUIDE_APP_ICON_BASE64, 'base64');
+  return c.body(iconBuffer, 200, {
+    'Content-Type': 'image/png',
+    'Cache-Control': 'public, max-age=31536000, immutable'
+  });
+});
 
-  // Fallback to built-in logo
-  const logoBuffer = Buffer.from(FAVICON_BASE64, 'base64');
-  return c.body(logoBuffer, 200, {
-    'Content-Type': 'image/x-icon',
-    'Cache-Control': 'public, max-age=86400'
+publicRouter.get('/images/turkey-guide-app.png', async (c) => {
+  const iconBuffer = Buffer.from(TURKEY_GUIDE_APP_ICON_BASE64, 'base64');
+  return c.body(iconBuffer, 200, {
+    'Content-Type': 'image/png',
+    'Cache-Control': 'public, max-age=31536000, immutable'
+  });
+});
+
+// Serve favicon.ico with high-speed in-memory delivery and immutable cache
+publicRouter.get('/favicon.ico', async (c) => {
+  const iconBuffer = Buffer.from(FAVICON_BASE64, 'base64');
+  return c.body(iconBuffer, 200, {
+    'Content-Type': 'image/png',
+    'Cache-Control': 'public, max-age=31536000, immutable'
   });
 });
 

@@ -3648,7 +3648,9 @@ aiFeaturesRouter.get('/:locale/workplace-quiz', (c) => {
 
     <div class="quiz-container">
       <div id="quiz-intro" class="glass-card" style="padding: 40px; border-radius: var(--radius-lg); text-align: center;">
-        <div style="font-size: 3.5rem; margin-bottom: 20px;">🇹🇷</div>
+        <div style="text-align: center; margin-bottom: 20px;">
+          <img src="/public/images/3d-icons/quiz.png" alt="Quiz" class="icon-3d-img" style="width: 72px; height: 72px; filter: drop-shadow(0 10px 24px rgba(2, 132, 199, 0.35)); display: inline-block;">
+        </div>
         <h1 class="hero-title-gradient" style="margin-bottom: 12px; font-size: 2.2rem; font-weight: 800;">${t.title}</h1>
         <p style="color: var(--text-muted); font-size: 1.05rem; margin-bottom: 30px; line-height: 1.6;">${t.subtitle}</p>
         <button onclick="startQuiz()" class="btn-sidebar-apply" style="border: none; max-width: 250px; margin: 0 auto;">${t.startBtn}</button>

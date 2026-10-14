@@ -1100,6 +1100,9 @@ rentCalculatorRouter.get('/:locale/kira-artis-orani', async (c) => {
       
       <!-- Hero Header -->
       <section class="kira-hero">
+        <div style="text-align: center; margin-bottom: 16px;">
+          <img src="/public/images/3d-icons/calculator.png" alt="Rent Calculator" class="icon-3d-img" style="width: 72px; height: 72px; filter: drop-shadow(0 10px 24px rgba(2, 132, 199, 0.35)); display: inline-block;">
+        </div>
         <div class="kira-badge">
           <span>🏛️ ${t.heroBadge}</span>
         </div>

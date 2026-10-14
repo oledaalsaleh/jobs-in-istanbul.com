@@ -669,6 +669,9 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
     </style>
 
     <div class="container" style="padding: 40px 20px 0;">
+      <div style="text-align: center; margin-bottom: 16px;">
+        <img src="/public/images/3d-icons/gold.png" alt="Gold" class="icon-3d-img" style="width: 72px; height: 72px; filter: drop-shadow(0 10px 24px rgba(245, 158, 11, 0.35)); display: inline-block;">
+      </div>
       <h1 class="hero-title-gradient" style="text-align: center; margin-bottom: 12px; font-size: 2.3rem; font-weight: 800;">${t.title}</h1>
       <p style="color: var(--text-muted); text-align: center; margin-bottom: 16px; font-size: 1.05rem; max-width: 700px; margin-left: auto; margin-right: auto; line-height: 1.6;">${t.subtitle}</p>
       

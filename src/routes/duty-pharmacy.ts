@@ -942,6 +942,9 @@ dutyPharmacyRouter.get('/:locale/nobetci-eczane', async (c) => {
       
       <!-- Hero Banner -->
       <section class="pharmacy-hero">
+        <div style="text-align: center; margin-bottom: 16px;">
+          <img src="/public/images/3d-icons/pharmacy.png" alt="Duty Pharmacy" class="icon-3d-img" style="width: 72px; height: 72px; filter: drop-shadow(0 10px 24px rgba(5, 150, 105, 0.35)); display: inline-block;">
+        </div>
         <div class="live-pulse-badge">
           <span class="pulse-dot"></span>
           <span>${t.heroBadge} • ${dataset.date}</span>

@@ -990,6 +990,9 @@ fuelPricesRouter.get('/:locale/akaryakit-fiyatlari', async (c) => {
     <div class="fuel-container">
       <!-- HERO -->
       <div class="fuel-hero">
+        <div style="text-align: center; margin-bottom: 16px;">
+          <img src="/public/images/3d-icons/fuel.png" alt="Fuel Prices" class="icon-3d-img" style="width: 72px; height: 72px; filter: drop-shadow(0 10px 24px rgba(234, 88, 12, 0.35)); display: inline-block;">
+        </div>
         <div class="fuel-badge">
           <span class="live-pulse"></span>
           <span>${t.heroBadge}</span>

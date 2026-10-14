@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import { FAVICON_BASE64 } from '../utils/logo-base64'
+import { ICON_192_BASE64, LOGO_BASE64 } from '../utils/logo-base64'
 import { ISTANBUL_DISTRICTS } from './public'
 import { safeQuery } from '../utils/db-helper'
 import { seededArticles } from './career-blog'
@@ -542,39 +542,12 @@ self.addEventListener('fetch', (event) => {
 
 // PWA Icons handler with automatic R2 backfill
 const serveIcon = async (c: any) => {
-  const env: any = c.env;
-  try {
-    const bucket = env.MEDIA_BUCKET;
-    if (bucket) {
-      const path = c.req.path.slice(1); // e.g. "icon-192.png"
-      let object = await bucket.get(`public/images/${path}`);
-      if (!object) {
-        // Backfill the PWA icon to R2 using the built-in logo fallback
-        const logoBuffer = Buffer.from(FAVICON_BASE64, 'base64');
-        await bucket.put(`public/images/${path}`, logoBuffer, {
-          httpMetadata: { contentType: 'image/png' }
-        });
-        object = await bucket.get(`public/images/${path}`);
-      }
-
-      if (object) {
-        const headers = new Headers();
-        object.writeHttpMetadata(headers);
-        headers.set('etag', object.httpEtag);
-        headers.set('Content-Type', 'image/png');
-        headers.set('Cache-Control', 'public, max-age=86400');
-        return c.body(object.body, 200, Object.fromEntries(headers.entries()));
-      }
-    }
-  } catch (err: any) {
-    console.error('Failed to load PWA icon from R2, using fallback:', err);
-  }
-
-  // Fallback to built-in logo
-  const logoBuffer = Buffer.from(FAVICON_BASE64, 'base64');
+  const is512 = c.req.path.includes('512');
+  const base64Str = is512 ? LOGO_BASE64 : ICON_192_BASE64;
+  const logoBuffer = Buffer.from(base64Str, 'base64');
   return c.body(logoBuffer, 200, {
     'Content-Type': 'image/png',
-    'Cache-Control': 'public, max-age=86400'
+    'Cache-Control': 'public, max-age=31536000, immutable'
   });
 };
 
