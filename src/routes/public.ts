@@ -3300,43 +3300,43 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
     seoMetaOpts.category = matchedCategory.slug;
   }
   const seoHtml = generateMetaTags(locale, 'home', seoMetaOpts) + generateJsonLd(locale, 'home', seoMetaOpts);
-  c.header('Cache-Control', 'public, max-age=60, s-maxage=60, stale-while-revalidate=120');
+  c.header('Cache-Control', 'public, max-age=0, must-revalidate');
   return c.html(renderLayout(c, locale === 'ar' ? 'فرص عمل في إسطنبول' : 'Istanbul Jobs Vacancies', html, locale, seoHtml));
 }
 
 publicRouter.get(
   '/ar',
-  cache({ cacheName: 'istanbul-jobs-ar', cacheControl: 'max-age=60' }),
+  cache({ cacheName: 'istanbul-jobs-ar-v300', cacheControl: 'max-age=30' }),
   (c) => homeHandler(c, 'ar')
 )
 
 publicRouter.get(
   '/en',
-  cache({ cacheName: 'istanbul-jobs-en', cacheControl: 'max-age=60' }),
+  cache({ cacheName: 'istanbul-jobs-en-v300', cacheControl: 'max-age=30' }),
   (c) => homeHandler(c, 'en')
 )
 
 publicRouter.get(
   '/tr',
-  cache({ cacheName: 'istanbul-jobs-tr', cacheControl: 'max-age=60' }),
+  cache({ cacheName: 'istanbul-jobs-tr-v300', cacheControl: 'max-age=30' }),
   (c) => homeHandler(c, 'tr')
 )
 
 publicRouter.get(
   '/ru',
-  cache({ cacheName: 'istanbul-jobs-ru', cacheControl: 'max-age=60' }),
+  cache({ cacheName: 'istanbul-jobs-ru-v300', cacheControl: 'max-age=30' }),
   (c) => homeHandler(c, 'ru')
 )
 
 publicRouter.get(
   '/fa',
-  cache({ cacheName: 'istanbul-jobs-fa', cacheControl: 'max-age=60' }),
+  cache({ cacheName: 'istanbul-jobs-fa-v300', cacheControl: 'max-age=30' }),
   (c) => homeHandler(c, 'fa')
 )
 
 publicRouter.get(
   '/ur',
-  cache({ cacheName: 'istanbul-jobs-ur', cacheControl: 'max-age=60' }),
+  cache({ cacheName: 'istanbul-jobs-ur-v300', cacheControl: 'max-age=30' }),
   (c) => homeHandler(c, 'ur')
 )
 
