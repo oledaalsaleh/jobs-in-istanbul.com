@@ -90,7 +90,7 @@ export const ISTANBUL_DISTRICTS = [
 publicRouter.get('/css/theme.css', (c) => {
   return c.body(themeCss, 200, {
     'Content-Type': 'text/css',
-    'Cache-Control': 'public, max-age=3600'
+    'Cache-Control': 'public, max-age=0, must-revalidate'
   })
 })
 
@@ -890,7 +890,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
   <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="/css/theme.css?v=2.1.0">
+  <link rel="stylesheet" href="/css/theme.css?v=3.0.0">
   
   <!-- Critical inline CSS for zero flash -->
   <style>
