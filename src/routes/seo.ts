@@ -9,8 +9,23 @@ export const seoRouter = new Hono()
 
 // robots.txt handler
 seoRouter.get('/robots.txt', (c) => {
-  const robots = `User-agent: Mediapartners-Google
+  const robots = `User-agent: Googlebot
+User-agent: Googlebot-Image
+User-agent: Mediapartners-Google
+User-agent: Bingbot
+User-agent: Yandex
+User-agent: Applebot
+User-agent: GPTBot
+User-agent: PerplexityBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
 Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /login
+Disallow: /register
+Disallow: /install
 
 User-agent: *
 Allow: /
@@ -23,7 +38,10 @@ Disallow: /install
 
 Sitemap: https://jobs-in-istanbul.com/sitemap.xml
 `;
-  return c.text(robots)
+  return c.text(robots, 200, {
+    'Content-Type': 'text/plain; charset=utf-8',
+    'Cache-Control': 'public, max-age=86400'
+  });
 })
 
 // app-ads.txt handler (IAB Tech Lab specification)

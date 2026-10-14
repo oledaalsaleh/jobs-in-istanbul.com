@@ -39,28 +39,28 @@ export function generateMetaTags(
 
   const defaultsTable: Record<string, any> = {
     ar: {
-      title: 'وظائف في إسطنبول | وظائف لمتحدثي الإنجليزية في تركيا',
-      desc: 'ابحث عن أحدث فرص العمل للوافدين والمحترفين المتحدثين باللغة الإنجليزية في إسطنبول. تقدّم للوظائف التقنية، المبيعات، والتعليم اليوم.',
+      title: 'فرص عمل في إسطنبول اليوم 2026 | وظائف شاغرة في تركيا للعرب والأجانب',
+      desc: 'أكبر منصة لفرص العمل والوظائف الشاغرة في إسطنبول وعموم تركيا لعام 2026. تصفح آلاف الوظائف اليومية في الشركات والمطاعم والمدارس والمصانع وقدّم مجاناً دون وسيط.',
     },
     en: {
-      title: 'Jobs in Istanbul | English Speaking Jobs in Turkey',
-      desc: 'Find the latest job opportunities for expats and English-speaking professionals in Istanbul. Apply to tech, sales, and education roles today.',
+      title: 'Jobs in Istanbul 2026 | Latest Job Vacancies & Careers in Turkey',
+      desc: 'Find verified job vacancies in Istanbul and Turkey for expats, locals, and international professionals. Browse top openings in tech, sales, education, tourism, and apply free today.',
     },
     tr: {
-      title: 'İstanbul İş İlanları | Türkiye\'de İngilizce ve Türkçe İş Fırsatları',
-      desc: 'İstanbul\'daki yabancılar ve yerel profesyoneller için en son iş fırsatlarını bulun. Teknoloji, satış, eğitim ve diğer sektörlerdeki işlere bugün başvurun.',
+      title: 'İstanbul İş İlanları 2026 | Güncel İş Fırsatları ve Eleman Arayanlar',
+      desc: 'İstanbul genelinde en güncel iş ilanları 2026. Avrupa ve Anadolu yakasında tam zamanlı, part-time ve uzaktan iş fırsatlarını hemen keşfedin, ücretsiz başvurun.',
     },
     ru: {
-      title: 'Работа в Стамбуле | Вакансии для иностранцев и русскоязычных',
-      desc: 'Найдите последние вакансии для экспатов и русскоязычных специалистов в Стамбуле. Подайте заявку на работу в сфере IT, продаж и образования сегодня.',
+      title: 'Работа в Стамбуле 2026 | Свежие вакансии в Турции для иностранцев',
+      desc: 'Найдите актуальные вакансии в Стамбуле и Турции для экспатов и русскоязычных специалистов. IT, продажи, туризм, преподавание. Откликайтесь бесплатно прямо сейчас.',
     },
     fa: {
-      title: 'کار در استانبول | کاریابی و مشاغل در استانبول ترکیه برای فارسی زبانان',
-      desc: 'جدیدترین فرصت‌های شغلی و استخدام در استانبول ترکیه برای ایرانیان و فارسی زبانان. همین امروز برای مشاغل فنی، فروش و تدریس اقدام کنید.',
+      title: 'فرصت‌های شغلی و کار در استانبول ۲۰۲۶ | جدیدترین آگهی‌های استخدام در ترکیه',
+      desc: 'بزرگترین مرجع آگهی‌های استخدام و کاریابی در استانبول ترکیه برای ایرانیان و فارسی‌زبانان. جستجوی مشاغل شرکتی، توریستی و تخصصی با امکان ارسال رایگان رزومه.',
     },
     ur: {
-      title: 'استنبول میں ملازمتیں | اردو بولنے والوں کے لیے روزگار کے مواقع',
-      desc: 'استنبول ترکی میں اردو بولنے والوں اور تارکینِ وطن کے لیے ملازمت کے تازہ ترین مواقع تلاش کریں۔ آج ہی آئی ٹی، سیلز اور تدریس کی ملازمتوں کے لیے درخواست دیں۔',
+      title: 'استنبول میں ملازمتیں 2026 | ترکی میں تازہ ترین جابز اور روزگار کے مواقع',
+      desc: 'استنبول ترکی میں تارکینِ وطن اور اردو بولنے والوں کے لیے روزگار کے تصدیق شدہ مواقع۔ آئی ٹی، سیلز، مارکیٹنگ اور تدریسی اسامیوں کے لیے آج ہی مفت اپلائی کریں۔',
     }
   };
   const defaults = defaultsTable[locale] || defaultsTable['en'];
@@ -739,9 +739,77 @@ export function generateJsonLd(
       }
     };
 
+    const homepageFaqs: Record<string, Array<{ question: string; answer: string }>> = {
+      ar: [
+        {
+          question: "كيف يمكنني العثور على أحدث فرص عمل في إسطنبول للعرب والأجانب؟",
+          answer: "يمكنك تصفح آلاف الوظائف الشاغرة المحدثة يومياً عبر منصة فرص عمل في إسطنبول، والفلترة حسب الحي ونوع العمل واللغة، ثم التقديم مباشرة لجهة العمل بضغطة زر واحدة مجاناً دون وسيط."
+        },
+        {
+          question: "هل تتوفر وظائف في إسطنبول بدون اشتراط إتقان اللغة التركية؟",
+          answer: "نعم، تتوفر مئات الوظائف المخصصة للناطقين بالعربية والإنجليزية في قطاعات السياحة العلاجية، الترجمة، المدارس الدولية، مراكز الاتصال (Call Centers)، وتطوير البرمجيات والتسويق الرقمي."
+        },
+        {
+          question: "كيف يتم استخراج إذن العمل (Çalışma İzni) في تركيا 2026؟",
+          answer: "يتم التقديم على إذن العمل حصراً عبر صاحب العمل من خلال بوابة وزارة العمل التركية (SGK). توفر منصتنا حاسبة أهلية إذن العمل ومؤشر الرواتب القانونية المعتمدة لعام 2026."
+        },
+        {
+          question: "هل التقديم على الوظائف في موقع فرص عمل في إسطنبول مجاني؟",
+          answer: "نعم، التقديم مجاني 100% لجميع الباحثين عن عمل، ونحن نطبق سياسة أمنية صارمة لمكافحة الاحتيال الوظيفي تمنع طلب أي رسوم مسبقة من المتقدمين."
+        }
+      ],
+      en: [
+        {
+          question: "How can I find job vacancies in Istanbul for expats and international job seekers?",
+          answer: "You can browse thousands of verified daily vacancies on Jobs in Istanbul, filter by district, job type, or language, and apply directly to verified employers with one click for free."
+        },
+        {
+          question: "Are there English-speaking jobs in Istanbul without Turkish requirements?",
+          answer: "Yes, many opportunities exist for English speakers in tech development, international sales, health tourism, English teaching, customer service, and multinational corporate roles."
+        },
+        {
+          question: "How does the Turkish work permit (Çalışma İzni) application work in 2026?",
+          answer: "Work permits are officially applied for by your hiring employer via the Turkish Ministry of Labor portal. Our platform offers a dedicated Work Permit Eligibility Calculator for 2026 rules."
+        },
+        {
+          question: "Is it completely free to search and apply for jobs on this platform?",
+          answer: "Yes, 100% free for all job seekers with zero hidden fees. We strictly verify listings with automated anti-fraud security to protect job applicants."
+        }
+      ],
+      tr: [
+        {
+          question: "İstanbul'da yabancılar ve yerel yetenekler için nasıl iş bulabilirim?",
+          answer: "İstanbul İş İlanları portalımızda her gün güncellenen binlerce açık pozisyona göz atabilir; ilçe, çalışma şekli ve dil kriterlerine göre filtreleyerek işverenlere doğrudan ve ücretsiz başvurabilirsiniz."
+        },
+        {
+          question: "İstanbul'da yabancı dil gerektiren hangi pozisyonlar öne çıkıyor?",
+          answer: "Özellikle sağlık turizmi, çağrı merkezleri (Call Center), uluslararası dış ticaret, yazılım geliştirme, turizm ve özel eğitim kurumlarında yoğun iş fırsatları bulunmaktadır."
+        },
+        {
+          question: "Yabancı çalışanlar için çalışma izni süreci nasıl işler?",
+          answer: "Çalışma izni başvurusu, işveren tarafından T.C. Çalışma ve Sosyal Güvenlik Bakanlığı sistemi üzerinden yapılır. Sitemizde 2026 güncel mevzuatına uygun Çalışma İzni Uygunluk Hesaplayıcı mevcuttur."
+        }
+      ]
+    };
+
+    const faqs = homepageFaqs[locale] || homepageFaqs['en'];
+    const faqSchema = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": faqs.map(f => ({
+        "@type": "Question",
+        "name": f.question,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": f.answer
+        }
+      }))
+    };
+
     return `
     <script type="application/ld+json">${JSON.stringify(orgSchema)}</script>
     <script type="application/ld+json">${JSON.stringify(websiteSchema)}</script>
+    <script type="application/ld+json">${JSON.stringify(faqSchema)}</script>
     `;
   }
 
