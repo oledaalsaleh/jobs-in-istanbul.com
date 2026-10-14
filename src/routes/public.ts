@@ -890,7 +890,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
   <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="/css/theme.css?v=1.0.5">
+  <link rel="stylesheet" href="/css/theme.css?v=2.1.0">
   
   <!-- Critical inline CSS for zero flash -->
   <style>
@@ -1779,7 +1779,10 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           e.preventDefault();
           const query = searchForm.querySelector('input[name="search"]').value;
           const url = new URL(window.location.href);
-          url.searchParams.set('search', query);
+          if (query) url.searchParams.set('search', query);
+          else url.searchParams.delete('search');
+          const distEl = searchForm.querySelector('select[name="district"]');
+          if (distEl && distEl.value) url.searchParams.set('district', distEl.value);
           fetchFilteredJobs(url.pathname + url.search);
         });
       }
@@ -2652,7 +2655,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
             <i class="fa-regular fa-heart"></i>
           </button>
         </div>
-        <div class="job-company">${job.companyObj.name}</div>
+        <div class="job-company"><i class="fa-regular fa-building" style="margin-inline-end: 6px; opacity: 0.65; font-size: 0.82rem;"></i>${job.companyObj.name}</div>
         <div class="job-tags">
           <span class="jtag jtag-type">${typeLabel}</span>
           <span class="jtag jtag-loc"><i class="fa-solid fa-location-dot"></i> ${location}</span>
@@ -2715,6 +2718,13 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
           <div class="search-field-wrap">
             <i class="fa-solid fa-magnifying-glass s-icon"></i>
             <input type="text" name="search" placeholder="${t.searchPlh}" value="${querySearch}" autocomplete="off">
+          </div>
+          <div class="search-field-wrap search-district-wrap">
+            <i class="fa-solid fa-location-dot s-icon" style="color: #0284c7;"></i>
+            <select name="district" style="border: none; background: transparent; font-size: 0.95rem; color: var(--text-heading); font-weight: 600; width: 100%; cursor: pointer;">
+              <option value="">${locale === 'ar' ? 'جميع المناطق والأحياء' : (locale === 'tr' ? 'Tüm İlçeler' : 'All Districts')}</option>
+              ${ISTANBUL_DISTRICTS.map(d => `<option value="${d.en}" ${queryDistrict.toLowerCase() === d.en.toLowerCase() ? 'selected' : ''}>${locale === 'ar' ? d.ar : d.en}</option>`).join('')}
+            </select>
           </div>
           <button type="submit" class="btn-search">
             <i class="fa-solid fa-magnifying-glass"></i>
@@ -3653,7 +3663,7 @@ publicRouter.get(
       <div class="job-detail-layout">
         <article class="detail-main">
           ${job.imageUrl ? `<div class="detail-banner-wrapper" style="margin-bottom: 24px; border-radius: var(--radius-lg); overflow: hidden; max-height: 300px; box-shadow: var(--shadow-sm); border: 1px solid var(--border);">
-            <img src="${job.imageUrl.startsWith('http') ? job.imageUrl : '/api/jobs/image?key=' + encodeURIComponent(job.imageUrl)}" alt="${title}" style="width: 100%; height: 300px; object-fit: cover;">
+            <img src="${job.imageUrl.startsWith('http') ? job.imageUrl : '/api/jobs/image?key=' + encodeURIComponent(job.imageUrl)}" alt="${title}" style="width: 100%; height: 300px; object-fit: cover;" onerror="this.parentElement.style.display='none'">
           </div>` : ''}
 
           <!-- Anti-Fraud Scam Warning Banner -->
