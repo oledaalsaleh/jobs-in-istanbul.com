@@ -130,6 +130,7 @@ import { goldPricesRouter } from './routes/gold-prices'
 import { dutyPharmacyRouter } from './routes/duty-pharmacy'
 import { rentCalculatorRouter } from './routes/rent-calculator'
 import { fuelPricesRouter } from './routes/fuel-prices'
+import { severanceCalculatorRouter } from './routes/severance-calculator'
 import { mobileApiRouter } from './routes/mobile-api'
 import { appsShowcaseRouter } from './routes/apps-showcase'
 import { runScraper } from './services/scraper'
@@ -158,6 +159,7 @@ app.route('/', goldPricesRouter)
 app.route('/', dutyPharmacyRouter)
 app.route('/', rentCalculatorRouter)
 app.route('/', fuelPricesRouter)
+app.route('/', severanceCalculatorRouter)
 app.route('/', mobileApiRouter)
 
 // Helper: Global HTTP Security Headers for comprehensive hardening
@@ -186,6 +188,8 @@ export default {
       url.pathname === '/api/kira-artis-orani' ||
       url.pathname === '/api/akaryakit-fiyatlari' ||
       url.pathname === '/api/fuel-prices' ||
+      url.pathname === '/api/kidem-tazminati' ||
+      url.pathname === '/api/severance-calculator' ||
       url.pathname === '/api/jobs' ||
       url.pathname === '/api/feed' ||
       url.pathname === '/api/config' ||
@@ -252,7 +256,8 @@ export default {
     const bareRoutes = [
       '/about', '/contact', '/terms', '/privacy', '/blog', '/insights',
       '/currency-prices', '/gold-prices', '/nobetci-eczane', '/kira-artis-orani',
-      '/akaryakit-fiyatlari', '/fuel-prices', '/workplace-quiz', '/ats-scanner',
+      '/akaryakit-fiyatlari', '/fuel-prices', '/kidem-tazminati-hesaplama', '/severance-calculator',
+      '/workplace-quiz', '/ats-scanner',
       '/submit-job', '/install', '/salary-calculator',
       '/salary-calculator-2026', '/investor-calculator', '/work-permit-eligibility', 
       '/cv-optimizer', '/resume-builder', '/ai-job-matcher',

@@ -380,6 +380,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       pageType = 'rent-calculator';
     } else if (path.includes('/akaryakit-fiyatlari') || path.includes('/fuel-prices')) {
       pageType = 'fuel-prices';
+    } else if (path.includes('/kidem-tazminati-hesaplama') || path.includes('/severance-calculator')) {
+      pageType = 'severance-calculator';
     } else if (path.includes('/insights')) {
       pageType = 'insights';
     } else if (path.includes('/about')) {
@@ -449,6 +451,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       dutyPharmacies: 'صيدليات الحراسة في إسطنبول',
       kiraArtis: 'حاسبة زيادة الإيجار القانونية TÜİK',
       fuelPrices: 'أسعار المحروقات والوقود اليوم',
+      severanceCalc: 'حاسبة تعويض نهاية الخدمة (Kıdem)',
       insights: 'إحصائيات السوق',
       blog: 'مدونة المهنة',
       candidatePortal: 'بوابة الباحث',
@@ -518,6 +521,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       dutyPharmacies: 'Duty Pharmacies in Istanbul',
       kiraArtis: 'Turkey Rent Increase Calculator',
       fuelPrices: 'Fuel & Petrol Prices Today',
+      severanceCalc: 'Severance & Notice Pay Calculator 2026',
       insights: 'Market Insights',
       blog: 'Career Blog',
       candidatePortal: 'Candidate Portal',
@@ -587,6 +591,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       dutyPharmacies: 'İstanbul Nöbetçi Eczaneler',
       kiraArtis: 'Kira Artış Oranı Hesaplama',
       fuelPrices: 'Akaryakıt Fiyatları Bugün',
+      severanceCalc: 'Kıdem ve İhbar Tazminatı Hesaplama 2026',
       insights: 'Piyasa Analizleri',
       blog: 'Kariyer Blogu',
       candidatePortal: 'Aday Portalı',
@@ -656,6 +661,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       dutyPharmacies: 'Дежурные аптеки Стамбула',
       kiraArtis: 'Калькулятор повышения аренды',
       fuelPrices: 'Цены на топливо в Стамбуле',
+      severanceCalc: 'Калькулятор выходного пособия (Kıdem)',
       insights: 'Аналитика рынка',
       blog: 'Блог о карьере',
       candidatePortal: 'Портал кандидата',
@@ -715,6 +721,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       dutyPharmacies: 'داروخانه‌های شبانه‌روزی استانبول',
       kiraArtis: 'محاسبه درصد افزایش اجاره در ترکیه',
       fuelPrices: 'قیمت بنزین و سوخت در استانبول',
+      severanceCalc: 'محاسبه سنوات و پایان کار (Kıdem)',
       insights: 'آمار و تحلیل بازار کار',
       blog: 'وبلاگ کاریابی',
       candidatePortal: 'پورتال کارجویان',
@@ -774,6 +781,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       dutyPharmacies: 'استنبول ڈیوٹی فارمیسیز',
       kiraArtis: 'ترکی کرایہ اضافہ کیلکولیٹر',
       fuelPrices: 'استنبول میں ایندھن کی قیمتیں',
+      severanceCalc: 'اختتامی سروس و نوٹس پے کیلکولیٹر (Kıdem)',
       insights: 'مارکیٹ کے اعداد و شمار',
       blog: 'کیریئر بلاگ',
       candidatePortal: 'امیدوار کا پورٹل',
@@ -1876,6 +1884,10 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
                 <img src="/public/images/3d-icons/fuel.png" alt="Fuel" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
                 <span style="font-weight: 700; color: #ea580c;">${t.fuelPrices}</span>
               </a>
+              <a href="/${locale}/kidem-tazminati-hesaplama" class="dropdown-item">
+                <img src="/public/images/3d-icons/justice.png" alt="Severance" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
+                <span style="font-weight: 700; color: #059669;">${t.severanceCalc || 'حاسبة تعويض نهاية الخدمة'}</span>
+              </a>
               <a href="/${locale}/install" class="dropdown-item">
                 <img src="/public/images/3d-icons/globe.png" alt="App" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
                 <span>${t.installApp}</span>
@@ -2044,6 +2056,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         <a href="/${locale}/nobetci-eczane" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/pharmacy.png" alt="Pharmacy" class="icon-3d-img" style="width:24px; height:24px;"> <span style="font-weight:700; color:#059669;">${t.dutyPharmacies}</span></a>
         <a href="/${locale}/kira-artis-orani" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/calculator.png" alt="Rent" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.kiraArtis}</span></a>
         <a href="/${locale}/akaryakit-fiyatlari" style="padding:10px 16px; border-radius:var(--r-md); color:#ea580c; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/fuel.png" alt="Fuel" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.fuelPrices}</span></a>
+        <a href="/${locale}/kidem-tazminati-hesaplama" style="padding:10px 16px; border-radius:var(--r-md); color:#059669; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/justice.png" alt="Severance" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.severanceCalc || 'حاسبة تعويض نهاية الخدمة'}</span></a>
         <a href="/${locale}/install" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/globe.png" alt="App" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.installApp}</span></a>
 
         <div style="margin-top:14px; border-top:1px solid var(--border); padding-top:10px; display:flex; flex-direction:column; gap:6px;">
@@ -2154,6 +2167,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           <li><a href="/${locale}/nobetci-eczane" style="color: #34d399; font-weight: 700; display:inline-flex; align-items:center; gap:6px;"><img src="/public/images/3d-icons/pharmacy.png" alt="" class="icon-3d-img" style="width:16px; height:16px;"><span>${t.dutyPharmacies}</span></a></li>
           <li><a href="/${locale}/kira-artis-orani" style="color: #38bdf8; font-weight: 700; display:inline-flex; align-items:center; gap:6px;"><img src="/public/images/3d-icons/calculator.png" alt="" class="icon-3d-img" style="width:16px; height:16px;"><span>${t.kiraArtis}</span></a></li>
           <li><a href="/${locale}/akaryakit-fiyatlari" style="color: #fb923c; font-weight: 700; display:inline-flex; align-items:center; gap:6px;"><img src="/public/images/3d-icons/fuel.png" alt="" class="icon-3d-img" style="width:16px; height:16px;"><span>${t.fuelPrices}</span></a></li>
+          <li><a href="/${locale}/kidem-tazminati-hesaplama" style="color: #34d399; font-weight: 700; display:inline-flex; align-items:center; gap:6px;"><img src="/public/images/3d-icons/justice.png" alt="" class="icon-3d-img" style="width:16px; height:16px;"><span>${t.severanceCalc || 'حاسبة تعويض نهاية الخدمة'}</span></a></li>
           <li><a href="/${locale}/install" style="font-weight: 700; color: var(--primary);"><i class="fa-solid fa-mobile-screen-button" style="margin-inline-end:6px;"></i>${t.installApp}</a></li>
         </ul>
         <ul class="footer-links">

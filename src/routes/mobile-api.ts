@@ -6,6 +6,7 @@ import { runGoldScraper } from '../services/gold-scraper';
 import { getCachedOrFallbackPharmacies } from '../services/pharmacy-scraper';
 import { OFFICIAL_TUIK_RENT_RATES } from './rent-calculator';
 import { getCachedOrFallbackFuelPrices } from '../services/fuel-scraper';
+import { calculateSeverancePackage } from './severance-calculator';
 
 export const mobileApiRouter = new Hono();
 
@@ -348,6 +349,36 @@ async function handleFuelPrices(c: Context) {
     },
     history: dataset.history
   });
+}
+
+// ----------------------------------------------------
+// 2.8 Turkey Severance & Notice Pay Calculator Handler (Kıdem & İhbar Tazminatı)
+// ----------------------------------------------------
+async function handleSeveranceCalculator(c: Context) {
+  const startDate = c.req.query('start') || '2022-01-15';
+  const endDate = c.req.query('end') || '2026-06-15';
+  const salary = parseFloat(c.req.query('salary') || '35000');
+  const salaryType = (c.req.query('type') || 'gross').toLowerCase() === 'net' ? 'net' : 'gross';
+  const foodAllowance = parseFloat(c.req.query('food') || c.req.query('allowances') || '3000');
+  const transportAllowance = parseFloat(c.req.query('transport') || '1500');
+  const bonusMonthly = parseFloat(c.req.query('bonus') || '0');
+  const unusedLeaveDays = parseFloat(c.req.query('leaveDays') || c.req.query('leave') || '14');
+  const reason = (c.req.query('reason') || 'employer_dismissal') as any;
+
+  const result = calculateSeverancePackage({
+    startDate,
+    endDate,
+    salary: isNaN(salary) || salary < 0 ? 33030 : salary,
+    salaryType,
+    foodAllowance: isNaN(foodAllowance) || foodAllowance < 0 ? 0 : foodAllowance,
+    transportAllowance: isNaN(transportAllowance) || transportAllowance < 0 ? 0 : transportAllowance,
+    bonusMonthly: isNaN(bonusMonthly) || bonusMonthly < 0 ? 0 : bonusMonthly,
+    unusedLeaveDays: isNaN(unusedLeaveDays) || unusedLeaveDays < 0 ? 0 : unusedLeaveDays,
+    reason
+  });
+
+  c.header('Cache-Control', 'public, max-age=300, s-maxage=1200');
+  return c.json(result);
 }
 
 // ----------------------------------------------------
@@ -747,6 +778,13 @@ mobileApiRouter.get('/api/mobile/akaryakit-fiyatlari', handleFuelPrices);
 mobileApiRouter.get('/api/v1/fuel-prices', handleFuelPrices);
 mobileApiRouter.get('/api/fuel-prices', handleFuelPrices);
 mobileApiRouter.get('/api/mobile/fuel-prices', handleFuelPrices);
+
+mobileApiRouter.get('/api/v1/kidem-tazminati', handleSeveranceCalculator);
+mobileApiRouter.get('/api/kidem-tazminati', handleSeveranceCalculator);
+mobileApiRouter.get('/api/mobile/kidem-tazminati', handleSeveranceCalculator);
+mobileApiRouter.get('/api/v1/severance-calculator', handleSeveranceCalculator);
+mobileApiRouter.get('/api/severance-calculator', handleSeveranceCalculator);
+mobileApiRouter.get('/api/mobile/severance-calculator', handleSeveranceCalculator);
 
 mobileApiRouter.get('/api/v1/jobs', handleJobs);
 mobileApiRouter.get('/api/jobs', handleJobs);
