@@ -3,6 +3,7 @@ import { renderLayout } from './public'
 import { safeQuery } from '../utils/db-helper'
 import { generateMetaTags, generateJsonLd } from '../utils/seo-helper'
 import { seededArticles, getArticleAvailableLocales, quranAppArticleTr } from '../data/seeded-blog-articles'
+import { renderBlogIndex, type BlogIndexCard } from '../views/blog-index-view'
 export { seededArticles, getArticleAvailableLocales }
 
 export const careerBlogRouter = new Hono()
@@ -367,152 +368,6 @@ careerBlogRouter.get('/:locale/blog', async (c) => {
     return c.html(renderLayout(c, t.title, `<div class="container" style="padding: 100px 20px; text-align: center; color: var(--text-muted);">${locale === 'ar' ? 'لا توجد مقالات حالياً.' : 'No articles available.'}</div>`, locale, ''));
   }
 
-  const styles = `
-    <style>
-      .blog-hero-card {
-        display: grid;
-        grid-template-columns: 1.2fr 1fr;
-        gap: 32px;
-        background: var(--bg-card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-xl);
-        overflow: hidden;
-        margin-bottom: 50px;
-        box-shadow: var(--shadow-sm);
-        transition: transform var(--t-base), box-shadow var(--t-base);
-        align-items: stretch;
-      }
-      .blog-hero-card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-md);
-      }
-      .blog-hero-image-wrap {
-        position: relative;
-        overflow: hidden;
-        min-height: 350px;
-        background: var(--bg-subtle);
-      }
-      .blog-hero-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform var(--t-base);
-      }
-      .blog-hero-card:hover .blog-hero-image {
-        transform: scale(1.03);
-      }
-      .blog-hero-content {
-        padding: 40px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-      }
-      
-      .blog-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-        gap: 30px;
-      }
-      
-      .blog-card {
-        background: var(--bg-card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-lg);
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        box-shadow: var(--shadow-sm);
-        transition: transform var(--t-base), box-shadow var(--t-base);
-      }
-      .blog-card:hover {
-        transform: translateY(-6px);
-        box-shadow: var(--shadow-md);
-      }
-      .blog-card-image-wrap {
-        position: relative;
-        padding-top: 56.25%; /* 16:9 Aspect Ratio */
-        overflow: hidden;
-        background: var(--bg-subtle);
-      }
-      .blog-card-image {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform var(--t-base);
-      }
-      .blog-card:hover .blog-card-image {
-        transform: scale(1.05);
-      }
-      .blog-card-content {
-        padding: 24px;
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1;
-      }
-      
-      .category-badge {
-        display: inline-block;
-        padding: 4px 10px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        border-radius: var(--radius-sm);
-        color: #fff;
-        width: fit-content;
-        margin-bottom: 12px;
-      }
-      
-      .blog-meta {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        font-size: 0.8rem;
-        color: var(--text-muted);
-        margin-bottom: 12px;
-      }
-      
-      .blog-card-title {
-        font-size: 1.25rem;
-        font-weight: 800;
-        color: var(--text-dark);
-        line-height: 1.4;
-        margin-bottom: 10px;
-        transition: color var(--t-base);
-      }
-      .blog-card:hover .blog-card-title {
-        color: var(--primary);
-      }
-
-      .blog-card-summary {
-        color: var(--text-muted);
-        font-size: 0.9rem;
-        line-height: 1.6;
-        margin-bottom: 20px;
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-      
-      @media (max-width: 768px) {
-        .blog-hero-card {
-          grid-template-columns: 1fr;
-        }
-        .blog-hero-image-wrap {
-          min-height: 220px;
-        }
-        .blog-hero-content {
-          padding: 24px;
-        }
-      }
-    </style>
-  `;
-
-  const featured = articles[0];
-  const restOfArticles = articles.slice(1);
-
   const adLabelsTable: Record<string, any> = {
     ar: {
       sectionTitle: 'فرص عمل مميزة للأجانب في إسطنبول',
@@ -583,135 +438,21 @@ careerBlogRouter.get('/:locale/blog', async (c) => {
   };
   const adLabels = adLabelsTable[locale] || adLabelsTable['en'];
 
-  const adHtml = `
-    <div class="job-ad-container" style="margin-bottom: 50px; background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-subtle) 100%); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 32px; box-shadow: var(--shadow-sm); position: relative; overflow: hidden;">
-      <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: var(--primary); opacity: 0.05; border-radius: 50%; filter: blur(40px);"></div>
-      
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <span style="display: inline-flex; align-items: center; gap: 6px; background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 4px 10px; border-radius: 50px; font-size: 0.75rem; font-weight: 700;">
-            <span style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: inline-block; animation: pulse-green 2s infinite;"></span>
-            ${adLabels.badge}
-          </span>
-          <h3 style="font-size: 1.35rem; font-weight: 800; color: var(--text-dark); margin: 0;">${adLabels.sectionTitle}</h3>
-        </div>
-        <a href="/${locale}#jobs-anchor" class="btn-apply-now" style="font-size: 0.85rem; padding: 8px 18px; width: fit-content; text-decoration: none;">${adLabels.browseAll}</a>
-      </div>
+  // Enrich + dedupe articles for the magazine-style index view
+  const seenSlugs = new Set<string>();
+  const cards: BlogIndexCard[] = articles
+    .filter((art: any) => art && art.slug && art.title && !seenSlugs.has(art.slug) && seenSlugs.add(art.slug))
+    .map((art: any) => ({
+      title: art.title,
+      slug: art.slug,
+      summary: String(art.summary || (art.content || '').replace(/<[^>]*>/g, '').substring(0, 180).trim() + '...').replace(/<[^>]*>/g, ''),
+      publishedAt: art.publishedAt || '',
+      image: extractFirstImage(art.content || '', art),
+      readingTime: getReadingTime(art.content || '', locale),
+      category: getCategory(art.slug, locale)
+    }));
 
-      <style>
-        @keyframes pulse-green {
-          0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-          70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-          100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-        }
-        .job-ad-row {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-          gap: 20px;
-        }
-        .job-ad-item {
-          background: var(--bg-card);
-          border: 1px solid var(--border);
-          border-radius: var(--radius-lg);
-          padding: 20px;
-          transition: transform var(--t-base), box-shadow var(--t-base), border-color var(--t-base);
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-        }
-        .job-ad-item:hover {
-          transform: translateY(-3px);
-          box-shadow: var(--shadow-md);
-          border-color: var(--primary);
-        }
-      </style>
-
-      <div class="job-ad-row">
-        ${adLabels.roles.map((role: any) => `
-          <div class="job-ad-item">
-            <div>
-              <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
-                <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted);">${role.company}</span>
-                <span style="font-size: 0.75rem; background: var(--bg-subtle); border: 1px solid var(--border); padding: 2px 8px; border-radius: var(--radius-sm); color: var(--text-body);">${role.salary}</span>
-              </div>
-              <h4 style="font-size: 1rem; font-weight: 800; color: var(--text-dark); margin: 0 0 10px 0; line-height: 1.4;">${role.title}</h4>
-              <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">
-                <i class="fa-solid fa-briefcase" style="margin-right: 4px;"></i> ${role.type}
-              </div>
-            </div>
-            <a href="/${locale}#jobs-anchor" class="btn-apply-now" style="font-size: 0.8rem; padding: 6px 14px; text-align: center; text-decoration: none; display: block; border-radius: var(--radius-md); font-weight: 700;">${adLabels.apply}</a>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-  `;
-
-  const featuredImg = extractFirstImage(featured.content, featured);
-  const featuredCat = getCategory(featured.slug, locale);
-  const featuredTime = getReadingTime(featured.content, locale);
-  const featuredCleanSummary = featured.summary || featured.content.replace(/<[^>]*>/g, '').substring(0, 180).trim() + '...';
-
-  const featuredHtml = `
-    <div class="blog-hero-card">
-      <div class="blog-hero-image-wrap">
-        <img class="blog-hero-image" src="${featuredImg}" alt="${featured.title}">
-      </div>
-      <div class="blog-hero-content">
-        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
-          <span style="font-size: 0.75rem; background: var(--primary); color: #fff; padding: 2px 8px; border-radius: var(--radius-sm); font-weight: 700;">${t.featured}</span>
-          <span class="category-badge" style="background: ${featuredCat.color}; margin-bottom: 0;">${featuredCat.name}</span>
-        </div>
-        <h2 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 12px; line-height: 1.3;"><a href="/${locale}/blog/${featured.slug}" style="color: var(--text-dark); transition: color var(--t-base); text-decoration: none;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-dark)'">${featured.title}</a></h2>
-        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px;">${featuredCleanSummary}</p>
-        <div class="blog-meta" style="margin-bottom: 24px;">
-          <span><i class="fa-regular fa-calendar"></i> ${featured.publishedAt}</span>
-          <span><i class="fa-regular fa-clock"></i> ${featuredTime}</span>
-        </div>
-        <a href="/${locale}/blog/${featured.slug}" class="btn-apply-now" style="width: fit-content;">${t.readMore}</a>
-      </div>
-    </div>
-  `;
-
-  const listHtml = restOfArticles.map((art: any) => {
-    const img = extractFirstImage(art.content, art);
-    const cat = getCategory(art.slug, locale);
-    const time = getReadingTime(art.content, locale);
-    const cleanSummary = art.summary || art.content.replace(/<[^>]*>/g, '').substring(0, 120).trim() + '...';
-
-    return `
-      <article class="blog-card">
-        <a href="/${locale}/blog/${art.slug}" class="blog-card-image-wrap">
-          <img class="blog-card-image" src="${img}" alt="${art.title}">
-        </a>
-        <div class="blog-card-content">
-          <span class="category-badge" style="background: ${cat.color};">${cat.name}</span>
-          <h3 class="blog-card-title"><a href="/${locale}/blog/${art.slug}" style="color: inherit; text-decoration: none;">${art.title}</a></h3>
-          <p class="blog-card-summary">${cleanSummary}</p>
-          <div class="blog-meta" style="margin-top: auto; margin-bottom: 16px;">
-            <span><i class="fa-regular fa-calendar"></i> ${art.publishedAt}</span>
-            <span><i class="fa-regular fa-clock"></i> ${time}</span>
-          </div>
-          <a href="/${locale}/blog/${art.slug}" class="btn-apply-now" style="width: fit-content;">${t.readMore}</a>
-        </div>
-      </article>
-    `;
-  }).join('');
-
-  const html = `
-    ${styles}
-    <div class="container" style="padding: 60px 20px; margin-bottom: 100px;">
-      <h1 class="hero-title-gradient" style="text-align: center; margin-bottom: 12px; font-size: 2.5rem; font-weight: 800;">${t.title}</h1>
-      <p style="color: var(--text-muted); text-align: center; margin-bottom: 50px; font-size: 1.1rem; max-width: 600px; margin-left: auto; margin-right: auto;">${t.subtitle}</p>
- 
-      ${featuredHtml}
-
-      ${adHtml}
-
-      <div class="blog-grid">
-        ${listHtml}
-      </div>
-    </div>
-  `;
+  const html = renderBlogIndex({ locale, cards, t, adLabels });
 
   const seoHtml = generateMetaTags(locale, 'blog') + generateJsonLd(locale, 'blog');
   c.header('Cache-Control', 'public, max-age=600, s-maxage=3600, stale-while-revalidate=86400');
