@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { renderLayout } from './public'
+import { hreflangLinks, ogImageTags, ogLocale, getNativeLocales, canonicalLocaleFor, DEFAULT_OG_IMAGE } from '../utils/seo-links'
 
 export const severanceCalculatorRouter = new Hono()
 
@@ -278,6 +279,8 @@ severanceCalculatorRouter.get('/:locale/kidem-tazminati-hesaplama', async (c) =>
       badge: 'قانون العمل التركي رقم 4857 • تحديث السقف الرسمي 2026',
       title: 'حاسبة تعويض نهاية الخدمة والفصل من العمل في تركيا 2026 (Kıdem & İhbar Tazminatı)',
       subtitle: 'احسب بدقة مستحقاتك القانونية الكاملة عند انتهاء العمل أو الفصل أو الاستقالة في تركيا لعام 2026: تعويض الأقدمية (Kıdem Tazminatı)، تعويض مهلة الإشعار (İhbar Tazminatı)، وبدل أيام الإجازات السنوية غير المستخدمة (Yıllık İzin Ücreti).',
+    metaTitle: 'حاسبة تعويض نهاية الخدمة في تركيا 2026 | Kıdem Tazminatı',
+    metaDesc: 'احسب تعويض الأقدمية (Kıdem) ومهلة الإشعار (İhbar) وبدل الإجازات غير المستخدمة في تركيا لعام 2026 وفق السقف الرسمي 64,948.77 ليرة.',
       ceilingCardTitle: 'سقف تعويض نهاية الخدمة الرسمي لعام 2026',
       ceilingCardSub: 'السقف الأعلى المعتمد لاحتساب كل سنة خدمة (يوليو – ديسمبر 2026)',
       minWageLabel: 'الحد الأدنى للأجور 2026 (إجمالي / صافي)',
@@ -360,6 +363,8 @@ severanceCalculatorRouter.get('/:locale/kidem-tazminati-hesaplama', async (c) =>
       badge: 'Turkish Labor Law No. 4857 • Official 2026 Ceiling Updated',
       title: 'Turkey Severance & Notice Pay Calculator 2026 (Kıdem & İhbar Tazminatı)',
       subtitle: 'Accurately calculate your legal termination entitlements in Turkey for 2026: Severance Pay (Kıdem Tazminatı), Notice Pay (İhbar Tazminatı), and Unused Annual Leave Pay (Yıllık İzin Ücreti) with net tax deductions.',
+    metaTitle: 'Turkey Severance Pay Calculator 2026 | Kıdem & İhbar',
+    metaDesc: 'Calculate severance pay (Kıdem), notice pay (İhbar) and unused leave pay in Turkey for 2026, using the official ceiling of 64,948.77 TL.',
       ceilingCardTitle: 'Official 2026 Severance Pay Ceiling',
       ceilingCardSub: 'Maximum gross base per year of service (July – December 2026)',
       minWageLabel: '2026 Minimum Wage (Gross / Net)',
@@ -442,6 +447,8 @@ severanceCalculatorRouter.get('/:locale/kidem-tazminati-hesaplama', async (c) =>
       badge: '4857 Sayılı İş Kanunu • 2026 Resmi Kıdem Tavanı Güncel',
       title: 'Kıdem ve İhbar Tazminatı Hesaplama 2026 (Yıllık İzin Ücreti Dahil)',
       subtitle: '2026 yılı güncel kıdem tavanı (64.948,77 TL) ve vergi dilimlerine göre; işe giriş-çıkış tarihiniz, giydirilmiş brüt maaşınız ve yan haklarınızla Net Kıdem Tazminatı, İhbar Tazminatı ve Kullanılmayan Yıllık İzin Ücretinizi anında hesaplayın.',
+    metaTitle: 'Kıdem ve İhbar Tazminatı Hesaplama 2026',
+    metaDesc: '2026 kıdem tavanı (64.948,77 TL) ile kıdem tazminatı, ihbar tazminatı ve kullanılmayan yıllık izin ücretinizi net ve brüt olarak hesaplayın.',
       ceilingCardTitle: '2026 Resmi Kıdem Tazminatı Tavanı',
       ceilingCardSub: 'Her bir tam çalışma yılı için ödenebilecek üst sınır (Temmuz – Aralık 2026)',
       minWageLabel: '2026 Asgari Ücret (Brüt / Net)',
@@ -536,7 +543,9 @@ severanceCalculatorRouter.get('/:locale/kidem-tazminati-hesaplama', async (c) =>
   });
 
   const siteUrl = 'https://jobs-in-istanbul.com';
-  const canonicalUrl = `${siteUrl}/${locale}/kidem-tazminati-hesaplama`;
+  // Body content exists in ar/en/tr only; ru/fa/ur render English and canonicalize to /en
+  const nativeLocales = getNativeLocales('kidem-tazminati-hesaplama');
+  const canonicalUrl = `${siteUrl}/${canonicalLocaleFor(locale, nativeLocales)}/kidem-tazminati-hesaplama`;
 
   const schemaJsonLd = JSON.stringify([
     {
@@ -586,20 +595,16 @@ severanceCalculatorRouter.get('/:locale/kidem-tazminati-hesaplama', async (c) =>
   ]);
 
   const seoHead = `
-    <title>${t.title}</title>
-    <meta name="description" content="${t.subtitle}">
+    <title>${t.metaTitle || t.title}</title>
+    <meta name="description" content="${t.metaDesc || t.subtitle}">
     <link rel="canonical" href="${canonicalUrl}">
-    <link rel="alternate" hreflang="ar" href="${siteUrl}/ar/kidem-tazminati-hesaplama">
-    <link rel="alternate" hreflang="en" href="${siteUrl}/en/kidem-tazminati-hesaplama">
-    <link rel="alternate" hreflang="tr" href="${siteUrl}/tr/kidem-tazminati-hesaplama">
-    <link rel="alternate" hreflang="ru" href="${siteUrl}/ru/kidem-tazminati-hesaplama">
-    <link rel="alternate" hreflang="fa" href="${siteUrl}/fa/kidem-tazminati-hesaplama">
-    <link rel="alternate" hreflang="ur" href="${siteUrl}/ur/kidem-tazminati-hesaplama">
-    <link rel="alternate" hreflang="x-default" href="${siteUrl}/en/kidem-tazminati-hesaplama">
-    <meta property="og:title" content="${t.title}">
-    <meta property="og:description" content="${t.subtitle}">
+    ${hreflangLinks('/kidem-tazminati-hesaplama', nativeLocales)}
+    <meta property="og:title" content="${t.metaTitle || t.title}">
+    <meta property="og:description" content="${t.metaDesc || t.subtitle}">
     <meta property="og:url" content="${canonicalUrl}">
     <meta property="og:type" content="website">
+    <meta property="og:locale" content="${ogLocale(locale)}">
+    ${ogImageTags(DEFAULT_OG_IMAGE, t.metaTitle || t.title)}
     <script type="application/ld+json">${schemaJsonLd}</script>
   `;
 

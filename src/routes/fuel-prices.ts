@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { renderLayout } from './public';
+import { hreflangLinks, ogImageTags, ogLocale, DEFAULT_OG_IMAGE } from '../utils/seo-links';
 import { getCachedOrFallbackFuelPrices, runFuelScraper } from '../services/fuel-scraper';
 
 export const fuelPricesRouter = new Hono();
@@ -47,8 +48,8 @@ fuelPricesRouter.get('/:locale/akaryakit-fiyatlari', async (c) => {
   // Translations dictionary
   const t = {
     ar: {
-      metaTitle: 'أسعار البنزين والديزل والمحروقات اليوم في إسطنبول 2026 | تحديث مباشر وتنبيه الزيادة والتخفيض',
-      metaDesc: 'تعرف على أسعار الوقود في إسطنبول اليوم للجانبين الأوروبي والآسيوي: بنزين 95، ديزل (مازوت)، وغاز السيارات LPG. شريط تنبيهات ذكي لتوقعات التخفيض والزيادة مع حاسبة تكلفة المشوار للموتوكوري والسيارات.',
+      metaTitle: 'أسعار البنزين والديزل في إسطنبول اليوم 2026 | LPG',
+      metaDesc: 'أسعار المحروقات الرسمية في إسطنبول اليوم: بنزين 95 والديزل (موتورين) وغاز LPG للجانبين الأوروبي والآسيوي، مع تنبيهات الزيادة والتخفيض.',
       heroBadge: 'تحديث أسعار المحروقات اليومي المباشر 2026',
       heroTitle: 'أسعار البنزين والديزل والمحروقات اليوم في إسطنبول',
       heroSubtitle: 'تحديث لحظي لأسعار بنزين 95 (Benzin)، الديزل (Motorin)، وغاز السيارات (LPG) للجانبين الأوروبي والآسيوي، مع مؤشر التنبيه الذكي للزيادة والتخفيض القادم وحاسبة تكلفة الوقود.',
@@ -116,8 +117,8 @@ fuelPricesRouter.get('/:locale/akaryakit-fiyatlari', async (c) => {
       faq3A: 'يتم احتساب السعر وفق صيغة تعتمد على متوسط أسعار منتجات التكرير في سوق البحر الأبيض المتوسط (جنوة/إيطاليا)، وسعر صرف الليرة التركية مقابل الدولار الأمريكي، مضافاً إليها ضرائب ÖTV و KDV.'
     },
     tr: {
-      metaTitle: 'İstanbul Akaryakıt Fiyatları Bugün 2026 | Benzin, Motorin, LPG Fiyatı ve Zam/İndirim Uyarısı',
-      metaDesc: 'İstanbul güncel akaryakıt fiyatları: Benzin 95, Motorin (Dizel) ve LPG Otogaz litre fiyatı bugün kaç TL? Avrupa ve Anadolu yakası güncel pompa fiyatları, akaryakıt zam/indirim bildirimleri ve motokurye yakıt hesaplama.',
+      metaTitle: 'İstanbul Akaryakıt Fiyatları Bugün 2026 | Benzin, Motorin, LPG',
+      metaDesc: 'İstanbul güncel akaryakıt fiyatları: Benzin 95, motorin ve LPG litre fiyatı bugün kaç TL? Avrupa ve Anadolu yakası fiyatları ve zam/indirim uyarıları.',
       heroBadge: 'Güncel Akaryakıt Pompa Fiyatları 2026',
       heroTitle: 'İstanbul Akaryakıt Fiyatları Bugün (Benzin, Motorin, LPG)',
       heroSubtitle: 'İstanbul Avrupa ve Anadolu yakası için güncel Kurşunsuz Benzin 95, Motorin (Mazot) ve Otogaz (LPG) litre fiyatları, anlık zam/indirim takip bildirimi ve kurye yakıt hesaplama aracı.',
@@ -185,8 +186,8 @@ fuelPricesRouter.get('/:locale/akaryakit-fiyatlari', async (c) => {
       faq3A: 'Cenova Akdeniz piyasasındaki işlenmiş petrol fiyatları ve USD/TRY kuru baz alınarak, üzerine ÖTV ve KDV eklenmesiyle belirlenir.'
     },
     en: {
-      metaTitle: 'Istanbul Fuel Prices Today 2026 | Petrol, Diesel, LPG Pump Rates & Fuel Alert',
-      metaDesc: 'Today\'s official fuel prices in Istanbul for European and Asian sides: Unleaded Petrol 95, Diesel (Motorin), and LPG Autogas per liter. Live fuel alert tracker and courier trip fuel cost calculator.',
+      metaTitle: 'Istanbul Fuel Prices Today 2026 | Petrol, Diesel & LPG',
+      metaDesc: 'Official fuel prices in Istanbul today for the European and Asian sides: Petrol 95, Diesel and LPG per liter, plus price hike and cut alerts.',
       heroBadge: 'Live Istanbul Fuel Pump Prices 2026',
       heroTitle: 'Istanbul Fuel Prices Today (Petrol, Diesel, LPG)',
       heroSubtitle: 'Real-time retail fuel prices across Istanbul European and Asian sides for Unleaded Petrol 95, Diesel (Motorin), and Autogas (LPG) with smart price change alert tracker and courier cost calculator.',
@@ -572,15 +573,13 @@ fuelPricesRouter.get('/:locale/akaryakit-fiyatlari', async (c) => {
     <title>${t.metaTitle}</title>
     <meta name="description" content="${t.metaDesc}">
     <link rel="canonical" href="https://jobs-in-istanbul.com/${locale}/akaryakit-fiyatlari">
-    <link rel="alternate" hreflang="ar" href="https://jobs-in-istanbul.com/ar/akaryakit-fiyatlari">
-    <link rel="alternate" hreflang="tr" href="https://jobs-in-istanbul.com/tr/akaryakit-fiyatlari">
-    <link rel="alternate" hreflang="en" href="https://jobs-in-istanbul.com/en/akaryakit-fiyatlari">
-    <link rel="alternate" hreflang="x-default" href="https://jobs-in-istanbul.com/ar/akaryakit-fiyatlari">
+    ${hreflangLinks('/akaryakit-fiyatlari')}
     <meta property="og:title" content="${t.metaTitle}">
     <meta property="og:description" content="${t.metaDesc}">
     <meta property="og:url" content="https://jobs-in-istanbul.com/${locale}/akaryakit-fiyatlari">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="https://jobs-in-istanbul.com/images/fuel-prices-og.png">
+    <meta property="og:locale" content="${ogLocale(locale)}">
+    ${ogImageTags(DEFAULT_OG_IMAGE, t.metaTitle)}
     <script type="application/ld+json">${JSON.stringify(schemaWebApplication)}</script>
     <script type="application/ld+json">${JSON.stringify(schemaFAQ)}</script>
   `;
@@ -991,7 +990,7 @@ fuelPricesRouter.get('/:locale/akaryakit-fiyatlari', async (c) => {
       <!-- HERO -->
       <div class="fuel-hero">
         <div style="text-align: center; margin-bottom: 16px;">
-          <img src="/public/images/3d-icons/fuel.png" alt="Fuel Prices" class="icon-3d-img" style="width: 72px; height: 72px; filter: drop-shadow(0 10px 24px rgba(234, 88, 12, 0.35)); display: inline-block;">
+          <img width="72" height="72" src="/public/images/3d-icons/fuel.png" alt="Fuel Prices" class="icon-3d-img" style="width: 72px; height: 72px; filter: drop-shadow(0 10px 24px rgba(234, 88, 12, 0.35)); display: inline-block;">
         </div>
         <div class="fuel-badge">
           <span class="live-pulse"></span>

@@ -45,6 +45,22 @@ const config: SonicJSConfig = {
     middleware: {
     beforeAuth: [
       (async (c: any, next: any): Promise<any> => {
+        const reqUrl = new URL(c.req.url);
+        if (reqUrl.hostname === 'www.jobs-in-istanbul.com') {
+          reqUrl.hostname = 'jobs-in-istanbul.com';
+          return c.redirect(reqUrl.toString(), 301);
+        }
+        if (
+          (c.req.method === 'GET' || c.req.method === 'HEAD') &&
+          reqUrl.pathname.length > 1 &&
+          reqUrl.pathname.endsWith('/') &&
+          !reqUrl.pathname.startsWith('/admin') &&
+          !reqUrl.pathname.startsWith('/auth') &&
+          !reqUrl.pathname.startsWith('/api/')
+        ) {
+          reqUrl.pathname = reqUrl.pathname.replace(/\/+$/, '') || '/';
+          return c.redirect(reqUrl.toString(), 301);
+        }
         if (c.req.path === '/' || c.req.path === '') {
           let ctx: any;
           try { ctx = c.executionCtx; } catch (e) {}
@@ -177,6 +193,25 @@ function applySecurityHeaders(headers: Headers): Headers {
 export default {
   async fetch(request: Request, env: any, ctx: any) {
     const url = new URL(request.url);
+
+    // --- Canonical host & URL normalization (SEO) ---
+    // 1. www.jobs-in-istanbul.com -> jobs-in-istanbul.com (single indexable host)
+    if (url.hostname === 'www.jobs-in-istanbul.com') {
+      url.hostname = 'jobs-in-istanbul.com';
+      return Response.redirect(url.toString(), 301);
+    }
+    // 2. Strip trailing slashes on public GET/HEAD pages (/ar/ -> /ar, /ar/blog/ -> /ar/blog)
+    if (
+      (request.method === 'GET' || request.method === 'HEAD') &&
+      url.pathname.length > 1 &&
+      url.pathname.endsWith('/') &&
+      !url.pathname.startsWith('/admin') &&
+      !url.pathname.startsWith('/auth') &&
+      !url.pathname.startsWith('/api/')
+    ) {
+      url.pathname = url.pathname.replace(/\/+$/, '') || '/';
+      return Response.redirect(url.toString(), 301);
+    }
 
     // Direct Mobile REST API dispatch (high-speed Hono execution, bypasses CMS collection catch-all)
     if (

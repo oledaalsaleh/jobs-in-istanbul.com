@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { renderLayout } from './public'
+import { hreflangLinks, ogImageTags, ogLocale, DEFAULT_OG_IMAGE } from '../utils/seo-links'
 
 export const rentCalculatorRouter = new Hono()
 
@@ -224,8 +225,8 @@ rentCalculatorRouter.get('/:locale/kira-artis-orani', async (c) => {
   // Localized Content
   const t = {
     ar: {
-      metaTitle: 'حاسبة نسبة زيادة الإيجار القانونية في تركيا 2026 | مؤشر التضخم الرسمي TÜİK وقانون الإيجار',
-      metaDesc: 'احسب نسبة زيادة الإيجار القانونية في تركيا لشهر أكتوبر 2026 لجميع عقود المنازل والمحلات طبقاً لمؤشر TÜFE الصادر عن TÜİK. حاسبة دقيقة مع المواد القانونية لحماية المستأجر.',
+      metaTitle: 'حاسبة زيادة الإيجار في تركيا 2026 | نسبة TÜİK الرسمية',
+      metaDesc: 'احسب نسبة زيادة الإيجار القانونية في تركيا لعام 2026 وفق متوسط التضخم TÜFE الصادر عن TÜİK، مع دليل حقوق المستأجر في القانون التركي.',
       heroBadge: 'المعدل القانوني الرسمي المعتمد 2026',
       heroTitle: 'حاسبة ومؤشر نسبة زيادة الإيجار القانونية في تركيا 2026',
       heroSubtitle: 'احسب إيجارك الجديد والحد الأقصى القانوني للزيادة بالليرة التركية وفق بيانات هيئة الإحصاء التركية (TÜİK) وقانون الالتزامات التركي رقم 6098.',
@@ -277,8 +278,8 @@ rentCalculatorRouter.get('/:locale/kira-artis-orani', async (c) => {
       faq3A: 'نعم، بعد إلغاء سقف الـ 25% القديم، أصبحت عقود السكن (Konut) وعقود العمل والمحلات (İşyeri) خاضعة لنفس النسبة القانونية القصوى وهي متوسط التضخم لـ 12 شهراً.'
     },
     en: {
-      metaTitle: 'Legal Rent Increase Calculator Turkey 2026 | Official TÜİK Inflation Cap (TBK)',
-      metaDesc: 'Calculate the official legal rent increase in Turkey for October 2026 based on the 12-month TÜFE average from TÜİK. Accurate calculator and legal rights guide for tenants in Istanbul.',
+      metaTitle: 'Turkey Rent Increase Calculator 2026 | Official TÜİK Rate',
+      metaDesc: 'Calculate the legal rent increase in Turkey for 2026 using the official 12-month TÜFE average from TÜİK, plus a tenant rights guide.',
       heroBadge: 'Official Legal Rate 2026',
       heroTitle: 'Turkey Legal Rent Increase Calculator 2026',
       heroSubtitle: 'Calculate your new legal rent and maximum allowable increase in Turkish Liras according to official TÜİK CPI inflation figures and Turkish Code of Obligations (TBK).',
@@ -330,8 +331,8 @@ rentCalculatorRouter.get('/:locale/kira-artis-orani', async (c) => {
       faq3A: 'Yes, both residential (Konut) and commercial (İşyeri) properties are governed by the same 12-month TÜFE cap.'
     },
     tr: {
-      metaTitle: 'Kira Artış Oranı Hesaplama 2026 | Resmi TÜİK TÜFE Tavan Oranı ve Yasal Haklar',
-      metaDesc: 'Ekim 2026 kira artış oranı hesaplama aracı. TÜİK 12 aylık TÜFE ortalamasına göre konut ve işyeri kira zammı tavanı, yeni kira bedeli ve Türk Borçlar Kanunu kiracı hakları rehberi.',
+      metaTitle: 'Kira Artış Oranı Hesaplama 2026 | Resmi TÜİK TÜFE Oranı',
+      metaDesc: 'TÜİK 12 aylık TÜFE ortalamasına göre 2026 kira artış oranı hesaplama: konut ve işyeri kira zammı tavanı, yeni kira bedeli ve kiracı hakları.',
       heroBadge: '2026 Resmi Yasal Tavan Oranı',
       heroTitle: 'Kira Artış Oranı Hesaplama 2026 (TÜİK TÜFE)',
       heroSubtitle: 'TÜİK tarafından açıklanan 12 aylık ortalamalara göre TÜFE değişim oranı ile yeni kira bedelinizi ve yasal zam tutarınızı hemen hesaplayın.',
@@ -641,16 +642,13 @@ rentCalculatorRouter.get('/:locale/kira-artis-orani', async (c) => {
     <title>${t.metaTitle}</title>
     <meta name="description" content="${t.metaDesc}">
     <link rel="canonical" href="https://jobs-in-istanbul.com/${locale}/kira-artis-orani">
-    <link rel="alternate" hreflang="ar" href="https://jobs-in-istanbul.com/ar/kira-artis-orani" />
-    <link rel="alternate" hreflang="en" href="https://jobs-in-istanbul.com/en/kira-artis-orani" />
-    <link rel="alternate" hreflang="tr" href="https://jobs-in-istanbul.com/tr/kira-artis-orani" />
-    <link rel="alternate" hreflang="x-default" href="https://jobs-in-istanbul.com/ar/kira-artis-orani" />
+    ${hreflangLinks('/kira-artis-orani')}
     <meta property="og:title" content="${t.metaTitle}">
     <meta property="og:description" content="${t.metaDesc}">
     <meta property="og:url" content="https://jobs-in-istanbul.com/${locale}/kira-artis-orani">
     <meta property="og:type" content="website">
-    <meta property="og:locale" content="${locale === 'ar' ? 'ar_AR' : (locale === 'tr' ? 'tr_TR' : 'en_US')}">
-    <meta name="twitter:card" content="summary_large_image">
+    <meta property="og:locale" content="${ogLocale(locale)}">
+    ${ogImageTags(DEFAULT_OG_IMAGE, t.metaTitle)}
     <meta name="twitter:title" content="${t.metaTitle}">
     <meta name="twitter:description" content="${t.metaDesc}">
     <script type="application/ld+json">${JSON.stringify(schemaWebAppContext)}</script>
@@ -1101,7 +1099,7 @@ rentCalculatorRouter.get('/:locale/kira-artis-orani', async (c) => {
       <!-- Hero Header -->
       <section class="kira-hero">
         <div style="text-align: center; margin-bottom: 16px;">
-          <img src="/public/images/3d-icons/calculator.png" alt="Rent Calculator" class="icon-3d-img" style="width: 72px; height: 72px; filter: drop-shadow(0 10px 24px rgba(2, 132, 199, 0.35)); display: inline-block;">
+          <img width="72" height="72" src="/public/images/3d-icons/calculator.png" alt="Rent Calculator" class="icon-3d-img" style="width: 72px; height: 72px; filter: drop-shadow(0 10px 24px rgba(2, 132, 199, 0.35)); display: inline-block;">
         </div>
         <div class="kira-badge">
           <span>🏛️ ${t.heroBadge}</span>

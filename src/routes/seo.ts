@@ -4,6 +4,8 @@ import { ISTANBUL_DISTRICTS } from './public'
 import { safeQuery } from '../utils/db-helper'
 import { seededArticles, getArticleAvailableLocales } from './career-blog'
 import { getFallbackJobs, getFallbackCategories } from '../data/fallback-dataset'
+import { getJobFreshnessCutoffMs } from '../utils/job-validity'
+import { getNativeLocales } from '../utils/seo-links'
 
 export const seoRouter = new Hono()
 
@@ -64,9 +66,36 @@ seoRouter.get('/ads.txt', (c) => {
 
 
 // sitemap.xml handler (Sitemap Index)
-seoRouter.get('/sitemap.xml', (c) => {
+seoRouter.get('/sitemap.xml', async (c) => {
   const siteUrl = 'https://jobs-in-istanbul.com';
   const now = new Date().toISOString().split('T')[0];
+
+  // Additional job sitemap pages beyond sitemap-jobs.xml (page 1) when valid jobs exceed one page
+  let extraJobPages = 0;
+  const cacheKv = (c.env as any)?.CACHE_KV;
+  try {
+    let validJobs: number | null = null;
+    if (cacheKv) {
+      const cached = await cacheKv.get('kv_sitemap_valid_jobs_count');
+      if (cached !== null && cached !== undefined) validJobs = parseInt(cached, 10);
+    }
+    if (validJobs === null || isNaN(validJobs)) {
+      const db = (c.env as any)?.DB;
+      const row: any = db ? await safeQuery(() => db.prepare(
+        `SELECT COUNT(*) AS n FROM documents WHERE type_id = 'jobs' AND is_published = 1 AND status = 'published' AND deleted_at IS NULL AND published_at >= ?`
+      ).bind(getJobFreshnessCutoffMs()).first(), 1, 50) : null;
+      validJobs = Number(row?.n) || 0;
+      if (cacheKv) cacheKv.put('kv_sitemap_valid_jobs_count', String(validJobs), { expirationTtl: 21600 }).catch(() => {});
+    }
+    extraJobPages = Math.max(0, Math.ceil(validJobs / SITEMAP_JOBS_PAGE_SIZE) - 1);
+  } catch (e) {
+    extraJobPages = 0;
+  }
+  const extraJobSitemaps = Array.from({ length: extraJobPages }, (_, i) => `
+  <sitemap>
+    <loc>${siteUrl}/sitemap-jobs-${i + 2}.xml</loc>
+    <lastmod>${now}</lastmod>
+  </sitemap>`).join('');
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -77,7 +106,7 @@ seoRouter.get('/sitemap.xml', (c) => {
   <sitemap>
     <loc>${siteUrl}/sitemap-jobs.xml</loc>
     <lastmod>${now}</lastmod>
-  </sitemap>
+  </sitemap>${extraJobSitemaps}
   <sitemap>
     <loc>${siteUrl}/sitemap-blog.xml</loc>
     <lastmod>${now}</lastmod>
@@ -161,6 +190,7 @@ seoRouter.get('/sitemap-static.xml', async (c) => {
     { ar: '/ar/jobs-in-taksim', en: '/en/jobs-in-taksim', tr: '/tr/jobs-in-taksim', ru: '/ru/jobs-in-taksim', fa: '/fa/jobs-in-taksim', ur: '/ur/jobs-in-taksim' },
     { ar: '/ar/jobs-in-kadikoy', en: '/en/jobs-in-kadikoy', tr: '/tr/jobs-in-kadikoy', ru: '/ru/jobs-in-kadikoy', fa: '/fa/jobs-in-kadikoy', ur: '/ur/jobs-in-kadikoy' },
     { ar: '/ar/insights', en: '/en/insights', tr: '/tr/insights', ru: '/ru/insights', fa: '/fa/insights', ur: '/ur/insights' },
+    { ar: '/ar/apps', en: '/en/apps', tr: '/tr/apps', ru: '/ru/apps', fa: '/fa/apps', ur: '/ur/apps' },
     { ar: '/ar/about', en: '/en/about', tr: '/tr/about', ru: '/ru/about', fa: '/fa/about', ur: '/ur/about' },
     { ar: '/ar/contact', en: '/en/contact', tr: '/tr/contact', ru: '/ru/contact', fa: '/fa/contact', ur: '/ur/contact' },
     { ar: '/ar/privacy', en: '/en/privacy', tr: '/tr/privacy', ru: '/ru/privacy', fa: '/fa/privacy', ur: '/ur/privacy' },
@@ -171,21 +201,20 @@ seoRouter.get('/sitemap-static.xml', async (c) => {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">`;
 
-  // 1. Static pages
+  // 1. Static pages — only locales with genuine content are listed (untranslated variants canonicalize to /en)
   for (const route of staticRoutes) {
-    for (const loc of ['ar', 'en', 'tr', 'ru', 'fa', 'ur'] as const) {
+    const routePath = route.en.replace(/^\/en/, '');
+    const locales = getNativeLocales(routePath) as readonly ('ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur')[];
+    const alternates = locales
+      .map(l => `\n    <xhtml:link rel="alternate" hreflang="${l}" href="${siteUrl}${route[l]}" />`)
+      .join('');
+    for (const loc of locales) {
       xml += `
   <url>
     <loc>${siteUrl}${route[loc]}</loc>
     <lastmod>${now}</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="ar" href="${siteUrl}${route.ar}" />
-    <xhtml:link rel="alternate" hreflang="en" href="${siteUrl}${route.en}" />
-    <xhtml:link rel="alternate" hreflang="tr" href="${siteUrl}${route.tr}" />
-    <xhtml:link rel="alternate" hreflang="ru" href="${siteUrl}${route.ru}" />
-    <xhtml:link rel="alternate" hreflang="fa" href="${siteUrl}${route.fa}" />
-    <xhtml:link rel="alternate" hreflang="ur" href="${siteUrl}${route.ur}" />
+    <priority>0.8</priority>${alternates}
     <xhtml:link rel="alternate" hreflang="x-default" href="${siteUrl}${route.en}" />
   </url>`;
     }
@@ -233,7 +262,8 @@ async function handleSitemapJobs(c: any, rawPage?: string) {
   const pageParam = rawPage || c.req.query('page') || '1';
   const page = Math.max(1, parseInt(pageParam, 10) || 1);
   const offset = (page - 1) * SITEMAP_JOBS_PAGE_SIZE;
-  const cacheKey = page === 1 ? 'kv_sitemap_jobs_xml' : `kv_sitemap_jobs_xml_p${page}`;
+  // v2: only non-expired jobs (see utils/job-validity) — bumping the key evicts the old 6-month list
+  const cacheKey = page === 1 ? 'kv_sitemap_jobs_xml_v2' : `kv_sitemap_jobs_xml_v2_p${page}`;
 
   const cacheKv = (c.env as any)?.CACHE_KV;
   if (cacheKv) {
@@ -251,12 +281,13 @@ async function handleSitemapJobs(c: any, rawPage?: string) {
   const db = (c.env as any).DB;
   const siteUrl = 'https://jobs-in-istanbul.com';
 
-  // Fetch published jobs using composite index idx_documents_jobs_pub_date with safe batch limit
+  // Fetch published, still-valid jobs (expired listings are excluded per Google Jobs guidelines)
   let jobs: any[] = [];
   try {
+    const cutoff = getJobFreshnessCutoffMs();
     const jobRows = await safeQuery(() => db.prepare(
-      `SELECT slug, updated_at, published_at FROM documents WHERE type_id = 'jobs' AND is_published = 1 AND status = 'published' AND deleted_at IS NULL ORDER BY published_at DESC LIMIT ${SITEMAP_JOBS_PAGE_SIZE} OFFSET ${offset}`
-    ).all());
+      `SELECT slug, updated_at, published_at FROM documents WHERE type_id = 'jobs' AND is_published = 1 AND status = 'published' AND deleted_at IS NULL AND published_at >= ? ORDER BY published_at DESC LIMIT ${SITEMAP_JOBS_PAGE_SIZE} OFFSET ${offset}`
+    ).bind(cutoff).all());
     jobs = jobRows?.results || [];
   } catch (err) {
     console.warn('Failed to load jobs for sitemap-jobs, using fallback:', err);

@@ -33,7 +33,7 @@ const mockDb = {
             if (sql.includes("jobs")) {
               return {
                 id: 'job-123',
-                published_at: 1719324000000,
+                published_at: Date.now() - 86400000,
                 data: JSON.stringify({
                   title_ar: 'مهندس برمجيات',
                   title_en: 'Software Engineer',
@@ -90,7 +90,7 @@ const mockDb = {
         if (sql.includes("jobs")) {
           return {
             id: 'job-123',
-            published_at: 1719324000000,
+            published_at: Date.now() - 86400000,
             data: JSON.stringify({
               title_en: 'Software Engineer',
               screeningQuestionsJson: JSON.stringify([

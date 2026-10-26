@@ -1,9 +1,11 @@
 import { Hono } from 'hono'
 import { cache } from 'hono/cache'
 import { generateMetaTags, generateJsonLd } from '../utils/seo-helper'
+import { isJobExpired, getExplicitJobDeadline, JOB_VALIDITY_DAYS } from '../utils/job-validity'
 import { safeQuery } from '../utils/db-helper'
 import { validateJobSubmission, validateTurnstile, rateLimiter, logSecurityEvent } from '../middleware/security'
 import { themeCss } from '../public/css/theme'
+import { layoutCss } from '../public/css/layout'
 import { sendTelegramAlert } from '../services/telegram'
 import { assignJobImage } from '../services/scraper'
 import { optimizeSeoWithGemini } from '../services/gemini-seo'
@@ -323,11 +325,32 @@ export const ISTANBUL_DISTRICTS = [
   { en: 'Zeytinburnu', ar: 'زيتون بورنو' }
 ];
 
-// Serve our CSS file directly from the bundled memory
+// Content hash (FNV-1a) so stylesheet URLs change automatically whenever the CSS changes
+function cssHash(input: string): string {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return (h >>> 0).toString(36);
+}
+const THEME_CSS_VERSION = cssHash(themeCss);
+const LAYOUT_CSS_VERSION = cssHash(layoutCss);
+
+// Versioned (?v=hash) URLs are immutable; unversioned requests revalidate quickly
+const cssCacheHeader = (c: any) => c.req.query('v') ? 'public, max-age=31536000, immutable' : 'public, max-age=300, must-revalidate';
+
+// Serve our CSS files directly from the bundled memory
 publicRouter.get('/css/theme.css', (c) => {
   return c.body(themeCss, 200, {
-    'Content-Type': 'text/css',
-    'Cache-Control': 'public, max-age=0, must-revalidate'
+    'Content-Type': 'text/css; charset=utf-8',
+    'Cache-Control': cssCacheHeader(c)
+  })
+})
+publicRouter.get('/css/layout.css', (c) => {
+  return c.body(layoutCss, 200, {
+    'Content-Type': 'text/css; charset=utf-8',
+    'Cache-Control': cssCacheHeader(c)
   })
 })
 
@@ -1137,540 +1160,11 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
   <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="/css/theme.css?v=3.3.0">
+  <link rel="stylesheet" href="/css/theme.css?v=${THEME_CSS_VERSION}">
   
-  <!-- Critical inline CSS for zero flash -->
-  <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
-    }
-    html, body {
-      width: 100% !important;
-      max-width: 100vw !important;
-      overflow-x: clip !important;
-    }
-    .page-wrapper {
-      width: 100% !important;
-      max-width: 100vw !important;
-      overflow-x: clip !important;
-      position: relative !important;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-    body { font-family: ${isRtl ? "'Cairo', sans-serif" : "'Plus Jakarta Sans', sans-serif"}; }
-    .site-header { transform: translateY(0); }
-
-    /* IN-FEED NATIVE GOOGLE PLAY AD CARD */
-    .native-ad-feed-card {
-      position: relative;
-      background: var(--bg-card);
-      border: 1.5px solid rgba(16, 185, 129, 0.32);
-      border-radius: var(--r-xl);
-      padding: 22px 24px;
-      margin-bottom: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      transition: var(--t-base);
-      box-shadow: 0 4px 18px rgba(16, 185, 129, 0.07), var(--shadow-xs);
-      overflow: hidden;
-      box-sizing: border-box;
-      width: 100%;
-      max-width: 100%;
-    }
-    .native-ad-feed-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 5px;
-      left: 0;
-      background: linear-gradient(180deg, #10b981 0%, #0284c7 100%);
-      border-radius: 0 var(--r-xs) var(--r-xs) 0;
-      transition: width 0.2s ease;
-    }
-    .rtl .native-ad-feed-card::before {
-      left: auto;
-      right: 0;
-      border-radius: var(--r-xs) 0 0 var(--r-xs);
-    }
-    .native-ad-feed-card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(16, 185, 129, 0.55);
-      box-shadow: 0 12px 30px rgba(16, 185, 129, 0.16), var(--shadow-card-hover);
-    }
-    .native-ad-feed-card:hover::before {
-      width: 7px;
-    }
-    body.dark-mode .native-ad-feed-card {
-      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(20, 30, 48, 0.95) 100%);
-      border-color: rgba(16, 185, 129, 0.35);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 16px rgba(16, 185, 129, 0.12);
-    }
-    .ad-header-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 8px;
-      border-bottom: 1px dashed rgba(16, 185, 129, 0.22);
-      padding-bottom: 10px;
-    }
-    .ad-badge-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .ad-tag-pill {
-      font-size: 0.68rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #059669;
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      padding: 2px 8px;
-      border-radius: 4px;
-      line-height: 1.2;
-    }
-    body.dark-mode .ad-tag-pill {
-      color: #34d399;
-      background: rgba(16, 185, 129, 0.2);
-      border-color: rgba(52, 211, 153, 0.4);
-    }
-    .ad-sponsor-label {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .ad-rating-box {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.82rem;
-      font-weight: 800;
-      color: #d97706;
-      background: rgba(245, 158, 11, 0.12);
-      padding: 3px 10px;
-      border-radius: var(--r-full);
-    }
-    .ad-rating-stars {
-      letter-spacing: 1.5px;
-    }
-    .ad-rating-count {
-      font-size: 0.74rem;
-      color: var(--text-muted);
-      font-weight: 600;
-    }
-    .ad-content-wrapper {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      align-items: center;
-      gap: 20px;
-    }
-    .ad-top-flex-mobile {
-      display: flex;
-      align-items: flex-start;
-      gap: 18px;
-      min-width: 0;
-    }
-    .ad-icon-box {
-      position: relative;
-      width: 72px;
-      height: 72px;
-      flex-shrink: 0;
-      border-radius: 18px;
-      text-decoration: none;
-      display: block;
-    }
-    .ad-app-img {
-      width: 72px;
-      height: 72px;
-      border-radius: 18px;
-      object-fit: cover;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
-      transition: transform 0.25s ease;
-      display: block;
-    }
-    .native-ad-feed-card:hover .ad-app-img {
-      transform: scale(1.06) rotate(-1deg);
-    }
-    .ad-offline-tag {
-      position: absolute;
-      bottom: -6px;
-      right: -6px;
-      background: #059669;
-      color: #ffffff;
-      font-size: 0.62rem;
-      font-weight: 800;
-      padding: 2px 7px;
-      border-radius: var(--r-full);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-      white-space: nowrap;
-    }
-    .rtl .ad-offline-tag {
-      right: auto;
-      left: -6px;
-    }
-    .ad-info-box {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      min-width: 0;
-    }
-    .ad-headline-row {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .ad-app-title {
-      font-size: 1.15rem;
-      font-weight: 800;
-      color: var(--text-heading);
-      text-decoration: none;
-      line-height: 1.3;
-      margin: 0;
-      transition: color var(--t-fast);
-    }
-    .ad-app-title:hover {
-      color: var(--primary);
-    }
-    .ad-pill-free {
-      font-size: 0.72rem;
-      font-weight: 800;
-      color: #059669;
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(16, 185, 129, 0.28);
-      padding: 2px 9px;
-      border-radius: var(--r-full);
-      line-height: 1.3;
-    }
-    body.dark-mode .ad-pill-free {
-      color: #34d399;
-      background: rgba(52, 211, 153, 0.18);
-    }
-    .ad-text-desc {
-      font-size: 0.88rem;
-      color: var(--text-muted);
-      line-height: 1.5;
-      margin: 0;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    .ad-tags-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 4px;
-    }
-    .ad-chip-item {
-      font-size: 0.76rem;
-      font-weight: 700;
-      color: var(--text-base);
-      background: var(--bg-subtle);
-      border: 1px solid var(--border);
-      padding: 3px 10px;
-      border-radius: 6px;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      line-height: 1.3;
-    }
-    .ad-chip-item i {
-      color: #10b981;
-      font-size: 0.76rem;
-    }
-    .ad-cta-side {
-      flex-shrink: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 6px;
-    }
-    .rtl .ad-cta-side {
-      align-items: flex-start;
-    }
-    .ad-play-button {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: #0f172a;
-      color: #ffffff !important;
-      padding: 10px 18px;
-      border-radius: 12px;
-      text-decoration: none;
-      font-family: inherit;
-      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.22);
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      white-space: nowrap;
-    }
-    body.dark-mode .ad-play-button {
-      background: #020617;
-      border-color: rgba(16, 185, 129, 0.4);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45), 0 0 14px rgba(16, 185, 129, 0.25);
-    }
-    .ad-play-button:hover {
-      transform: translateY(-2px);
-      background: #000000;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.38);
-      border-color: #10b981;
-    }
-    .ad-btn-texts {
-      display: flex;
-      flex-direction: column;
-      line-height: 1.15;
-      text-align: start;
-    }
-    .ad-btn-sub {
-      font-size: 0.6rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      opacity: 0.82;
-      font-weight: 600;
-    }
-    .ad-btn-title {
-      font-size: 0.95rem;
-      font-weight: 800;
-      letter-spacing: 0.2px;
-    }
-    .ad-sub-note {
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    @media (max-width: 768px) {
-      .container { padding: 0 14px !important; max-width: 100% !important; }
-      .site-header { height: 60px !important; width: 100% !important; }
-      .header-inner { padding: 0 14px !important; width: 100% !important; justify-content: space-between !important; }
-      .header-playstore-btn, .header-turkey-guide-btn, .header-telegram-btn, .header-install-btn, .lang-btn, #dark-mode-toggle, #desktop-nav {
-        display: none !important;
-      }
-      #mobile-menu-btn {
-        display: inline-flex !important;
-        align-items: center;
-        justify-content: center;
-      }
-      #turkey-travel-top-bar, .turkey-travel-top-bar {
-        display: none !important;
-      }
-      #smart-app-banner {
-        padding: 6px 12px !important;
-      }
-      #smart-app-banner strong { font-size: 0.78rem !important; }
-      #smart-app-banner span { font-size: 0.68rem !important; }
-      #smart-app-banner a { padding: 5px 10px !important; font-size: 0.72rem !important; }
-      .hero { padding: 26px 0 40px !important; }
-      .hero-title { font-size: clamp(1.45rem, 5.5vw, 1.85rem) !important; line-height: 1.25 !important; margin-bottom: 10px !important; }
-      .hero-subtitle { font-size: 0.88rem !important; margin-bottom: 16px !important; line-height: 1.5 !important; }
-      .hero-eyebrow { font-size: 0.74rem !important; padding: 4px 12px !important; margin-bottom: 12px !important; }
-      .hero-stats { display: none !important; }
-      .search-section { margin-top: -22px !important; margin-bottom: 26px !important; }
-      .search-card { padding: 10px !important; gap: 8px !important; border-radius: 16px !important; flex-direction: column !important; }
-      .search-field-wrap { min-height: 46px !important; padding: 0 14px !important; width: 100% !important; box-sizing: border-box !important; }
-      .search-district-wrap { flex: 1 1 auto !important; width: 100% !important; min-height: 46px !important; }
-      .btn-search { min-height: 46px !important; padding: 12px !important; font-size: 0.95rem !important; width: 100% !important; justify-content: center !important; }
-
-      /* MAIN LAYOUT & SIDEBAR ON MOBILE */
-      .main-layout {
-        grid-template-columns: 100% !important;
-        gap: 16px !important;
-        margin-bottom: 36px !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-      }
-      .filters-sidebar {
-        position: static !important;
-        margin-bottom: 16px !important;
-        padding: 16px 14px !important;
-        border-radius: 16px !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-        overflow: hidden !important;
-      }
-      .filter-header {
-        margin-bottom: 12px !important;
-        padding-bottom: 10px !important;
-      }
-      .filter-main-title {
-        font-size: 0.95rem !important;
-      }
-      .filter-group {
-        margin-bottom: 14px !important;
-      }
-      .filter-group-title {
-        font-size: 0.72rem !important;
-        margin-bottom: 8px !important;
-      }
-      .filter-options {
-        display: flex !important;
-        flex-wrap: wrap !important;
-        gap: 8px !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-      }
-      .filter-radio {
-        flex: 1 1 calc(50% - 6px) !important;
-        min-width: 110px !important;
-        max-width: 100% !important;
-        padding: 9px 12px !important;
-        font-size: 0.82rem !important;
-        border-radius: var(--r-full) !important;
-        border: 1.5px solid var(--border) !important;
-        background: var(--bg-card) !important;
-        justify-content: center !important;
-        text-align: center !important;
-        box-sizing: border-box !important;
-        gap: 6px !important;
-        margin: 0 !important;
-      }
-      .filter-radio input {
-        display: none !important;
-      }
-      .filter-radio.selected {
-        background: var(--primary) !important;
-        color: #ffffff !important;
-        border-color: var(--primary) !important;
-        box-shadow: 0 2px 8px var(--primary-glow) !important;
-        font-weight: 700 !important;
-      }
-      .filters-sidebar a.btn-primary {
-        width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-        justify-content: center !important;
-        padding: 12px 16px !important;
-        font-size: 0.88rem !important;
-        border-radius: var(--r-md) !important;
-      }
-      .telegram-cta {
-        margin-top: 14px !important;
-        padding: 14px 12px !important;
-        border-radius: 14px !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-        overflow: hidden !important;
-      }
-      .telegram-cta h3 {
-        font-size: 0.95rem !important;
-        margin-bottom: 6px !important;
-      }
-      .telegram-cta p {
-        font-size: 0.78rem !important;
-        line-height: 1.35 !important;
-        margin-bottom: 12px !important;
-      }
-      .telegram-cta .telegram-btn {
-        width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-        padding: 9px 12px !important;
-        font-size: 0.82rem !important;
-        justify-content: center !important;
-        border-radius: 8px !important;
-      }
-      .telegram-cta > div[style*="font-size:120px"] {
-        display: none !important;
-      }
-      .job-card {
-        grid-template-columns: 100% !important;
-        padding: 16px 14px !important;
-        border-radius: 16px !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-      }
-      .btn-apply {
-        width: 100% !important;
-        box-sizing: border-box !important;
-        justify-content: center !important;
-        padding: 11px !important;
-        font-size: 0.88rem !important;
-      }
-      .native-ad-feed-card {
-        padding: 16px 14px !important;
-        gap: 12px !important;
-        border-radius: 16px !important;
-        box-sizing: border-box !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        overflow: hidden !important;
-      }
-      .ad-content-wrapper {
-        grid-template-columns: 1fr !important;
-        gap: 14px !important;
-      }
-      .ad-top-flex-mobile {
-        display: flex !important;
-        align-items: flex-start !important;
-        gap: 12px !important;
-      }
-      .ad-icon-box {
-        width: 60px !important;
-        height: 60px !important;
-        border-radius: 14px !important;
-      }
-      .ad-app-img {
-        width: 60px !important;
-        height: 60px !important;
-        border-radius: 14px !important;
-      }
-      .ad-app-title {
-        font-size: 1.05rem !important;
-      }
-      .ad-text-desc {
-        font-size: 0.84rem !important;
-        -webkit-line-clamp: 3 !important;
-      }
-      .ad-tags-row {
-        gap: 5px !important;
-      }
-      .ad-chip-item {
-        font-size: 0.72rem !important;
-        padding: 2px 8px !important;
-      }
-      .ad-cta-side {
-        width: 100% !important;
-        align-items: stretch !important;
-      }
-      .ad-play-button {
-        width: 100% !important;
-        box-sizing: border-box !important;
-        justify-content: center !important;
-        padding: 12px 16px !important;
-        border-radius: var(--r-full) !important;
-      }
-      .ad-sub-note {
-        justify-content: center !important;
-        width: 100% !important;
-        margin-top: 2px !important;
-      }
-    }
-    @media (max-width: 480px) {
-      .logo-text span { display: none !important; }
-      .logo-text strong { font-size: 0.92rem !important; }
-      .logo-icon { width: 38px !important; height: 38px !important; border-radius: 10px !important; }
-      .hero { padding: 24px 0 36px !important; }
-      .hero-title { font-size: 1.5rem !important; }
-      .hero-subtitle { font-size: 0.85rem !important; margin-bottom: 14px !important; }
-    }
-  </style>
+  <!-- Layout stylesheet (content-hashed, long-cached) -->
+  <link rel="stylesheet" href="/css/layout.css?v=${LAYOUT_CSS_VERSION}">
+  <style>body { font-family: ${isRtl ? "'Cairo', sans-serif" : "'Plus Jakarta Sans', sans-serif"}; }</style>
 </head>
 <body class="${isRtl ? 'rtl' : ''}">
   <!-- Smart Mobile App Banner -->
@@ -1837,59 +1331,59 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
             </a>
             <div class="nav-dropdown-menu">
               <a href="/${locale}/work-permit-eligibility" class="dropdown-item">
-                <img src="/public/images/3d-icons/justice.png" alt="Eligibility" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
+                <img width="24" height="24" src="/public/images/3d-icons/justice.png" alt="Eligibility" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
                 <span style="font-weight: 700; color: var(--primary);">${t.workPermitEligibility}</span>
               </a>
               <a href="/${locale}/investor-calculator" class="dropdown-item">
-                <img src="/public/images/3d-icons/realestate.png" alt="Investor" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
+                <img width="24" height="24" src="/public/images/3d-icons/realestate.png" alt="Investor" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
                 <span style="font-weight: 700; color: #6366f1;">${t.investorCalculator}</span>
               </a>
               <a href="/${locale}/salary-calculator-2026" class="dropdown-item">
-                <img src="/public/images/3d-icons/calculator.png" alt="Calculator" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
+                <img width="24" height="24" src="/public/images/3d-icons/calculator.png" alt="Calculator" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
                 <span style="font-weight: 700; color: #ec4899;">${t.salaryCalculator2026}</span>
               </a>
               <a href="/${locale}/resume-builder" class="dropdown-item">
-                <img src="/public/images/3d-icons/document.png" alt="CV" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
+                <img width="24" height="24" src="/public/images/3d-icons/document.png" alt="CV" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
                 <span>${t.cvBuilder}</span>
               </a>
               <a href="/${locale}/work-permit-calculator" class="dropdown-item">
-                <img src="/public/images/3d-icons/justice.png" alt="Work Permit" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
+                <img width="24" height="24" src="/public/images/3d-icons/justice.png" alt="Work Permit" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
                 <span>${t.workPermit}</span>
               </a>
               <a href="/${locale}/turkish-test" class="dropdown-item">
-                <img src="/public/images/3d-icons/quiz.png" alt="Turkish Test" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
+                <img width="24" height="24" src="/public/images/3d-icons/quiz.png" alt="Turkish Test" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
                 <span>${t.turkishTest}</span>
               </a>
               <a href="/${locale}/salary-calculator" class="dropdown-item">
-                <img src="/public/images/3d-icons/calculator.png" alt="Salary" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
+                <img width="24" height="24" src="/public/images/3d-icons/calculator.png" alt="Salary" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
                 <span>${t.salaryCalc}</span>
               </a>
               <a href="/${locale}/currency-prices" class="dropdown-item">
-                <img src="/public/images/3d-icons/coins.png" alt="Currency" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
+                <img width="24" height="24" src="/public/images/3d-icons/coins.png" alt="Currency" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
                 <span style="font-weight: 700; color: #0284c7;">${t.currencyPrices}</span>
               </a>
               <a href="/${locale}/gold-prices" class="dropdown-item">
-                <img src="/public/images/3d-icons/gold.png" alt="Gold" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
+                <img width="24" height="24" src="/public/images/3d-icons/gold.png" alt="Gold" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
                 <span style="font-weight: 700; color: #d97706;">${t.goldPrices}</span>
               </a>
               <a href="/${locale}/nobetci-eczane" class="dropdown-item">
-                <img src="/public/images/3d-icons/pharmacy.png" alt="Pharmacy" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
+                <img width="24" height="24" src="/public/images/3d-icons/pharmacy.png" alt="Pharmacy" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
                 <span style="font-weight: 700; color: #059669;">${t.dutyPharmacies}</span>
               </a>
               <a href="/${locale}/kira-artis-orani" class="dropdown-item">
-                <img src="/public/images/3d-icons/calculator.png" alt="Rent" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
+                <img width="24" height="24" src="/public/images/3d-icons/calculator.png" alt="Rent" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
                 <span>${t.kiraArtis}</span>
               </a>
               <a href="/${locale}/akaryakit-fiyatlari" class="dropdown-item">
-                <img src="/public/images/3d-icons/fuel.png" alt="Fuel" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
+                <img width="24" height="24" src="/public/images/3d-icons/fuel.png" alt="Fuel" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
                 <span style="font-weight: 700; color: #ea580c;">${t.fuelPrices}</span>
               </a>
               <a href="/${locale}/kidem-tazminati-hesaplama" class="dropdown-item">
-                <img src="/public/images/3d-icons/justice.png" alt="Severance" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
+                <img width="24" height="24" src="/public/images/3d-icons/justice.png" alt="Severance" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
                 <span style="font-weight: 700; color: #059669;">${t.severanceCalc || 'حاسبة تعويض نهاية الخدمة'}</span>
               </a>
               <a href="/${locale}/install" class="dropdown-item">
-                <img src="/public/images/3d-icons/globe.png" alt="App" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
+                <img width="24" height="24" src="/public/images/3d-icons/globe.png" alt="App" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
                 <span>${t.installApp}</span>
               </a>
             </div>
@@ -1975,33 +1469,33 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         <!-- Desktop Language Dropdown -->
         <div class="nav-dropdown">
           <a href="#" class="lang-btn" onclick="event.preventDefault()">
-            <img src="${locale === 'ar' ? 'https://flagcdn.com/w20/sa.png' : (locale === 'tr' ? 'https://flagcdn.com/w20/tr.png' : (locale === 'ru' ? 'https://flagcdn.com/w20/ru.png' : (locale === 'fa' ? 'https://flagcdn.com/w20/ir.png' : (locale === 'ur' ? 'https://flagcdn.com/w20/pk.png' : 'https://flagcdn.com/w20/gb.png'))))}" alt="${locale}" style="width: 18px; height: 13px; border-radius: 1px; object-fit: cover;">
+            <img width="18" height="13" src="${locale === 'ar' ? 'https://flagcdn.com/w20/sa.png' : (locale === 'tr' ? 'https://flagcdn.com/w20/tr.png' : (locale === 'ru' ? 'https://flagcdn.com/w20/ru.png' : (locale === 'fa' ? 'https://flagcdn.com/w20/ir.png' : (locale === 'ur' ? 'https://flagcdn.com/w20/pk.png' : 'https://flagcdn.com/w20/gb.png'))))}" alt="${locale}" style="width: 18px; height: 13px; border-radius: 1px; object-fit: cover;">
             <span>${locale === 'ar' ? 'العربية' : (locale === 'tr' ? 'Türkçe' : (locale === 'ru' ? 'Русский' : (locale === 'fa' ? 'فارسی' : (locale === 'ur' ? 'اردو' : 'English'))))}</span>
             <i class="fa-solid fa-chevron-down" style="font-size: 0.65rem; opacity: 0.7;"></i>
           </a>
           <div class="nav-dropdown-menu" style="min-width: 140px; padding: 6px 0; ${isRtl ? 'right: auto; left: 50%; transform: translateX(-50%);' : 'left: auto; right: 50%; transform: translateX(50%);'}">
             <a href="${getLangUrl(requestPath, 'ar')}" class="dropdown-item" style="gap: 8px; justify-content: flex-start;">
-              <img src="https://flagcdn.com/w20/sa.png" alt="العربية" style="width: 18px; height: 13px; border-radius: 1px;">
+              <img width="18" height="13" src="https://flagcdn.com/w20/sa.png" alt="العربية" style="width: 18px; height: 13px; border-radius: 1px;">
               <span>العربية</span>
             </a>
             <a href="${getLangUrl(requestPath, 'tr')}" class="dropdown-item" style="gap: 8px; justify-content: flex-start;">
-              <img src="https://flagcdn.com/w20/tr.png" alt="Türkçe" style="width: 18px; height: 13px; border-radius: 1px;">
+              <img width="18" height="13" src="https://flagcdn.com/w20/tr.png" alt="Türkçe" style="width: 18px; height: 13px; border-radius: 1px;">
               <span>Türkçe</span>
             </a>
             <a href="${getLangUrl(requestPath, 'en')}" class="dropdown-item" style="gap: 8px; justify-content: flex-start;">
-              <img src="https://flagcdn.com/w20/gb.png" alt="English" style="width: 18px; height: 13px; border-radius: 1px;">
+              <img width="18" height="13" src="https://flagcdn.com/w20/gb.png" alt="English" style="width: 18px; height: 13px; border-radius: 1px;">
               <span>English</span>
             </a>
             <a href="${getLangUrl(requestPath, 'ru')}" class="dropdown-item" style="gap: 8px; justify-content: flex-start;">
-              <img src="https://flagcdn.com/w20/ru.png" alt="Русский" style="width: 18px; height: 13px; border-radius: 1px;">
+              <img width="18" height="13" src="https://flagcdn.com/w20/ru.png" alt="Русский" style="width: 18px; height: 13px; border-radius: 1px;">
               <span>Русский</span>
             </a>
             <a href="${getLangUrl(requestPath, 'fa')}" class="dropdown-item" style="gap: 8px; justify-content: flex-start;">
-              <img src="https://flagcdn.com/w20/ir.png" alt="فارسی" style="width: 18px; height: 13px; border-radius: 1px;">
+              <img width="18" height="13" src="https://flagcdn.com/w20/ir.png" alt="فارسی" style="width: 18px; height: 13px; border-radius: 1px;">
               <span>فارسی</span>
             </a>
             <a href="${getLangUrl(requestPath, 'ur')}" class="dropdown-item" style="gap: 8px; justify-content: flex-start;">
-              <img src="https://flagcdn.com/w20/pk.png" alt="اردو" style="width: 18px; height: 13px; border-radius: 1px;">
+              <img width="18" height="13" src="https://flagcdn.com/w20/pk.png" alt="اردو" style="width: 18px; height: 13px; border-radius: 1px;">
               <span>اردو</span>
             </a>
           </div>
@@ -2044,20 +1538,20 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         <a href="/${locale}/interview-prep" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-comments" style="color: #10b981; width: 20px; text-align: center;"></i> <span>${t.interviewPrep}</span></a>
 
         <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-top:14px; margin-bottom:6px; padding-inline-start:16px; letter-spacing:0.05em; display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-toolbox" style="color: #0ea5e9;"></i><span>${t.toolsAndTests}</span></div>
-        <a href="/${locale}/work-permit-eligibility" style="padding:10px 16px; border-radius:var(--r-md); color:var(--primary); font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/justice.png" alt="Eligibility" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.workPermitEligibility}</span></a>
-        <a href="/${locale}/investor-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:#6366f1; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/realestate.png" alt="Investor" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.investorCalculator}</span></a>
-        <a href="/${locale}/salary-calculator-2026" style="padding:10px 16px; border-radius:var(--r-md); color:#ec4899; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/calculator.png" alt="Calculator" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.salaryCalculator2026}</span></a>
-        <a href="/${locale}/resume-builder" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/document.png" alt="CV" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.cvBuilder}</span></a>
-        <a href="/${locale}/work-permit-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/justice.png" alt="Work Permit" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.workPermit}</span></a>
-        <a href="/${locale}/turkish-test" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/quiz.png" alt="Quiz" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.turkishTest}</span></a>
-        <a href="/${locale}/salary-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/calculator.png" alt="Salary" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.salaryCalc}</span></a>
-        <a href="/${locale}/currency-prices" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/coins.png" alt="Currency" class="icon-3d-img" style="width:24px; height:24px;"> <span style="font-weight:700; color:#0284c7;">${t.currencyPrices}</span></a>
-        <a href="/${locale}/gold-prices" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/gold.png" alt="Gold" class="icon-3d-img" style="width:24px; height:24px;"> <span style="font-weight:700; color:#d97706;">${t.goldPrices}</span></a>
-        <a href="/${locale}/nobetci-eczane" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/pharmacy.png" alt="Pharmacy" class="icon-3d-img" style="width:24px; height:24px;"> <span style="font-weight:700; color:#059669;">${t.dutyPharmacies}</span></a>
-        <a href="/${locale}/kira-artis-orani" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/calculator.png" alt="Rent" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.kiraArtis}</span></a>
-        <a href="/${locale}/akaryakit-fiyatlari" style="padding:10px 16px; border-radius:var(--r-md); color:#ea580c; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/fuel.png" alt="Fuel" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.fuelPrices}</span></a>
-        <a href="/${locale}/kidem-tazminati-hesaplama" style="padding:10px 16px; border-radius:var(--r-md); color:#059669; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/justice.png" alt="Severance" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.severanceCalc || 'حاسبة تعويض نهاية الخدمة'}</span></a>
-        <a href="/${locale}/install" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img src="/public/images/3d-icons/globe.png" alt="App" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.installApp}</span></a>
+        <a href="/${locale}/work-permit-eligibility" style="padding:10px 16px; border-radius:var(--r-md); color:var(--primary); font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/justice.png" alt="Eligibility" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.workPermitEligibility}</span></a>
+        <a href="/${locale}/investor-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:#6366f1; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/realestate.png" alt="Investor" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.investorCalculator}</span></a>
+        <a href="/${locale}/salary-calculator-2026" style="padding:10px 16px; border-radius:var(--r-md); color:#ec4899; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/calculator.png" alt="Calculator" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.salaryCalculator2026}</span></a>
+        <a href="/${locale}/resume-builder" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/document.png" alt="CV" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.cvBuilder}</span></a>
+        <a href="/${locale}/work-permit-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/justice.png" alt="Work Permit" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.workPermit}</span></a>
+        <a href="/${locale}/turkish-test" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/quiz.png" alt="Quiz" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.turkishTest}</span></a>
+        <a href="/${locale}/salary-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/calculator.png" alt="Salary" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.salaryCalc}</span></a>
+        <a href="/${locale}/currency-prices" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/coins.png" alt="Currency" class="icon-3d-img" style="width:24px; height:24px;"> <span style="font-weight:700; color:#0284c7;">${t.currencyPrices}</span></a>
+        <a href="/${locale}/gold-prices" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/gold.png" alt="Gold" class="icon-3d-img" style="width:24px; height:24px;"> <span style="font-weight:700; color:#d97706;">${t.goldPrices}</span></a>
+        <a href="/${locale}/nobetci-eczane" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/pharmacy.png" alt="Pharmacy" class="icon-3d-img" style="width:24px; height:24px;"> <span style="font-weight:700; color:#059669;">${t.dutyPharmacies}</span></a>
+        <a href="/${locale}/kira-artis-orani" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/calculator.png" alt="Rent" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.kiraArtis}</span></a>
+        <a href="/${locale}/akaryakit-fiyatlari" style="padding:10px 16px; border-radius:var(--r-md); color:#ea580c; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/fuel.png" alt="Fuel" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.fuelPrices}</span></a>
+        <a href="/${locale}/kidem-tazminati-hesaplama" style="padding:10px 16px; border-radius:var(--r-md); color:#059669; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/justice.png" alt="Severance" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.severanceCalc || 'حاسبة تعويض نهاية الخدمة'}</span></a>
+        <a href="/${locale}/install" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/globe.png" alt="App" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.installApp}</span></a>
 
         <div style="margin-top:14px; border-top:1px solid var(--border); padding-top:10px; display:flex; flex-direction:column; gap:6px;">
           <a href="/${locale}/submit-job" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-bullhorn" style="color: #f59e0b; width: 20px; text-align: center;"></i> <span>${t.postJob}</span></a>
@@ -2084,27 +1578,27 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           </div>
           <div style="display:flex; gap:8px; width:100%; flex-wrap:wrap;">
             <a href="${getLangUrl(requestPath, 'ar')}" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px 8px; border-radius:var(--r-md); border:1.5px solid ${locale === 'ar' ? 'var(--primary)' : 'var(--border)'}; background: ${locale === 'ar' ? 'var(--primary-light)' : 'transparent'}; color:${locale === 'ar' ? 'var(--primary)' : 'var(--text-body)'}; font-size:0.8rem; font-weight:700; transition:var(--t-base); text-decoration:none;">
-              <img src="https://flagcdn.com/w20/sa.png" alt="العربية" style="width: 18px; height: 13px; border-radius: 1px;">
+              <img width="18" height="13" src="https://flagcdn.com/w20/sa.png" alt="العربية" style="width: 18px; height: 13px; border-radius: 1px;">
               <span>العربية</span>
             </a>
             <a href="${getLangUrl(requestPath, 'tr')}" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px 8px; border-radius:var(--r-md); border:1.5px solid ${locale === 'tr' ? 'var(--primary)' : 'var(--border)'}; background: ${locale === 'tr' ? 'var(--primary-light)' : 'transparent'}; color:${locale === 'tr' ? 'var(--primary)' : 'var(--text-body)'}; font-size:0.8rem; font-weight:700; transition:var(--t-base); text-decoration:none;">
-              <img src="https://flagcdn.com/w20/tr.png" alt="Türkçe" style="width: 18px; height: 13px; border-radius: 1px;">
+              <img width="18" height="13" src="https://flagcdn.com/w20/tr.png" alt="Türkçe" style="width: 18px; height: 13px; border-radius: 1px;">
               <span>Türkçe</span>
             </a>
             <a href="${getLangUrl(requestPath, 'en')}" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px 8px; border-radius:var(--r-md); border:1.5px solid ${locale === 'en' ? 'var(--primary)' : 'var(--border)'}; background: ${locale === 'en' ? 'var(--primary-light)' : 'transparent'}; color:${locale === 'en' ? 'var(--primary)' : 'var(--text-body)'}; font-size:0.8rem; font-weight:700; transition:var(--t-base); text-decoration:none;">
-              <img src="https://flagcdn.com/w20/gb.png" alt="English" style="width: 18px; height: 13px; border-radius: 1px;">
+              <img width="18" height="13" src="https://flagcdn.com/w20/gb.png" alt="English" style="width: 18px; height: 13px; border-radius: 1px;">
               <span>English</span>
             </a>
             <a href="${getLangUrl(requestPath, 'ru')}" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px 8px; border-radius:var(--r-md); border:1.5px solid ${locale === 'ru' ? 'var(--primary)' : 'var(--border)'}; background: ${locale === 'ru' ? 'var(--primary-light)' : 'transparent'}; color:${locale === 'ru' ? 'var(--primary)' : 'var(--text-body)'}; font-size:0.8rem; font-weight:700; transition:var(--t-base); text-decoration:none;">
-              <img src="https://flagcdn.com/w20/ru.png" alt="Русский" style="width: 18px; height: 13px; border-radius: 1px;">
+              <img width="18" height="13" src="https://flagcdn.com/w20/ru.png" alt="Русский" style="width: 18px; height: 13px; border-radius: 1px;">
               <span>Русский</span>
             </a>
             <a href="${getLangUrl(requestPath, 'fa')}" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px 8px; border-radius:var(--r-md); border:1.5px solid ${locale === 'fa' ? 'var(--primary)' : 'var(--border)'}; background: ${locale === 'fa' ? 'var(--primary-light)' : 'transparent'}; color:${locale === 'fa' ? 'var(--primary)' : 'var(--text-body)'}; font-size:0.8rem; font-weight:700; transition:var(--t-base); text-decoration:none;">
-              <img src="https://flagcdn.com/w20/ir.png" alt="فارسی" style="width: 18px; height: 13px; border-radius: 1px;">
+              <img width="18" height="13" src="https://flagcdn.com/w20/ir.png" alt="فارسی" style="width: 18px; height: 13px; border-radius: 1px;">
               <span>فارسی</span>
             </a>
             <a href="${getLangUrl(requestPath, 'ur')}" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px 8px; border-radius:var(--r-md); border:1.5px solid ${locale === 'ur' ? 'var(--primary)' : 'var(--border)'}; background: ${locale === 'ur' ? 'var(--primary-light)' : 'transparent'}; color:${locale === 'ur' ? 'var(--primary)' : 'var(--text-body)'}; font-size:0.8rem; font-weight:700; transition:var(--t-base); text-decoration:none;">
-              <img src="https://flagcdn.com/w20/pk.png" alt="اردو" style="width: 18px; height: 13px; border-radius: 1px;">
+              <img width="18" height="13" src="https://flagcdn.com/w20/pk.png" alt="اردو" style="width: 18px; height: 13px; border-radius: 1px;">
               <span>اردو</span>
             </a>
           </div>
@@ -2143,7 +1637,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           <li><a href="/${locale}">${t.allJobs}</a></li>
           <li><a href="/${locale}/apps" style="color: #818cf8; font-weight: 800; display:inline-flex; align-items:center; gap:6px;"><i class="fa-solid fa-shapes"></i><span>${locale === 'ar' ? 'تطبيقاتنا الذكية' : (locale === 'tr' ? 'Uygulamalarımız' : 'Our Mobile Apps')}</span></a></li>
           <li><a href="/${locale}/blog">${t.blog}</a></li>
-          <li><a href="/${locale}/workplace-quiz" style="color: #38bdf8; font-weight: 700; display:inline-flex; align-items:center; gap:6px;"><img src="/public/images/3d-icons/quiz.png" alt="" class="icon-3d-img" style="width:16px; height:16px;"><span>${locale === 'ar' ? 'اختبار لغة العمل التركية' : (locale === 'tr' ? 'İş Türkçesi Testi' : 'Workplace Turkish Quiz')}</span></a></li>
+          <li><a href="/${locale}/workplace-quiz" style="color: #38bdf8; font-weight: 700; display:inline-flex; align-items:center; gap:6px;"><img width="16" height="16" src="/public/images/3d-icons/quiz.png" alt="" class="icon-3d-img" style="width:16px; height:16px;"><span>${locale === 'ar' ? 'اختبار لغة العمل التركية' : (locale === 'tr' ? 'İş Türkçesi Testi' : 'Workplace Turkish Quiz')}</span></a></li>
           <li><a href="/${locale}/insights">${t.insights}</a></li>
           <li><a href="/${locale}/about">${t.about}</a></li>
           <li><a href="/${locale}/contact">${t.contact}</a></li>
@@ -2157,17 +1651,17 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           <li><a href="${TURKEY_TRAVEL_GUIDE_PLAY_STORE_URL}" target="_blank" rel="noopener" style="font-weight: 800; color: #34d399;"><i class="fa-solid fa-map-location-dot" style="margin-inline-end:6px;"></i>${locale === 'ar' ? 'دليل تركيا السياحي بدون نت (Google Play)' : (locale === 'tr' ? 'İnternetsiz Türkiye Gezi Rehberi' : 'Turkey Offline Travel Guide App')}</a></li>
           <li><a href="/${locale}/work-permit-eligibility" style="font-weight: 700; color: #22c55e;"><i class="fa-solid fa-clipboard-check" style="margin-inline-end:6px;"></i>${t.workPermitEligibility}</a></li>
           <li><a href="/${locale}/investor-calculator" style="font-weight: 700; color: #6366f1;"><i class="fa-solid fa-building-user" style="margin-inline-end:6px;"></i>${t.investorCalculator}</a></li>
-          <li><a href="/${locale}/salary-calculator-2026" style="font-weight: 700; color: #ec4899;"><img src="/public/images/3d-icons/calculator.png" alt="" class="icon-3d-img" style="width:16px; height:16px; margin-inline-end:6px; vertical-align:middle;"><span>${t.salaryCalculator2026}</span></a></li>
+          <li><a href="/${locale}/salary-calculator-2026" style="font-weight: 700; color: #ec4899;"><img width="16" height="16" src="/public/images/3d-icons/calculator.png" alt="" class="icon-3d-img" style="width:16px; height:16px; margin-inline-end:6px; vertical-align:middle;"><span>${t.salaryCalculator2026}</span></a></li>
           <li><a href="/${locale}/cv-optimizer">${t.cvOptimizer}</a></li>
           <li><a href="/${locale}/ats-scanner">${t.atsScanner}</a></li>
           <li><a href="/${locale}/resume-builder">${t.cvBuilder}</a></li>
           <li><a href="/${locale}/salary-calculator">${t.salaryCalc}</a></li>
-          <li><a href="/${locale}/currency-prices" style="display:inline-flex; align-items:center; gap:6px;"><img src="/public/images/3d-icons/coins.png" alt="" class="icon-3d-img" style="width:16px; height:16px;"><span>${t.currencyPrices}</span></a></li>
-          <li><a href="/${locale}/gold-prices" style="display:inline-flex; align-items:center; gap:6px;"><img src="/public/images/3d-icons/gold.png" alt="" class="icon-3d-img" style="width:16px; height:16px;"><span>${t.goldPrices}</span></a></li>
-          <li><a href="/${locale}/nobetci-eczane" style="color: #34d399; font-weight: 700; display:inline-flex; align-items:center; gap:6px;"><img src="/public/images/3d-icons/pharmacy.png" alt="" class="icon-3d-img" style="width:16px; height:16px;"><span>${t.dutyPharmacies}</span></a></li>
-          <li><a href="/${locale}/kira-artis-orani" style="color: #38bdf8; font-weight: 700; display:inline-flex; align-items:center; gap:6px;"><img src="/public/images/3d-icons/calculator.png" alt="" class="icon-3d-img" style="width:16px; height:16px;"><span>${t.kiraArtis}</span></a></li>
-          <li><a href="/${locale}/akaryakit-fiyatlari" style="color: #fb923c; font-weight: 700; display:inline-flex; align-items:center; gap:6px;"><img src="/public/images/3d-icons/fuel.png" alt="" class="icon-3d-img" style="width:16px; height:16px;"><span>${t.fuelPrices}</span></a></li>
-          <li><a href="/${locale}/kidem-tazminati-hesaplama" style="color: #34d399; font-weight: 700; display:inline-flex; align-items:center; gap:6px;"><img src="/public/images/3d-icons/justice.png" alt="" class="icon-3d-img" style="width:16px; height:16px;"><span>${t.severanceCalc || 'حاسبة تعويض نهاية الخدمة'}</span></a></li>
+          <li><a href="/${locale}/currency-prices" style="display:inline-flex; align-items:center; gap:6px;"><img width="16" height="16" src="/public/images/3d-icons/coins.png" alt="" class="icon-3d-img" style="width:16px; height:16px;"><span>${t.currencyPrices}</span></a></li>
+          <li><a href="/${locale}/gold-prices" style="display:inline-flex; align-items:center; gap:6px;"><img width="16" height="16" src="/public/images/3d-icons/gold.png" alt="" class="icon-3d-img" style="width:16px; height:16px;"><span>${t.goldPrices}</span></a></li>
+          <li><a href="/${locale}/nobetci-eczane" style="color: #34d399; font-weight: 700; display:inline-flex; align-items:center; gap:6px;"><img width="16" height="16" src="/public/images/3d-icons/pharmacy.png" alt="" class="icon-3d-img" style="width:16px; height:16px;"><span>${t.dutyPharmacies}</span></a></li>
+          <li><a href="/${locale}/kira-artis-orani" style="color: #38bdf8; font-weight: 700; display:inline-flex; align-items:center; gap:6px;"><img width="16" height="16" src="/public/images/3d-icons/calculator.png" alt="" class="icon-3d-img" style="width:16px; height:16px;"><span>${t.kiraArtis}</span></a></li>
+          <li><a href="/${locale}/akaryakit-fiyatlari" style="color: #fb923c; font-weight: 700; display:inline-flex; align-items:center; gap:6px;"><img width="16" height="16" src="/public/images/3d-icons/fuel.png" alt="" class="icon-3d-img" style="width:16px; height:16px;"><span>${t.fuelPrices}</span></a></li>
+          <li><a href="/${locale}/kidem-tazminati-hesaplama" style="color: #34d399; font-weight: 700; display:inline-flex; align-items:center; gap:6px;"><img width="16" height="16" src="/public/images/3d-icons/justice.png" alt="" class="icon-3d-img" style="width:16px; height:16px;"><span>${t.severanceCalc || 'حاسبة تعويض نهاية الخدمة'}</span></a></li>
           <li><a href="/${locale}/install" style="font-weight: 700; color: var(--primary);"><i class="fa-solid fa-mobile-screen-button" style="margin-inline-end:6px;"></i>${t.installApp}</a></li>
         </ul>
         <ul class="footer-links">
@@ -2178,12 +1672,12 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         </ul>
         <ul class="footer-links">
           <li class="footer-col-title">${t.languages}</li>
-          <li><a href="${getLangUrl(requestPath, 'ar')}"><img src="https://flagcdn.com/w20/sa.png" alt="العربية" style="width: 16px; height: 11px; margin-inline-end: 8px; border-radius: 1px; vertical-align: middle;">العربية</a></li>
-          <li><a href="${getLangUrl(requestPath, 'tr')}"><img src="https://flagcdn.com/w20/tr.png" alt="Türkçe" style="width: 16px; height: 11px; margin-inline-end: 8px; border-radius: 1px; vertical-align: middle;">Türkçe</a></li>
-          <li><a href="${getLangUrl(requestPath, 'en')}"><img src="https://flagcdn.com/w20/gb.png" alt="English" style="width: 16px; height: 11px; margin-inline-end: 8px; border-radius: 1px; vertical-align: middle;">English</a></li>
-          <li><a href="${getLangUrl(requestPath, 'ru')}"><img src="https://flagcdn.com/w20/ru.png" alt="Русский" style="width: 16px; height: 11px; margin-inline-end: 8px; border-radius: 1px; vertical-align: middle;">Русский</a></li>
-          <li><a href="${getLangUrl(requestPath, 'fa')}"><img src="https://flagcdn.com/w20/ir.png" alt="فارسی" style="width: 16px; height: 11px; margin-inline-end: 8px; border-radius: 1px; vertical-align: middle;">فارسی</a></li>
-          <li><a href="${getLangUrl(requestPath, 'ur')}"><img src="https://flagcdn.com/w20/pk.png" alt="اردو" style="width: 16px; height: 11px; margin-inline-end: 8px; border-radius: 1px; vertical-align: middle;">اردو</a></li>
+          <li><a href="${getLangUrl(requestPath, 'ar')}"><img width="16" height="11" src="https://flagcdn.com/w20/sa.png" alt="العربية" style="width: 16px; height: 11px; margin-inline-end: 8px; border-radius: 1px; vertical-align: middle;">العربية</a></li>
+          <li><a href="${getLangUrl(requestPath, 'tr')}"><img width="16" height="11" src="https://flagcdn.com/w20/tr.png" alt="Türkçe" style="width: 16px; height: 11px; margin-inline-end: 8px; border-radius: 1px; vertical-align: middle;">Türkçe</a></li>
+          <li><a href="${getLangUrl(requestPath, 'en')}"><img width="16" height="11" src="https://flagcdn.com/w20/gb.png" alt="English" style="width: 16px; height: 11px; margin-inline-end: 8px; border-radius: 1px; vertical-align: middle;">English</a></li>
+          <li><a href="${getLangUrl(requestPath, 'ru')}"><img width="16" height="11" src="https://flagcdn.com/w20/ru.png" alt="Русский" style="width: 16px; height: 11px; margin-inline-end: 8px; border-radius: 1px; vertical-align: middle;">Русский</a></li>
+          <li><a href="${getLangUrl(requestPath, 'fa')}"><img width="16" height="11" src="https://flagcdn.com/w20/ir.png" alt="فارسی" style="width: 16px; height: 11px; margin-inline-end: 8px; border-radius: 1px; vertical-align: middle;">فارسی</a></li>
+          <li><a href="${getLangUrl(requestPath, 'ur')}"><img width="16" height="11" src="https://flagcdn.com/w20/pk.png" alt="اردو" style="width: 16px; height: 11px; margin-inline-end: 8px; border-radius: 1px; vertical-align: middle;">اردو</a></li>
         </ul>
       </div>
     </div>
@@ -3366,7 +2860,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
               <div class="tool-card glass-card" style="padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px);">
                 <div>
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-                    <img src="/public/images/3d-icons/document.png" alt="Resume Builder" class="icon-3d-img" style="width:52px; height:52px;">
+                    <img width="52" height="52" src="/public/images/3d-icons/document.png" alt="Resume Builder" class="icon-3d-img" style="width:52px; height:52px;">
                     <span class="tag-status" style="font-size: 0.75rem; font-weight: 700; background: #fef08a; color: #854d0e; padding: 4px 10px; border-radius: var(--r-full);">
                       ${locale === 'ar' ? 'مجاني 100%' : '100% Free'}
                     </span>
@@ -3389,7 +2883,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
               <div class="tool-card glass-card" style="padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px);">
                 <div>
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-                    <img src="/public/images/3d-icons/calculator.png" alt="Salary Calculator" class="icon-3d-img" style="width:52px; height:52px;">
+                    <img width="52" height="52" src="/public/images/3d-icons/calculator.png" alt="Salary Calculator" class="icon-3d-img" style="width:52px; height:52px;">
                     <span class="tag-status" style="font-size: 0.75rem; font-weight: 700; background: #d1fae5; color: #065f46; padding: 4px 10px; border-radius: var(--r-full);">
                       ${locale === 'ar' ? 'مؤشر محدّث' : 'Live Index'}
                     </span>
@@ -3412,7 +2906,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
               <div class="tool-card glass-card" style="padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px);">
                 <div>
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-                    <img src="/public/images/3d-icons/globe.png" alt="Smart Search" class="icon-3d-img" style="width:52px; height:52px;">
+                    <img width="52" height="52" src="/public/images/3d-icons/globe.png" alt="Smart Search" class="icon-3d-img" style="width:52px; height:52px;">
                     <span class="tag-status" style="font-size: 0.75rem; font-weight: 700; background: #e0e7ff; color: #3730a3; padding: 4px 10px; border-radius: var(--r-full);">
                       ${locale === 'ar' ? 'تصفح ذكي' : 'Smart Search'}
                     </span>
@@ -3435,7 +2929,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
               <div class="tool-card glass-card" style="padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px);">
                 <div>
                   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-                    <img src="/public/images/3d-icons/justice.png" alt="Career Guides" class="icon-3d-img" style="width:52px; height:52px;">
+                    <img width="52" height="52" src="/public/images/3d-icons/justice.png" alt="Career Guides" class="icon-3d-img" style="width:52px; height:52px;">
                     <span class="tag-status" style="font-size: 0.75rem; font-weight: 700; background: #ffedd5; color: #9a3412; padding: 4px 10px; border-radius: var(--r-full);">
                       ${locale === 'ar' ? 'أدلة مهنية' : 'Career Guides'}
                     </span>
@@ -3597,7 +3091,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
               <!-- Guide Card 1: Work Permit -->
               <div style="display: flex; flex-direction: column; background: var(--bg-subtle); border-radius: 14px; padding: 20px; border: 1px solid var(--border); transition: transform 0.2s ease, box-shadow 0.2s ease;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-                  <img src="/public/images/3d-icons/justice.png" alt="Labor Regulations" class="icon-3d-img" style="width: 36px; height: 36px; flex-shrink: 0;">
+                  <img width="36" height="36" src="/public/images/3d-icons/justice.png" alt="Labor Regulations" class="icon-3d-img" style="width: 36px; height: 36px; flex-shrink: 0;">
                   <span style="font-size: 0.75rem; font-weight: 700; color: #059669; text-transform: uppercase;">
                     ${locale === 'ar' ? 'قانون العمل التركي' : (locale === 'tr' ? 'Çalışma Mevzuatı' : 'Labor Regulations')}
                   </span>
@@ -3619,7 +3113,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
               <!-- Guide Card 2: Salaries & Cost of Living -->
               <div style="display: flex; flex-direction: column; background: var(--bg-subtle); border-radius: 14px; padding: 20px; border: 1px solid var(--border); transition: transform 0.2s ease, box-shadow 0.2s ease;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-                  <img src="/public/images/3d-icons/coins.png" alt="Salary Benchmarks" class="icon-3d-img" style="width: 36px; height: 36px; flex-shrink: 0;">
+                  <img width="36" height="36" src="/public/images/3d-icons/coins.png" alt="Salary Benchmarks" class="icon-3d-img" style="width: 36px; height: 36px; flex-shrink: 0;">
                   <span style="font-size: 0.75rem; font-weight: 700; color: #2563eb; text-transform: uppercase;">
                     ${locale === 'ar' ? 'تقرير الرواتب' : (locale === 'tr' ? 'Ücret İstatistikleri' : 'Salary Benchmarks')}
                   </span>
@@ -3641,7 +3135,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
               <!-- Guide Card 3: Jobs without Turkish / Resume Tips -->
               <div style="display: flex; flex-direction: column; background: var(--bg-subtle); border-radius: 14px; padding: 20px; border: 1px solid var(--border); transition: transform 0.2s ease, box-shadow 0.2s ease;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-                  <img src="/public/images/3d-icons/document.png" alt="Career Advices" class="icon-3d-img" style="width: 36px; height: 36px; flex-shrink: 0;">
+                  <img width="36" height="36" src="/public/images/3d-icons/document.png" alt="Career Advices" class="icon-3d-img" style="width: 36px; height: 36px; flex-shrink: 0;">
                   <span style="font-size: 0.75rem; font-weight: 700; color: #d97706; text-transform: uppercase;">
                     ${locale === 'ar' ? 'نصائح التوظيف' : (locale === 'tr' ? 'Kariyer Tavsiyesi' : 'Career Advices')}
                   </span>
@@ -3698,7 +3192,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
               <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 18px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.25s, border-color 0.25s; backdrop-filter: blur(10px);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='#38bdf8';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(255, 255, 255, 0.12)';">
                 <div>
                   <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 14px;">
-                    <img src="https://play-lh.googleusercontent.com/cncHf5ZsgFZ3ufzi278St6Y_0NuT46X4MYzgbsxR31-a2bfE_ufiJBu_-MS_MsQ5Z_Yl3qc47jTGxf5Z2HUR7Q=w240-h480" alt="Jobs App" style="width: 58px; height: 58px; border-radius: 14px; object-fit: cover; box-shadow: 0 4px 14px rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.2);">
+                    <img width="58" height="58" src="https://play-lh.googleusercontent.com/cncHf5ZsgFZ3ufzi278St6Y_0NuT46X4MYzgbsxR31-a2bfE_ufiJBu_-MS_MsQ5Z_Yl3qc47jTGxf5Z2HUR7Q=w240-h480" alt="Jobs App" style="width: 58px; height: 58px; border-radius: 14px; object-fit: cover; box-shadow: 0 4px 14px rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.2);">
                     <div>
                       <span style="font-size: 0.7rem; font-weight: 800; background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 2px 8px; border-radius: 6px;">${locale === 'ar' ? 'التطبيق الرسمي' : (locale === 'tr' ? 'Resmi Uygulama' : 'Official App')}</span>
                       <h3 style="font-size: 1.05rem; font-weight: 800; color: #ffffff; margin: 4px 0 2px 0;">${locale === 'ar' ? 'وظائف تركيا وإسطنبول' : (locale === 'tr' ? 'İstanbul İş İlanları' : 'Turkey & Istanbul Jobs')}</h3>
@@ -3719,7 +3213,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
               <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 18px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.25s, border-color 0.25s; backdrop-filter: blur(10px);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='#10b981';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(255, 255, 255, 0.12)';">
                 <div>
                   <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 14px;">
-                    <img src="https://play-lh.googleusercontent.com/a0oo3fGEydn_MFhagwEWQVZK9SFCennjy3L2wrsAlMrFZHWKsg5CoBX7aJJv7wTOD-PkYkfwKZ4Ds34aa1AXPW0=w240-h480" alt="Travel Guide App" style="width: 58px; height: 58px; border-radius: 14px; object-fit: cover; box-shadow: 0 4px 14px rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.2);">
+                    <img width="58" height="58" src="https://play-lh.googleusercontent.com/a0oo3fGEydn_MFhagwEWQVZK9SFCennjy3L2wrsAlMrFZHWKsg5CoBX7aJJv7wTOD-PkYkfwKZ4Ds34aa1AXPW0=w240-h480" alt="Travel Guide App" style="width: 58px; height: 58px; border-radius: 14px; object-fit: cover; box-shadow: 0 4px 14px rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.2);">
                     <div>
                       <span style="font-size: 0.7rem; font-weight: 800; background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 2px 8px; border-radius: 6px;">${locale === 'ar' ? '100% بدون إنترنت' : (locale === 'tr' ? '%100 Çevrimdışı' : '100% Offline')}</span>
                       <h3 style="font-size: 1.05rem; font-weight: 800; color: #ffffff; margin: 4px 0 2px 0;">${locale === 'ar' ? 'دليل تركيا السياحي' : (locale === 'tr' ? 'Türkiye Gezi Rehberi' : 'Turkey Travel Guide')}</h3>
@@ -3740,7 +3234,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
               <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 18px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.25s, border-color 0.25s; backdrop-filter: blur(10px);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='#f59e0b';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(255, 255, 255, 0.12)';">
                 <div>
                   <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 14px;">
-                    <img src="https://play-lh.googleusercontent.com/SCJlCWjQ979y8qDWUu_6_Fd5tQhBNa6cGoxOzVZm4SUZR_tEoxqUbqQcKR4_ADs9TjmUv3sjvsevsAiIiHEN8vA=w240-h480" alt="Aktuel Deals" style="width: 58px; height: 58px; border-radius: 14px; object-fit: cover; box-shadow: 0 4px 14px rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.2);">
+                    <img width="58" height="58" src="https://play-lh.googleusercontent.com/SCJlCWjQ979y8qDWUu_6_Fd5tQhBNa6cGoxOzVZm4SUZR_tEoxqUbqQcKR4_ADs9TjmUv3sjvsevsAiIiHEN8vA=w240-h480" alt="Aktuel Deals" style="width: 58px; height: 58px; border-radius: 14px; object-fit: cover; box-shadow: 0 4px 14px rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.2);">
                     <div>
                       <span style="font-size: 0.7rem; font-weight: 800; background: rgba(245, 158, 11, 0.2); color: #f59e0b; padding: 2px 8px; border-radius: 6px;">${locale === 'ar' ? 'تخفيضات أسبوعية' : (locale === 'tr' ? 'Haftalık İndirimler' : 'Weekly Deals')}</span>
                       <h3 style="font-size: 1.05rem; font-weight: 800; color: #ffffff; margin: 4px 0 2px 0;">${locale === 'ar' ? 'عروض بيم A101 و ŞOK' : (locale === 'tr' ? 'Aktüel: BİM, A101, ŞOK' : 'Aktüel: BİM & A101 Deals')}</h3>
@@ -3761,7 +3255,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
               <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 18px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.25s, border-color 0.25s; backdrop-filter: blur(10px);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='#818cf8';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(255, 255, 255, 0.12)';">
                 <div>
                   <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 14px;">
-                    <img src="https://play-lh.googleusercontent.com/IfWtdWTOPQo3GSK4ipturd4W50ekNd8aVMJ1myX2W2ItASr8GPy_jipvCpz-96gWDS_Vv_Nck0pw8Gk_IhPu=w240-h480" alt="Diya Quran" style="width: 58px; height: 58px; border-radius: 14px; object-fit: cover; box-shadow: 0 4px 14px rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.2);">
+                    <img width="58" height="58" src="https://play-lh.googleusercontent.com/IfWtdWTOPQo3GSK4ipturd4W50ekNd8aVMJ1myX2W2ItASr8GPy_jipvCpz-96gWDS_Vv_Nck0pw8Gk_IhPu=w240-h480" alt="Diya Quran" style="width: 58px; height: 58px; border-radius: 14px; object-fit: cover; box-shadow: 0 4px 14px rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.2);">
                     <div>
                       <span style="font-size: 0.7rem; font-weight: 800; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 2px 8px; border-radius: 6px;">${locale === 'ar' ? 'كامل بدون نت' : (locale === 'tr' ? 'Tamamı İnternetsiz' : 'Full Offline')}</span>
                       <h3 style="font-size: 1.05rem; font-weight: 800; color: #ffffff; margin: 4px 0 2px 0;">${locale === 'ar' ? 'ضياء القرآن الكريم' : (locale === 'tr' ? 'Diya Kur\'an-ı Kerim' : 'Diya Al-Quran Offline')}</h3>
@@ -4695,6 +4189,32 @@ publicRouter.get(
     </div>
   `;
 
+    // Google Jobs expiry policy: past the validity window the posting is marked expired,
+    // its JobPosting schema is withdrawn and the page is kept out of the index.
+    const jobExpired = isJobExpired(job.publishedAt, getExplicitJobDeadline(job));
+    const expiredLabels: Record<string, { title: string; body: string; cta: string }> = {
+      ar: { title: 'انتهى التقديم على هذه الوظيفة', body: `مرّ أكثر من ${JOB_VALIDITY_DAYS} يوماً على نشر هذا الإعلان وقد لا يكون متاحاً بعد الآن.`, cta: 'تصفح أحدث الوظائف المتاحة' },
+      en: { title: 'This job is no longer accepting applications', body: `This listing was posted more than ${JOB_VALIDITY_DAYS} days ago and may already be filled.`, cta: 'Browse the latest open jobs' },
+      tr: { title: 'Bu ilanın başvuru süresi doldu', body: `Bu ilan ${JOB_VALIDITY_DAYS} günden uzun süre önce yayınlandı ve artık geçerli olmayabilir.`, cta: 'En yeni iş ilanlarına göz atın' },
+      ru: { title: 'Приём откликов на эту вакансию завершён', body: `Вакансия опубликована более ${JOB_VALIDITY_DAYS} дней назад и, возможно, уже закрыта.`, cta: 'Смотреть свежие вакансии' },
+      fa: { title: 'مهلت ارسال درخواست برای این آگهی به پایان رسیده است', body: `بیش از ${JOB_VALIDITY_DAYS} روز از انتشار این آگهی گذشته و ممکن است دیگر معتبر نباشد.`, cta: 'مشاهده جدیدترین آگهی‌ها' },
+      ur: { title: 'اس ملازمت کے لیے درخواستیں بند ہو چکی ہیں', body: `یہ اشتہار ${JOB_VALIDITY_DAYS} دن سے زیادہ پہلے شائع ہوا تھا اور شاید اب دستیاب نہ ہو۔`, cta: 'تازہ ترین ملازمتیں دیکھیں' }
+    };
+    const expiredText = expiredLabels[locale] || expiredLabels.en;
+    const expiredBannerHtml = jobExpired ? `
+    <div class="container" style="max-width: 1180px; margin-top: 24px;">
+      <div role="status" style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 18px 22px; border-radius: 16px; background: #fff7ed; border: 1px solid #fdba74; color: #9a3412;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <i class="fa-solid fa-clock-rotate-left" style="font-size: 1.4rem;"></i>
+          <div>
+            <strong style="display: block; font-size: 1rem;">${expiredText.title}</strong>
+            <span style="font-size: 0.88rem;">${expiredText.body}</span>
+          </div>
+        </div>
+        <a href="/${locale}#jobs-anchor" style="background: #ea580c; color: #fff; padding: 10px 18px; border-radius: 999px; font-weight: 800; font-size: 0.88rem; text-decoration: none; white-space: nowrap;">${expiredText.cta}</a>
+      </div>
+    </div>` : '';
+
     const seoHtml = generateMetaTags(locale, 'job', {
       title,
       description: description,
@@ -4705,8 +4225,9 @@ publicRouter.get(
       jobType: job.jobType,
       salary: job.salary,
       seoKeywords: job.seoKeywords || [],
-      seoDescription: job.seoDescription || ''
-    }) + generateJsonLd(locale, 'job', {
+      seoDescription: job.seoDescription || '',
+      robots: jobExpired ? 'noindex, follow' : undefined
+    }) + (jobExpired ? '' : generateJsonLd(locale, 'job', {
       title,
       description: description,
       slug: job.slug,
@@ -4716,11 +4237,12 @@ publicRouter.get(
       companyWebsite: company.website,
       location,
       jobType: job.jobType,
-      salary: job.salary
-    });
+      salary: job.salary,
+      validThrough: getExplicitJobDeadline(job) ?? undefined
+    }));
 
     c.header('Cache-Control', 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400');
-    return c.html(renderLayout(c, title, html, locale, seoHtml));
+    return c.html(renderLayout(c, title, expiredBannerHtml + html, locale, seoHtml));
   })
 
 // Submit Job Page
@@ -6695,7 +6217,7 @@ publicRouter.get('/:locale/install', (c) => {
           <div style="display: flex; align-items: center; justify-content: center; margin: 0 auto;">
             <a href="${PLAY_STORE_URL}" target="_blank" rel="noopener" style="text-decoration: none;">
               <div style="background: white; padding: 16px; border-radius: 20px; text-align: center; box-shadow: 0 12px 30px rgba(0,0,0,0.4);">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(PLAY_STORE_URL)}" alt="Google Play QR Code" style="width: 130px; height: 130px; display: block; border-radius: 10px;">
+                <img width="130" height="130" src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(PLAY_STORE_URL)}" alt="Google Play QR Code" style="width: 130px; height: 130px; display: block; border-radius: 10px;">
                 <span style="font-size: 0.75rem; font-weight: 800; color: #0f172a; display: block; margin-top: 8px;">
                   <i class="fa-solid fa-camera"></i> ${locale === 'ar' ? 'افتح الكاميرا وامسح للتحميل' : 'Scan with Camera'}
                 </span>
@@ -7135,7 +6657,14 @@ publicRouter.get('/:locale/companies/:slug', async (c) => {
     </div>
   `;
 
-  const seoHtml = generateMetaTags(locale, 'home', { title: pageTitle, description: pageDesc });
+  const seoHtml = generateMetaTags(locale, 'home', {
+    title: pageTitle,
+    description: pageDesc,
+    // Self-referencing canonical for the company profile (previously fell back to the homepage)
+    slug: `companies/${encodeURIComponent(slug)}`,
+    // Unknown company slugs render a generic shell: keep them out of the index (soft-404 guard)
+    robots: companyData ? 'index, follow' : 'noindex, follow'
+  });
   return c.html(renderLayout(c, pageTitle, html, locale, seoHtml));
 });
 
@@ -8114,7 +7643,9 @@ const renderSpecializedLandingHandler = async (c: any, pageConfig: SpecializedSe
   const seoHtml = generateMetaTags(locale, 'home', {
     title: pageTitle,
     seoDescription: pageDesc,
-    seoKeywords: pageConfig.searchKeywords.join(', ')
+    seoKeywords: pageConfig.searchKeywords.join(', '),
+    // Self-referencing canonical + hreflang cluster for this landing page (not the homepage)
+    slug: pageConfig.type
   }) + jsonLdHtml;
 
   return c.html(renderLayout(c, pageTitle, html, locale, seoHtml));

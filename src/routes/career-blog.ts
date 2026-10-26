@@ -905,6 +905,11 @@ careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
   const cleanSummary = article.summary || article.content.substring(0, 160).replace(/<[^>]*>/g, '');
   const articleImg = article.image || extractFirstImage(article.content, article);
   const availableLocales = getArticleAvailableLocales(article.slug);
+  // When this locale has no translation, the page renders the ar/en/tr fallback (same lookup order
+  // as above) — canonicalize to that version instead of creating a duplicate self-canonical URL.
+  const canonicalLocale = availableLocales.includes(locale)
+    ? locale
+    : (['ar', 'en', 'tr'].find(l => availableLocales.includes(l)) || availableLocales[0] || 'en');
   const seoHtml = generateMetaTags(locale, 'blog_post', {
     title: article.title,
     description: cleanSummary,
@@ -912,7 +917,7 @@ careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
     image: articleImg,
     publishedAt: new Date(article.publishedAt).getTime(),
     updatedAt: article.updatedAt ? new Date(article.updatedAt).getTime() : Date.now(),
-    canonical: article.canonical || `https://jobs-in-istanbul.com/${locale}/blog/${article.slug}`,
+    canonical: article.canonical || `https://jobs-in-istanbul.com/${canonicalLocale}/blog/${article.slug}`,
     availableLocales,
   }) + generateJsonLd(locale, 'blog_post', {
     title: article.title,

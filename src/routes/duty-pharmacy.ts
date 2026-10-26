@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { renderLayout } from './public'
+import { hreflangLinks, ogImageTags, ogLocale, DEFAULT_OG_IMAGE } from '../utils/seo-links'
 import { 
   getCachedOrFallbackPharmacies, 
   runPharmacyScraper 
@@ -117,8 +118,8 @@ dutyPharmacyRouter.get('/:locale/nobetci-eczane', async (c) => {
   // Localization Dictionary
   const t = {
     ar: {
-      metaTitle: 'صيدليات الحراسة في إسطنبول اليوم | دليل الصيدليات المناوبة 24 ساعة لجميع المناطق الـ 39',
-      metaDesc: 'دليل صيدليات الحراسة في إسطنبول اليوم (İstanbul Nöbetçi Eczaneler). ابحث عن أقرب صيدلية مناوبة في الفاتح، باشاك شهير، كاديكوي، أسنيورت وشيشلي مع الاتصال المباشر وخرائط جوجل وياندكس.',
+      metaTitle: 'الصيدليات المناوبة في إسطنبول اليوم | 39 منطقة على مدار الساعة',
+      metaDesc: 'قائمة الصيدليات المناوبة في إسطنبول اليوم لجميع المناطق الـ39 مع العناوين وأرقام الهواتف والاتجاهات على الخريطة، محدثة يومياً.',
       heroBadge: 'محدث لحظياً ومباشر اليوم',
       heroTitle: 'صيدليات الحراسة في إسطنبول اليوم',
       heroSubtitle: 'دليل الصيدليات المناوبة ليلاً وأيام العطلات في جميع مناطق إسطنبول الـ 39 مع الاتصال المباشر والملاحة عبر خرائط جوجل وياندكس.',
@@ -157,8 +158,8 @@ dutyPharmacyRouter.get('/:locale/nobetci-eczane', async (c) => {
       totalPharmaciesText: 'صيدلية مناوبة متاحة الآن في 39 منطقة'
     },
     en: {
-      metaTitle: 'Duty Pharmacies in Istanbul Today | 24/7 On-Duty Pharmacy Directory (All 39 Districts)',
-      metaDesc: 'Find pharmacies on duty in Istanbul today (İstanbul Nöbetçi Eczaneler). Quick search for open night pharmacies in Fatih, Kadikoy, Basaksehir, Sisli, Esenyurt with direct phone dial and Google/Yandex maps directions.',
+      metaTitle: 'Istanbul Duty Pharmacies Today | Open 24/7 in 39 Districts',
+      metaDesc: 'Find open duty pharmacies in Istanbul today (Nöbetçi Eczaneler) across all 39 districts, with addresses, phone numbers and map directions. Updated daily.',
       heroBadge: 'Live & Updated Today',
       heroTitle: 'Pharmacies on Duty in Istanbul Today',
       heroSubtitle: 'Complete directory of 24/7 and night on-duty pharmacies across all 39 Istanbul districts with instant call and turn-by-turn map navigation.',
@@ -197,8 +198,8 @@ dutyPharmacyRouter.get('/:locale/nobetci-eczane', async (c) => {
       totalPharmaciesText: 'on-duty pharmacies active right now across 39 districts'
     },
     tr: {
-      metaTitle: 'İstanbul Nöbetçi Eczaneler Bugün | 39 İlçe 7/24 Açık Nöbetçi Eczane Listesi ve Yol Tarifi',
-      metaDesc: 'Bugün İstanbul nöbetçi eczaneler listesi. Fatih, Kadıköy, Başakşehir, Şişli, Beşiktaş, Esenyurt ve tüm 39 ilçede açık nöbetçi eczane telefonları, adresleri, Google ve Yandex Harita yol tarifi.',
+      metaTitle: 'İstanbul Nöbetçi Eczaneler Bugün | 39 İlçe 7/24 Liste',
+      metaDesc: 'Bugün İstanbul nöbetçi eczaneler listesi: 39 ilçede açık eczanelerin adres, telefon ve harita yol tarifi. Her gün güncellenir.',
       heroBadge: 'Bugün Canlı ve Güncel',
       heroTitle: 'İstanbul Nöbetçi Eczaneler Bugün',
       heroSubtitle: 'İstanbul\'un 39 ilçesinde bu gece ve tatil günlerinde açık olan nöbetçi eczanelerin tam listesi, tek tıkla arama ve harita yol tarifi.',
@@ -462,16 +463,13 @@ dutyPharmacyRouter.get('/:locale/nobetci-eczane', async (c) => {
     <title>${t.metaTitle}</title>
     <meta name="description" content="${t.metaDesc}">
     <link rel="canonical" href="https://jobs-in-istanbul.com/${locale}/nobetci-eczane">
-    <link rel="alternate" hreflang="ar" href="https://jobs-in-istanbul.com/ar/nobetci-eczane" />
-    <link rel="alternate" hreflang="en" href="https://jobs-in-istanbul.com/en/nobetci-eczane" />
-    <link rel="alternate" hreflang="tr" href="https://jobs-in-istanbul.com/tr/nobetci-eczane" />
-    <link rel="alternate" hreflang="x-default" href="https://jobs-in-istanbul.com/ar/nobetci-eczane" />
+    ${hreflangLinks('/nobetci-eczane')}
     <meta property="og:title" content="${t.metaTitle}">
     <meta property="og:description" content="${t.metaDesc}">
     <meta property="og:url" content="https://jobs-in-istanbul.com/${locale}/nobetci-eczane">
     <meta property="og:type" content="website">
-    <meta property="og:locale" content="${locale === 'ar' ? 'ar_AR' : (locale === 'tr' ? 'tr_TR' : 'en_US')}">
-    <meta name="twitter:card" content="summary_large_image">
+    <meta property="og:locale" content="${ogLocale(locale)}">
+    ${ogImageTags(DEFAULT_OG_IMAGE, t.metaTitle)}
     <meta name="twitter:title" content="${t.metaTitle}">
     <meta name="twitter:description" content="${t.metaDesc}">
     <script type="application/ld+json">${JSON.stringify(schemaOrgData)}</script>
@@ -943,7 +941,7 @@ dutyPharmacyRouter.get('/:locale/nobetci-eczane', async (c) => {
       <!-- Hero Banner -->
       <section class="pharmacy-hero">
         <div style="text-align: center; margin-bottom: 16px;">
-          <img src="/public/images/3d-icons/pharmacy.png" alt="Duty Pharmacy" class="icon-3d-img" style="width: 72px; height: 72px; filter: drop-shadow(0 10px 24px rgba(5, 150, 105, 0.35)); display: inline-block;">
+          <img width="72" height="72" src="/public/images/3d-icons/pharmacy.png" alt="Duty Pharmacy" class="icon-3d-img" style="width: 72px; height: 72px; filter: drop-shadow(0 10px 24px rgba(5, 150, 105, 0.35)); display: inline-block;">
         </div>
         <div class="live-pulse-badge">
           <span class="pulse-dot"></span>

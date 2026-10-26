@@ -670,7 +670,7 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
 
     <div class="container" style="padding: 40px 20px 0;">
       <div style="text-align: center; margin-bottom: 16px;">
-        <img src="/public/images/3d-icons/gold.png" alt="Gold" class="icon-3d-img" style="width: 72px; height: 72px; filter: drop-shadow(0 10px 24px rgba(245, 158, 11, 0.35)); display: inline-block;">
+        <img width="72" height="72" src="/public/images/3d-icons/gold.png" alt="Gold" class="icon-3d-img" style="width: 72px; height: 72px; filter: drop-shadow(0 10px 24px rgba(245, 158, 11, 0.35)); display: inline-block;">
       </div>
       <h1 class="hero-title-gradient" style="text-align: center; margin-bottom: 12px; font-size: 2.3rem; font-weight: 800;">${t.title}</h1>
       <p style="color: var(--text-muted); text-align: center; margin-bottom: 16px; font-size: 1.05rem; max-width: 700px; margin-left: auto; margin-right: auto; line-height: 1.6;">${t.subtitle}</p>
@@ -945,9 +945,15 @@ goldPricesRouter.get('/:locale/gold-prices', async (c) => {
     </script>
   `;
 
-  const seoTitle = locale === 'ar'
-    ? 'أسعار الذهب في تركيا اليوم | عيار 24 و 21 والليرة الذهب بالليرة التركية'
-    : (locale === 'tr' ? 'Bugün Türkiye Altın Fiyatları | Canlı Altın Ayarları ve Fiyatları' : 'Gold Prices in Turkey Today | Live Gold Karat & Lira Rates');
+  const seoTitles: Record<string, string> = {
+    ar: 'أسعار الذهب في تركيا اليوم | عيار 24 و21 والليرة الذهب',
+    tr: 'Bugün Türkiye Altın Fiyatları | Gram, Çeyrek ve Ayarlar',
+    en: 'Gold Prices in Turkey Today | Live Karat & Gold Lira Rates',
+    ru: 'Цены на золото в Турции сегодня | 24, 21 карат и лира',
+    fa: 'قیمت طلا امروز در ترکیه | طلای ۲۴ و ۲۱ عیار و لیره طلا',
+    ur: 'ترکی میں سونے کی قیمتیں آج | ۲۴، ۲۲ اور ۲۱ قیراط'
+  };
+  const seoTitle = seoTitles[locale] || seoTitles.en;
 
   c.header('Cache-Control', 'public, max-age=60, s-maxage=120, stale-while-revalidate=300');
   return c.html(renderLayout(c, seoTitle, html, locale));

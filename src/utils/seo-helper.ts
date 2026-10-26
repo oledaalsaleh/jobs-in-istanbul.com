@@ -4,6 +4,9 @@
  * Generates meta tags and Schema.org structured data (JSON-LD) for different pages.
  */
 
+import { getJobValidThrough } from './job-validity';
+import { getNativeLocales } from './seo-links';
+
 interface MetaDataInput {
   title?: string;
   description?: string;
@@ -21,10 +24,11 @@ interface MetaDataInput {
   seoKeywords?: string[] | string;
   seoDescription?: string;
   canonical?: string;
-  robots?: string;
+  robots?: string | undefined;
   faqs?: Array<{ question: string; answer: string }>;
   category?: string;
   availableLocales?: string[];
+  validThrough?: string | number | undefined;
 }
 
 export function generateMetaTags(
@@ -45,7 +49,7 @@ export function generateMetaTags(
     },
     en: {
       title: 'Jobs in Istanbul 2026 | Latest Job Vacancies & Careers in Turkey',
-      desc: 'Find verified job vacancies in Istanbul and Turkey for expats, locals, and international professionals. Browse top openings in tech, sales, education, tourism, and apply free today.',
+      desc: 'Find verified job vacancies in Istanbul and Turkey for expats and locals. Browse openings in tech, sales, education and tourism, and apply free today.',
     },
     tr: {
       title: 'İstanbul İş İlanları 2026 | Güncel İş Fırsatları ve Eleman Arayanlar',
@@ -104,7 +108,9 @@ export function generateMetaTags(
           ? 'Блог о карьере в Стамбуле | Разрешения на работу и транспорт'
           : (locale === 'fa'
             ? 'وبلاگ کاریابی استانبول | راهنمای اجازه کار و قوانین اقامت کاری ترکیه'
-            : 'Career Blog - Istanbul | Work Permits & Commuting Tips')));
+            : (locale === 'ur'
+              ? 'استنبول کیریئر بلاگ | ورک پرمٹ اور ملازمت کی رہنمائی'
+              : 'Career Blog - Istanbul | Work Permits & Commuting Tips'))));
     desc = locale === 'tr'
       ? 'İstanbul\'da çalışmaya dair rehberiniz. ATS özgeçmiş optimizasyonu, çalışma izni yasaları ve ulaşım hakkında ipuçları içeren yazıları okuyun.'
       : (locale === 'ar'
@@ -113,7 +119,9 @@ export function generateMetaTags(
           ? 'Ваш гид по работе в Стамбуле. Читайте статьи об оптимизации резюме для ATS, законах о разрешениях на работу и транспорте.'
           : (locale === 'fa'
             ? 'راهنمای جامع شما برای کار در استانبول. مقالاتی در مورد اجازه کار در ترکیه، بهینه‌سازی رزومه برای سیستم‌های ATS و حمل و نقل بخوانید.'
-            : 'Your ultimate guide to working in Istanbul. Read articles on ATS resume optimization, work permit laws, and navigating transportation.')));
+            : (locale === 'ur'
+              ? 'استنبول میں کام کے لیے آپ کی مکمل گائیڈ: ورک پرمٹ کے قوانین، اے ٹی ایس کے مطابق سی وی اور شہر میں آمد و رفت کے مضامین پڑھیں۔'
+              : 'Your ultimate guide to working in Istanbul. Read articles on ATS resume optimization, work permit laws, and navigating transportation.'))));
   } else if (pageType === 'blog_post') {
     title = locale === 'tr'
       ? `${data.title} | İstanbul Kariyer Blogu`
@@ -561,10 +569,16 @@ export function generateMetaTags(
 
   const supportedLocales = (data.availableLocales && data.availableLocales.length > 0)
     ? data.availableLocales
-    : ['ar', 'en', 'tr', 'ru', 'fa', 'ur'];
+    : [...getNativeLocales(data.slug || pageType)];
   const hreflangTags = supportedLocales
     .map(loc => `<link rel="alternate" hreflang="${loc}" href="${getLocaleUrl(loc)}">`)
     .join('\n  ');
+  // x-default must point to a member of the hreflang cluster: English when available, else first locale
+  const xDefaultUrl = supportedLocales.includes('en') ? enUrl : getLocaleUrl(supportedLocales[0]);
+  // Untranslated locale variants render fallback content: canonicalize them to the default version
+  if (!data.canonical && !supportedLocales.includes(locale)) {
+    canonicalUrl = xDefaultUrl;
+  }
 
   return `
   <!-- Primary Meta Tags -->
@@ -578,7 +592,7 @@ export function generateMetaTags(
   
   <!-- i18n Multilingual Links -->
   ${hreflangTags}
-  <link rel="alternate" hreflang="x-default" href="${enUrl}">
+  <link rel="alternate" hreflang="x-default" href="${xDefaultUrl}">
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="${(pageType === 'job' || pageType === 'blog_post') ? 'article' : 'website'}">
@@ -953,9 +967,12 @@ export function generateJsonLd(
 
     const hiringOrg: Record<string, any> = {
       "@type": "Organization",
-      "name": data.companyName || 'Confidential Company',
-      "sameAs": data.companyWebsite || siteUrl
+      "name": data.companyName || 'Confidential Company'
     };
+    // sameAs must identify the employer itself — never point it at our own job board
+    if (data.companyWebsite && /^https?:\/\//i.test(data.companyWebsite) && !data.companyWebsite.includes('jobs-in-istanbul.com')) {
+      hiringOrg.sameAs = data.companyWebsite;
+    }
 
     if (data.companyLogo) {
       let logoUrl = data.companyLogo;
@@ -982,8 +999,14 @@ export function generateJsonLd(
       "@type": "JobPosting",
       "title": data.title,
       "description": formattedDescription,
+      "identifier": {
+        "@type": "PropertyValue",
+        "name": data.companyName || 'Jobs in Istanbul',
+        "value": data.slug || ''
+      },
       "datePosted": new Date(publishedTime).toISOString(),
-      "validThrough": new Date(publishedTime + 180 * 24 * 60 * 60 * 1000).toISOString(),
+      // Aggregated listings are treated as open for JOB_VALIDITY_DAYS (Google Jobs expiry guidelines)
+      "validThrough": getJobValidThrough(publishedTime, data.validThrough).toISOString(),
       "employmentType": typeLabel,
       "hiringOrganization": hiringOrg,
       "jobLocation": jobLocationSchema

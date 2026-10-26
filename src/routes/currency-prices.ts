@@ -238,7 +238,7 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
         <div class="highlight-glow-bar"></div>
         <div style="display: flex; flex-direction: column; gap: 4px;">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <img src="${t.flagUrl(p.code)}" alt="${p.code}" style="width: 24px; height: 18px; border-radius: 2px; box-shadow: var(--shadow-sm); border: 1px solid var(--border);">
+            <img width="24" height="18" src="${t.flagUrl(p.code)}" alt="${p.code}" style="width: 24px; height: 18px; border-radius: 2px; box-shadow: var(--shadow-sm); border: 1px solid var(--border);">
             <span style="font-weight: 800; color: var(--text-dark); font-size: 1.05rem;">${p.code}</span>
             <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">(${titleText})</span>
           </div>
@@ -478,7 +478,7 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
 
     <div class="container" style="padding: 40px 20px 0;">
       <div style="text-align: center; margin-bottom: 16px;">
-        <img src="/public/images/3d-icons/coins.png" alt="Currency" class="icon-3d-img" style="width: 72px; height: 72px; filter: drop-shadow(0 10px 24px rgba(2, 132, 199, 0.35)); display: inline-block;">
+        <img width="72" height="72" src="/public/images/3d-icons/coins.png" alt="Currency" class="icon-3d-img" style="width: 72px; height: 72px; filter: drop-shadow(0 10px 24px rgba(2, 132, 199, 0.35)); display: inline-block;">
       </div>
       <h1 class="hero-title-gradient" style="text-align: center; margin-bottom: 12px; font-size: 2.3rem; font-weight: 800;">${t.title}</h1>
       <p style="color: var(--text-muted); text-align: center; margin-bottom: 16px; font-size: 1.05rem; max-width: 700px; margin-left: auto; margin-right: auto; line-height: 1.6;">${t.subtitle}</p>
@@ -525,7 +525,7 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
                   return `
                     <tr class="cur-row">
                       <td style="display: flex; align-items: center; gap: 12px; text-align: ${locale === 'ar' ? 'right' : 'left'};">
-                        <img src="${t.flagUrl(p.code)}" alt="${p.code}" style="width: 24px; height: 18px; border-radius: 2px; box-shadow: var(--shadow-sm); border: 1px solid var(--border);">
+                        <img width="24" height="18" src="${t.flagUrl(p.code)}" alt="${p.code}" style="width: 24px; height: 18px; border-radius: 2px; box-shadow: var(--shadow-sm); border: 1px solid var(--border);">
                         <div>
                           <div style="font-weight: 800; color: var(--text-dark);">${p.code}</div>
                           <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">${locale === 'ar' ? p.name : (locale === 'tr' ? (trCurrencyNames[p.code] || p.code) : p.code)}</div>
@@ -551,7 +551,7 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
                 <div class="mobile-currency-card">
                   <div class="mobile-currency-card-header" style="direction: ${locale === 'ar' ? 'rtl' : 'ltr'};">
                     <div style="display: flex; align-items: center; gap: 8px;">
-                      <img src="${t.flagUrl(p.code)}" alt="${p.code}" style="width: 22px; height: 16px; border-radius: 2px; border: 1px solid var(--border);">
+                      <img width="22" height="16" src="${t.flagUrl(p.code)}" alt="${p.code}" style="width: 22px; height: 16px; border-radius: 2px; border: 1px solid var(--border);">
                       <span style="font-weight: 800; color: var(--text-dark); font-size: 0.95rem;">${p.code}</span>
                       <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">(${locale === 'ar' ? p.name : (locale === 'tr' ? (trCurrencyNames[p.code] || p.code) : p.code)})</span>
                     </div>
@@ -674,9 +674,15 @@ currencyPricesRouter.get('/:locale/currency-prices', async (c) => {
     </script>
   `;
 
-  const seoTitle = locale === 'ar' 
-    ? 'سعر الليرة التركية مقابل العملات في تركيا اليوم | أسعار العملات'
-    : (locale === 'tr' ? 'Bugün Türkiye Döviz Fiyatları | Canlı Döviz Kurları' : 'Turkish Lira Exchange Rates Today | Live Currency Prices');
+  const seoTitles: Record<string, string> = {
+    ar: 'سعر الليرة التركية مقابل العملات اليوم | أسعار العملات في تركيا',
+    tr: 'Bugün Türkiye Döviz Fiyatları | Canlı Döviz Kurları',
+    en: 'Turkish Lira Exchange Rates Today | Live Currency Prices',
+    ru: 'Курсы валют в Турции сегодня | Доллар и Евро к Лире',
+    fa: 'نرخ ارز امروز در ترکیه | قیمت دلار و یورو به لیر ترکیه',
+    ur: 'ترکی میں کرنسی کی قیمتیں | ڈالر اور یورو کا لیر ریٹ'
+  };
+  const seoTitle = seoTitles[locale] || seoTitles.en;
 
   c.header('Cache-Control', 'public, max-age=300, s-maxage=1800, stale-while-revalidate=3600');
   return c.html(renderLayout(c, seoTitle, html, locale));
