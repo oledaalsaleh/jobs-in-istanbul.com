@@ -131,6 +131,7 @@ import { dutyPharmacyRouter } from './routes/duty-pharmacy'
 import { rentCalculatorRouter } from './routes/rent-calculator'
 import { fuelPricesRouter } from './routes/fuel-prices'
 import { mobileApiRouter } from './routes/mobile-api'
+import { appsShowcaseRouter } from './routes/apps-showcase'
 import { runScraper } from './services/scraper'
 import { runTelegramScraper } from './services/telegram-scraper'
 import { optimizeSeoWithGemini } from './services/gemini-seo'
@@ -144,6 +145,7 @@ import { autoIndexUnindexedJobs } from './services/auto-indexing'
 // Mount routes
 app.route('/', publicRouter)
 app.route('/', seoRouter)
+app.route('/', appsShowcaseRouter)
 app.route('/', adminAiRouter)
 app.route('/', scraperRouter)
 app.route('/', employerPortalRouter)

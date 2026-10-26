@@ -11,6 +11,7 @@ import { FAVICON_BASE64, LOGO_BASE64 } from '../utils/logo-base64'
 import { autoIndexAndNotifyJob } from '../services/auto-indexing'
 import { ICONS_3D_BASE64 } from '../data/icons-3d-data'
 import { TURKEY_GUIDE_APP_ICON_BASE64 } from '../data/turkey-guide-app-icon'
+import { PROMO_BANNER_150K_BASE64 } from '../data/promo-banner-data'
 import { 
   getFallbackJobs, 
   getFallbackCategories, 
@@ -174,6 +175,111 @@ export function renderTravelGuideInFeedAd(locale: string): string {
   </div>`;
 }
 
+/**
+ * Permanent Google Ad style Featured Job Banner (150K TRY)
+ */
+export function renderPermanentJobPromoAd(locale: string, variant: 'drawer' | 'sidebar' | 'infeed' | 'top' = 'drawer'): string {
+  const isRtl = locale === 'ar' || locale === 'fa' || locale === 'ur';
+
+  const t = {
+    ar: {
+      adTag: 'إعلان ممول',
+      tagline: 'فرصة عمل مميزة براتب 150,000 ليرة',
+      title: 'فرصة عمل براتب 150,000 ليرة تركية',
+      sub: 'وظائف حقيقية • مرتبات مجزية • حمل التطبيق الآن',
+      cta: 'تثبيت من Google Play',
+      action: 'اضغط هنا للتقديم'
+    },
+    en: {
+      adTag: 'Sponsored Ad',
+      tagline: 'Featured 150,000 TRY Opportunity',
+      title: 'Job Opportunity with 150,000 TRY Salary',
+      sub: 'Verified Positions • High Pay • Install Free Now',
+      cta: 'Install on Google Play',
+      action: 'Tap Here to Apply'
+    },
+    tr: {
+      adTag: 'Sponsorlu İlan',
+      tagline: '150.000 TL Maaşlı Özel Fırsat',
+      title: '150.000 TL Maaşlı İş Fırsatı',
+      sub: 'Gerçek İlanlar • Dolgun Maaş • Hemen Yükleyin',
+      cta: 'Google Play’den Yükle',
+      action: 'Başvurmak İçin Tıklayın'
+    }
+  }[locale as 'ar' | 'en' | 'tr'] || {
+    adTag: 'Sponsored Ad',
+    tagline: 'Featured 150,000 TRY Opportunity',
+    title: 'Job Opportunity with 150,000 TRY Salary',
+    sub: 'Verified Positions • High Pay • Install Free Now',
+    cta: 'Install on Google Play',
+    action: 'Tap Here to Apply'
+  };
+
+  const imgUrl = '/public/images/istanbul-app/featured_job_promo_150k.jpg';
+  const targetUrl = PLAY_STORE_URL;
+
+  const maxW = variant === 'drawer' ? '100%' : (variant === 'sidebar' ? '100%' : '480px');
+  const maxImgH = variant === 'drawer' ? '300px' : (variant === 'top' ? '460px' : '520px');
+
+  return `
+  <!-- PERMANENT GOOGLE DISPLAY AD STYLE FEATURED JOB BANNER -->
+  <div class="permanent-job-ad-box ad-variant-${variant}" style="width: 100%; max-width: ${maxW}; margin: ${variant === 'drawer' ? '12px auto' : (variant === 'sidebar' ? '18px auto' : '22px auto')};">
+    <div style="background: var(--bg-card); border: 1.5px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.12); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);" class="ad-card-hover-fx">
+      
+      <!-- Top Google Ad Meta Header -->
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 7px 12px; background: rgba(0,0,0,0.04); border-bottom: 1px solid var(--border); font-size: 0.72rem; color: var(--text-muted);">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span style="background: #2563eb; color: #ffffff; font-weight: 800; font-size: 0.65rem; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.3px;">${t.adTag}</span>
+          <span style="font-weight: 700; color: var(--text-heading);">${t.tagline}</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 4px; opacity: 0.75;" title="Google Play Ad">
+          <i class="fa-brands fa-google-play" style="font-size: 0.75rem; color: #0284c7;"></i>
+          <i class="fa-solid fa-circle-info" style="font-size: 0.7rem;"></i>
+        </div>
+      </div>
+
+      <!-- Main Clickable Image Banner -->
+      <a href="${targetUrl}" target="_blank" rel="noopener noreferrer sponsored" title="${t.title}" style="display: block; position: relative; text-decoration: none; overflow: hidden; background: #000000; line-height: 0; text-align: center;">
+        <img src="${imgUrl}" alt="${t.title}" loading="eager" decoding="async" width="600" height="900" style="width: 100%; max-height: ${maxImgH}; height: auto; display: block; object-fit: contain; margin: 0 auto; transition: transform 0.35s ease;" onmouseover="this.style.transform='scale(1.025)'" onmouseout="this.style.transform='none'">
+        
+        <!-- Live Action Badge Pulsing in Corner -->
+        <div style="position: absolute; bottom: 12px; ${isRtl ? 'left: 12px' : 'right: 12px'}; background: #ef4444; color: #ffffff; font-size: 0.78rem; font-weight: 800; padding: 6px 14px; border-radius: 9999px; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.5); display: flex; align-items: center; gap: 6px; animation: pulseAdBtn 2s infinite;">
+          <i class="fa-solid fa-hand-pointer"></i>
+          <span>${t.action}</span>
+        </div>
+      </a>
+
+      <!-- Bottom Google Play Action Bar -->
+      <a href="${targetUrl}" target="_blank" rel="noopener noreferrer sponsored" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 11px 14px; background: #090d16; color: #ffffff !important; text-decoration: none; border-top: 1px solid rgba(255,255,255,0.12); transition: background 0.2s;" onmouseover="this.style.background='#1e293b'" onmouseout="this.style.background='#090d16'">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <svg viewBox="0 0 512 512" width="18" height="18" aria-hidden="true" style="flex-shrink: 0;">
+            <path fill="#410599" d="M32.5 17.5C30.2 19.9 29 23.3 29 27.6v456.8c0 4.3 1.2 7.7 3.5 10.1l1.3 1.2L290.4 239v-6L33.8 16.3l-1.3 1.2z"/>
+            <path fill="#F44336" d="M376.6 325.2l-86.2-86.2V233l86.2-86.2 1.3.7 102.2 58.1c2.9 1.7 4.9 4.8 4.9 8.4s-2 6.7-4.9 8.4l-102.2 58.1-1.3.7z"/>
+            <path fill="#FFC107" d="M377.9 324.5L290.4 237 33.8 493.6c3.1 3.3 8.3 4.2 13 1.5l331.1-170.6"/>
+            <path fill="#00E676" d="M377.9 187.5L46.8 16.9c-4.7-2.7-9.9-1.8-13 1.5L290.4 255l87.5-67.5z"/>
+          </svg>
+          <span style="font-weight: 800; font-size: 0.82rem; letter-spacing: 0.2px;">${t.cta}</span>
+        </div>
+        <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.74rem; font-weight: 700; color: #38bdf8;">
+          <i class="fa-solid fa-arrow-${isRtl ? 'left' : 'right'}"></i>
+        </span>
+      </a>
+
+    </div>
+  </div>
+  <style>
+    @keyframes pulseAdBtn {
+      0% { transform: scale(1); box-shadow: 0 4px 14px rgba(239, 68, 68, 0.5); }
+      50% { transform: scale(1.05); box-shadow: 0 6px 20px rgba(239, 68, 68, 0.8); }
+      100% { transform: scale(1); box-shadow: 0 4px 14px rgba(239, 68, 68, 0.5); }
+    }
+    .ad-card-hover-fx:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 32px rgba(0,0,0,0.18) !important;
+      border-color: #2563eb !important;
+    }
+  </style>`;
+}
 
 export const ISTANBUL_DISTRICTS = [
   { en: 'Adalar', ar: 'الأمراء' },
@@ -1784,6 +1890,13 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
             </a>
           </li>
           <li>
+            <a href="/${locale}/apps" class="nav-link" style="color: #6366f1; font-weight: 700;">
+              <i class="fa-solid fa-shapes nav-icon" style="color: #6366f1;"></i>
+              <span>${locale === 'ar' ? 'تطبيقاتنا' : (locale === 'tr' ? 'Uygulamalarımız' : 'Our Apps')}</span>
+              <span style="font-size: 0.65rem; background: linear-gradient(135deg, #6366f1, #a855f7); color: white; padding: 2px 7px; border-radius: 999px; margin-inline-start: 4px; font-weight: 800; box-shadow: 0 2px 6px rgba(99, 102, 241, 0.35);">${locale === 'ar' ? 'جديد' : 'NEW'}</span>
+            </a>
+          </li>
+          <li>
             <a href="/${locale}/blog" class="nav-link">
               <i class="fa-solid fa-newspaper nav-icon" style="color: #f59e0b;"></i>
               <span>${t.blog}</span>
@@ -1900,8 +2013,13 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         </a>
         <button onclick="document.getElementById('mobile-nav').style.display='none'" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
       </div>
+
+      <!-- Permanent Google Display Ad in Mobile Navigation Drawer (Top Priority) -->
+      ${renderPermanentJobPromoAd(locale, 'drawer')}
+
       <nav style="display:flex; flex-direction:column; gap:6px;">
         <a href="/${locale}" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-house-chimney" style="color: var(--primary); width: 20px; text-align: center;"></i><span>${t.home}</span></a>
+        <a href="/${locale}/apps" style="padding:12px 16px; border-radius:var(--r-md); color:#6366f1; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-shapes" style="color: #6366f1; width: 20px; text-align: center;"></i><span>${locale === 'ar' ? 'تطبيقاتنا على Google Play' : (locale === 'tr' ? 'Mobil Uygulamalarımız' : 'Our Mobile Apps')}</span><span style="font-size: 0.65rem; background: #6366f1; color: white; padding: 2px 7px; border-radius: 999px; margin-inline-start: auto; font-weight: 800;">${locale === 'ar' ? 'جديد' : 'NEW'}</span></a>
         <a href="/${locale}/insights" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-chart-column" style="color: #10b981; width: 20px; text-align: center;"></i><span>${t.insights}</span></a>
         <a href="/${locale}/blog" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-newspaper" style="color: #f59e0b; width: 20px; text-align: center;"></i><span>${t.blog}</span></a>
         <a href="/${locale}/about" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-circle-info" style="color: #3b82f6; width: 20px; text-align: center;"></i><span>${t.about}</span></a>
@@ -1939,6 +2057,9 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           <i class="fa-brands fa-telegram" style="font-size:1.2rem;"></i>
           ${t.mobileJoinTelegram}
         </a>
+
+        <!-- Permanent Google Display Ad in Mobile Navigation Drawer (القائمة الرئيسية) -->
+        ${renderPermanentJobPromoAd(locale, 'drawer')}
 
         <!-- Mobile Actions inside Drawer -->
         <div style="margin-top:24px; padding-top:20px; border-top:1px solid var(--border); display:flex; flex-direction:column; gap:16px; width:100%;">
@@ -2007,6 +2128,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         <ul class="footer-links">
           <li class="footer-col-title">${t.platform}</li>
           <li><a href="/${locale}">${t.allJobs}</a></li>
+          <li><a href="/${locale}/apps" style="color: #818cf8; font-weight: 800; display:inline-flex; align-items:center; gap:6px;"><i class="fa-solid fa-shapes"></i><span>${locale === 'ar' ? 'تطبيقاتنا الذكية' : (locale === 'tr' ? 'Uygulamalarımız' : 'Our Mobile Apps')}</span></a></li>
           <li><a href="/${locale}/blog">${t.blog}</a></li>
           <li><a href="/${locale}/workplace-quiz" style="color: #38bdf8; font-weight: 700; display:inline-flex; align-items:center; gap:6px;"><img src="/public/images/3d-icons/quiz.png" alt="" class="icon-3d-img" style="width:16px; height:16px;"><span>${locale === 'ar' ? 'اختبار لغة العمل التركية' : (locale === 'tr' ? 'İş Türkçesi Testi' : 'Workplace Turkish Quiz')}</span></a></li>
           <li><a href="/${locale}/insights">${t.insights}</a></li>
@@ -2016,6 +2138,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         </ul>
         <ul class="footer-links">
           <li class="footer-col-title">${t.smartTools}</li>
+          <li><a href="/${locale}/apps" style="font-weight: 800; color: #818cf8; display:inline-flex; align-items:center; gap:6px;"><i class="fa-solid fa-mobile-screen-button"></i><span>${locale === 'ar' ? 'باقة تطبيقاتنا على Google Play' : (locale === 'tr' ? 'Google Play Uygulamalarımız' : 'Our Google Play Apps')}</span></a></li>
+          <li><a href="https://play.google.com/store/apps/dev?id=6308543008922541479" target="_blank" rel="noopener" style="font-weight: 800; color: #38bdf8; display:inline-flex; align-items:center; gap:6px;"><i class="fa-brands fa-google-play"></i><span>${locale === 'ar' ? 'متجر تطبيقاتنا الرسمي' : (locale === 'tr' ? 'Resmi Geliştirici Mağazamız' : 'Official Developer Store')}</span></a></li>
           <li><a href="${PLAY_STORE_URL}" target="_blank" rel="noopener" style="font-weight: 800; color: #4ade80;"><i class="fa-brands fa-google-play" style="margin-inline-end:6px;"></i>${locale === 'ar' ? 'تطبيق إسطنبول للوظائف (Google Play)' : (locale === 'tr' ? 'İstanbul İş İlanları Uygulaması' : 'Jobs in Istanbul App')}</a></li>
           <li><a href="${TURKEY_TRAVEL_GUIDE_PLAY_STORE_URL}" target="_blank" rel="noopener" style="font-weight: 800; color: #34d399;"><i class="fa-solid fa-map-location-dot" style="margin-inline-end:6px;"></i>${locale === 'ar' ? 'دليل تركيا السياحي بدون نت (Google Play)' : (locale === 'tr' ? 'İnternetsiz Türkiye Gezi Rehberi' : 'Turkey Offline Travel Guide App')}</a></li>
           <li><a href="/${locale}/work-permit-eligibility" style="font-weight: 700; color: #22c55e;"><i class="fa-solid fa-clipboard-check" style="margin-inline-end:6px;"></i>${t.workPermitEligibility}</a></li>
@@ -2576,7 +2700,6 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
 // Direct Root Homepage - Serves 200 OK directly for Google AdSense automated site verification
 publicRouter.get(
   '/',
-  cache({ cacheName: 'istanbul-jobs-root-v305', cacheControl: 'max-age=60' }),
   (c) => {
     const acceptLang = (c.req.header('accept-language') || '').toLowerCase();
     let loc: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur' = 'ar';
@@ -3047,6 +3170,11 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
       </div>
     </div>`;
 
+    // In-Feed Google Play 150K Job Opportunity Ad (after 1st job)
+    if (index === 0) {
+      card += renderPermanentJobPromoAd(locale, 'infeed');
+    }
+
     // Seamless In-Feed Google Play Travel Guide Ad (after 3rd job or after last job if <3 jobs)
     if (index === 2 || (paginatedJobs.length < 3 && index === paginatedJobs.length - 1)) {
       card += renderTravelGuideInFeedAd(locale);
@@ -3377,6 +3505,9 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
             </a>
           </div>
 
+          <!-- Permanent Google Display Ad in Desktop Filters Sidebar -->
+          ${renderPermanentJobPromoAd(locale, 'sidebar')}
+
           <!-- Telegram Promo Card -->
           <div class="telegram-cta" style="margin-top:20px; padding:20px; border-radius:var(--radius-lg); background:linear-gradient(135deg, #1d90f3 0%, #0088cc 100%); color:white; position:relative; overflow:hidden; box-shadow:0 8px 24px rgba(0, 136, 204, 0.2); transition:all 0.3s ease;">
             <div style="position:absolute; right:-20px; bottom:-20px; font-size:120px; opacity:0.1; transform:rotate(-15deg); color:white; pointer-events:none;">
@@ -3414,6 +3545,11 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
         </aside>
 
         <section>
+          <!-- Prominent Featured 150K Job Opportunity Banner (Top of Jobs Feed) -->
+          <div class="top-jobs-promo-ad-wrap" style="margin-bottom: 22px;">
+            ${renderPermanentJobPromoAd(locale, 'top')}
+          </div>
+
           <div class="jobs-header">
             <p class="jobs-count"><strong>${totalJobsCount}</strong> ${locale === 'ar' ? 'وظيفة متاحة' : 'jobs available'}</p>
             ${querySearch || queryCategory || queryJobType || queryDistrict || queryTransit ? `<a href="/${locale}" style="font-size:.82rem; color:var(--danger); font-weight:600;"><i class="fa-solid fa-xmark"></i> ${locale === 'ar' ? 'مسح الفلاتر' : 'Clear filters'}</a>` : ''}
@@ -3513,6 +3649,126 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
           </div>
         </section>
       </div>
+
+      <!-- OFFICIAL GOOGLE PLAY APPS ECOSYSTEM SECTION -->
+      <section class="home-apps-ecosystem" style="margin-top: 50px; margin-bottom: 50px;">
+        <div style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #090d16 100%); border-radius: 24px; padding: 40px 32px; color: #ffffff; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.18); border: 1px solid rgba(255,255,255,0.12);">
+          <div style="position: absolute; inset: 0; background: radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.18) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(99, 102, 241, 0.22) 0%, transparent 40%); pointer-events: none;"></div>
+          
+          <div style="position: relative; z-index: 2;">
+            <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.12);">
+              <div>
+                <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.35); padding: 5px 14px; border-radius: 9999px; font-size: 0.78rem; font-weight: 800; color: #38bdf8; margin-bottom: 10px;">
+                  <i class="fa-brands fa-google-play"></i>
+                  <span>${locale === 'ar' ? 'منظومة تطبيقاتنا الذكية المعتمدة' : (locale === 'tr' ? 'Resmi Google Play Uygulamalarımız' : 'Official Google Play Mobile Apps')}</span>
+                </div>
+                <h2 style="font-size: clamp(1.4rem, 3.5vw, 1.85rem); font-weight: 900; margin: 0 0 6px 0; color: #ffffff;">
+                  ${locale === 'ar' ? 'تطبيقاتنا المجانية لنظام أندرويد على Google Play' : (locale === 'tr' ? 'Türkiye ve İstanbul İçin Akıllı Android Uygulamalarımız' : 'Smart Android Apps for Living & Working in Turkey')}
+                </h2>
+                <p style="font-size: 0.92rem; color: #cbd5e1; margin: 0; max-width: 720px; line-height: 1.6;">
+                  ${locale === 'ar' ? 'باقة متكاملة من التطبيقات الخدمية التي تعمل بدون إنترنت وتلبي احتياجات العمل، السياحة، التسوق، والقرآن الكريم.' : (locale === 'tr' ? 'İş arama, internetsiz seyahat, haftalık indirim katalogları ve Kur\'an-ı Kerim içeren resmi mobil uygulamalarımız.' : 'High-utility Android apps designed for job searching, offline travel, supermarket discount catalogs, and Holy Quran.')}
+                </p>
+              </div>
+              <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                <a href="/${locale}/apps" style="display: inline-flex; align-items: center; gap: 8px; background: #38bdf8; color: #0f172a !important; padding: 12px 22px; border-radius: 12px; font-weight: 800; font-size: 0.92rem; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 6px 20px rgba(56, 189, 248, 0.35);">
+                  <span>${locale === 'ar' ? 'استعراض جميع التطبيقات' : (locale === 'tr' ? 'Tüm Uygulamaları Gör' : 'View All Apps')}</span>
+                  <i class="fa-solid fa-arrow-${locale === 'ar' ? 'left' : 'right'}"></i>
+                </a>
+              </div>
+            </div>
+
+            <!-- 4 Apps Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 20px;">
+              
+              <!-- App 1: Jobs in Istanbul -->
+              <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 18px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.25s, border-color 0.25s; backdrop-filter: blur(10px);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='#38bdf8';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(255, 255, 255, 0.12)';">
+                <div>
+                  <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 14px;">
+                    <img src="https://play-lh.googleusercontent.com/cncHf5ZsgFZ3ufzi278St6Y_0NuT46X4MYzgbsxR31-a2bfE_ufiJBu_-MS_MsQ5Z_Yl3qc47jTGxf5Z2HUR7Q=w240-h480" alt="Jobs App" style="width: 58px; height: 58px; border-radius: 14px; object-fit: cover; box-shadow: 0 4px 14px rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.2);">
+                    <div>
+                      <span style="font-size: 0.7rem; font-weight: 800; background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 2px 8px; border-radius: 6px;">${locale === 'ar' ? 'التطبيق الرسمي' : (locale === 'tr' ? 'Resmi Uygulama' : 'Official App')}</span>
+                      <h3 style="font-size: 1.05rem; font-weight: 800; color: #ffffff; margin: 4px 0 2px 0;">${locale === 'ar' ? 'وظائف تركيا وإسطنبول' : (locale === 'tr' ? 'İstanbul İş İlanları' : 'Turkey & Istanbul Jobs')}</h3>
+                      <div style="font-size: 0.75rem; color: #f59e0b; font-weight: 700;"><i class="fa-solid fa-star"></i> 5.0 ⭐ <span style="color:#94a3b8; font-weight:500;">(500+)</span></div>
+                    </div>
+                  </div>
+                  <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5; margin: 0 0 16px 0;">
+                    ${locale === 'ar' ? 'تصفح آلاف الوظائف اليومية في إسطنبول مع فلترة الأحياء والمتروبوس وتنبيهات فورية.' : (locale === 'tr' ? 'İstanbul’da binlerce güncel iş ilanı, ilçe/metrobüs filtreleri ve anlık bildirimler.' : 'Daily Istanbul job openings, transit route filters, and instant push notifications.')}
+                  </p>
+                </div>
+                <a href="https://play.google.com/store/apps/details?id=com.jobsistanbul.app" target="_blank" rel="noopener" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: #000000; color: #ffffff !important; padding: 10px 14px; border-radius: 10px; font-weight: 700; font-size: 0.84rem; text-decoration: none; border: 1px solid rgba(255,255,255,0.2); transition: background 0.2s;">
+                  <i class="fa-brands fa-google-play" style="color: #38bdf8;"></i>
+                  <span>Google Play</span>
+                </a>
+              </div>
+
+              <!-- App 2: Turkey Travel Guide Offline -->
+              <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 18px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.25s, border-color 0.25s; backdrop-filter: blur(10px);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='#10b981';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(255, 255, 255, 0.12)';">
+                <div>
+                  <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 14px;">
+                    <img src="https://play-lh.googleusercontent.com/a0oo3fGEydn_MFhagwEWQVZK9SFCennjy3L2wrsAlMrFZHWKsg5CoBX7aJJv7wTOD-PkYkfwKZ4Ds34aa1AXPW0=w240-h480" alt="Travel Guide App" style="width: 58px; height: 58px; border-radius: 14px; object-fit: cover; box-shadow: 0 4px 14px rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.2);">
+                    <div>
+                      <span style="font-size: 0.7rem; font-weight: 800; background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 2px 8px; border-radius: 6px;">${locale === 'ar' ? '100% بدون إنترنت' : (locale === 'tr' ? '%100 Çevrimdışı' : '100% Offline')}</span>
+                      <h3 style="font-size: 1.05rem; font-weight: 800; color: #ffffff; margin: 4px 0 2px 0;">${locale === 'ar' ? 'دليل تركيا السياحي' : (locale === 'tr' ? 'Türkiye Gezi Rehberi' : 'Turkey Travel Guide')}</h3>
+                      <div style="font-size: 0.75rem; color: #f59e0b; font-weight: 700;"><i class="fa-solid fa-star"></i> 5.0 ⭐ <span style="color:#94a3b8; font-weight:500;">(1.2k+)</span></div>
+                    </div>
+                  </div>
+                  <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5; margin: 0 0 16px 0;">
+                    ${locale === 'ar' ? 'دليلك السياحي لإسطنبول وطرابزون والشمال بخرائط GPS وجداول يومية تعمل بدون نت.' : (locale === 'tr' ? 'Trabzon, Karadeniz ve İstanbul için internetsiz GPS haritaları ve gezi rotaları.' : 'Offline travel guide for Istanbul, Trabzon, and Black Sea with offline GPS maps.')}
+                  </p>
+                </div>
+                <a href="https://play.google.com/store/apps/details?id=com.trabzon.turkey.travel.guide" target="_blank" rel="noopener" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: #000000; color: #ffffff !important; padding: 10px 14px; border-radius: 10px; font-weight: 700; font-size: 0.84rem; text-decoration: none; border: 1px solid rgba(255,255,255,0.2); transition: background 0.2s;">
+                  <i class="fa-brands fa-google-play" style="color: #10b981;"></i>
+                  <span>Google Play</span>
+                </a>
+              </div>
+
+              <!-- App 3: Aktüel Deals -->
+              <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 18px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.25s, border-color 0.25s; backdrop-filter: blur(10px);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='#f59e0b';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(255, 255, 255, 0.12)';">
+                <div>
+                  <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 14px;">
+                    <img src="https://play-lh.googleusercontent.com/SCJlCWjQ979y8qDWUu_6_Fd5tQhBNa6cGoxOzVZm4SUZR_tEoxqUbqQcKR4_ADs9TjmUv3sjvsevsAiIiHEN8vA=w240-h480" alt="Aktuel Deals" style="width: 58px; height: 58px; border-radius: 14px; object-fit: cover; box-shadow: 0 4px 14px rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.2);">
+                    <div>
+                      <span style="font-size: 0.7rem; font-weight: 800; background: rgba(245, 158, 11, 0.2); color: #f59e0b; padding: 2px 8px; border-radius: 6px;">${locale === 'ar' ? 'تخفيضات أسبوعية' : (locale === 'tr' ? 'Haftalık İndirimler' : 'Weekly Deals')}</span>
+                      <h3 style="font-size: 1.05rem; font-weight: 800; color: #ffffff; margin: 4px 0 2px 0;">${locale === 'ar' ? 'عروض بيم A101 و ŞOK' : (locale === 'tr' ? 'Aktüel: BİM, A101, ŞOK' : 'Aktüel: BİM & A101 Deals')}</h3>
+                      <div style="font-size: 0.75rem; color: #f59e0b; font-weight: 700;"><i class="fa-solid fa-star"></i> 5.0 ⭐ <span style="color:#94a3b8; font-weight:500;">(800+)</span></div>
+                    </div>
+                  </div>
+                  <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5; margin: 0 0 16px 0;">
+                    ${locale === 'ar' ? 'كتالوجات وبروشورات التخفيضات الأسبوعية لأشهر ماركت تركيا بدقة فائقة وتنبيهات.' : (locale === 'tr' ? 'BİM, A101, ŞOK aktüel ürün katalogları ve indirim broşürleri tek uygulamada.' : 'Weekly discount catalogs and flyers for top Turkish supermarkets in ultra-HD.')}
+                  </p>
+                </div>
+                <a href="https://play.google.com/store/apps/details?id=com.aktuel.bim.a101.sok" target="_blank" rel="noopener" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: #000000; color: #ffffff !important; padding: 10px 14px; border-radius: 10px; font-weight: 700; font-size: 0.84rem; text-decoration: none; border: 1px solid rgba(255,255,255,0.2); transition: background 0.2s;">
+                  <i class="fa-brands fa-google-play" style="color: #f59e0b;"></i>
+                  <span>Google Play</span>
+                </a>
+              </div>
+
+              <!-- App 4: Diya Al Quran -->
+              <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 18px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.25s, border-color 0.25s; backdrop-filter: blur(10px);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='#818cf8';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(255, 255, 255, 0.12)';">
+                <div>
+                  <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 14px;">
+                    <img src="https://play-lh.googleusercontent.com/IfWtdWTOPQo3GSK4ipturd4W50ekNd8aVMJ1myX2W2ItASr8GPy_jipvCpz-96gWDS_Vv_Nck0pw8Gk_IhPu=w240-h480" alt="Diya Quran" style="width: 58px; height: 58px; border-radius: 14px; object-fit: cover; box-shadow: 0 4px 14px rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.2);">
+                    <div>
+                      <span style="font-size: 0.7rem; font-weight: 800; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 2px 8px; border-radius: 6px;">${locale === 'ar' ? 'كامل بدون نت' : (locale === 'tr' ? 'Tamamı İnternetsiz' : 'Full Offline')}</span>
+                      <h3 style="font-size: 1.05rem; font-weight: 800; color: #ffffff; margin: 4px 0 2px 0;">${locale === 'ar' ? 'ضياء القرآن الكريم' : (locale === 'tr' ? 'Diya Kur\'an-ı Kerim' : 'Diya Al-Quran Offline')}</h3>
+                      <div style="font-size: 0.75rem; color: #f59e0b; font-weight: 700;"><i class="fa-solid fa-star"></i> 5.0 ⭐ <span style="color:#94a3b8; font-weight:500;">(2.5k+)</span></div>
+                    </div>
+                  </div>
+                  <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5; margin: 0 0 16px 0;">
+                    ${locale === 'ar' ? 'المصحف الشريف كاملاً بدون نت مع تلاوات خاشعة، مواقيت الصلاة، القبلة، وحصن المسلم.' : (locale === 'tr' ? 'İnternetsiz Kur\'an-ı Kerim Mushafı, ünlü hafızlardan sesli dinleme ve namaz vakitleri.' : 'Complete Holy Quran offline with recitations, accurate prayer times, and supplications.')}
+                  </p>
+                </div>
+                <a href="https://play.google.com/store/apps/details?id=com.quran.karim.kamel.bidon.net.murtal.tilaat.smart" target="_blank" rel="noopener" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: #000000; color: #ffffff !important; padding: 10px 14px; border-radius: 10px; font-weight: 700; font-size: 0.84rem; text-decoration: none; border: 1px solid rgba(255,255,255,0.2); transition: background 0.2s;">
+                  <i class="fa-brands fa-google-play" style="color: #818cf8;"></i>
+                  <span>Google Play</span>
+                </a>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </section>
     </div>
   `;
 
@@ -3522,45 +3778,18 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
     seoMetaOpts.category = matchedCategory.slug;
   }
   const seoHtml = generateMetaTags(locale, 'home', seoMetaOpts) + generateJsonLd(locale, 'home', seoMetaOpts);
-  c.header('Cache-Control', 'public, max-age=0, must-revalidate');
+  c.header('Cache-Control', 'public, max-age=0, must-revalidate, s-maxage=0');
+  c.header('CDN-Cache-Control', 'no-cache, no-store, max-age=0');
+  c.header('Cloudflare-CDN-Cache-Control', 'no-cache, no-store, max-age=0');
   return c.html(renderLayout(c, locale === 'ar' ? 'فرص عمل في إسطنبول' : 'Istanbul Jobs Vacancies', html, locale, seoHtml));
 }
 
-publicRouter.get(
-  '/ar',
-  cache({ cacheName: 'istanbul-jobs-ar-v305', cacheControl: 'max-age=30' }),
-  (c) => homeHandler(c, 'ar')
-)
-
-publicRouter.get(
-  '/en',
-  cache({ cacheName: 'istanbul-jobs-en-v305', cacheControl: 'max-age=30' }),
-  (c) => homeHandler(c, 'en')
-)
-
-publicRouter.get(
-  '/tr',
-  cache({ cacheName: 'istanbul-jobs-tr-v305', cacheControl: 'max-age=30' }),
-  (c) => homeHandler(c, 'tr')
-)
-
-publicRouter.get(
-  '/ru',
-  cache({ cacheName: 'istanbul-jobs-ru-v305', cacheControl: 'max-age=30' }),
-  (c) => homeHandler(c, 'ru')
-)
-
-publicRouter.get(
-  '/fa',
-  cache({ cacheName: 'istanbul-jobs-fa-v305', cacheControl: 'max-age=30' }),
-  (c) => homeHandler(c, 'fa')
-)
-
-publicRouter.get(
-  '/ur',
-  cache({ cacheName: 'istanbul-jobs-ur-v305', cacheControl: 'max-age=30' }),
-  (c) => homeHandler(c, 'ur')
-)
+publicRouter.get('/ar', (c) => homeHandler(c, 'ar'))
+publicRouter.get('/en', (c) => homeHandler(c, 'en'))
+publicRouter.get('/tr', (c) => homeHandler(c, 'tr'))
+publicRouter.get('/ru', (c) => homeHandler(c, 'ru'))
+publicRouter.get('/fa', (c) => homeHandler(c, 'fa'))
+publicRouter.get('/ur', (c) => homeHandler(c, 'ur'))
 
 // Detail view for a job
 publicRouter.get(
@@ -4072,6 +4301,10 @@ publicRouter.get(
                 </button>
               </div>
             </div>
+
+            <!-- Permanent Google Display Ad on Job Detail View -->
+            ${renderPermanentJobPromoAd(locale, 'sidebar')}
+
           </div>
         </aside>
       </div>
@@ -4671,6 +4904,12 @@ publicRouter.get('/:locale/submit-job', async (c) => {
           <textarea name="description" required rows="8" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); outline: none; resize: vertical;"></textarea>
         </div>
 
+        <!-- Anti-Bot Honeypot Field (hidden from real users) -->
+        <div style="position: absolute; left: -9999px; opacity: 0; pointer-events: none; height: 0; overflow: hidden;" aria-hidden="true">
+          <label for="website_url">Website</label>
+          <input type="text" id="website_url" name="website_url" tabindex="-1" autocomplete="off">
+        </div>
+
         <!-- Cloudflare Turnstile CAPTCHA Widget -->
         <div style="margin-bottom: 30px; display: flex; justify-content: center;">
           <div class="cf-turnstile" data-sitekey="${(c.env as any).TURNSTILE_SITE_KEY || '1x00000000000000000000AA'}" data-theme="light"></div>
@@ -5086,11 +5325,58 @@ publicRouter.get('/public/images/aktuel-app/:filename', async (c) => {
   return c.text('Image not found.', 404);
 });
 
-// Serve Jobs in Istanbul App images from R2 bucket
+// Lazy memoized binary buffers for zero-reallocation fallback & R2 backfill
+let memoPromoBannerBuf: Buffer | null = null;
+let memoLogoBuf: Buffer | null = null;
+let memoTurkeyGuideBuf: Buffer | null = null;
+let memoFaviconBuf: Buffer | null = null;
+const memo3dIconBufs: Record<string, Buffer> = {};
+
+async function serveR2OrBuffer(c: any, r2Key: string, contentType: string, getFallbackBuf: () => Buffer) {
+  const bucket = (c.env as any)?.MEDIA_BUCKET;
+  if (bucket) {
+    try {
+      const object = await bucket.get(r2Key);
+      if (object && object.body) {
+        return c.body(object.body, 200, {
+          'Content-Type': contentType,
+          'Cache-Control': 'public, max-age=31536000, immutable'
+        });
+      }
+    } catch (e) {}
+  }
+
+  const buf = getFallbackBuf();
+  if (bucket) {
+    try {
+      c.executionCtx?.waitUntil?.(
+        bucket.put(r2Key, buf, { httpMetadata: { contentType } }).catch(() => {})
+      );
+    } catch (e) {}
+  }
+
+  return c.body(buf, 200, {
+    'Content-Type': contentType,
+    'Cache-Control': 'public, max-age=31536000, immutable'
+  });
+}
+
+// Serve Jobs in Istanbul App images (with R2 primary + memoized fallback for featured promo banner)
 publicRouter.get('/public/images/istanbul-app/:filename', async (c) => {
   const env: any = c.env;
   const rawFilename = c.req.param('filename');
   const filename = decodeURIComponent(rawFilename);
+
+  // Instant R2 or memoized serving for the permanent featured 150K job promo ad
+  if (filename === 'featured_job_promo_150k.jpg' || filename.includes('featured_job_promo')) {
+    return serveR2OrBuffer(
+      c,
+      'public/images/istanbul-app/featured_job_promo_150k.jpg',
+      'image/jpeg',
+      () => memoPromoBannerBuf || (memoPromoBannerBuf = Buffer.from(PROMO_BANNER_150K_BASE64, 'base64'))
+    );
+  }
+
   const key = `public/images/istanbul-app/${filename}`;
 
   try {
@@ -5114,19 +5400,30 @@ publicRouter.get('/public/images/istanbul-app/:filename', async (c) => {
   return c.text('Image not found.', 404);
 });
 
-// Serve 3D Glossy Squircle Icons
-publicRouter.get('/public/images/3d-icons/:filename', (c) => {
+// Alias route for root images path
+publicRouter.get('/images/featured_job_promo_150k.jpg', (c) => {
+  return serveR2OrBuffer(
+    c,
+    'public/images/istanbul-app/featured_job_promo_150k.jpg',
+    'image/jpeg',
+    () => memoPromoBannerBuf || (memoPromoBannerBuf = Buffer.from(PROMO_BANNER_150K_BASE64, 'base64'))
+  );
+});
+
+// Serve 3D Glossy Squircle Icons (R2 primary + memoized buffer fallback)
+publicRouter.get('/public/images/3d-icons/:filename', async (c) => {
   const rawFilename = c.req.param('filename');
   const name = decodeURIComponent(rawFilename).replace(/\.png$/i, '');
   const b64 = ICONS_3D_BASE64[name];
   if (!b64) {
     return c.text('3D Icon not found.', 404);
   }
-  const buf = Buffer.from(b64, 'base64');
-  return c.body(buf, 200, {
-    'Content-Type': 'image/png',
-    'Cache-Control': 'public, max-age=31536000, immutable'
-  });
+  return serveR2OrBuffer(
+    c,
+    `public/images/3d-icons/${name}.png`,
+    'image/png',
+    () => memo3dIconBufs[name] || (memo3dIconBufs[name] = Buffer.from(b64, 'base64'))
+  );
 });
 
 // Serve Trabzon App images from R2 bucket
@@ -5157,39 +5454,43 @@ publicRouter.get('/public/images/trabzon-app/:filename', async (c) => {
   return c.text('Image not found.', 404);
 });
 
-// Serve logo.png with high-speed in-memory delivery and immutable cache
+// Serve logo.png with R2 primary + memoized delivery and immutable cache
 publicRouter.get('/public/images/logo.png', async (c) => {
-  const logoBuffer = Buffer.from(LOGO_BASE64, 'base64');
-  return c.body(logoBuffer, 200, {
-    'Content-Type': 'image/png',
-    'Cache-Control': 'public, max-age=31536000, immutable'
-  });
+  return serveR2OrBuffer(
+    c,
+    'public/images/logo.png',
+    'image/png',
+    () => memoLogoBuf || (memoLogoBuf = Buffer.from(LOGO_BASE64, 'base64'))
+  );
 });
 
-// Serve turkey-guide-app.png with high-speed in-memory delivery and immutable cache
+// Serve turkey-guide-app.png with R2 primary + memoized delivery and immutable cache
 publicRouter.get('/public/images/turkey-guide-app.png', async (c) => {
-  const iconBuffer = Buffer.from(TURKEY_GUIDE_APP_ICON_BASE64, 'base64');
-  return c.body(iconBuffer, 200, {
-    'Content-Type': 'image/png',
-    'Cache-Control': 'public, max-age=31536000, immutable'
-  });
+  return serveR2OrBuffer(
+    c,
+    'public/images/turkey-guide-app.png',
+    'image/png',
+    () => memoTurkeyGuideBuf || (memoTurkeyGuideBuf = Buffer.from(TURKEY_GUIDE_APP_ICON_BASE64, 'base64'))
+  );
 });
 
 publicRouter.get('/images/turkey-guide-app.png', async (c) => {
-  const iconBuffer = Buffer.from(TURKEY_GUIDE_APP_ICON_BASE64, 'base64');
-  return c.body(iconBuffer, 200, {
-    'Content-Type': 'image/png',
-    'Cache-Control': 'public, max-age=31536000, immutable'
-  });
+  return serveR2OrBuffer(
+    c,
+    'public/images/turkey-guide-app.png',
+    'image/png',
+    () => memoTurkeyGuideBuf || (memoTurkeyGuideBuf = Buffer.from(TURKEY_GUIDE_APP_ICON_BASE64, 'base64'))
+  );
 });
 
-// Serve favicon.ico with high-speed in-memory delivery and immutable cache
+// Serve favicon.ico with R2 primary + memoized delivery and immutable cache
 publicRouter.get('/favicon.ico', async (c) => {
-  const iconBuffer = Buffer.from(FAVICON_BASE64, 'base64');
-  return c.body(iconBuffer, 200, {
-    'Content-Type': 'image/png',
-    'Cache-Control': 'public, max-age=31536000, immutable'
-  });
+  return serveR2OrBuffer(
+    c,
+    'public/images/favicon.ico',
+    'image/png',
+    () => memoFaviconBuf || (memoFaviconBuf = Buffer.from(FAVICON_BASE64, 'base64'))
+  );
 });
 
 // Serve og-share.png from R2 bucket

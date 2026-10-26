@@ -642,5 +642,55 @@ describe('Istanbul Jobs Portal Smoke Tests', () => {
       const text = await res.text()
       expect(text).toContain('id="en-tab" class="privacy-content-section" style="display: block;')
     })
+
+    test('GET /sitemap-jobs-1.xml and /sitemap-blog.xml enforce paginated job sitemaps and accurate blog locale hreflang', async () => {
+      const resJobsPage1 = await app.request('/sitemap-jobs-1.xml', {}, mockEnv)
+      expect(resJobsPage1.status).toBe(200)
+      const xmlJobs = await resJobsPage1.text()
+      expect(xmlJobs).toContain('<urlset')
+
+      const resBlog = await app.request('/sitemap-blog.xml', {}, mockEnv)
+      expect(resBlog.status).toBe(200)
+      const xmlBlog = await resBlog.text()
+      // 3-locale article should include ar/en/tr but NOT unsupported id/de locales
+      expect(xmlBlog).toContain('https://jobs-in-istanbul.com/ar/blog/cost-of-living-istanbul-2026-guide')
+      expect(xmlBlog).not.toContain('https://jobs-in-istanbul.com/id/blog/cost-of-living-istanbul-2026-guide')
+      expect(xmlBlog).not.toContain('https://jobs-in-istanbul.com/de/blog/cost-of-living-istanbul-2026-guide')
+    })
+
+    test('POST /submit-job-api blocks honeypot bot submissions with 403 and XSS payloads with 400', async () => {
+      const botPayload = {
+        title: 'Bot Job',
+        company: 'Spam Corp',
+        jobType: 'full-time',
+        location: 'Fatih',
+        applyEmail: 'bot@spam.com',
+        description: 'Automated spam description long enough.',
+        website_url: 'https://spam-bot-site.com',
+        'cf-turnstile-response': 'dummy-token'
+      }
+      const botRes = await app.request('/submit-job-api', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(botPayload)
+      }, mockEnv)
+      expect(botRes.status).toBe(403)
+
+      const xssPayload = {
+        title: '<script>alert(1)</script>Developer',
+        company: 'Test Corp',
+        jobType: 'full-time',
+        location: 'Sisli',
+        applyEmail: 'hr@test.com',
+        description: 'Valid description text here.',
+        'cf-turnstile-response': 'dummy-token'
+      }
+      const xssRes = await app.request('/submit-job-api', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(xssPayload)
+      }, mockEnv)
+      expect(xssRes.status).toBe(400)
+    })
   })
 })

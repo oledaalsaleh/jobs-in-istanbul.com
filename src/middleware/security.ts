@@ -3,19 +3,21 @@ import { z } from 'zod'
 import { getCookie } from 'hono/cookie'
 import { verify } from 'hono/jwt'
 
-// Zod Schema for Job Submission Validation
+const SAFE_TEXT_REGEX = /^(?!.*<\s*script)(?!.*javascript:).*$/is;
+
+// Zod Schema for Job Submission Validation with Anti-Spam & XSS Guards
 export const JobSubmissionSchema = z.object({
-  title: z.string().min(3).max(100),
+  title: z.string().min(3).max(100).regex(SAFE_TEXT_REGEX, 'Invalid characters in title'),
   title_en: z.string().max(200).optional().nullable(),
   title_ar: z.string().max(200).optional().nullable(),
-  company: z.string().min(2).max(100),
+  company: z.string().min(2).max(100).regex(SAFE_TEXT_REGEX, 'Invalid characters in company name'),
   jobType: z.enum(['full-time', 'part-time', 'remote', 'internship']),
   location: z.string().min(2).max(100),
   location_en: z.string().max(100).optional().nullable(),
   location_ar: z.string().max(100).optional().nullable(),
   applyEmail: z.string().email(),
   salary: z.string().max(50).optional().nullable(),
-  description: z.string().min(10).max(5000),
+  description: z.string().min(10).max(5000).regex(SAFE_TEXT_REGEX, 'Invalid script content in description'),
   description_en: z.string().max(5000).optional().nullable(),
   description_ar: z.string().max(5000).optional().nullable(),
   category: z.string().max(100).optional().nullable(),
@@ -24,6 +26,7 @@ export const JobSubmissionSchema = z.object({
   screeningQuestionsJson: z.string().max(10000).optional().nullable(),
   phone: z.string().max(50).optional().nullable(),
   seoKeywords: z.string().max(500).optional().nullable(),
+  website_url: z.string().max(200).optional().nullable(), // Anti-bot honeypot field
   'cf-turnstile-response': z.string().min(1, 'Turnstile captcha response is required')
 });
 
@@ -49,19 +52,32 @@ export function validateJobSubmission() {
   };
 }
 
-// Middleware for Turnstile CAPTCHA validation
+// Middleware for Turnstile CAPTCHA + Honeypot Bot Validation
 export function validateTurnstile() {
   return async (c: Context, next: Next) => {
-    const secret = c.env.TURNSTILE_SECRET_KEY;
+    const body = (c.get('parsedBody') as any) || {};
+    const ip = c.req.header('CF-Connecting-IP') || c.req.header('x-real-ip') || '127.0.0.1';
+
+    // 1. Server-side Honeypot Check (catches automated bots even when Turnstile uses test keys)
+    if (body.website_url && String(body.website_url).trim().length > 0) {
+      const db = (c.env as any)?.DB;
+      if (db) {
+        await logSecurityEvent(db, 'BOT_HONEYPOT_BLOCKED', body.applyEmail || 'bot', ip, `Honeypot triggered at ${c.req.path}`);
+      }
+      return c.json({
+        success: false,
+        error: 'Automated bot submission detected.'
+      }, 403);
+    }
+
+    const secret = c.env?.TURNSTILE_SECRET_KEY;
     if (!secret) {
-      console.warn('TURNSTILE_SECRET_KEY is not set. Skipping Turnstile validation.');
+      console.warn('TURNSTILE_SECRET_KEY is not set. Skipping Turnstile remote validation.');
       return await next();
     }
 
     try {
-      const body = c.get('parsedBody') || {};
       const token = body['cf-turnstile-response'];
-      const ip = c.req.header('CF-Connecting-IP') || c.req.header('x-real-ip') || '127.0.0.1';
 
       if (!token) {
         return c.json({ success: false, error: 'Turnstile verification token is missing' }, 400);
@@ -71,7 +87,7 @@ export function validateTurnstile() {
       if (token === 'local-authorized') {
         const cookieVal = getCookie(c, 'employer_jwt');
         if (cookieVal) {
-          const jwtSecret = c.env.JWT_SECRET || 'change-me-in-production-secure-key';
+          const jwtSecret = c.env.JWT_SECRET || c.env.BETTER_AUTH_SECRET || 'change-me-in-production-secure-key';
           try {
             await verify(cookieVal, jwtSecret, 'HS256');
             return await next();

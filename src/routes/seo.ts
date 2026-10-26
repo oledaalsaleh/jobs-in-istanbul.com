@@ -2,7 +2,7 @@ import { Hono } from 'hono'
 import { ICON_192_BASE64, LOGO_BASE64 } from '../utils/logo-base64'
 import { ISTANBUL_DISTRICTS } from './public'
 import { safeQuery } from '../utils/db-helper'
-import { seededArticles } from './career-blog'
+import { seededArticles, getArticleAvailableLocales } from './career-blog'
 import { getFallbackJobs, getFallbackCategories } from '../data/fallback-dataset'
 
 export const seoRouter = new Hono()
@@ -225,12 +225,19 @@ seoRouter.get('/sitemap-static.xml', async (c) => {
   });
 })
 
-// sitemap-jobs.xml handler (Job posts)
-seoRouter.get('/sitemap-jobs.xml', async (c) => {
+// sitemap-jobs.xml handler (Job posts with pagination & index optimization)
+const SITEMAP_JOBS_PAGE_SIZE = 1500;
+
+async function handleSitemapJobs(c: any, rawPage?: string) {
+  const pageParam = rawPage || c.req.query('page') || '1';
+  const page = Math.max(1, parseInt(pageParam, 10) || 1);
+  const offset = (page - 1) * SITEMAP_JOBS_PAGE_SIZE;
+  const cacheKey = page === 1 ? 'kv_sitemap_jobs_xml' : `kv_sitemap_jobs_xml_p${page}`;
+
   const cacheKv = (c.env as any)?.CACHE_KV;
   if (cacheKv) {
     try {
-      const cachedXml = await cacheKv.get('kv_sitemap_jobs_xml');
+      const cachedXml = await cacheKv.get(cacheKey);
       if (cachedXml) {
         return c.body(cachedXml, 200, {
           'Content-Type': 'application/xml; charset=utf-8',
@@ -243,18 +250,18 @@ seoRouter.get('/sitemap-jobs.xml', async (c) => {
   const db = (c.env as any).DB;
   const siteUrl = 'https://jobs-in-istanbul.com';
 
-  // Fetch all published jobs
+  // Fetch published jobs using composite index idx_documents_jobs_pub_date with safe batch limit
   let jobs: any[] = [];
   try {
     const jobRows = await safeQuery(() => db.prepare(
-      `SELECT slug, updated_at FROM documents WHERE type_id = 'jobs' AND status = 'published' AND is_published = 1`
+      `SELECT slug, updated_at, published_at FROM documents WHERE type_id = 'jobs' AND is_published = 1 AND status = 'published' AND deleted_at IS NULL ORDER BY published_at DESC LIMIT ${SITEMAP_JOBS_PAGE_SIZE} OFFSET ${offset}`
     ).all());
     jobs = jobRows?.results || [];
   } catch (err) {
     console.warn('Failed to load jobs for sitemap-jobs, using fallback:', err);
   }
 
-  if (jobs.length === 0) {
+  if (jobs.length === 0 && page === 1) {
     jobs = getFallbackJobs().map(j => ({ slug: j.slug, updated_at: j.publishedAt || Date.now() }));
   }
 
@@ -264,7 +271,7 @@ seoRouter.get('/sitemap-jobs.xml', async (c) => {
 
   // 3. Jobs
   for (const job of jobs) {
-    const jobDate = new Date(job.updated_at || Date.now()).toISOString().split('T')[0];
+    const jobDate = new Date(job.updated_at || job.published_at || Date.now()).toISOString().split('T')[0];
     const arUrl = `${siteUrl}/ar/jobs/${job.slug}`;
     const enUrl = `${siteUrl}/en/jobs/${job.slug}`;
     const trUrl = `${siteUrl}/tr/jobs/${job.slug}`;
@@ -293,28 +300,35 @@ seoRouter.get('/sitemap-jobs.xml', async (c) => {
 </urlset>`;
 
   if (cacheKv) {
-    cacheKv.put('kv_sitemap_jobs_xml', xml, { expirationTtl: 21600 }).catch(() => {});
+    cacheKv.put(cacheKey, xml, { expirationTtl: 21600 }).catch(() => {});
   }
 
   return c.body(xml, 200, {
     'Content-Type': 'application/xml; charset=utf-8',
     'Cache-Control': 'public, max-age=86400'
   });
-})
+}
 
-// sitemap-blog.xml handler (Blog posts)
+seoRouter.get('/sitemap-jobs.xml', (c) => handleSitemapJobs(c));
+seoRouter.get('/:filename{sitemap-jobs-[0-9]+\\.xml}', (c) => {
+  const filename = c.req.param('filename') || 'sitemap-jobs-1.xml';
+  const pageStr = filename.replace('sitemap-jobs-', '').replace('.xml', '');
+  return handleSitemapJobs(c, pageStr);
+});
+
+// sitemap-blog.xml handler (Blog posts with accurate locale hreflang mapping)
 seoRouter.get('/sitemap-blog.xml', async (c) => {
   const db = (c.env as any).DB;
   const siteUrl = 'https://jobs-in-istanbul.com';
   const now = new Date().toISOString().split('T')[0];
 
-  // Fetch all blog posts
+  // Fetch published blog posts
   let blogs: any[] = [];
   try {
     const blogRows = await safeQuery(() => db.prepare(
-      `SELECT slug, updated_at FROM documents WHERE type_id = 'blog_post' AND status = 'published' AND is_published = 1`
+      `SELECT slug, updated_at FROM documents WHERE type_id = 'blog_post' AND status = 'published' AND is_published = 1 ORDER BY published_at DESC LIMIT 200`
     ).all());
-    blogs = blogRows.results || [];
+    blogs = blogRows?.results || [];
   } catch (err) {
     console.error('Sitemap: Failed to query blog posts:', err);
   }
@@ -337,34 +351,25 @@ seoRouter.get('/sitemap-blog.xml', async (c) => {
     const blogDate = dbBlog && dbBlog.updated_at
       ? new Date(dbBlog.updated_at).toISOString().split('T')[0]
       : now;
-    const arUrl = `${siteUrl}/ar/blog/${slug}`;
-    const enUrl = `${siteUrl}/en/blog/${slug}`;
-    const trUrl = `${siteUrl}/tr/blog/${slug}`;
-    const ruUrl = `${siteUrl}/ru/blog/${slug}`;
-    const faUrl = `${siteUrl}/fa/blog/${slug}`;
-    const urUrl = `${siteUrl}/ur/blog/${slug}`;
-    const idUrl = `${siteUrl}/id/blog/${slug}`;
-    const frUrl = `${siteUrl}/fr/blog/${slug}`;
-    const bnUrl = `${siteUrl}/bn/blog/${slug}`;
-    const deUrl = `${siteUrl}/de/blog/${slug}`;
-    for (const url of [arUrl, enUrl, trUrl, ruUrl, faUrl, urUrl, idUrl, frUrl, bnUrl, deUrl]) {
+
+    const availableLocales = getArticleAvailableLocales(slug);
+    const defaultLocale = availableLocales.includes('en') ? 'en' : availableLocales[0] || 'ar';
+    const xDefaultUrl = `${siteUrl}/${defaultLocale}/blog/${slug}`;
+
+    const alternateLinksXml = availableLocales
+      .map(loc => `    <xhtml:link rel="alternate" hreflang="${loc}" href="${siteUrl}/${loc}/blog/${slug}" />`)
+      .join('\n');
+
+    for (const loc of availableLocales) {
+      const url = `${siteUrl}/${loc}/blog/${slug}`;
       xml += `
   <url>
     <loc>${url}</loc>
     <lastmod>${blogDate}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="ar" href="${arUrl}" />
-    <xhtml:link rel="alternate" hreflang="en" href="${enUrl}" />
-    <xhtml:link rel="alternate" hreflang="tr" href="${trUrl}" />
-    <xhtml:link rel="alternate" hreflang="ru" href="${ruUrl}" />
-    <xhtml:link rel="alternate" hreflang="fa" href="${faUrl}" />
-    <xhtml:link rel="alternate" hreflang="ur" href="${urUrl}" />
-    <xhtml:link rel="alternate" hreflang="id" href="${idUrl}" />
-    <xhtml:link rel="alternate" hreflang="fr" href="${frUrl}" />
-    <xhtml:link rel="alternate" hreflang="bn" href="${bnUrl}" />
-    <xhtml:link rel="alternate" hreflang="de" href="${deUrl}" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="${enUrl}" />
+${alternateLinksXml}
+    <xhtml:link rel="alternate" hreflang="x-default" href="${xDefaultUrl}" />
   </url>`;
     }
   }
@@ -540,11 +545,39 @@ self.addEventListener('fetch', (event) => {
   });
 })
 
-// PWA Icons handler with automatic R2 backfill
+// PWA Icons handler with R2 primary delivery, lazy buffer memoization & automatic R2 backfill
+let memoIcon192Buf: Buffer | null = null;
+let memoIcon512Buf: Buffer | null = null;
+
 const serveIcon = async (c: any) => {
   const is512 = c.req.path.includes('512');
-  const base64Str = is512 ? LOGO_BASE64 : ICON_192_BASE64;
-  const logoBuffer = Buffer.from(base64Str, 'base64');
+  const r2Key = is512 ? 'public/images/logo.png' : 'public/images/icon-192.png';
+  const bucket = c.env?.MEDIA_BUCKET;
+
+  if (bucket) {
+    try {
+      const obj = await bucket.get(r2Key);
+      if (obj && obj.body) {
+        return c.body(obj.body, 200, {
+          'Content-Type': 'image/png',
+          'Cache-Control': 'public, max-age=31536000, immutable'
+        });
+      }
+    } catch (e) {}
+  }
+
+  const logoBuffer = is512
+    ? (memoIcon512Buf || (memoIcon512Buf = Buffer.from(LOGO_BASE64, 'base64')))
+    : (memoIcon192Buf || (memoIcon192Buf = Buffer.from(ICON_192_BASE64, 'base64')));
+
+  if (bucket) {
+    try {
+      c.executionCtx?.waitUntil?.(
+        bucket.put(r2Key, logoBuffer, { httpMetadata: { contentType: 'image/png' } }).catch(() => {})
+      );
+    } catch (e) {}
+  }
+
   return c.body(logoBuffer, 200, {
     'Content-Type': 'image/png',
     'Cache-Control': 'public, max-age=31536000, immutable'

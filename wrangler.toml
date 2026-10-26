@@ -24,27 +24,24 @@ bucket_name = "jobs-media"
 binding = "CACHE_KV"
 id = "523b280a22c341aaa83355381c4a2f30"
 
-# Environment variables
+# Environment variables (Non-sensitive configuration only; secrets are stored in .dev.vars locally and Cloudflare Secrets in production)
 [vars]
 ENVIRONMENT = "development"
 CORS_ORIGINS = "http://localhost:8787"
-JWT_SECRET = "change-me-in-production-secure-key"
 TURNSTILE_SITE_KEY = "1x00000000000000000000AA"
-TURNSTILE_SECRET_KEY = "1x0000000000000000000000000000000AA"
-GEMINI_API_KEY = "AQ.Ab8RN6JFlMDfvbuyYMN362UPlMX-Jg6_j3rN3bYnrkte-a0ysw"
 BING_SITE_VERIFICATION = "4430C081399901EF9B5BEAA4E9AD98A5"
-GOOGLE_SITE_VERIFICATION = "ADD_YOUR_GOOGLE_VERIFICATION_CODE_HERE"
+GOOGLE_SITE_VERIFICATION = ""
 
 # Production environment
+# Secrets (JWT_SECRET, GEMINI_API_KEY, TURNSTILE_SECRET_KEY, BETTER_AUTH_SECRET, GOOGLE_PRIVATE_KEY)
+# are managed securely via: npx wrangler secret put <KEY> --env production
 [env.production]
 name = "jobs-in-istanbul-production"
 routes = [
   { pattern = "jobs-in-istanbul.com", custom_domain = true },
   { pattern = "www.jobs-in-istanbul.com", custom_domain = true }
 ]
-vars = { ENVIRONMENT = "production", CORS_ORIGINS = "https://jobs-in-istanbul.com", JWT_SECRET = "secure-jwt-secret-key-istanbul-jobs-2026!", TURNSTILE_SITE_KEY = "1x00000000000000000000AA", TURNSTILE_SECRET_KEY = "1x0000000000000000000000000000000AA", BETTER_AUTH_URL = "https://jobs-in-istanbul.com", GEMINI_API_KEY = "AQ.Ab8RN6JFlMDfvbuyYMN362UPlMX-Jg6_j3rN3bYnrkte-a0ysw", BING_SITE_VERIFICATION = "4430C081399901EF9B5BEAA4E9AD98A5", GOOGLE_SITE_VERIFICATION = "ADD_YOUR_GOOGLE_VERIFICATION_CODE_HERE" }
-
-
+vars = { ENVIRONMENT = "production", CORS_ORIGINS = "https://jobs-in-istanbul.com", TURNSTILE_SITE_KEY = "1x00000000000000000000AA", BETTER_AUTH_URL = "https://jobs-in-istanbul.com", BING_SITE_VERIFICATION = "4430C081399901EF9B5BEAA4E9AD98A5", GOOGLE_SITE_VERIFICATION = "" }
 
 [[env.production.d1_databases]]
 binding = "DB"
@@ -75,5 +72,3 @@ crons = ["*/15 * * * *"]
 
 [env.production.triggers]
 crons = ["*/15 * * * *"]
-
-

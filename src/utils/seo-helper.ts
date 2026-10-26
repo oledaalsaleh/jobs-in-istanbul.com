@@ -24,6 +24,7 @@ interface MetaDataInput {
   robots?: string;
   faqs?: Array<{ question: string; answer: string }>;
   category?: string;
+  availableLocales?: string[];
 }
 
 export function generateMetaTags(
@@ -505,12 +506,7 @@ export function generateMetaTags(
     return url;
   };
 
-  const arUrl = getLocaleUrl('ar');
   const enUrl = getLocaleUrl('en');
-  const trUrl = getLocaleUrl('tr');
-  const ruUrl = getLocaleUrl('ru');
-  const faUrl = getLocaleUrl('fa');
-  const urUrl = getLocaleUrl('ur');
 
   let keywordsStr = locale === 'tr'
     ? 'istanbul iş ilanları, türkiye iş fırsatları, istanbulda iş bulmak, türkçe iş ilanları, ingilizce işler, kariyer blogu, çalışma izni türkiye'
@@ -554,10 +550,21 @@ export function generateMetaTags(
     tr: 'tr_TR',
     ru: 'ru_RU',
     fa: 'fa_IR',
-    ur: 'ur_PK'
+    ur: 'ur_PK',
+    id: 'id_ID',
+    fr: 'fr_FR',
+    bn: 'bn_BD',
+    de: 'de_DE'
   };
   const ogLocaleStr = ogLocales[locale] || 'en_US';
   const robotsStr = data.robots || 'index, follow';
+
+  const supportedLocales = (data.availableLocales && data.availableLocales.length > 0)
+    ? data.availableLocales
+    : ['ar', 'en', 'tr', 'ru', 'fa', 'ur'];
+  const hreflangTags = supportedLocales
+    .map(loc => `<link rel="alternate" hreflang="${loc}" href="${getLocaleUrl(loc)}">`)
+    .join('\n  ');
 
   return `
   <!-- Primary Meta Tags -->
@@ -570,12 +577,7 @@ export function generateMetaTags(
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   
   <!-- i18n Multilingual Links -->
-  <link rel="alternate" hreflang="ar" href="${arUrl}">
-  <link rel="alternate" hreflang="en" href="${enUrl}">
-  <link rel="alternate" hreflang="tr" href="${trUrl}">
-  <link rel="alternate" hreflang="ru" href="${ruUrl}">
-  <link rel="alternate" hreflang="fa" href="${faUrl}">
-  <link rel="alternate" hreflang="ur" href="${urUrl}">
+  ${hreflangTags}
   <link rel="alternate" hreflang="x-default" href="${enUrl}">
 
   <!-- Open Graph / Facebook -->
