@@ -55,9 +55,9 @@ export const APPS_DATA: AppShowcaseItem[] = [
     category: 'jobs',
     icon: 'https://play-lh.googleusercontent.com/cncHf5ZsgFZ3ufzi278St6Y_0NuT46X4MYzgbsxR31-a2bfE_ufiJBu_-MS_MsQ5Z_Yl3qc47jTGxf5Z2HUR7Q=w240-h480',
     playStoreUrl: 'https://play.google.com/store/apps/details?id=com.jobsistanbul.app',
-    rating: '5.0',
-    reviewsCount: '500+',
-    downloads: '10,000+',
+    rating: '',
+    reviewsCount: '',
+    downloads: '500+',
     badge: {
       ar: 'التطبيق الرسمي للمنصة ⭐',
       en: 'Official Flagship App ⭐',
@@ -117,9 +117,9 @@ export const APPS_DATA: AppShowcaseItem[] = [
     category: 'travel',
     icon: 'https://play-lh.googleusercontent.com/a0oo3fGEydn_MFhagwEWQVZK9SFCennjy3L2wrsAlMrFZHWKsg5CoBX7aJJv7wTOD-PkYkfwKZ4Ds34aa1AXPW0=w240-h480',
     playStoreUrl: 'https://play.google.com/store/apps/details?id=com.trabzon.turkey.travel.guide',
-    rating: '5.0',
-    reviewsCount: '1.2k+',
-    downloads: '25,000+',
+    rating: '',
+    reviewsCount: '',
+    downloads: '1,000+',
     badge: {
       ar: 'يعمل 100% بدون إنترنت 📴',
       en: '100% Offline Guide 📴',
@@ -179,9 +179,9 @@ export const APPS_DATA: AppShowcaseItem[] = [
     category: 'shopping',
     icon: 'https://play-lh.googleusercontent.com/SCJlCWjQ979y8qDWUu_6_Fd5tQhBNa6cGoxOzVZm4SUZR_tEoxqUbqQcKR4_ADs9TjmUv3sjvsevsAiIiHEN8vA=w240-h480',
     playStoreUrl: 'https://play.google.com/store/apps/details?id=com.aktuel.bim.a101.sok',
-    rating: '5.0',
-    reviewsCount: '800+',
-    downloads: '15,000+',
+    rating: '',
+    reviewsCount: '',
+    downloads: '1,000+',
     badge: {
       ar: 'أحدث التخفيضات أسبوعياً 🛒',
       en: 'Weekly Store Deals 🛒',
@@ -240,9 +240,9 @@ export const APPS_DATA: AppShowcaseItem[] = [
     category: 'islamic',
     icon: 'https://play-lh.googleusercontent.com/IfWtdWTOPQo3GSK4ipturd4W50ekNd8aVMJ1myX2W2ItASr8GPy_jipvCpz-96gWDS_Vv_Nck0pw8Gk_IhPu=w240-h480',
     playStoreUrl: 'https://play.google.com/store/apps/details?id=com.quran.karim.kamel.bidon.net.murtal.tilaat.smart',
-    rating: '5.0',
-    reviewsCount: '2.5k+',
-    downloads: '50,000+',
+    rating: '4.7',
+    reviewsCount: '100+',
+    downloads: '10,000+',
     badge: {
       ar: 'كامل بدون إنترنت 📖',
       en: 'Complete Offline 📖',
@@ -325,8 +325,8 @@ appsShowcaseRouter.get('/:locale/apps', (c) => {
       heroSubtitle: 'حلول برمجية متطورة صُممت خصيصاً لتيسير حياة المقيمين، السياح، والباحثين عن عمل في تركيا. سرعة، أمان، وعمل بدون إنترنت.',
       devButton: 'زيارة متجرنا في Google Play',
       statsApps: 'تطبيقات معتمدة',
-      statsRating: 'متوسط التقييم 5.0 ⭐',
-      statsDownloads: 'أكثر من 100 ألف تحميل',
+      statsRating: 'متاح على Google Play',
+      statsDownloads: 'أكثر من 12 ألف تحميل',
       statsFree: 'مجانية 100% وبدون إعلانات مزعجة',
       filterAll: 'جميع التطبيقات',
       filterJobs: 'وظائف وأعمال',
@@ -337,7 +337,7 @@ appsShowcaseRouter.get('/:locale/apps', (c) => {
       qrBtn: 'رمز QR للموبايل',
       reviewBtn: 'تفاصيل ومراجعة التطبيق',
       verifiedProtect: 'تم الفحص بواسطة Google Play Protect',
-      whyTitle: 'لماذا يفضل مئات الآلاف استخدام تطبيقاتنا؟',
+      whyTitle: 'لماذا يفضل المستخدمون في تركيا تطبيقاتنا؟',
       why1Title: 'عمل بدون إنترنت (Offline First)',
       why1Desc: 'تطبيقاتنا تعمل بكفاءة حتى عند انقطاع الإنترنت أو أثناء تجوالك في الطبيعة والكهوف وخطوط المترو.',
       why2Title: 'حماية وأمان وخصوصية تامة',
@@ -358,8 +358,8 @@ appsShowcaseRouter.get('/:locale/apps', (c) => {
       heroSubtitle: 'High-performance Android applications built to empower expats, tourists, and job seekers in Turkey. Fast, reliable, and privacy-focused.',
       devButton: 'Visit Google Play Developer Store',
       statsApps: 'Verified Apps',
-      statsRating: '5.0 ⭐ Rating Average',
-      statsDownloads: '100K+ Total Installs',
+      statsRating: 'Available on Google Play',
+      statsDownloads: '12K+ Total Installs',
       statsFree: '100% Free & Secure',
       filterAll: 'All Apps',
       filterJobs: 'Jobs & Career',
@@ -370,7 +370,7 @@ appsShowcaseRouter.get('/:locale/apps', (c) => {
       qrBtn: 'Mobile QR Code',
       reviewBtn: 'Read Complete Review',
       verifiedProtect: 'Verified by Google Play Protect',
-      whyTitle: 'Why Do Thousands of Users Love Our Apps?',
+      whyTitle: 'Why Do Users in Turkey Choose Our Apps?',
       why1Title: 'Offline-First Architecture',
       why1Desc: 'Built to run flawlessly even without mobile data or in remote natural spots and transit tunnels.',
       why2Title: 'Strict Privacy & Zero Bloat',
@@ -391,8 +391,8 @@ appsShowcaseRouter.get('/:locale/apps', (c) => {
       heroSubtitle: 'Türkiye’de yaşayanlar, turistler ve iş arayanlar için özel geliştirilmiş güvenilir, hızlı ve internetsiz mobil çözümler.',
       devButton: 'Google Play Mağazamızı Ziyaret Edin',
       statsApps: 'Resmi Uygulama',
-      statsRating: '5.0 ⭐ Puan Ortalaması',
-      statsDownloads: '100.000+ İndirme',
+      statsRating: 'Google Play’de Mevcut',
+      statsDownloads: '12.000+ İndirme',
       statsFree: '%100 Ücretsiz & Güvenli',
       filterAll: 'Tüm Uygulamalar',
       filterJobs: 'İş & Kariyer',
@@ -403,7 +403,7 @@ appsShowcaseRouter.get('/:locale/apps', (c) => {
       qrBtn: 'Mobil QR Kodu',
       reviewBtn: 'Uygulama İncelemesi',
       verifiedProtect: 'Google Play Protect ile Güvenli',
-      whyTitle: 'Neden Yüz Binlerce Kullanıcı Uygulamalarımızı Tercih Ediyor?',
+      whyTitle: 'Neden Türkiye’deki Kullanıcılar Uygulamalarımızı Tercih Ediyor?',
       why1Title: 'Çevrimdışı Çalışma Desteği',
       why1Desc: 'İnternet bağlantınız olmasa dahi doğada, metroda ve seyahatte kesintisiz kullanım kolaylığı.',
       why2Title: 'Tam Gizlilik ve Güvenlik',
@@ -440,10 +440,12 @@ appsShowcaseRouter.get('/:locale/apps', (c) => {
           <div class="app-meta">
             <div class="app-top-row">
               <span class="app-badge">${badgeText}</span>
-              <div class="app-rating">
-                <span class="stars"><i class="fa-solid fa-star"></i> 5.0</span>
-                <span class="reviews-count">(${app.reviewsCount})</span>
-              </div>
+              ${app.rating ? `<div class="app-rating">
+                <span class="stars"><i class="fa-solid fa-star"></i> ${app.rating}</span>
+                ${app.reviewsCount ? `<span class="reviews-count">(${app.reviewsCount})</span>` : ''}
+              </div>` : `<div class="app-rating">
+                <span class="reviews-count"><i class="fa-brands fa-google-play"></i> ${app.downloads}</span>
+              </div>`}
             </div>
             <h2 class="app-title">${title}</h2>
             <p class="app-subtitle">${subtitle}</p>
@@ -521,13 +523,6 @@ appsShowcaseRouter.get('/:locale/apps', (c) => {
           'price': '0',
           'priceCurrency': 'USD'
         },
-        'aggregateRating': {
-          '@type': 'AggregateRating',
-          'ratingValue': '5.0',
-          'ratingCount': app.reviewsCount.replace('+', ''),
-          'bestRating': '5',
-          'worstRating': '1'
-        },
         'author': {
           '@type': 'Organization',
           'name': 'MindMeld Apps 2026',
@@ -576,12 +571,12 @@ appsShowcaseRouter.get('/:locale/apps', (c) => {
           </div>
           <div class="stat-divider"></div>
           <div class="app-stat-item">
-            <div class="stat-value">5.0 ⭐</div>
+            <div class="stat-value"><i class="fa-brands fa-google-play"></i></div>
             <div class="stat-label">${t.statsRating}</div>
           </div>
           <div class="stat-divider"></div>
           <div class="app-stat-item">
-            <div class="stat-value">100K+</div>
+            <div class="stat-value">12K+</div>
             <div class="stat-label">${t.statsDownloads}</div>
           </div>
           <div class="stat-divider"></div>

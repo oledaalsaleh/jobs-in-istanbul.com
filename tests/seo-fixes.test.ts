@@ -223,4 +223,21 @@ describe('Technical SEO & Google Jobs Compliance Tests', () => {
     expect(css).toContain('.site-header');
     expect(css).toContain('.job-card');
   });
+
+  test('job detail and apps showcase pages omit unverified badges, fake benefit pills, and fabricated AggregateRating', async () => {
+    const resJob = await app.request('https://jobs-in-istanbul.com/ar/jobs/web-developer', {}, createMockEnv());
+    expect(resJob.status).toBe(200);
+    const jobHtml = await resJob.text();
+    expect(jobHtml).not.toContain('جهة عمل موثقة');
+    expect(jobHtml).not.toContain('مزايا مذكورة في الإعلان:');
+    expect(jobHtml).not.toContain('<span>سكن</span>');
+    expect(jobHtml).not.toContain('<span>مواصلات</span>');
+    expect(jobHtml).not.toContain('<span>وجبات</span>');
+
+    const resApps = await app.request('https://jobs-in-istanbul.com/ar/apps', {}, createMockEnv());
+    expect(resApps.status).toBe(200);
+    const appsHtml = await resApps.text();
+    expect(appsHtml).not.toContain('"AggregateRating"');
+    expect(appsHtml).not.toContain('"ratingValue":"5.0"');
+  });
 });

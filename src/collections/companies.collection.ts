@@ -42,6 +42,12 @@ export default {
         title: 'Company Description',
         required: false,
       },
+      verified: {
+        type: 'boolean',
+        title: 'Verified Employer (checked manually — shows the "Verified" badge)',
+        required: false,
+        default: false,
+      },
     },
     required: ['name', 'slug'],
   },

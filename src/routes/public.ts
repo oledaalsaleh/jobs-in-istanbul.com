@@ -126,10 +126,10 @@ export function renderTravelGuideInFeedAd(locale: string): string {
           ${ad.sponsorText}
         </span>
       </div>
-      <div class="ad-rating-box" title="4.9 / 5.0 Rating">
-        <span class="ad-rating-stars">★★★★★</span>
-        <span>4.9</span>
-        <span class="ad-rating-count">(50K+)</span>
+      <div class="ad-rating-box" title="Google Play Official App">
+        <i class="fa-brands fa-google-play" style="color: #00c353;"></i>
+        <span>1,000+</span>
+        <span class="ad-rating-count">Google Play</span>
       </div>
     </div>
 
@@ -185,36 +185,36 @@ export function renderPermanentJobPromoAd(locale: string, variant: 'drawer' | 's
 
   const t = {
     ar: {
-      adTag: 'إعلان ممول',
-      tagline: 'فرصة عمل مميزة براتب 150,000 ليرة',
-      title: 'فرصة عمل براتب 150,000 ليرة تركية',
-      sub: 'وظائف حقيقية • مرتبات مجزية • حمل التطبيق الآن',
+      adTag: 'تطبيقنا الرسمي',
+      tagline: 'تطبيق وظائف تركيا وإسطنبول على Google Play',
+      title: 'تطبيق وظائف تركيا وإسطنبول الرسمي',
+      sub: 'تصفح الوظائف يومياً • تنبيهات فورية • مجاني 100%',
       cta: 'تثبيت من Google Play',
-      action: 'اضغط هنا للتقديم'
+      action: 'حمل التطبيق مجاناً'
     },
     en: {
-      adTag: 'Sponsored Ad',
-      tagline: 'Featured 150,000 TRY Opportunity',
-      title: 'Job Opportunity with 150,000 TRY Salary',
-      sub: 'Verified Positions • High Pay • Install Free Now',
+      adTag: 'Official App',
+      tagline: 'Turkey & Istanbul Jobs on Google Play',
+      title: 'Official Turkey & Istanbul Jobs App',
+      sub: 'Daily Job Listings • Instant Alerts • 100% Free',
       cta: 'Install on Google Play',
-      action: 'Tap Here to Apply'
+      action: 'Get Free App'
     },
     tr: {
-      adTag: 'Sponsorlu İlan',
-      tagline: '150.000 TL Maaşlı Özel Fırsat',
-      title: '150.000 TL Maaşlı İş Fırsatı',
-      sub: 'Gerçek İlanlar • Dolgun Maaş • Hemen Yükleyin',
+      adTag: 'Resmi Uygulama',
+      tagline: 'Google Play’de İstanbul İş İlanları Uygulaması',
+      title: 'Resmi İstanbul İş İlanları Uygulaması',
+      sub: 'Günlük İlanlar • Anlık Bildirimler • %100 Ücretsiz',
       cta: 'Google Play’den Yükle',
-      action: 'Başvurmak İçin Tıklayın'
+      action: 'Ücretsiz İndir'
     }
   }[locale as 'ar' | 'en' | 'tr'] || {
-    adTag: 'Sponsored Ad',
-    tagline: 'Featured 150,000 TRY Opportunity',
-    title: 'Job Opportunity with 150,000 TRY Salary',
-    sub: 'Verified Positions • High Pay • Install Free Now',
+    adTag: 'Official App',
+    tagline: 'Turkey & Istanbul Jobs on Google Play',
+    title: 'Official Turkey & Istanbul Jobs App',
+    sub: 'Daily Job Listings • Instant Alerts • 100% Free',
     cta: 'Install on Google Play',
-    action: 'Tap Here to Apply'
+    action: 'Get Free App'
   };
 
   const imgUrl = '/public/images/istanbul-app/featured_job_promo_150k.jpg';
@@ -281,6 +281,11 @@ export function renderPermanentJobPromoAd(locale: string, variant: 'drawer' | 's
       border-color: #2563eb !important;
     }
   </style>`;
+}
+
+/** Internal placeholder text the scraper stores on auto-created companies (not for public display). */
+export function isPlaceholderCompanyDesc(desc: unknown): boolean {
+  return /^\s*automatically created company/i.test(String(desc ?? ''));
 }
 
 export const ISTANBUL_DISTRICTS = [
@@ -2666,7 +2671,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
           <span class="jtag jtag-type">${typeLabel}</span>
           <span class="jtag jtag-loc"><i class="fa-solid fa-location-dot"></i> ${location}</span>
           ${isRemote ? `<span class="jtag jtag-remote"><i class="fa-solid fa-wifi"></i> ${locale === 'ar' ? 'عن بُعد' : 'Remote'}</span>` : ''}
-          <span class="jtag jtag-lang"><i class="fa-solid fa-language"></i> ${job.language === 'both' ? (locale === 'ar' ? 'ثنائي اللغة' : 'Bilingual') : (job.language || 'TR').toUpperCase()}</span>
+          ${['ar', 'en', 'tr'].includes(job.language) ? `<span class="jtag jtag-lang"><i class="fa-solid fa-language"></i> ${String(job.language).toUpperCase()}</span>` : ''}
         </div>
         <div class="job-footer">
           <div class="job-meta">
@@ -2721,8 +2726,8 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
           </div>
           <div class="hero-stat-divider"></div>
           <div class="hero-stat">
-            <div class="hero-stat-value">100%</div>
-            <div class="hero-stat-label">${locale === 'ar' ? 'وظائف موثوقة' : 'Verified Jobs'}</div>
+            <div class="hero-stat-value">24/7</div>
+            <div class="hero-stat-label">${locale === 'ar' ? 'تحديث يومي' : (locale === 'tr' ? 'Günlük Güncelleme' : 'Updated Daily')}</div>
           </div>
         </div>
       </div>
@@ -3196,7 +3201,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
                     <div>
                       <span style="font-size: 0.7rem; font-weight: 800; background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 2px 8px; border-radius: 6px;">${locale === 'ar' ? 'التطبيق الرسمي' : (locale === 'tr' ? 'Resmi Uygulama' : 'Official App')}</span>
                       <h3 style="font-size: 1.05rem; font-weight: 800; color: #ffffff; margin: 4px 0 2px 0;">${locale === 'ar' ? 'وظائف تركيا وإسطنبول' : (locale === 'tr' ? 'İstanbul İş İlanları' : 'Turkey & Istanbul Jobs')}</h3>
-                      <div style="font-size: 0.75rem; color: #f59e0b; font-weight: 700;"><i class="fa-solid fa-star"></i> 5.0 ⭐ <span style="color:#94a3b8; font-weight:500;">(500+)</span></div>
+                      <div style="font-size: 0.75rem; color: #38bdf8; font-weight: 700;"><i class="fa-brands fa-google-play"></i> 500+ <span style="color:#94a3b8; font-weight:500;">${locale === 'ar' ? 'تحميل' : (locale === 'tr' ? 'İndirme' : 'Installs')}</span></div>
                     </div>
                   </div>
                   <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5; margin: 0 0 16px 0;">
@@ -3217,7 +3222,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
                     <div>
                       <span style="font-size: 0.7rem; font-weight: 800; background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 2px 8px; border-radius: 6px;">${locale === 'ar' ? '100% بدون إنترنت' : (locale === 'tr' ? '%100 Çevrimdışı' : '100% Offline')}</span>
                       <h3 style="font-size: 1.05rem; font-weight: 800; color: #ffffff; margin: 4px 0 2px 0;">${locale === 'ar' ? 'دليل تركيا السياحي' : (locale === 'tr' ? 'Türkiye Gezi Rehberi' : 'Turkey Travel Guide')}</h3>
-                      <div style="font-size: 0.75rem; color: #f59e0b; font-weight: 700;"><i class="fa-solid fa-star"></i> 5.0 ⭐ <span style="color:#94a3b8; font-weight:500;">(1.2k+)</span></div>
+                      <div style="font-size: 0.75rem; color: #10b981; font-weight: 700;"><i class="fa-brands fa-google-play"></i> 1,000+ <span style="color:#94a3b8; font-weight:500;">${locale === 'ar' ? 'تحميل' : (locale === 'tr' ? 'İndirme' : 'Installs')}</span></div>
                     </div>
                   </div>
                   <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5; margin: 0 0 16px 0;">
@@ -3238,7 +3243,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
                     <div>
                       <span style="font-size: 0.7rem; font-weight: 800; background: rgba(245, 158, 11, 0.2); color: #f59e0b; padding: 2px 8px; border-radius: 6px;">${locale === 'ar' ? 'تخفيضات أسبوعية' : (locale === 'tr' ? 'Haftalık İndirimler' : 'Weekly Deals')}</span>
                       <h3 style="font-size: 1.05rem; font-weight: 800; color: #ffffff; margin: 4px 0 2px 0;">${locale === 'ar' ? 'عروض بيم A101 و ŞOK' : (locale === 'tr' ? 'Aktüel: BİM, A101, ŞOK' : 'Aktüel: BİM & A101 Deals')}</h3>
-                      <div style="font-size: 0.75rem; color: #f59e0b; font-weight: 700;"><i class="fa-solid fa-star"></i> 5.0 ⭐ <span style="color:#94a3b8; font-weight:500;">(800+)</span></div>
+                      <div style="font-size: 0.75rem; color: #f59e0b; font-weight: 700;"><i class="fa-brands fa-google-play"></i> 1,000+ <span style="color:#94a3b8; font-weight:500;">${locale === 'ar' ? 'تحميل' : (locale === 'tr' ? 'İndirme' : 'Installs')}</span></div>
                     </div>
                   </div>
                   <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5; margin: 0 0 16px 0;">
@@ -3259,7 +3264,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
                     <div>
                       <span style="font-size: 0.7rem; font-weight: 800; background: rgba(99, 102, 241, 0.2); color: #818cf8; padding: 2px 8px; border-radius: 6px;">${locale === 'ar' ? 'كامل بدون نت' : (locale === 'tr' ? 'Tamamı İnternetsiz' : 'Full Offline')}</span>
                       <h3 style="font-size: 1.05rem; font-weight: 800; color: #ffffff; margin: 4px 0 2px 0;">${locale === 'ar' ? 'ضياء القرآن الكريم' : (locale === 'tr' ? 'Diya Kur\'an-ı Kerim' : 'Diya Al-Quran Offline')}</h3>
-                      <div style="font-size: 0.75rem; color: #f59e0b; font-weight: 700;"><i class="fa-solid fa-star"></i> 5.0 ⭐ <span style="color:#94a3b8; font-weight:500;">(2.5k+)</span></div>
+                      <div style="font-size: 0.75rem; color: #f59e0b; font-weight: 700;"><i class="fa-solid fa-star"></i> 4.7 ⭐ <span style="color:#94a3b8; font-weight:500;">(10,000+)</span></div>
                     </div>
                   </div>
                   <p style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5; margin: 0 0 16px 0;">
@@ -3444,7 +3449,7 @@ publicRouter.get(
 
     const companyName = company.name || job.company_name || job.company || 'Company';
     const companyLogo = company.logo || '';
-    const companyDesc = company.description || '';
+    const companyDesc = isPlaceholderCompanyDesc(company.description) ? '' : (company.description || '');
     const companyInitial = (companyName.charAt(0) || 'C').toUpperCase();
 
     const title = locale === 'ar' ? (job.title_ar || job.title_en) : (locale === 'tr' ? (job.title_tr || job.title_en) : (locale === 'fa' ? (job.title_fa || job.title_en) : (locale === 'ur' ? (job.title_ur || job.title_en) : (locale === 'ru' ? (job.title_ru || job.title_en) : job.title_en))));
@@ -3643,9 +3648,9 @@ publicRouter.get(
           <div class="detail-header" data-job-id="${job.id}">
             <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
               ${job.featured ? `<span class="tag tag-feat">${translations.featured}</span>` : ''}
-              <span class="tag" style="background: rgba(16, 185, 129, 0.12); color: #059669; border: 1px solid rgba(16, 185, 129, 0.25); font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
-                <i class="fa-solid fa-circle-check"></i> ${locale === 'ar' ? 'تم التحقق من الوظيفة' : (locale === 'tr' ? 'Doğrulanmış İlan' : 'Verified Listing')}
-              </span>
+              ${company.verified === true ? `<span class="tag" style="background: rgba(16, 185, 129, 0.12); color: #059669; border: 1px solid rgba(16, 185, 129, 0.25); font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
+                <i class="fa-solid fa-circle-check"></i> ${locale === 'ar' ? 'جهة عمل موثقة' : (locale === 'tr' ? 'Doğrulanmış İşveren' : 'Verified Employer')}
+              </span>` : ''}
             </div>
 
             <div style="display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: 16px;">
@@ -3660,33 +3665,46 @@ publicRouter.get(
               <span><i class="fa-regular fa-clock"></i> ${pubDate}</span>
             </div>
 
-            <!-- Rich Job Attributes Badges Grid -->
-            <div class="job-rich-pills-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 20px; padding: 14px; background: var(--bg-site); border-radius: var(--radius-md); border: 1px solid var(--border);">
-              <div style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-dark);">
-                <i class="fa-solid fa-shield-heart" style="color: #10b981;"></i>
-                <span><strong>SGK:</strong> ${locale === 'ar' ? 'تأمين كامل' : 'Included'}</span>
-              </div>
-              <div style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-dark);">
-                <i class="fa-solid fa-house-chimney" style="color: #3b82f6;"></i>
-                <span><strong>${locale === 'ar' ? 'السكن' : 'Housing'}:</strong> ${locale === 'ar' ? 'متاح / بدل' : 'Available/Allowance'}</span>
-              </div>
-              <div style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-dark);">
-                <i class="fa-solid fa-van-shuttle" style="color: #f59e0b;"></i>
-                <span><strong>${locale === 'ar' ? 'المواصلات' : 'Transport'}:</strong> ${locale === 'ar' ? 'سيرفيس مؤمن' : 'Servis Provided'}</span>
-              </div>
-              <div style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-dark);">
-                <i class="fa-solid fa-utensils" style="color: #8b5cf6;"></i>
-                <span><strong>${locale === 'ar' ? 'الوجبات' : 'Meals'}:</strong> ${locale === 'ar' ? 'كرت طعام / وجبة' : 'Yemek / Card'}</span>
-              </div>
-              <div style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-dark);">
-                <i class="fa-solid fa-passport" style="color: #06b6d4;"></i>
-                <span><strong>${locale === 'ar' ? 'إذن العمل' : 'Work Permit'}:</strong> ${locale === 'ar' ? 'إمكانية الاستخراج' : 'Eligible'}</span>
-              </div>
-              <div style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-dark);">
-                <i class="fa-solid fa-language" style="color: #ec4899;"></i>
-                <span><strong>${locale === 'ar' ? 'اللغة' : 'Languages'}:</strong> ${locale === 'ar' ? 'عربي / تركي' : 'Ar / Tr / En'}</span>
-              </div>
+            <!-- Job facts: built only from the posting's real data. Benefits appear only when the
+                 posting text actually mentions them (never assumed for every job). -->
+            ${(() => {
+              const L = (ar: string, tr: string, en: string) => locale === 'ar' ? ar : (locale === 'tr' ? tr : en);
+              const postingText = [title, description, job.description_en, job.description_ar, job.description_tr]
+                .filter(Boolean).join(' ').replace(/<[^>]*>/g, ' ').toLowerCase();
+              const mentions = (re: RegExp) => re.test(postingText);
+              // 'both' is the scraper's default when the posting doesn't say, so only explicit values are shown
+              const langLabel = ({ ar: L('العربية', 'Arapça', 'Arabic'), tr: L('التركية', 'Türkçe', 'Turkish'), en: L('الإنجليزية', 'İngilizce', 'English') } as Record<string, string>)[job.language] || '';
+              const facts: Array<[string, string, string, string]> = [
+                ['fa-solid fa-briefcase', '#3b82f6', L('نوع الدوام', 'Çalışma Şekli', 'Job Type'), typeLabel],
+                ['fa-solid fa-money-bill-wave', '#10b981', L('الراتب', 'Maaş', 'Salary'), job.salary || L('غير مذكور في الإعلان', 'İlanda belirtilmemiş', 'Not stated in posting')],
+                ['fa-solid fa-location-dot', '#ef4444', L('الموقع', 'Konum', 'Location'), location || 'Istanbul'],
+                ['fa-solid fa-language', '#ec4899', L('اللغة المطلوبة', 'Dil', 'Language'), langLabel]
+              ];
+              const benefits: Array<[RegExp, string, string, string]> = [
+                [/\bsgk\b|sigorta|تأمين|insurance/, 'fa-solid fa-shield-heart', '#10b981', L('تأمين SGK', 'SGK Sigortası', 'SGK Insurance')],
+                [/servis|سيرفيس|مواصلات|ulaşım|transport/, 'fa-solid fa-van-shuttle', '#f59e0b', L('مواصلات', 'Servis / Ulaşım', 'Transport')],
+                [/yemek|وجب|طعام|meal|lunch/, 'fa-solid fa-utensils', '#8b5cf6', L('وجبات', 'Yemek', 'Meals')],
+                [/konaklama|lojman|سكن|accommodation|housing/, 'fa-solid fa-house-chimney', '#3b82f6', L('سكن', 'Konaklama', 'Housing')],
+                [/çalışma izni|calisma izni|إذن عمل|اذن عمل|إذن العمل|work permit/, 'fa-solid fa-passport', '#06b6d4', L('إذن عمل', 'Çalışma İzni', 'Work Permit')]
+              ];
+              const found = benefits.filter(([re]) => mentions(re));
+              const pill = (icon: string, color: string, label: string, value?: string) => `
+                <div style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-dark);">
+                  <i class="${icon}" style="color: ${color};"></i>
+                  <span>${value !== undefined ? `<strong>${label}:</strong> ${value}` : label}</span>
+                </div>`;
+              return `
+            <div class="job-rich-pills-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-top: 20px; padding: 14px; background: var(--bg-site); border-radius: var(--radius-md); border: 1px solid var(--border);">
+              ${facts.filter(f => f[3]).map(([i, c, l, v]) => pill(i, c, l, v)).join('')}
             </div>
+            ${found.length ? `
+            <div style="margin-top: 10px; font-size: 0.82rem; color: var(--text-muted);">
+              <span style="font-weight: 700;">${L('مزايا مذكورة في الإعلان:', 'İlanda belirtilen haklar:', 'Benefits mentioned in the posting:')}</span>
+              <div style="display: flex; gap: 14px; flex-wrap: wrap; margin-top: 6px;">
+                ${found.map(([, i, c, l]) => pill(i, c, l)).join('')}
+              </div>
+            </div>` : ''}`;
+            })()}
           </div>
 
           <div class="detail-body">
@@ -3722,7 +3740,7 @@ publicRouter.get(
             </div>
             <div class="sidebar-company-name">
               <a href="/${locale}/companies/${company.slug || (companyName.toLowerCase().replace(/[^a-z0-9]+/g, '-'))}" style="color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
-                ${companyName} <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 0.85rem;" title="${locale === 'ar' ? 'شركة موثقة' : 'Verified Company'}"></i>
+                ${companyName}${company.verified === true ? ` <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 0.85rem;" title="${locale === 'ar' ? 'شركة موثقة' : 'Verified Company'}"></i>` : ''}
               </a>
             </div>
             ${companyDesc ? `<div class="sidebar-company-desc">${companyDesc}</div>` : ''}
@@ -5165,7 +5183,7 @@ publicRouter.get('/:locale/about', (c) => {
       stat2Val: '+١٠ آلاف',
       stat2Lbl: 'متقدم للوظائف شهرياً',
       stat3Val: '١٠٠٪',
-      stat3Lbl: 'وظائف موثوقة'
+      stat3Lbl: 'مجاني للباحثين عن عمل'
     },
     en: {
       title: 'About Us - Istanbul Jobs',
@@ -5186,7 +5204,7 @@ publicRouter.get('/:locale/about', (c) => {
       stat2Val: '10K+',
       stat2Lbl: 'Monthly Job Seekers',
       stat3Val: '100%',
-      stat3Lbl: 'Verified Listings'
+      stat3Lbl: 'Free for Job Seekers'
     },
     tr: {
       title: 'Hakkımızda - İstanbul İş İlanları',
@@ -5207,7 +5225,7 @@ publicRouter.get('/:locale/about', (c) => {
       stat2Val: '10B+',
       stat2Lbl: 'Aylık Ziyaretçi',
       stat3Val: '100%',
-      stat3Lbl: 'Doğrulanmış İlanlar'
+      stat3Lbl: 'İş Arayanlar İçin Ücretsiz'
     },
     ru: {
       title: 'О нас - Работа в Стамбуле',
@@ -5228,7 +5246,7 @@ publicRouter.get('/:locale/about', (c) => {
       stat2Val: '10K+',
       stat2Lbl: 'Соискателей ежемесячно',
       stat3Val: '100%',
-      stat3Lbl: 'Проверенных объявлений'
+      stat3Lbl: 'Бесплатно для соискателей'
     },
     fa: {
       title: 'درباره ما - کاریابی در استانبول',
@@ -5249,7 +5267,7 @@ publicRouter.get('/:locale/about', (c) => {
       stat2Val: '+۱۰ هزار',
       stat2Lbl: 'کارجوی ماهانه',
       stat3Val: '100%',
-      stat3Lbl: 'آگهی‌های تایید شده'
+      stat3Lbl: 'رایگان برای کارجویان'
     },
     ur: {
       title: 'ہمارے بارے میں - استنبول میں ملازمتیں',
@@ -5270,7 +5288,7 @@ publicRouter.get('/:locale/about', (c) => {
       stat2Val: '+۱۰ ہزار',
       stat2Lbl: 'ماہانہ کارجو',
       stat3Val: '100%',
-      stat3Lbl: 'تصدیق شدہ اشتہارات'
+      stat3Lbl: 'ملازمت کے متلاشیوں کے لیے مفت'
     }
   }[locale];
 
@@ -6571,7 +6589,10 @@ publicRouter.get('/:locale/companies/:slug', async (c) => {
 
   const companyName = companyData?.name || slug.split('-').map((s: string) => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
   const companyLogo = companyData?.logo || '';
-  const companyDesc = companyData?.description || (locale === 'ar' ? `شركة ومؤسسة مسجلة تعمل في إسطنبول وتركيا.` : `Verified employer operating in Istanbul, Turkey.`);
+  // Scraper-generated companies carry an internal placeholder description — never show it publicly
+  const rawCompanyDesc = isPlaceholderCompanyDesc(companyData?.description) ? '' : (companyData?.description || '');
+  const companyDesc = rawCompanyDesc || (locale === 'ar' ? `جهة توظيف تنشر وظائف في إسطنبول.` : (locale === 'tr' ? `İstanbul'da iş ilanı yayınlayan işveren.` : `Employer posting jobs in Istanbul, Turkey.`));
+  const companyVerified = companyData?.verified === true;
   const companyWebsite = companyData?.website || '';
 
   // Fetch Active Jobs & Past Jobs
@@ -6615,9 +6636,9 @@ publicRouter.get('/:locale/companies/:slug', async (c) => {
         <div style="flex: 1; min-width: 250px;">
           <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px;">
             <h1 style="font-size: 1.8rem; font-weight: 900; color: var(--text-dark); margin: 0;">${companyName}</h1>
-            <span class="tag" style="background: rgba(16,185,129,0.12); color: #059669; border: 1px solid rgba(16,185,129,0.25); font-weight: 700; font-size: 0.8rem;">
-              <i class="fa-solid fa-circle-check"></i> ${locale === 'ar' ? 'جهة عمل موثقة ✅' : 'Verified Employer ✅'}
-            </span>
+            ${companyVerified ? `<span class="tag" style="background: rgba(16,185,129,0.12); color: #059669; border: 1px solid rgba(16,185,129,0.25); font-weight: 700; font-size: 0.8rem;">
+              <i class="fa-solid fa-circle-check"></i> ${locale === 'ar' ? 'جهة عمل موثقة' : (locale === 'tr' ? 'Doğrulanmış İşveren' : 'Verified Employer')}
+            </span>` : ''}
           </div>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin: 0 0 12px 0;">${companyDesc}</p>
           ${companyWebsite ? `<a href="${companyWebsite}" target="_blank" rel="noopener" style="color: var(--primary); font-weight: 700; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;"><i class="fa-solid fa-globe"></i> ${locale === 'ar' ? 'الموقع الرسمي للشركة' : 'Official Website'} <i class="fa-solid fa-external-link" style="font-size: 0.75rem;"></i></a>` : ''}
@@ -7546,7 +7567,7 @@ const renderSpecializedLandingHandler = async (c: any, pageConfig: SpecializedSe
       <div style="display: flex; flex-direction: column; gap: 16px;">
         ${jobs.map(job => {
           const title = job[`title_${locale}`] || job.title_en || job.title_ar || 'Job Opening';
-          const company = job.company_name || 'Verified Employer';
+          const company = job.company_name || (locale === 'ar' ? 'جهة توظيف في إسطنبول' : 'Istanbul Employer');
           const loc = job[`location_${locale}`] || job.location_en || job.location_ar || 'Istanbul';
           const dateStr = new Date(job.publishedAt).toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric' });
 
@@ -7557,9 +7578,6 @@ const renderSpecializedLandingHandler = async (c: any, pageConfig: SpecializedSe
                   <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--text-dark); margin: 0;">
                     <a href="/${locale}/jobs/${job.slug}" style="color: inherit; text-decoration: none;">${title}</a>
                   </h3>
-                  <span class="tag" style="background: rgba(16,185,129,0.1); color: #059669; font-weight: 700; font-size: 0.75rem;">
-                    <i class="fa-solid fa-circle-check"></i> ${locale === 'ar' ? 'موثق' : 'Verified'}
-                  </span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 14px; font-size: 0.88rem; color: var(--text-muted); flex-wrap: wrap;">
                   <span><i class="fa-solid fa-building" style="color: var(--primary);"></i> ${company}</span>

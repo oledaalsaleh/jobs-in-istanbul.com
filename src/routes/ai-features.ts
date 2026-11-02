@@ -5417,7 +5417,7 @@ aiFeaturesRouter.post('/:locale/api/ai-job-match', async (c) => {
     const resumeLower = resumeText.toLowerCase();
     const rankedMatches = activeJobs.map(job => {
       const title = job[`title_${locale}`] || job.title_en || job.title_ar || 'Job';
-      const company = job.company_name || 'Verified Employer';
+      const company = job.company_name || 'Istanbul Employer';
       const loc = job[`location_${locale}`] || job.location_en || job.location_ar || 'Istanbul';
       const desc = (job.description_ar || job.description_en || '').toLowerCase();
       

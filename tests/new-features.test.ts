@@ -56,15 +56,16 @@ const mockCompany = {
     name: 'Tech Istanbul AS',
     description: 'Leading digital technology and customer support agency in Turkey.',
     website: 'https://example.com',
-    logo: 'https://example.com/logo.png'
+    logo: 'https://example.com/logo.png',
+    verified: true
   })
 };
 
 // Create in-memory mock DB and environment
 const mockDb = {
   prepare: (query: string) => {
-    const handleQuery = () => {
-      if (query.includes('companies') || query.includes('comp-1')) {
+    const handleQuery = (args: any[] = []) => {
+      if (query.includes('companies') || query.includes('comp-1') || args.includes('comp-1')) {
         return {
           results: [mockCompany],
           first: mockCompany
@@ -78,8 +79,8 @@ const mockDb = {
 
     return {
       bind: (...args: any[]) => ({
-        all: async () => ({ results: handleQuery().results }),
-        first: async () => handleQuery().first,
+        all: async () => ({ results: handleQuery(args).results }),
+        first: async () => handleQuery(args).first,
         run: async () => ({ success: true })
       }),
       all: async () => ({ results: handleQuery().results }),
@@ -139,15 +140,15 @@ describe('Full Real-world Verification of All 10 New Strategic Features', () => 
     expect(text).toContain('تنبيه أمني لمكافحة الاحتيال الوظيفي')
     expect(text).toContain('لا تدفع أي مبالغ مالية')
 
-    // Verified badge
-    expect(text).toContain('تم التحقق من الوظيفة')
+    // Verified badge (only shown when company.verified === true)
+    expect(text).toContain('جهة عمل موثقة')
 
-    // Benefit badges (SGK, Housing, Transport, Meals, Work Permit)
-    expect(text).toContain('SGK')
-    expect(text).toContain('السكن')
-    expect(text).toContain('المواصلات')
-    expect(text).toContain('الوجبات')
-    expect(text).toContain('إذن العمل')
+    // Dynamic benefit badges: only benefits mentioned in job description (SGK, Housing, Transport) are shown
+    expect(text).toContain('مزايا مذكورة في الإعلان:')
+    expect(text).toContain('<span>تأمين SGK</span>')
+    expect(text).toContain('<span>سكن</span>')
+    expect(text).toContain('<span>مواصلات</span>')
+    expect(text).not.toContain('<span>وجبات</span>')
 
     // Inline AI match widget
     expect(text).toContain('فحص مدى ملاءمتك للوظيفة بالذكاء الاصطناعي')

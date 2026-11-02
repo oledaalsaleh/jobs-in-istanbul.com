@@ -112,10 +112,11 @@ describe('Google Play Developer Apps Showcase Tests', () => {
     // Verify click-through link to Google Play app
     expect(html).toContain('https://play.google.com/store/apps/details?id=com.jobsistanbul.app');
 
-    // Verify Google Ad badges and tags
-    expect(html).toContain('إعلان ممول');
-    expect(html).toContain('فرصة عمل براتب 150,000 ليرة تركية');
-    expect(html).toContain('اضغط هنا للتقديم');
+    // Verify Google Play official app promo badges and tags (without misleading 150K salary claim)
+    expect(html).toContain('تطبيقنا الرسمي');
+    expect(html).toContain('تطبيق وظائف تركيا وإسطنبول الرسمي');
+    expect(html).toContain('حمل التطبيق مجاناً');
+    expect(html).not.toContain('فرصة عمل براتب 150,000 ليرة تركية');
   });
 
   it('GET /public/images/istanbul-app/featured_job_promo_150k.jpg returns 200 OK with JPEG image buffer', async () => {
