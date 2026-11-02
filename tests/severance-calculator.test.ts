@@ -43,7 +43,7 @@ describe('Turkey Severance & Notice Pay Calculator 2026 (Kıdem & İhbar Tazmina
     expect(res.wage.baseGrossSalary).toBe(35000);
     expect(res.wage.dressedGrossSalary).toBe(40500); // 35000 + 3000 + 1500 + 1000
     expect(res.kidem.eligible).toBe(true);
-    expect(res.wage.isCeilingApplied).toBe(false); // 40500 < 64948.77
+    expect(res.wage.isCeilingApplied).toBe(false); // 40500 < 73729.87
     expect(res.kidem.gross).toBeGreaterThan(160000);
     expect(res.kidem.net).toBeLessThan(res.kidem.gross);
     expect(res.ihbar.eligible).toBe(true);
@@ -65,9 +65,18 @@ describe('Turkey Severance & Notice Pay Calculator 2026 (Kıdem & İhbar Tazmina
       reason: 'employer_dismissal'
     });
 
-    const h2Ceiling2026 = OFFICIAL_KIDEM_CEILINGS[0].ceilingTry; // 64948.77
+    const h2Ceiling2026 = OFFICIAL_KIDEM_CEILINGS[0].ceilingTry; // 73729.87
+    expect(h2Ceiling2026).toBe(73729.87);
     expect(res.wage.isCeilingApplied).toBe(true);
     expect(res.wage.cappedKidemBase).toBe(h2Ceiling2026);
+  });
+
+  it('applies the legal ceiling of the period in which employment ended', () => {
+    const base = { startDate: '2020-01-01', salary: 150000, salaryType: 'gross' as const, reason: 'employer_dismissal' as const };
+    expect(calculateSeverancePackage({ ...base, endDate: '2026-11-01' }).wage.cappedKidemBase).toBe(73729.87);
+    expect(calculateSeverancePackage({ ...base, endDate: '2026-03-15' }).wage.cappedKidemBase).toBe(64948.77);
+    expect(calculateSeverancePackage({ ...base, endDate: '2025-09-30' }).wage.cappedKidemBase).toBe(53919.68);
+    expect(calculateSeverancePackage({ ...base, endDate: '2025-02-01' }).wage.cappedKidemBase).toBe(46655.43);
   });
 
   it('disables Kıdem & İhbar on standard voluntary resignation while preserving unused leave pay', () => {

@@ -609,7 +609,6 @@ export function generateMetaTags(
   <meta name="twitter:title" content="${title}">
   <meta name="twitter:description" content="${desc}">
   <meta name="twitter:image" content="${data.image || `${siteUrl}/public/images/og-share.png`}">
-  <meta name="twitter:site" content="@istanbuljobs">
   `;
 }
 
@@ -729,25 +728,36 @@ export function generateJsonLd(
   const siteUrl = 'https://jobs-in-istanbul.com';
 
   if (pageType === 'home') {
-    const orgName = locale === 'tr' ? 'İstanbul İş İlanları' : (locale === 'ar' ? 'فرص عمل في إسطنبول' : (locale === 'fa' ? 'کاریابی استانبول' : (locale === 'ur' ? 'استنبول میں ملازمتیں' : 'Istanbul Jobs')));
+    // One stable brand entity across all locales (Google site names are per-domain), clearly
+    // distinguished from similarly named sites via alternateName + profiles we actually own.
     const orgSchema = {
       "@context": "https://schema.org",
       "@type": "Organization",
-      "name": orgName,
-      "url": `${siteUrl}/${locale}`,
-      "logo": `${siteUrl}/public/images/logo.png`,
+      "@id": `${siteUrl}/#organization`,
+      "name": "Jobs in Istanbul",
+      "alternateName": ["jobs-in-istanbul.com", "فرص عمل في إسطنبول", "İstanbul İş İlanları", "Работа в Стамбуле"],
+      "url": `${siteUrl}/`,
+      "logo": {
+        "@type": "ImageObject",
+        "url": `${siteUrl}/public/images/logo.png`,
+        "width": 512,
+        "height": 512
+      },
       "sameAs": [
-        "https://www.facebook.com/istanbuljobs",
-        "https://twitter.com/istanbuljobs",
-        "https://www.linkedin.com/company/istanbuljobs"
+        "https://t.me/jobsistanbul",
+        "https://play.google.com/store/apps/details?id=com.jobsistanbul.app"
       ]
     };
 
     const websiteSchema = {
       "@context": "https://schema.org",
       "@type": "WebSite",
-      "name": orgName,
-      "url": `${siteUrl}/${locale}`,
+      "@id": `${siteUrl}/#website`,
+      "name": "Jobs in Istanbul",
+      "alternateName": ["jobs-in-istanbul.com", "فرص عمل في إسطنبول", "İstanbul İş İlanları"],
+      "url": `${siteUrl}/`,
+      "inLanguage": locale,
+      "publisher": { "@id": `${siteUrl}/#organization` },
       "potentialAction": {
         "@type": "SearchAction",
         "target": `${siteUrl}/${locale}?search={search_term_string}`,

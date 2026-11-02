@@ -24,7 +24,7 @@ export const OFFICIAL_KIDEM_CEILINGS: SeveranceCeilingPeriod[] = [
     },
     startDate: '2026-07-01',
     endDate: '2026-12-31',
-    ceilingTry: 64948.77,
+    ceilingTry: 73729.87,
     minWageGrossTry: 33030.00,
     minWageNetTry: 28075.50,
     status: 'active'
@@ -37,7 +37,7 @@ export const OFFICIAL_KIDEM_CEILINGS: SeveranceCeilingPeriod[] = [
     },
     startDate: '2026-01-01',
     endDate: '2026-06-30',
-    ceilingTry: 53919.68,
+    ceilingTry: 64948.77,
     minWageGrossTry: 33030.00,
     minWageNetTry: 28075.50,
     status: 'historical'
@@ -50,7 +50,7 @@ export const OFFICIAL_KIDEM_CEILINGS: SeveranceCeilingPeriod[] = [
     },
     startDate: '2025-07-01',
     endDate: '2025-12-31',
-    ceilingTry: 43809.96,
+    ceilingTry: 53919.68,
     minWageGrossTry: 26005.50,
     minWageNetTry: 22104.67,
     status: 'historical'
@@ -63,14 +63,23 @@ export const OFFICIAL_KIDEM_CEILINGS: SeveranceCeilingPeriod[] = [
     },
     startDate: '2025-01-01',
     endDate: '2025-06-30',
-    ceilingTry: 35058.58,
+    ceilingTry: 46655.43,
     minWageGrossTry: 26005.50,
     minWageNetTry: 22104.67,
     status: 'historical'
   }
 ];
 
-export const ACTIVE_KIDEM_CEILING_2026 = 64948.77;
+export const ACTIVE_KIDEM_CEILING_2026 = 73729.87;
+
+/**
+ * The legal ceiling depends on the date employment ended (İş Kanunu 1475/14):
+ * pick the period containing the termination date, falling back to the active one.
+ */
+export function getKidemCeilingForDate(endDate: string): number {
+  const match = OFFICIAL_KIDEM_CEILINGS.find(p => endDate >= p.startDate && endDate <= p.endDate);
+  return match ? match.ceilingTry : ACTIVE_KIDEM_CEILING_2026;
+}
 export const MIN_WAGE_GROSS_2026 = 33030.00;
 export const MIN_WAGE_NET_2026 = 28075.50;
 export const STAMP_TAX_RATE = 0.00759; // binde 7,59 Damga Vergisi
@@ -90,7 +99,7 @@ export interface SeveranceCalculationInput {
 
 export function calculateSeverancePackage(input: SeveranceCalculationInput) {
   const startStr = input.startDate || '2023-01-01';
-  const endStr = input.endDate || '2026-10-01';
+  const endStr = input.endDate || new Date().toISOString().slice(0, 10);
   const start = new Date(startStr);
   const end = new Date(endStr);
 
@@ -121,8 +130,9 @@ export function calculateSeverancePackage(input: SeveranceCalculationInput) {
   const eligibleForIhbar = reason === 'employer_dismissal';
 
   // 1. Kıdem Tazminatı Calculation
-  const cappedKidemBase = Math.min(dressedGrossSalary, ACTIVE_KIDEM_CEILING_2026);
-  const isCeilingApplied = dressedGrossSalary > ACTIVE_KIDEM_CEILING_2026;
+  const applicableCeiling = getKidemCeilingForDate(endStr);
+  const cappedKidemBase = Math.min(dressedGrossSalary, applicableCeiling);
+  const isCeilingApplied = dressedGrossSalary > applicableCeiling;
 
   const rawPotentialKidemGross = hasOneYearTenure
     ? +((years * cappedKidemBase) + (months * (cappedKidemBase / 12)) + (days * (cappedKidemBase / 365))).toFixed(2)
@@ -190,7 +200,7 @@ export function calculateSeverancePackage(input: SeveranceCalculationInput) {
       transportAllowance: transport,
       bonusMonthly: bonus,
       dressedGrossSalary,
-      kidemCeiling2026: ACTIVE_KIDEM_CEILING_2026,
+      kidemCeiling2026: applicableCeiling,
       cappedKidemBase,
       isCeilingApplied
     },
@@ -248,7 +258,7 @@ severanceCalculatorRouter.get('/:locale/severance-calculator', (c) => {
 const handleApiSeverance = (c: any) => {
   const result = calculateSeverancePackage({
     startDate: c.req.query('start') || '2023-01-01',
-    endDate: c.req.query('end') || '2026-10-01',
+    endDate: c.req.query('end') || new Date().toISOString().slice(0, 10),
     salary: parseFloat(c.req.query('salary') || String(MIN_WAGE_GROSS_2026)),
     salaryType: (c.req.query('type') === 'net' ? 'net' : 'gross'),
     foodAllowance: parseFloat(c.req.query('food') || '0'),
@@ -280,7 +290,7 @@ severanceCalculatorRouter.get('/:locale/kidem-tazminati-hesaplama', async (c) =>
       title: 'حاسبة تعويض نهاية الخدمة والفصل من العمل في تركيا 2026 (Kıdem & İhbar Tazminatı)',
       subtitle: 'احسب بدقة مستحقاتك القانونية الكاملة عند انتهاء العمل أو الفصل أو الاستقالة في تركيا لعام 2026: تعويض الأقدمية (Kıdem Tazminatı)، تعويض مهلة الإشعار (İhbar Tazminatı)، وبدل أيام الإجازات السنوية غير المستخدمة (Yıllık İzin Ücreti).',
     metaTitle: 'حاسبة تعويض نهاية الخدمة في تركيا 2026 | Kıdem Tazminatı',
-    metaDesc: 'احسب تعويض الأقدمية (Kıdem) ومهلة الإشعار (İhbar) وبدل الإجازات غير المستخدمة في تركيا لعام 2026 وفق السقف الرسمي 64,948.77 ليرة.',
+    metaDesc: 'احسب تعويض الأقدمية (Kıdem) ومهلة الإشعار (İhbar) وبدل الإجازات غير المستخدمة في تركيا لعام 2026 وفق السقف الرسمي 73,729.87 ليرة.',
       ceilingCardTitle: 'سقف تعويض نهاية الخدمة الرسمي لعام 2026',
       ceilingCardSub: 'السقف الأعلى المعتمد لاحتساب كل سنة خدمة (يوليو – ديسمبر 2026)',
       minWageLabel: 'الحد الأدنى للأجور 2026 (إجمالي / صافي)',
@@ -321,7 +331,7 @@ severanceCalculatorRouter.get('/:locale/kidem-tazminati-hesaplama', async (c) =>
       leaveTaxLabel: 'اقتطاعات SGK والضرائب:',
       totalNetTitle: 'إجمالي المستحقات الصافية الواجب استلامها (Toplam Net Alacak)',
       totalGrossSub: 'الإجمالي قبل الاقتطاعات:',
-      ceilingNotice: 'ملاحظة: تجاوز راتبك الإجمالي سقف تعويض الأقدمية الرسمي لعام 2026 (64,948.77 ₺)، لذلك تم احتساب تعويض الأقدمية على أساس السقف القانوني الأعلى.',
+      ceilingNotice: 'ملاحظة: تجاوز راتبك الإجمالي سقف تعويض الأقدمية الرسمي لعام 2026 (73,729.87 ₺)، لذلك تم احتساب تعويض الأقدمية على أساس السقف القانوني الأعلى.',
       notEligibleKidemMsg: 'تنبيه قانوني: لاستحقاق تعويض نهاية الخدمة (Kıdem)، يشترط إكمال سنة واحدة على الأقل (365 يوماً) وأن لا تكون الاستقالة طوعية بدون سبب محق.',
       printBtn: 'طباعة التقرير القانوني (PDF)',
       whatsappBtn: 'مشاركة النتيجة عبر واتساب',
@@ -343,7 +353,7 @@ severanceCalculatorRouter.get('/:locale/kidem-tazminati-hesaplama', async (c) =>
       faqs: [
         {
           question: 'كم يبلغ سقف تعويض نهاية الخدمة (Kıdem Tazminatı Tavanı) في تركيا لعام 2026؟',
-          answer: 'يبلغ السقف الأعلى الرسمي لتعويض نهاية الخدمة في تركيا للنصف الثاني من عام 2026 (من 1 يوليو حتى 31 ديسمبر 2026) مبلغ 64,948.77 ليرة تركية عن كل سنة خدمة، بينما يبلغ الحد الأدنى لتعويض السنة الواحدة 33,030.00 ليرة تركية إجمالياً (27,824.80 ليرة صافي بعد خصم ضريبة الدمغة).'
+          answer: 'يبلغ السقف الأعلى الرسمي لتعويض نهاية الخدمة في تركيا للنصف الثاني من عام 2026 (من 1 يوليو حتى 31 ديسمبر 2026) مبلغ 73,729.87 ليرة تركية عن كل سنة خدمة، بينما يبلغ الحد الأدنى لتعويض السنة الواحدة 33,030.00 ليرة تركية إجمالياً (27,824.80 ليرة صافي بعد خصم ضريبة الدمغة).'
         },
         {
           question: 'هل يستحق الموظف الأجنبي في تركيا تعويض نهاية الخدمة (Kıdem Tazminatı)؟',
@@ -364,7 +374,7 @@ severanceCalculatorRouter.get('/:locale/kidem-tazminati-hesaplama', async (c) =>
       title: 'Turkey Severance & Notice Pay Calculator 2026 (Kıdem & İhbar Tazminatı)',
       subtitle: 'Accurately calculate your legal termination entitlements in Turkey for 2026: Severance Pay (Kıdem Tazminatı), Notice Pay (İhbar Tazminatı), and Unused Annual Leave Pay (Yıllık İzin Ücreti) with net tax deductions.',
     metaTitle: 'Turkey Severance Pay Calculator 2026 | Kıdem & İhbar',
-    metaDesc: 'Calculate severance pay (Kıdem), notice pay (İhbar) and unused leave pay in Turkey for 2026, using the official ceiling of 64,948.77 TL.',
+    metaDesc: 'Calculate severance pay (Kıdem), notice pay (İhbar) and unused leave pay in Turkey for 2026, using the official ceiling of 73,729.87 TL.',
       ceilingCardTitle: 'Official 2026 Severance Pay Ceiling',
       ceilingCardSub: 'Maximum gross base per year of service (July – December 2026)',
       minWageLabel: '2026 Minimum Wage (Gross / Net)',
@@ -405,7 +415,7 @@ severanceCalculatorRouter.get('/:locale/kidem-tazminati-hesaplama', async (c) =>
       leaveTaxLabel: 'SGK & Tax Deductions:',
       totalNetTitle: 'Total Net Payout You Should Receive (Toplam Net Alacak)',
       totalGrossSub: 'Total Gross Before Taxes:',
-      ceilingNotice: 'Note: Your dressed gross salary exceeds the official 2026 severance ceiling (64,948.77 ₺). Severance pay is capped at the statutory ceiling per year.',
+      ceilingNotice: 'Note: Your dressed gross salary exceeds the official 2026 severance ceiling (73,729.87 ₺). Severance pay is capped at the statutory ceiling per year.',
       notEligibleKidemMsg: 'Legal Notice: Severance pay (Kıdem) requires at least 1 full year (365 days) of service and a qualifying termination reason.',
       printBtn: 'Print Legal Summary (PDF)',
       whatsappBtn: 'Share Calculation on WhatsApp',
@@ -427,7 +437,7 @@ severanceCalculatorRouter.get('/:locale/kidem-tazminati-hesaplama', async (c) =>
       faqs: [
         {
           question: 'What is the official Severance Pay Ceiling (Kıdem Tazminatı Tavanı) in Turkey for 2026?',
-          answer: 'For the second half of 2026 (July 1 – December 31, 2026), the official severance pay ceiling in Turkey is 64,948.77 TRY per year of service, while the minimum severance per year is 33,030.00 TRY gross.'
+          answer: 'For the second half of 2026 (July 1 – December 31, 2026), the official severance pay ceiling in Turkey is 73,729.87 TRY per year of service, while the minimum severance per year is 33,030.00 TRY gross.'
         },
         {
           question: 'Are foreign workers in Turkey entitled to Severance Pay (Kıdem Tazminatı)?',
@@ -446,9 +456,9 @@ severanceCalculatorRouter.get('/:locale/kidem-tazminati-hesaplama', async (c) =>
     tr: {
       badge: '4857 Sayılı İş Kanunu • 2026 Resmi Kıdem Tavanı Güncel',
       title: 'Kıdem ve İhbar Tazminatı Hesaplama 2026 (Yıllık İzin Ücreti Dahil)',
-      subtitle: '2026 yılı güncel kıdem tavanı (64.948,77 TL) ve vergi dilimlerine göre; işe giriş-çıkış tarihiniz, giydirilmiş brüt maaşınız ve yan haklarınızla Net Kıdem Tazminatı, İhbar Tazminatı ve Kullanılmayan Yıllık İzin Ücretinizi anında hesaplayın.',
+      subtitle: '2026 yılı güncel kıdem tavanı (73.729,87 TL) ve vergi dilimlerine göre; işe giriş-çıkış tarihiniz, giydirilmiş brüt maaşınız ve yan haklarınızla Net Kıdem Tazminatı, İhbar Tazminatı ve Kullanılmayan Yıllık İzin Ücretinizi anında hesaplayın.',
     metaTitle: 'Kıdem ve İhbar Tazminatı Hesaplama 2026',
-    metaDesc: '2026 kıdem tavanı (64.948,77 TL) ile kıdem tazminatı, ihbar tazminatı ve kullanılmayan yıllık izin ücretinizi net ve brüt olarak hesaplayın.',
+    metaDesc: '2026 kıdem tavanı (73.729,87 TL) ile kıdem tazminatı, ihbar tazminatı ve kullanılmayan yıllık izin ücretinizi net ve brüt olarak hesaplayın.',
       ceilingCardTitle: '2026 Resmi Kıdem Tazminatı Tavanı',
       ceilingCardSub: 'Her bir tam çalışma yılı için ödenebilecek üst sınır (Temmuz – Aralık 2026)',
       minWageLabel: '2026 Asgari Ücret (Brüt / Net)',
@@ -489,7 +499,7 @@ severanceCalculatorRouter.get('/:locale/kidem-tazminati-hesaplama', async (c) =>
       leaveTaxLabel: 'SGK ve Vergi Kesintileri:',
       totalNetTitle: 'Ele Geçecek Toplam Net Tazminat ve Alacak',
       totalGrossSub: 'Toplam Brüt Alacak:',
-      ceilingNotice: 'Bilgi: Giydirilmiş brüt ücretiniz 2026 yılı resmi kıdem tazminatı tavanını (64.948,77 TL) aştığı için kıdem tazminatı yasal tavan üzerinden hesaplanmıştır.',
+      ceilingNotice: 'Bilgi: Giydirilmiş brüt ücretiniz 2026 yılı resmi kıdem tazminatı tavanını (73.729,87 TL) aştığı için kıdem tazminatı yasal tavan üzerinden hesaplanmıştır.',
       notEligibleKidemMsg: 'Yasal Uyarı: Kıdem tazminatı hak kazanabilmek için en az 1 tam yıl (365 gün) çalışmış olmak ve haklı bir fesih nedeninin bulunması gerekir.',
       printBtn: 'Hesaplama Tablosunu Yazdır (PDF)',
       whatsappBtn: 'Sonucu WhatsApp ile Paylaş',
@@ -511,7 +521,7 @@ severanceCalculatorRouter.get('/:locale/kidem-tazminati-hesaplama', async (c) =>
       faqs: [
         {
           question: '2026 yılı kıdem tazminatı tavanı ne kadar oldu?',
-          answer: '2026 yılının ikinci yarısı (1 Temmuz – 31 Aralık 2026) için geçerli resmi kıdem tazminatı tavanı 64.948,77 TL olarak uygulanmaktadır. En düşük 1 yıllık brüt kıdem tazminatı ise 33.030,00 TL’dir.'
+          answer: '2026 yılının ikinci yarısı (1 Temmuz – 31 Aralık 2026) için geçerli resmi kıdem tazminatı tavanı 73.729,87 TL olarak uygulanmaktadır. En düşük 1 yıllık brüt kıdem tazminatı ise 33.030,00 TL’dir.'
         },
         {
           question: 'Kendi isteğiyle istifa eden işçi yıllık izin ücretini alabilir mi?',
@@ -530,9 +540,11 @@ severanceCalculatorRouter.get('/:locale/kidem-tazminati-hesaplama', async (c) =>
   };
 
   const t = i18n[locale] || i18n.en;
+  // Default example ends today so the current legal ceiling is shown
+  const todayIso = new Date().toISOString().slice(0, 10);
   const defaultCalc = calculateSeverancePackage({
     startDate: '2023-01-01',
-    endDate: '2026-10-01',
+    endDate: todayIso,
     salary: MIN_WAGE_GROSS_2026,
     salaryType: 'gross',
     foodAllowance: 4500,
@@ -628,7 +640,7 @@ severanceCalculatorRouter.get('/:locale/kidem-tazminati-hesaplama', async (c) =>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
           <div style="background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.16); border-radius: 16px; padding: 18px 20px;">
             <div style="font-size: 0.8rem; color: #fcd34d; font-weight: 700; margin-bottom: 4px;">${t.ceilingCardTitle}</div>
-            <div style="font-size: 1.65rem; font-weight: 900; color: #ffffff;">64,948.77 ₺</div>
+            <div style="font-size: 1.65rem; font-weight: 900; color: #ffffff;">73,729.87 ₺</div>
             <div style="font-size: 0.76rem; color: rgba(255,255,255,0.68); margin-top: 4px;">${t.ceilingCardSub}</div>
           </div>
           <div style="background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.16); border-radius: 16px; padding: 18px 20px;">
@@ -662,7 +674,7 @@ severanceCalculatorRouter.get('/:locale/kidem-tazminati-hesaplama', async (c) =>
             </div>
             <div>
               <label for="sev-end" style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-heading); margin-bottom: 6px;">${t.endDateLabel}</label>
-              <input type="date" id="sev-end" value="2026-10-01" style="width: 100%; padding: 11px 12px; border: 1.5px solid var(--border); border-radius: 10px; background: var(--bg-body); color: var(--text-heading); font-weight: 600;">
+              <input type="date" id="sev-end" value="${todayIso}" style="width: 100%; padding: 11px 12px; border: 1.5px solid var(--border); border-radius: 10px; background: var(--bg-body); color: var(--text-heading); font-weight: 600;">
             </div>
           </div>
 
@@ -877,7 +889,8 @@ severanceCalculatorRouter.get('/:locale/kidem-tazminati-hesaplama', async (c) =>
 
     <script>
       (function() {
-        const KIDEM_CEILING = 64948.77;
+        const KIDEM_CEILINGS = ${JSON.stringify(OFFICIAL_KIDEM_CEILINGS.map(p => ({ s: p.startDate, e: p.endDate, v: p.ceilingTry })))};
+        const ceilingFor = (iso) => { const m = KIDEM_CEILINGS.find(p => iso >= p.s && iso <= p.e); return m ? m.v : ${ACTIVE_KIDEM_CEILING_2026}; };
         const STAMP_TAX = 0.00759;
         const IHBAR_TAX = 0.15;
 
@@ -895,7 +908,7 @@ severanceCalculatorRouter.get('/:locale/kidem-tazminati-hesaplama', async (c) =>
 
         function compute() {
           const start = new Date(elStart.value || '2023-01-01');
-          const end = new Date(elEnd.value || '2026-10-01');
+          const end = new Date(elEnd.value || new Date().toISOString().slice(0, 10));
           const totalDays = Math.max(0, Math.floor((end.getTime() - start.getTime()) / 86400000));
           const years = Math.floor(totalDays / 365);
           const rem = totalDays % 365;
@@ -914,6 +927,7 @@ severanceCalculatorRouter.get('/:locale/kidem-tazminati-hesaplama', async (c) =>
           const eligibleKidem = hasOneYear && reason !== 'voluntary_resignation';
           const eligibleIhbar = reason === 'employer_dismissal';
 
+          const KIDEM_CEILING = ceilingFor(elEnd.value || new Date().toISOString().slice(0, 10));
           const cappedBase = Math.min(dressedGross, KIDEM_CEILING);
           const grossKidem = eligibleKidem ? ((years * cappedBase) + (months * (cappedBase / 12)) + (days * (cappedBase / 365))) : 0;
           const taxKidem = grossKidem * STAMP_TAX;
@@ -974,7 +988,7 @@ severanceCalculatorRouter.get('/:locale/kidem-tazminati-hesaplama', async (c) =>
 
         document.getElementById('btn-auto-leave')?.addEventListener('click', function() {
           const start = new Date(elStart.value || '2023-01-01');
-          const end = new Date(elEnd.value || '2026-10-01');
+          const end = new Date(elEnd.value || new Date().toISOString().slice(0, 10));
           const years = Math.max(0, Math.floor((end.getTime() - start.getTime()) / (86400000 * 365)));
           let total = 0;
           for (let y = 1; y <= years; y++) {

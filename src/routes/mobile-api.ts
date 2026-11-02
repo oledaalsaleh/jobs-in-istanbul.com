@@ -356,7 +356,7 @@ async function handleFuelPrices(c: Context) {
 // ----------------------------------------------------
 async function handleSeveranceCalculator(c: Context) {
   const startDate = c.req.query('start') || '2022-01-15';
-  const endDate = c.req.query('end') || '2026-06-15';
+  const endDate = c.req.query('end') || new Date().toISOString().slice(0, 10);
   const salary = parseFloat(c.req.query('salary') || '35000');
   const salaryType = (c.req.query('type') || 'gross').toLowerCase() === 'net' ? 'net' : 'gross';
   const foodAllowance = parseFloat(c.req.query('food') || c.req.query('allowances') || '3000');

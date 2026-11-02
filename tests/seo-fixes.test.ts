@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { app } from '../src/index';
+import { getJobNativeLocales } from '../src/utils/job-validity';
 
 const createMockEnv = (publishedAt: number = Date.now() - 2 * 86400000, companyWebsite = '') => ({
   DB: {
@@ -156,6 +157,48 @@ describe('Technical SEO & Google Jobs Compliance Tests', () => {
     expect(html).toContain('<meta name="robots" content="noindex, follow">');
     expect(html).toContain('انتهى التقديم على هذه الوظيفة');
     expect(html).not.toContain('"@type":"JobPosting"');
+  });
+
+  test('getJobNativeLocales ignores English copies, including HTML-wrapped ones', () => {
+    const enDesc = 'Due to our long experience in spa tourism, we offer a job opportunity with a salary up to 50,000 TL.';
+    const native = getJobNativeLocales({
+      title_en: 'Salesperson', title_tr: 'Salesperson', title_ru: 'Salesperson', title_ar: 'موظف مبيعات',
+      description_en: enDesc,
+      description_tr: `<p>${enDesc}</p>`,          // HTML-wrapped English copy -> not native
+      description_ru: `  ${enDesc.replace(/ /g, '  ')} `, // re-spaced English copy -> not native
+      description_ar: 'نظراً لخبرتنا الطويلة في سياحة السبا نقدم فرصة عمل.',
+      description_fa: 'به دلیل تجربه طولانی ما در گردشگری اسپا، فرصت شغلی ارائه می‌دهیم.'
+    });
+    expect(native.sort()).toEqual(['ar', 'en', 'fa']);
+  });
+
+  test('untranslated job locales canonicalize to English and do not duplicate the JobPosting', async () => {
+    const env = createMockEnv(Date.now() - 2 * 86400000, '');
+    // Mock job only has ar + en content: tr/ru/fa/ur would be English copies
+    const resTr = await app.request('https://jobs-in-istanbul.com/tr/jobs/web-developer', {}, env);
+    expect(resTr.status).toBe(200);
+    const htmlTr = await resTr.text();
+    expect(htmlTr).toContain('<link rel="canonical" href="https://jobs-in-istanbul.com/en/jobs/web-developer">');
+    expect(htmlTr).not.toContain('"@type":"JobPosting"');
+
+    const resAr = await app.request('https://jobs-in-istanbul.com/ar/jobs/web-developer', {}, env);
+    const htmlAr = await resAr.text();
+    expect(htmlAr).toContain('<link rel="canonical" href="https://jobs-in-istanbul.com/ar/jobs/web-developer">');
+    expect(htmlAr).toContain('"@type":"JobPosting"');
+    expect(htmlAr).toContain('hreflang="ar" href="https://jobs-in-istanbul.com/ar/jobs/web-developer"');
+    expect(htmlAr).toContain('hreflang="en" href="https://jobs-in-istanbul.com/en/jobs/web-developer"');
+    expect(htmlAr).not.toContain('hreflang="tr" href="https://jobs-in-istanbul.com/tr/jobs/web-developer"');
+    // Meta description is the localized (Arabic) excerpt, not the English SEO blurb
+    expect(htmlAr).toContain('<meta name="description" content="وصف الوظيفة التفصيلي هنا.">');
+  });
+
+  test('home page publishes a single stable brand entity for Google site names', async () => {
+    const res = await app.request('https://jobs-in-istanbul.com/ar', {}, createMockEnv());
+    const html = await res.text();
+    expect(html).toContain('"@id":"https://jobs-in-istanbul.com/#organization"');
+    expect(html).toContain('"@type":"WebSite","@id":"https://jobs-in-istanbul.com/#website","name":"Jobs in Istanbul"');
+    expect(html).toContain('https://t.me/jobsistanbul');
+    expect(html).not.toContain('facebook.com/istanbuljobs');
   });
 
   test('/sitemap-static.xml includes /apps and 2026 tools while omitting untranslated secondary locales', async () => {

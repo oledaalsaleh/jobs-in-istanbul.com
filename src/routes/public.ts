@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { cache } from 'hono/cache'
 import { generateMetaTags, generateJsonLd } from '../utils/seo-helper'
-import { isJobExpired, getExplicitJobDeadline, JOB_VALIDITY_DAYS } from '../utils/job-validity'
+import { isJobExpired, getExplicitJobDeadline, getJobNativeLocales, JOB_VALIDITY_DAYS } from '../utils/job-validity'
 import { safeQuery } from '../utils/db-helper'
 import { validateJobSubmission, validateTurnstile, rateLimiter, logSecurityEvent } from '../middleware/security'
 import { themeCss } from '../public/css/theme'
@@ -4215,9 +4215,17 @@ publicRouter.get(
       </div>
     </div>` : '';
 
+    // Locales with genuinely translated content. Untranslated variants (English copies) canonicalize
+    // to /en and do not repeat the JobPosting, so Google indexes one posting per real language.
+    const jobNativeLocales = getJobNativeLocales(job);
+    const isNativeJobLocale = jobNativeLocales.includes(locale);
+    // seoDescription is generated in English: only use it on English pages, otherwise a localized excerpt
+    const localizedJobMetaDesc = String(description || '')
+      .replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 155);
+
     const seoHtml = generateMetaTags(locale, 'job', {
       title,
-      description: description,
+      description: localizedJobMetaDesc || description,
       slug: job.slug,
       publishedAt: job.publishedAt,
       companyName: company.name,
@@ -4225,9 +4233,10 @@ publicRouter.get(
       jobType: job.jobType,
       salary: job.salary,
       seoKeywords: job.seoKeywords || [],
-      seoDescription: job.seoDescription || '',
+      seoDescription: locale === 'en' ? (job.seoDescription || '') : '',
+      availableLocales: jobNativeLocales,
       robots: jobExpired ? 'noindex, follow' : undefined
-    }) + (jobExpired ? '' : generateJsonLd(locale, 'job', {
+    }) + ((jobExpired || !isNativeJobLocale) ? '' : generateJsonLd(locale, 'job', {
       title,
       description: description,
       slug: job.slug,

@@ -4,7 +4,7 @@ import { ISTANBUL_DISTRICTS } from './public'
 import { safeQuery } from '../utils/db-helper'
 import { seededArticles, getArticleAvailableLocales } from './career-blog'
 import { getFallbackJobs, getFallbackCategories } from '../data/fallback-dataset'
-import { getJobFreshnessCutoffMs } from '../utils/job-validity'
+import { getJobFreshnessCutoffMs, getJobNativeLocales, JOB_COMPARE_CHARS } from '../utils/job-validity'
 import { getNativeLocales } from '../utils/seo-links'
 
 export const seoRouter = new Hono()
@@ -262,8 +262,8 @@ async function handleSitemapJobs(c: any, rawPage?: string) {
   const pageParam = rawPage || c.req.query('page') || '1';
   const page = Math.max(1, parseInt(pageParam, 10) || 1);
   const offset = (page - 1) * SITEMAP_JOBS_PAGE_SIZE;
-  // v2: only non-expired jobs (see utils/job-validity) — bumping the key evicts the old 6-month list
-  const cacheKey = page === 1 ? 'kv_sitemap_jobs_xml_v2' : `kv_sitemap_jobs_xml_v2_p${page}`;
+  // v4: only non-expired jobs, and only the locales each job is genuinely translated into
+  const cacheKey = page === 1 ? 'kv_sitemap_jobs_xml_v4' : `kv_sitemap_jobs_xml_v4_p${page}`;
 
   const cacheKv = (c.env as any)?.CACHE_KV;
   if (cacheKv) {
@@ -281,12 +281,21 @@ async function handleSitemapJobs(c: any, rawPage?: string) {
   const db = (c.env as any).DB;
   const siteUrl = 'https://jobs-in-istanbul.com';
 
-  // Fetch published, still-valid jobs (expired listings are excluded per Google Jobs guidelines)
+  // Fetch published, still-valid jobs (expired listings are excluded per Google Jobs guidelines).
+  // Only short text prefixes are selected; getJobNativeLocales() decides which locales are genuine
+  // translations (English copies would be duplicate job postings).
+  const prefixLen = JOB_COMPARE_CHARS * 2; // headroom for HTML tags stripped before comparison
+  const textCols = ['en', 'ar', 'tr', 'ru', 'fa', 'ur'].flatMap(l => [
+    `substr(json_extract(data,'$.title_${l}'),1,${prefixLen}) AS title_${l}`,
+    `substr(json_extract(data,'$.description_${l}'),1,${prefixLen}) AS description_${l}`
+  ]).join(', ');
   let jobs: any[] = [];
   try {
     const cutoff = getJobFreshnessCutoffMs();
     const jobRows = await safeQuery(() => db.prepare(
-      `SELECT slug, updated_at, published_at FROM documents WHERE type_id = 'jobs' AND is_published = 1 AND status = 'published' AND deleted_at IS NULL AND published_at >= ? ORDER BY published_at DESC LIMIT ${SITEMAP_JOBS_PAGE_SIZE} OFFSET ${offset}`
+      `SELECT slug, updated_at, published_at, substr(json_extract(data,'$.title'),1,${prefixLen}) AS title, substr(json_extract(data,'$.description'),1,${prefixLen}) AS description, ${textCols}
+       FROM documents WHERE type_id = 'jobs' AND is_published = 1 AND status = 'published' AND deleted_at IS NULL AND published_at >= ?
+       ORDER BY published_at DESC LIMIT ${SITEMAP_JOBS_PAGE_SIZE} OFFSET ${offset}`
     ).bind(cutoff).all());
     jobs = jobRows?.results || [];
   } catch (err) {
@@ -294,36 +303,27 @@ async function handleSitemapJobs(c: any, rawPage?: string) {
   }
 
   if (jobs.length === 0 && page === 1) {
-    jobs = getFallbackJobs().map(j => ({ slug: j.slug, updated_at: j.publishedAt || Date.now() }));
+    jobs = getFallbackJobs().map(j => ({ ...j, updated_at: j.publishedAt || Date.now() }));
   }
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">`;
 
-  // 3. Jobs
+  // 3. Jobs — one <url> per genuinely localized version, with a matching hreflang cluster
   for (const job of jobs) {
     const jobDate = new Date(job.updated_at || job.published_at || Date.now()).toISOString().split('T')[0];
-    const arUrl = `${siteUrl}/ar/jobs/${job.slug}`;
-    const enUrl = `${siteUrl}/en/jobs/${job.slug}`;
-    const trUrl = `${siteUrl}/tr/jobs/${job.slug}`;
-    const ruUrl = `${siteUrl}/ru/jobs/${job.slug}`;
-    const faUrl = `${siteUrl}/fa/jobs/${job.slug}`;
-    const urUrl = `${siteUrl}/ur/jobs/${job.slug}`;
-    for (const url of [arUrl, enUrl, trUrl, ruUrl, faUrl, urUrl]) {
+    const locales = getJobNativeLocales(job);
+    const urlFor = (l: string) => `${siteUrl}/${l}/jobs/${job.slug}`;
+    const alternates = locales.map(l => `\n    <xhtml:link rel="alternate" hreflang="${l}" href="${urlFor(l)}" />`).join('');
+    for (const l of locales) {
       xml += `
   <url>
-    <loc>${url}</loc>
+    <loc>${urlFor(l)}</loc>
     <lastmod>${jobDate}</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="ar" href="${arUrl}" />
-    <xhtml:link rel="alternate" hreflang="en" href="${enUrl}" />
-    <xhtml:link rel="alternate" hreflang="tr" href="${trUrl}" />
-    <xhtml:link rel="alternate" hreflang="ru" href="${ruUrl}" />
-    <xhtml:link rel="alternate" hreflang="fa" href="${faUrl}" />
-    <xhtml:link rel="alternate" hreflang="ur" href="${urUrl}" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="${enUrl}" />
+    <priority>0.9</priority>${alternates}
+    <xhtml:link rel="alternate" hreflang="x-default" href="${urlFor('en')}" />
   </url>`;
     }
   }
