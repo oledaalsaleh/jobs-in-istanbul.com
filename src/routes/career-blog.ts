@@ -2,9 +2,9 @@ import { Hono } from 'hono'
 import { renderLayout } from './public'
 import { safeQuery } from '../utils/db-helper'
 import { generateMetaTags, generateJsonLd } from '../utils/seo-helper'
-import { seededArticles, getArticleAvailableLocales, quranAppArticleTr } from '../data/seeded-blog-articles'
+import { seededArticles, getArticleAvailableLocales, quranAppArticleTr, REDIRECTED_BLOG_SLUG_MAP, EXCLUDED_SITEMAP_BLOG_SLUGS } from '../data/seeded-blog-articles'
 import { renderBlogIndex, type BlogIndexCard } from '../views/blog-index-view'
-export { seededArticles, getArticleAvailableLocales }
+export { seededArticles, getArticleAvailableLocales, REDIRECTED_BLOG_SLUG_MAP, EXCLUDED_SITEMAP_BLOG_SLUGS }
 
 export const careerBlogRouter = new Hono()
 
@@ -438,10 +438,10 @@ careerBlogRouter.get('/:locale/blog', async (c) => {
   };
   const adLabels = adLabelsTable[locale] || adLabelsTable['en'];
 
-  // Enrich + dedupe articles for the magazine-style index view
+  // Enrich + dedupe articles for the magazine-style index view (excluding cannibalizing/off-topic slugs)
   const seenSlugs = new Set<string>();
   const cards: BlogIndexCard[] = articles
-    .filter((art: any) => art && art.slug && art.title && !seenSlugs.has(art.slug) && seenSlugs.add(art.slug))
+    .filter((art: any) => art && art.slug && art.title && !EXCLUDED_SITEMAP_BLOG_SLUGS.has(art.slug) && !seenSlugs.has(art.slug) && seenSlugs.add(art.slug))
     .map((art: any) => ({
       title: art.title,
       slug: art.slug,
@@ -464,6 +464,10 @@ careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
   const locale = c.req.param('locale') as any;
   const slug = c.req.param('slug');
   if (!['ar', 'en', 'tr', 'ru', 'fa', 'ur', 'id', 'fr', 'bn', 'de'].includes(locale)) return c.redirect('/ar/blog');
+
+  if (REDIRECTED_BLOG_SLUG_MAP[slug]) {
+    return c.redirect(`/${locale}/blog/${REDIRECTED_BLOG_SLUG_MAP[slug]}`, 301);
+  }
 
   const isTrabzonAppArticle = slug === 'trabzon-travel-guide-app-tourism-turkey-2026';
 
@@ -547,7 +551,7 @@ careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
     }
   }
 
-  const otherArticles = allArticles.filter((art: any) => art.slug !== slug).slice(0, 3);
+  const otherArticles = allArticles.filter((art: any) => art.slug !== slug && !EXCLUDED_SITEMAP_BLOG_SLUGS.has(art.slug)).slice(0, 3);
 
   const tLabelsTable: Record<string, any> = {
     ar: {
@@ -910,6 +914,10 @@ careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
   const canonicalLocale = availableLocales.includes(locale)
     ? locale
     : (['ar', 'en', 'tr'].find(l => availableLocales.includes(l)) || availableLocales[0] || 'en');
+  const resolvedCanonical = article.slug === 'kuran-i-kerim-namaz-vakitleri-uygulamasi-indir'
+    ? 'https://jobs-in-istanbul.com/tr/blog/quran-karim-app-offline-features-download'
+    : (article.canonical || `https://jobs-in-istanbul.com/${canonicalLocale}/blog/${article.slug}`);
+  const isExternalCanonical = Boolean(article.canonical && !article.canonical.includes('jobs-in-istanbul.com'));
   const seoHtml = generateMetaTags(locale, 'blog_post', {
     title: article.title,
     description: cleanSummary,
@@ -917,8 +925,9 @@ careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
     image: articleImg,
     publishedAt: new Date(article.publishedAt).getTime(),
     updatedAt: article.updatedAt ? new Date(article.updatedAt).getTime() : Date.now(),
-    canonical: article.canonical || `https://jobs-in-istanbul.com/${canonicalLocale}/blog/${article.slug}`,
+    canonical: resolvedCanonical,
     availableLocales,
+    ...(isExternalCanonical ? { robots: 'noindex, follow' } : {}),
   }) + generateJsonLd(locale, 'blog_post', {
     title: article.title,
     description: cleanSummary,

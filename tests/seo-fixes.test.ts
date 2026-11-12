@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { app } from '../src/index';
 import { getJobNativeLocales } from '../src/utils/job-validity';
+import { extractIstanbulDistrict, extractSalaryFromText } from '../src/utils/seo-helper';
 
 const createMockEnv = (publishedAt: number = Date.now() - 2 * 86400000, companyWebsite = '') => ({
   DB: {
@@ -239,5 +240,43 @@ describe('Technical SEO & Google Jobs Compliance Tests', () => {
     const appsHtml = await resApps.text();
     expect(appsHtml).not.toContain('"AggregateRating"');
     expect(appsHtml).not.toContain('"ratingValue":"5.0"');
+  });
+
+  test('JobPosting JSON-LD extracts specific Istanbul district, postal code, and salary from posting text', async () => {
+    expect(extractIstanbulDistrict('شيشلي، إسطنبول', 'مطور ويب', '')).toEqual({
+      locality: 'شيشلي، إسطنبول',
+      postalCode: '34360'
+    });
+    expect(extractIstanbulDistrict('Istanbul', 'مطلوب محاسب في الفاتح', '')).toEqual({
+      locality: 'Fatih, Istanbul',
+      postalCode: '34090'
+    });
+    expect(extractSalaryFromText('', 'مطلوب موظف مبيعات', 'الراتب الشهري 28,500 ليرة تركية مع حوافز')).toBe('28,500 TRY');
+
+    const resJob = await app.request('https://jobs-in-istanbul.com/ar/jobs/web-developer', {}, createMockEnv());
+    const jobHtml = await resJob.text();
+    expect(jobHtml).toContain('"addressLocality":"شيشلي، إسطنبول"');
+    expect(jobHtml).toContain('"postalCode":"34360"');
+    expect(jobHtml).toContain('"value":35000');
+  });
+
+  test('cannibalizing blog slugs redirect with 301 and are excluded from /sitemap-blog.xml along with external canonicals', async () => {
+    const env = createMockEnv();
+    const resDup1 = await app.request('https://jobs-in-istanbul.com/ar/blog/istanbul-cost-of-living-2026', {}, env);
+    expect(resDup1.status).toBe(301);
+    expect(resDup1.headers.get('Location')).toBe('/ar/blog/cost-of-living-istanbul-2026-guide');
+
+    const resDup2 = await app.request('https://jobs-in-istanbul.com/ar/blog/work-permit-turkey-2026', {}, env);
+    expect(resDup2.status).toBe(301);
+    expect(resDup2.headers.get('Location')).toBe('/ar/blog/turkey-work-permit-guide-2026');
+
+    const resSitemap = await app.request('https://jobs-in-istanbul.com/sitemap-blog.xml', {}, env);
+    expect(resSitemap.status).toBe(200);
+    const sitemapXml = await resSitemap.text();
+    expect(sitemapXml).toContain('cost-of-living-istanbul-2026-guide');
+    expect(sitemapXml).not.toContain('best-dental-implants-clinic-turkey');
+    expect(sitemapXml).not.toContain('istanbul-cost-of-living-2026');
+    expect(sitemapXml).not.toContain('jobs-in-istanbul-mobile-app-guide-2026');
+    expect(sitemapXml).not.toContain('kuran-i-kerim-namaz-vakitleri-uygulamasi-indir');
   });
 });

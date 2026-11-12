@@ -612,10 +612,45 @@ export function generateMetaTags(
   `;
 }
 
+export function extractSalaryFromText(salaryStr?: string, titleStr?: string, descStr?: string): string {
+  if (salaryStr && salaryStr.trim()) return salaryStr.trim();
+  const combined = `${titleStr || ''} ${(descStr || '').replace(/<[^>]*>/g, ' ')}`;
+  if (!combined.trim()) return '';
+
+  // Match salary ranges or single values explicitly paired with currency (TL, TRY, ليرة, USD, $, EUR, €)
+  const rangeMatch = combined.match(/(\d{2}[.,]?\d{3})\s*(?:-|–|إلى|الى|to)\s*(\d{2,3}[.,]?\d{3})\s*(?:tl|try|ليرة|ليره|türk lirası)/i);
+  if (rangeMatch) {
+    const v1 = parseInt(rangeMatch[1].replace(/[.,]/g, ''), 10);
+    const v2 = parseInt(rangeMatch[2].replace(/[.,]/g, ''), 10);
+    if (v1 >= 17000 && v2 <= 300000 && v2 >= v1) {
+      return `${v1.toLocaleString('en-US')} - ${v2.toLocaleString('en-US')} TRY`;
+    }
+  }
+
+  const singleTryMatch = combined.match(/(?:راتب|براتب|salary|maaş|أجر|اجر|up to|يصل إلى|يبدأ من)?\s*(\d{2,3}[.,]\d{3}|\b[2-9]\d000\b)\s*(?:tl|try|ليرة|ليره)/i);
+  if (singleTryMatch) {
+    const v = parseInt(singleTryMatch[1].replace(/[.,]/g, ''), 10);
+    if (v >= 17000 && v <= 300000) {
+      return `${v.toLocaleString('en-US')} TRY`;
+    }
+  }
+
+  const usdMatch = combined.match(/(?:\$\s*(\d{3,4}(?:,\d{3})?)|(\d{3,4}(?:,\d{3})?)\s*(?:usd|دولار))/i);
+  if (usdMatch) {
+    const raw = (usdMatch[1] || usdMatch[2] || '').replace(/,/g, '');
+    const v = parseInt(raw, 10);
+    if (v >= 400 && v <= 15000 && v !== 2025 && v !== 2026) {
+      return `${v.toLocaleString('en-US')} USD`;
+    }
+  }
+
+  return '';
+}
+
 function parseSalary(salaryStr: string) {
   if (!salaryStr) return null;
-  // Remove commas, TL, TRY, and spaces
-  const clean = salaryStr.replace(/,/g, '').trim();
+  // Remove commas, dots used as thousand separators (e.g. 35.000 TL), TL, TRY, and spaces
+  const clean = salaryStr.replace(/(\d)[.,](?=\d{3}\b)/g, '$1').trim();
   const matches = clean.match(/\d+/g);
   if (!matches) return null;
 
@@ -634,77 +669,51 @@ function parseSalary(salaryStr: string) {
   return null;
 }
 
-function getIstanbulPostalCode(locationStr?: string): string {
-  if (!locationStr) return '34000';
-  const loc = locationStr.toLowerCase();
+export function extractIstanbulDistrict(locationStr?: string, titleStr?: string, descStr?: string): { locality: string; postalCode: string } {
+  const haystack = `${locationStr || ''} ${titleStr || ''} ${(descStr || '').replace(/<[^>]*>/g, ' ')}`.toLowerCase();
 
-  // District to Postal Code map (major districts)
-  const districtMap: Record<string, string> = {
-    'şişli': '34360', 'sisli': '34360',
-    'kadıköy': '34710', 'kadikoy': '34710',
-    'beşiktaş': '34330', 'besiktas': '34330',
-    'fatih': '34090',
-    'esenyurt': '34510',
-    'üsküdar': '34660', 'uskudar': '34660',
-    'pendik': '34890',
-    'beyoğlu': '34421', 'beyoglu': '34421',
-    'ataşehir': '34758', 'atasehir': '34758',
-    'kağıthane': '34403', 'kagithane': '34403',
-    'sarıyer': '34450', 'sariyer': '34450',
-    'kartal': '34860',
-    'maltepe': '34840',
-    'ümraniye': '34764', 'umraniye': '34764',
-    'başakşehir': '34480', 'basaksehir': '34480',
-    'beylikdüzü': '34520', 'beylikduzu': '34520',
-    'bakırköy': '34142', 'bakirkoy': '34142',
-    'bağcılar': '34200', 'bagcilar': '34200',
-    'bahçelievler': '34180', 'bahcelievler': '34180',
-    'eyüp': '34050', 'eyup': '34050',
-    'gaziosmanpaşa': '34245', 'gaziosmanpasa': '34245',
-    'tuzla': '34947',
-    'çekmeköy': '34782', 'cekmekoy': '34782',
-    'beykoz': '34820',
-    'sancaktepe': '34785',
-    'sultangazi': '34265',
-    'arnavutköy': '34275', 'arnavutkoy': '34275',
-    'silivri': '34570',
-    'çatalca': '34540', 'catalca': '34540',
-    'شيشلي': '34360',
-    'كاديكوي': '34710',
-    'بشكتاش': '34330',
-    'الفاتح': '34090',
-    'اسنيورت': '34510',
-    'اسكودار': '34660',
-    'بينديك': '34890',
-    'بيوغلو': '34421',
-    'أتاشهير': '34758',
-    'كاغيت هانة': '34403',
-    'ساريير': '34450',
-    'كارتال': '34860',
-    'مالتيبي': '34840',
-    'عمرانية': '34764',
-    'باشاك شهير': '34480',
-    'بيليك دوزو': '34520',
-    'باقركوي': '34142',
-    'باغجلار': '34200',
-    'باهتشلي ايفلر': '34180',
-    'أيوب': '34050',
-    'غازي عثمان باشا': '34245',
-    'توزلا': '34947',
-    'تشيكميكوي': '34782',
-    'بيكوز': '34820',
-    'سنجاق تبي': '34785',
-    'سلطان غازي': '34265',
-    'أرناؤوط كوي': '34275'
-  };
+  const districts: Array<{ keys: string[]; name: string; zip: string }> = [
+    { keys: ['şişli', 'sisli', 'شيشلي', 'mecidiyeköy', 'mecidiyekoy', 'مجيدية كوي'], name: 'Şişli, Istanbul', zip: '34360' },
+    { keys: ['fatih', 'الفاتح', 'فاتح', 'aksaray', 'أكسراي', 'اكسراي', 'لالالي', 'laleli'], name: 'Fatih, Istanbul', zip: '34090' },
+    { keys: ['başakşehir', 'basaksehir', 'باشاك شهير', 'بشاك شهير', 'كايا شهير', 'kayaşehir'], name: 'Başakşehir, Istanbul', zip: '34480' },
+    { keys: ['esenyurt', 'اسنيورت', 'إسنيورت'], name: 'Esenyurt, Istanbul', zip: '34510' },
+    { keys: ['beylikdüzü', 'beylikduzu', 'بيليك دوزو', 'بيليكدوزو'], name: 'Beylikdüzü, Istanbul', zip: '34520' },
+    { keys: ['kadıköy', 'kadikoy', 'كاديكوي'], name: 'Kadıköy, Istanbul', zip: '34710' },
+    { keys: ['beşiktaş', 'besiktas', 'بشكتاش', 'levent', 'ليفنت'], name: 'Beşiktaş, Istanbul', zip: '34330' },
+    { keys: ['beyoğlu', 'beyoglu', 'بيوغلو', 'taksim', 'تقسيم'], name: 'Beyoğlu, Istanbul', zip: '34421' },
+    { keys: ['bağcılar', 'bagcilar', 'باغجلار', 'محمود بي', 'mahmutbey', 'غونشلي', 'güneşli'], name: 'Bağcılar, Istanbul', zip: '34200' },
+    { keys: ['üsküdar', 'uskudar', 'اسكودار', 'أسكودار'], name: 'Üsküdar, Istanbul', zip: '34660' },
+    { keys: ['ataşehir', 'atasehir', 'أتاشهير', 'اتاشهير'], name: 'Ataşehir, Istanbul', zip: '34758' },
+    { keys: ['kağıthane', 'kagithane', 'كاغيت هانة', 'كاغت هانه'], name: 'Kağıthane, Istanbul', zip: '34403' },
+    { keys: ['sarıyer', 'sariyer', 'ساريير', 'maslak', 'مسلك'], name: 'Sarıyer, Istanbul', zip: '34450' },
+    { keys: ['ümraniye', 'umraniye', 'عمرانية', 'العمرانية'], name: 'Ümraniye, Istanbul', zip: '34764' },
+    { keys: ['bahçelievler', 'bahcelievler', 'باهتشلي ايفلر', 'شيرين ايفلر', 'şirinevler', 'يني بوسنة', 'yenibosna'], name: 'Bahçelievler, Istanbul', zip: '34180' },
+    { keys: ['bakırköy', 'bakirkoy', 'باقركوي', 'فلوريا', 'florya'], name: 'Bakırköy, Istanbul', zip: '34142' },
+    { keys: ['zeytinburnu', 'زيتون بورنو', 'مارتر', 'merter'], name: 'Zeytinburnu, Istanbul', zip: '34020' },
+    { keys: ['küçükçekmece', 'kucukcekmece', 'كوتشوك تشكمجة', 'صفاكوي', 'sefaköy', 'هالكالي', 'halkalı'], name: 'Küçükçekmece, Istanbul', zip: '34295' },
+    { keys: ['avcılar', 'avcilar', 'أفجلار', 'افجلار'], name: 'Avcılar, Istanbul', zip: '34310' },
+    { keys: ['pendik', 'بينديك', 'بندك'], name: 'Pendik, Istanbul', zip: '34890' },
+    { keys: ['kartal', 'كارتال'], name: 'Kartal, Istanbul', zip: '34860' },
+    { keys: ['maltepe', 'مالتيبي'], name: 'Maltepe, Istanbul', zip: '34840' },
+    { keys: ['eyüp', 'eyup', 'eyüpsultan', 'أيوب', 'ايوب سلطان'], name: 'Eyüpsultan, Istanbul', zip: '34050' },
+    { keys: ['gaziosmanpaşa', 'gaziosmanpasa', 'غازي عثمان باشا'], name: 'Gaziosmanpaşa, Istanbul', zip: '34245' },
+    { keys: ['sultangazi', 'سلطان غازي'], name: 'Sultangazi, Istanbul', zip: '34265' },
+    { keys: ['arnavutköy', 'arnavutkoy', 'أرناؤوط كوي'], name: 'Arnavutköy, Istanbul', zip: '34275' },
+    { keys: ['tuzla', 'توزلا'], name: 'Tuzla, Istanbul', zip: '34947' },
+    { keys: ['çekmeköy', 'cekmekoy', 'تشيكميكوي'], name: 'Çekmeköy, Istanbul', zip: '34782' },
+    { keys: ['beykoz', 'بيكوز'], name: 'Beykoz, Istanbul', zip: '34820' },
+    { keys: ['sancaktepe', 'سنجاق تبي'], name: 'Sancaktepe, Istanbul', zip: '34785' },
+    { keys: ['silivri', 'سيليفري'], name: 'Silivri, Istanbul', zip: '34570' },
+    { keys: ['çatalca', 'catalca', 'تشاتالجا'], name: 'Çatalca, Istanbul', zip: '34540' }
+  ];
 
-  for (const [district, zip] of Object.entries(districtMap)) {
-    if (loc.includes(district)) {
-      return zip;
+  for (const d of districts) {
+    if (d.keys.some(k => haystack.includes(k))) {
+      return { locality: (locationStr && locationStr.trim() && !/^istanbul/i.test(locationStr.trim())) ? locationStr : d.name, postalCode: d.zip };
     }
   }
 
-  return '34000'; // Default Istanbul zip
+  return { locality: locationStr || 'Istanbul', postalCode: '34000' };
 }
 
 function getStreetAddress(locationStr?: string): string {
@@ -892,15 +901,19 @@ export function generateJsonLd(
       "dateModified": new Date(modifiedTime).toISOString(),
       "author": {
         "@type": "Organization",
-        "name": locale === 'tr' ? 'İstanbul İş İlanları' : (locale === 'ar' ? 'وظائف إسطنبول' : 'Istanbul Jobs'),
-        "url": `${siteUrl}/${locale}`
+        "@id": `${siteUrl}/#organization`,
+        "name": "Jobs in Istanbul",
+        "url": `${siteUrl}/`
       },
       "publisher": {
         "@type": "Organization",
-        "name": locale === 'tr' ? 'İstanbul İş İlanları' : (locale === 'ar' ? 'فرص عمل في إسطنبول' : 'Istanbul Jobs'),
+        "@id": `${siteUrl}/#organization`,
+        "name": "Jobs in Istanbul",
         "logo": {
           "@type": "ImageObject",
-          "url": `${siteUrl}/public/images/logo.png`
+          "url": `${siteUrl}/public/images/logo.png`,
+          "width": 512,
+          "height": 512
         }
       },
       "mainEntityOfPage": {
@@ -992,14 +1005,15 @@ export function generateJsonLd(
       hiringOrg.logo = logoUrl;
     }
 
+    const resolvedDistrict = extractIstanbulDistrict(data.location, data.title, data.description);
     const jobLocationSchema: Record<string, any> = {
       "@type": "Place",
       "address": {
         "@type": "PostalAddress",
-        "streetAddress": getStreetAddress(data.location),
-        "addressLocality": data.location || 'Istanbul',
+        "streetAddress": getStreetAddress(resolvedDistrict.locality),
+        "addressLocality": resolvedDistrict.locality,
         "addressRegion": 'Istanbul',
-        "postalCode": getIstanbulPostalCode(data.location),
+        "postalCode": resolvedDistrict.postalCode,
         "addressCountry": 'TR'
       }
     };
@@ -1031,11 +1045,12 @@ export function generateJsonLd(
     }
 
     let salaryObject = null;
-    if (data.salary) {
-      const parsedSalary = parseSalary(data.salary);
+    const effectiveSalary = extractSalaryFromText(data.salary, data.title, data.description);
+    if (effectiveSalary) {
+      const parsedSalary = parseSalary(effectiveSalary);
       if (parsedSalary) {
         let currency = "TRY";
-        const upperSalary = data.salary.toUpperCase();
+        const upperSalary = effectiveSalary.toUpperCase();
         if (upperSalary.includes('$') || upperSalary.includes('USD')) {
           currency = "USD";
         } else if (upperSalary.includes('€') || upperSalary.includes('EUR')) {

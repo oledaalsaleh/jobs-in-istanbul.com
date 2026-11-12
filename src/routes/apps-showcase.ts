@@ -171,7 +171,7 @@ export const APPS_DATA: AppShowcaseItem[] = [
       '/public/images/trabzon-app/03_sumela_monastery_cliff_real.jpg',
       '/public/images/trabzon-app/04_ayder_plateau_waterfalls_real.jpg'
     ],
-    articleSlug: 'blog/turkey-travel-guide-offline-app-android'
+    articleSlug: 'blog/trabzon-travel-guide-app-tourism-turkey-2026'
   },
   {
     id: 'aktuel-supermarket-deals',
@@ -294,7 +294,7 @@ export const APPS_DATA: AppShowcaseItem[] = [
       '/public/images/quran-app/02_Quran_Mushaf_Reading.jpg',
       '/public/images/quran-app/03_Prayer_Times_Schedule.jpg'
     ],
-    articleSlug: 'blog/quran-karim-kamel-offline-app-android'
+    articleSlug: 'blog/quran-karim-app-offline-features-download'
   }
 ];
 

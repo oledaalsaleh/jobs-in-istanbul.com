@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { cache } from 'hono/cache'
-import { generateMetaTags, generateJsonLd } from '../utils/seo-helper'
+import { generateMetaTags, generateJsonLd, extractSalaryFromText } from '../utils/seo-helper'
 import { isJobExpired, getExplicitJobDeadline, getJobNativeLocales, JOB_VALIDITY_DAYS } from '../utils/job-validity'
 import { safeQuery } from '../utils/db-helper'
 import { validateJobSubmission, validateTurnstile, rateLimiter, logSecurityEvent } from '../middleware/security'
@@ -242,7 +242,7 @@ export function renderPermanentJobPromoAd(locale: string, variant: 'drawer' | 's
 
       <!-- Main Clickable Image Banner -->
       <a href="${targetUrl}" target="_blank" rel="noopener noreferrer sponsored" title="${t.title}" style="display: block; position: relative; text-decoration: none; overflow: hidden; background: #000000; line-height: 0; text-align: center;">
-        <img src="${imgUrl}" alt="${t.title}" loading="eager" decoding="async" width="600" height="900" style="width: 100%; max-height: ${maxImgH}; height: auto; display: block; object-fit: contain; margin: 0 auto; transition: transform 0.35s ease;" onmouseover="this.style.transform='scale(1.025)'" onmouseout="this.style.transform='none'">
+        <img src="${imgUrl}" alt="${t.title}" loading="lazy" decoding="async" width="600" height="900" style="width: 100%; max-height: ${maxImgH}; height: auto; display: block; object-fit: contain; margin: 0 auto; transition: transform 0.35s ease;" onmouseover="this.style.transform='scale(1.025)'" onmouseout="this.style.transform='none'">
         
         <!-- Live Action Badge Pulsing in Corner -->
         <div style="position: absolute; bottom: 12px; ${isRtl ? 'left: 12px' : 'right: 12px'}; background: #ef4444; color: #ffffff; font-size: 0.78rem; font-weight: 800; padding: 6px 14px; border-radius: 9999px; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.5); display: flex; align-items: center; gap: 6px; animation: pulseAdBtn 2s infinite;">
@@ -1525,9 +1525,6 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         <button onclick="document.getElementById('mobile-nav').style.display='none'" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <!-- Permanent Google Display Ad in Mobile Navigation Drawer (Top Priority) -->
-      ${renderPermanentJobPromoAd(locale, 'drawer')}
-
       <nav style="display:flex; flex-direction:column; gap:6px;">
         <a href="/${locale}" style="padding:12px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-house-chimney" style="color: var(--primary); width: 20px; text-align: center;"></i><span>${t.home}</span></a>
         <a href="/${locale}/apps" style="padding:12px 16px; border-radius:var(--r-md); color:#6366f1; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-shapes" style="color: #6366f1; width: 20px; text-align: center;"></i><span>${locale === 'ar' ? 'تطبيقاتنا على Google Play' : (locale === 'tr' ? 'Mobil Uygulamalarımız' : 'Our Mobile Apps')}</span><span style="font-size: 0.65rem; background: #6366f1; color: white; padding: 2px 7px; border-radius: 999px; margin-inline-start: auto; font-weight: 800;">${locale === 'ar' ? 'جديد' : 'NEW'}</span></a>
@@ -2436,19 +2433,29 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
         transform: translateY(-2px);
       }
     </style>
-    <div class="pagination" style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 40px; margin-bottom: 20px;">`;
+    <div class="pagination" style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; margin-top: 40px; margin-bottom: 20px;">`;
     
     // Previous Page
     if (currentPage > 1) {
       paginationHtml += `<a href="${getPageUrl(currentPage - 1)}" class="btn-pag" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: var(--r-sm); border: 1.5px solid var(--border); background: var(--bg-card); color: var(--text-dark); text-decoration: none; font-weight: 700; transition: var(--t-fast);"><i class="fa-solid fa-chevron-${locale === 'ar' ? 'right' : 'left'}"></i></a>`;
     }
     
-    // Page Numbers
+    // Windowed Page Numbers (1 ... p-2 p-1 p p+1 p+2 ... totalPages)
+    const pagesToRender: Array<number | '...'> = [];
     for (let i = 1; i <= totalPages; i++) {
-      if (i === currentPage) {
-        paginationHtml += `<span class="pag-current" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: var(--r-sm); background: var(--primary); color: white; font-weight: 700;">${i}</span>`;
+      if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 2) {
+        pagesToRender.push(i);
+      } else if (pagesToRender[pagesToRender.length - 1] !== '...') {
+        pagesToRender.push('...');
+      }
+    }
+    for (const item of pagesToRender) {
+      if (item === '...') {
+        paginationHtml += `<span class="pag-ellipsis" style="display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 40px; color: var(--text-muted); font-weight: 700;">…</span>`;
+      } else if (item === currentPage) {
+        paginationHtml += `<span class="pag-current" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: var(--r-sm); background: var(--primary); color: white; font-weight: 700;">${item}</span>`;
       } else {
-        paginationHtml += `<a href="${getPageUrl(i)}" class="pag-num" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: var(--r-sm); border: 1.5px solid var(--border); background: var(--bg-card); color: var(--text-dark); text-decoration: none; font-weight: 700; transition: var(--t-fast);">${i}</a>`;
+        paginationHtml += `<a href="${getPageUrl(item)}" class="pag-num" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: var(--r-sm); border: 1.5px solid var(--border); background: var(--bg-card); color: var(--text-dark); text-decoration: none; font-weight: 700; transition: var(--t-fast);">${item}</a>`;
       }
     }
     
@@ -2676,17 +2683,12 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
         <div class="job-footer">
           <div class="job-meta">
             <span class="job-meta-item"><i class="fa-regular fa-clock"></i> ${timeAgo}</span>
-            <span class="job-salary"><i class="fa-solid fa-turkish-lira-sign"></i> ${job.salary || (locale === 'ar' ? 'تنافسي' : 'Competitive')}</span>
+            <span class="job-salary"><i class="fa-solid fa-turkish-lira-sign"></i> ${extractSalaryFromText(job.salary, title, job.description_ar || job.description_en || job.description_tr) || (locale === 'ar' ? 'تنافسي' : 'Competitive')}</span>
           </div>
           <a href="/${locale}/jobs/${job.slug}" class="btn-apply">${t.applyBtn} <i class="fa-solid fa-arrow-${locale === 'ar' ? 'left' : 'right'}"></i></a>
         </div>
       </div>
     </div>`;
-
-    // In-Feed Google Play 150K Job Opportunity Ad (after 1st job)
-    if (index === 0) {
-      card += renderPermanentJobPromoAd(locale, 'infeed');
-    }
 
     // Seamless In-Feed Google Play Travel Guide Ad (after 3rd job or after last job if <3 jobs)
     if (index === 2 || (paginatedJobs.length < 3 && index === paginatedJobs.length - 1)) {
@@ -3058,11 +3060,6 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
         </aside>
 
         <section>
-          <!-- Prominent Featured 150K Job Opportunity Banner (Top of Jobs Feed) -->
-          <div class="top-jobs-promo-ad-wrap" style="margin-bottom: 22px;">
-            ${renderPermanentJobPromoAd(locale, 'top')}
-          </div>
-
           <div class="jobs-header">
             <p class="jobs-count"><strong>${totalJobsCount}</strong> ${locale === 'ar' ? 'وظيفة متاحة' : 'jobs available'}</p>
             ${querySearch || queryCategory || queryJobType || queryDistrict || queryTransit ? `<a href="/${locale}" style="font-size:.82rem; color:var(--danger); font-weight:600;"><i class="fa-solid fa-xmark"></i> ${locale === 'ar' ? 'مسح الفلاتر' : 'Clear filters'}</a>` : ''}
@@ -3124,14 +3121,14 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
                   </span>
                 </div>
                 <h3 style="font-size: 1.05rem; font-weight: 800; line-height: 1.4; margin: 0 0 8px 0;">
-                  <a href="/${locale}/blog/${locale === 'tr' ? 'turkey-minimum-wage-employer-cost-2026' : (locale === 'ar' ? 'istanbul-salaries-guide-2026' : 'cost-of-living-istanbul-2026')}" style="color: var(--text-heading); text-decoration: none;">
+                  <a href="/${locale}/blog/${locale === 'tr' ? 'turkey-minimum-wage-employer-cost-2026' : (locale === 'ar' ? 'istanbul-salaries-guide-2026' : 'cost-of-living-istanbul-2026-guide')}" style="color: var(--text-heading); text-decoration: none;">
                     ${locale === 'ar' ? 'دليل رواتب المهن والحد الأدنى للأجور في إسطنبول لعام 2026' : (locale === 'tr' ? 'Türkiye Asgari Ücret ve İşveren Maliyeti 2026: Kapsamlı Rehber' : 'Cost of Living in Istanbul vs Average Salaries Benchmark 2026')}
                   </a>
                 </h3>
                 <p style="font-size: 0.84rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 16px 0; flex-grow: 1;">
                   ${locale === 'ar' ? 'جدول رواتب المهن الحرفية والتقنية والإدارية، وتكاليف المعيشة وتأمين السكن والمواصلات.' : (locale === 'tr' ? 'Net asgari ücret, brüt maliyet, SGK primleri ve sektörlere göre ortalama maaş dağılımı.' : 'Detailed net salary breakdown across tech, hospitality, logistics, and real living cost in Istanbul.')}
                 </p>
-                <a href="/${locale}/blog/${locale === 'tr' ? 'turkey-minimum-wage-employer-cost-2026' : (locale === 'ar' ? 'istanbul-salaries-guide-2026' : 'cost-of-living-istanbul-2026')}" style="color: var(--primary); font-weight: 700; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                <a href="/${locale}/blog/${locale === 'tr' ? 'turkey-minimum-wage-employer-cost-2026' : (locale === 'ar' ? 'istanbul-salaries-guide-2026' : 'cost-of-living-istanbul-2026-guide')}" style="color: var(--primary); font-weight: 700; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
                   <span>${locale === 'ar' ? 'عرض جدول الرواتب' : (locale === 'tr' ? 'Raporu İncele' : 'View Salaries')}</span>
                   <i class="fa-solid fa-angle-left" style="${locale === 'en' ? 'transform: rotate(180deg);' : ''}"></i>
                 </a>
@@ -3674,9 +3671,10 @@ publicRouter.get(
               const mentions = (re: RegExp) => re.test(postingText);
               // 'both' is the scraper's default when the posting doesn't say, so only explicit values are shown
               const langLabel = ({ ar: L('العربية', 'Arapça', 'Arabic'), tr: L('التركية', 'Türkçe', 'Turkish'), en: L('الإنجليزية', 'İngilizce', 'English') } as Record<string, string>)[job.language] || '';
+              const salaryDisplay = extractSalaryFromText(job.salary, title, description) || L('غير مذكور في الإعلان', 'İlanda belirtilmemiş', 'Not stated in posting');
               const facts: Array<[string, string, string, string]> = [
                 ['fa-solid fa-briefcase', '#3b82f6', L('نوع الدوام', 'Çalışma Şekli', 'Job Type'), typeLabel],
-                ['fa-solid fa-money-bill-wave', '#10b981', L('الراتب', 'Maaş', 'Salary'), job.salary || L('غير مذكور في الإعلان', 'İlanda belirtilmemiş', 'Not stated in posting')],
+                ['fa-solid fa-money-bill-wave', '#10b981', L('الراتب', 'Maaş', 'Salary'), salaryDisplay],
                 ['fa-solid fa-location-dot', '#ef4444', L('الموقع', 'Konum', 'Location'), location || 'Istanbul'],
                 ['fa-solid fa-language', '#ec4899', L('اللغة المطلوبة', 'Dil', 'Language'), langLabel]
               ];

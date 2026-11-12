@@ -2,7 +2,7 @@ import { Hono } from 'hono'
 import { ICON_192_BASE64, LOGO_BASE64 } from '../utils/logo-base64'
 import { ISTANBUL_DISTRICTS } from './public'
 import { safeQuery } from '../utils/db-helper'
-import { seededArticles, getArticleAvailableLocales } from './career-blog'
+import { seededArticles, getArticleAvailableLocales, EXCLUDED_SITEMAP_BLOG_SLUGS } from './career-blog'
 import { getFallbackJobs, getFallbackCategories } from '../data/fallback-dataset'
 import { getJobFreshnessCutoffMs, getJobNativeLocales, JOB_COMPARE_CHARS } from '../utils/job-validity'
 import { getNativeLocales } from '../utils/seo-links'
@@ -372,7 +372,7 @@ seoRouter.get('/sitemap-blog.xml', async (c) => {
   const allBlogSlugs = Array.from(new Set([
     ...staticBlogSlugs,
     ...blogs.map(b => b.slug)
-  ]));
+  ])).filter(slug => !EXCLUDED_SITEMAP_BLOG_SLUGS.has(slug));
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"

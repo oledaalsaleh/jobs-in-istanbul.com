@@ -5054,6 +5054,21 @@ export const seededArticles: Record<string, any[]> = {
 export const ALL_BLOG_LOCALES = ['ar', 'en', 'tr', 'ru', 'fa', 'ur', 'id', 'fr', 'bn', 'de'] as const;
 export const CORE_SITE_LOCALES = ['ar', 'en', 'tr', 'ru', 'fa', 'ur'] as const;
 
+export const REDIRECTED_BLOG_SLUG_MAP: Record<string, string> = {
+  'istanbul-cost-of-living-2026': 'cost-of-living-istanbul-2026-guide',
+  'cost-of-living-istanbul-2026': 'cost-of-living-istanbul-2026-guide',
+  'work-permit-turkey-2026': 'turkey-work-permit-guide-2026',
+  'jobs-in-istanbul-mobile-app-guide-2026': 'jobs-in-istanbul-app-official-guide-2026',
+  'turkey-travel-guide-offline-app-android': 'trabzon-travel-guide-app-tourism-turkey-2026',
+  'quran-karim-kamel-offline-app-android': 'quran-karim-app-offline-features-download'
+};
+
+export const EXCLUDED_SITEMAP_BLOG_SLUGS = new Set<string>([
+  ...Object.keys(REDIRECTED_BLOG_SLUG_MAP),
+  'kuran-i-kerim-namaz-vakitleri-uygulamasi-indir',
+  'best-dental-implants-clinic-turkey'
+]);
+
 export function getArticleAvailableLocales(slug: string): string[] {
   const available: string[] = [];
   for (const loc of ALL_BLOG_LOCALES) {
@@ -5061,12 +5076,11 @@ export function getArticleAvailableLocales(slug: string): string[] {
     const found = list.some((art: any) => {
       if (art.slug === slug) return true;
       if (slug === 'quran-karim-app-offline-features-download' && art.slug === 'kuran-i-kerim-namaz-vakitleri-uygulamasi-indir') return true;
-      if (slug === 'kuran-i-kerim-namaz-vakitleri-uygulamasi-indir' && art.slug === 'quran-karim-app-offline-features-download') return true;
       return false;
     });
     if (found) available.push(loc);
   }
-  return available.length > 0 ? available : [...CORE_SITE_LOCALES];
+  return available.length > 0 ? available : ['ar'];
 }
 
 export { quranAppArticleTr };
