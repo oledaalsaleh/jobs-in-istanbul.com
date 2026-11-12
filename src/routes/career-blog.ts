@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import { renderLayout } from './public'
+import { renderLayout, renderNotFoundPage } from './public'
 import { safeQuery } from '../utils/db-helper'
 import { generateMetaTags, generateJsonLd } from '../utils/seo-helper'
 import { seededArticles, getArticleAvailableLocales, quranAppArticleTr, REDIRECTED_BLOG_SLUG_MAP, EXCLUDED_SITEMAP_BLOG_SLUGS } from '../data/seeded-blog-articles'
@@ -516,7 +516,16 @@ careerBlogRouter.get('/:locale/blog/:slug', async (c) => {
   }
 
   if (!article) {
-    return c.text(locale === 'ar' ? 'المقالة غير موجودة.' : (locale === 'tr' ? 'Yazı bulunamadı.' : (locale === 'fa' ? 'مقاله پیدا نشد.' : 'Article not found.')), 404);
+    const validLoc = (['ar', 'en', 'tr', 'ru', 'fa', 'ur'].includes(locale) ? locale : 'en') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
+    return renderNotFoundPage(
+      c,
+      validLoc,
+      locale === 'ar'
+        ? 'المقالة المطلوبة غير موجودة أو تم نقلها إلى دليل جديد. تصفّح أدلة العمل والوظائف المتاحة في إسطنبول أدناه.'
+        : locale === 'tr'
+        ? 'Aradığınız rehber yazısı bulunamadı veya taşındı. Güncel iş ilanlarını ve çalışma rehberlerini aşağıdan inceleyebilirsiniz.'
+        : 'The requested article could not be found or has moved. Explore active Istanbul job listings and career guides below.'
+    );
   }
 
   const cat = getCategory(article.slug, locale);

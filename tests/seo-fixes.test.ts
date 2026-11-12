@@ -26,6 +26,9 @@ const createMockEnv = (publishedAt: number = Date.now() - 2 * 86400000, companyW
         },
         first: async () => {
           if (sql.includes("type_id = 'jobs'") && sql.includes('slug = ?')) {
+            if (args[0] === 'non-existent-slug-999') {
+              return null;
+            }
             return {
               id: 'job-seo-1',
               published_at: publishedAt,
@@ -73,7 +76,25 @@ const createMockEnv = (publishedAt: number = Date.now() - 2 * 86400000, companyW
         },
         run: async () => ({})
       }),
-      all: async () => ({ results: [] }),
+      all: async () => {
+        if (sql.includes("type_id = 'companies'")) {
+          return {
+            results: [
+              {
+                id: 'comp-ist-tech',
+                slug: 'ist-tech',
+                data: JSON.stringify({
+                  name: 'Istanbul Tech',
+                  logo: '/uploads/logo.png',
+                  website: companyWebsite,
+                  description: 'Leading software house in Istanbul.'
+                })
+              }
+            ]
+          };
+        }
+        return { results: [] };
+      },
       first: async () => ({ total: 5, n: 5 }),
       run: async () => ({})
     })
@@ -278,5 +299,85 @@ describe('Technical SEO & Google Jobs Compliance Tests', () => {
     expect(sitemapXml).not.toContain('istanbul-cost-of-living-2026');
     expect(sitemapXml).not.toContain('jobs-in-istanbul-mobile-app-guide-2026');
     expect(sitemapXml).not.toContain('kuran-i-kerim-namaz-vakitleri-uygulamasi-indir');
+  });
+
+  test('Phase 3: compressed logo-96.png serves <35 KB PNG and homepage links specialized hubs & companies directory', async () => {
+    const env = createMockEnv();
+    const resLogo = await app.request('https://jobs-in-istanbul.com/public/images/logo-96.png', {}, env);
+    expect(resLogo.status).toBe(200);
+    expect(resLogo.headers.get('Content-Type')).toBe('image/png');
+    expect(resLogo.headers.get('Cache-Control')).toContain('immutable');
+    const logoBytes = new Uint8Array(await resLogo.arrayBuffer());
+    expect(logoBytes.byteLength).toBeGreaterThan(5000);
+    expect(logoBytes.byteLength).toBeLessThan(35000);
+
+    const resHome = await app.request('https://jobs-in-istanbul.com/ar', {}, env);
+    expect(resHome.status).toBe(200);
+    const homeHtml = await resHome.text();
+    expect(homeHtml).toContain('/public/images/logo-96.png');
+    expect(homeHtml).toContain('/ar/jobs-for-arabs');
+    expect(homeHtml).toContain('/ar/medical-tourism-jobs');
+    expect(homeHtml).toContain('/ar/companies');
+  });
+
+  test('Phase 3: homepage ad-hoc search/filter URLs emit noindex,follow while clean pages stay indexable', async () => {
+    const env = createMockEnv();
+    const resSearch = await app.request('https://jobs-in-istanbul.com/ar?search=developer', {}, env);
+    expect(resSearch.status).toBe(200);
+    const searchHtml = await resSearch.text();
+    expect(searchHtml).toContain('<meta name="robots" content="noindex, follow">');
+
+    const resDistFilter = await app.request('https://jobs-in-istanbul.com/ar?district=Fatih', {}, env);
+    expect(resDistFilter.status).toBe(200);
+    const distFilterHtml = await resDistFilter.text();
+    expect(distFilterHtml).toContain('<meta name="robots" content="noindex, follow">');
+  });
+
+  test('Phase 3: companies directory (/ar/companies) renders 200 OK with self-referencing canonical and appears in /sitemap-static.xml', async () => {
+    const env = createMockEnv();
+    const resCompAr = await app.request('https://jobs-in-istanbul.com/ar/companies', {}, env);
+    expect(resCompAr.status).toBe(200);
+    const compArHtml = await resCompAr.text();
+    expect(compArHtml).toContain('<link rel="canonical" href="https://jobs-in-istanbul.com/ar/companies">');
+    expect(compArHtml).toContain('<meta name="robots" content="index, follow">');
+    expect(compArHtml).toContain('Istanbul Tech');
+
+    const resCompRu = await app.request('https://jobs-in-istanbul.com/ru/companies', {}, env);
+    expect(resCompRu.status).toBe(200);
+    const compRuHtml = await resCompRu.text();
+    expect(compRuHtml).toContain('<link rel="canonical" href="https://jobs-in-istanbul.com/en/companies">');
+
+    const resSitemap = await app.request('https://jobs-in-istanbul.com/sitemap-static.xml', {}, env);
+    const sitemapXml = await resSitemap.text();
+    expect(sitemapXml).toContain('https://jobs-in-istanbul.com/ar/companies');
+    expect(sitemapXml).not.toContain('https://jobs-in-istanbul.com/ru/companies');
+  });
+
+  test('Phase 3: missing job, missing blog article, and unknown localized routes return branded HTML 404 with noindex,nofollow', async () => {
+    const env = createMockEnv();
+
+    const resMissingJob = await app.request('https://jobs-in-istanbul.com/ar/jobs/non-existent-slug-999', {}, env);
+    expect(resMissingJob.status).toBe(404);
+    expect(resMissingJob.headers.get('Content-Type')).toContain('text/html');
+    const missingJobHtml = await resMissingJob.text();
+    expect(missingJobHtml).toContain('<meta name="robots" content="noindex, nofollow">');
+    expect(missingJobHtml).toContain('404');
+
+    const resMissingBlog = await app.request('https://jobs-in-istanbul.com/ar/blog/non-existent-article-999', {}, env);
+    expect(resMissingBlog.status).toBe(404);
+    expect(resMissingBlog.headers.get('Content-Type')).toContain('text/html');
+    const missingBlogHtml = await resMissingBlog.text();
+    expect(missingBlogHtml).toContain('<meta name="robots" content="noindex, nofollow">');
+
+    const resUnknownPage = await app.request('https://jobs-in-istanbul.com/ar/unknown-section-xyz', {}, env);
+    expect(resUnknownPage.status).toBe(404);
+    expect(resUnknownPage.headers.get('Content-Type')).toContain('text/html');
+    const unknownPageHtml = await resUnknownPage.text();
+    expect(unknownPageHtml).toContain('<meta name="robots" content="noindex, nofollow">');
+
+    // API 404s remain JSON
+    const resUnknownApi = await app.request('https://jobs-in-istanbul.com/api/unknown-endpoint-xyz', {}, env);
+    expect(resUnknownApi.status).toBe(404);
+    expect(resUnknownApi.headers.get('Content-Type')).toContain('application/json');
   });
 });

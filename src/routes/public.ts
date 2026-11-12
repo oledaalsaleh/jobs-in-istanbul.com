@@ -1208,7 +1208,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
       <!-- Logo -->
       <a href="/${locale}" class="logo">
         <div class="logo-icon">
-          <img src="/public/images/logo.png" alt="${t.siteName}" class="logo-img" width="44" height="44">
+          <img src="/public/images/logo-96.png" alt="${t.siteName}" class="logo-img" width="44" height="44" decoding="async">
         </div>
         <div class="logo-text">
           <strong>${t.siteName}</strong>
@@ -1519,7 +1519,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
     <div style="position:absolute; ${isRtl ? 'right:0' : 'left:0'}; top:0; bottom:0; width:min(300px,85vw); background:var(--bg-card); padding:24px; overflow-y:auto; box-shadow:var(--shadow-xl); animation: slideIn${isRtl ? 'Right' : 'Left'} 0.3s var(--ease-out);">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:28px;">
         <a href="/${locale}" class="logo" style="font-size:1.2rem">
-          <div class="logo-icon"><img src="/public/images/logo.png" alt="${t.siteName}" class="logo-img" width="40" height="40"></div>
+          <div class="logo-icon"><img src="/public/images/logo-96.png" alt="${t.siteName}" class="logo-img" width="40" height="40" loading="lazy" decoding="async"></div>
           <div class="logo-text"><strong>${t.siteName}</strong></div>
         </a>
         <button onclick="document.getElementById('mobile-nav').style.display='none'" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
@@ -1637,6 +1637,13 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         <ul class="footer-links">
           <li class="footer-col-title">${t.platform}</li>
           <li><a href="/${locale}">${t.allJobs}</a></li>
+          <li><a href="/${locale}/companies"><i class="fa-solid fa-building" style="margin-inline-end:6px;opacity:.75"></i>${locale === 'ar' ? 'دليل الشركات الموظِّفة' : (locale === 'tr' ? 'İşveren Şirketler' : 'Hiring Companies')}</a></li>
+          <li><a href="/${locale}/jobs-for-arabs">${locale === 'ar' ? 'وظائف للعرب في إسطنبول' : (locale === 'tr' ? 'Arapça Bilenler İçin İşler' : 'Jobs for Arabic Speakers')}</a></li>
+          <li><a href="/${locale}/jobs-without-turkish">${locale === 'ar' ? 'وظائف بدون لغة تركية' : (locale === 'tr' ? 'Türkçe Şartsız İş İlanları' : 'Jobs Without Turkish')}</a></li>
+          <li><a href="/${locale}/jobs-in-fatih">${locale === 'ar' ? 'وظائف في الفاتح' : (locale === 'tr' ? 'Fatih İş İlanları' : 'Jobs in Fatih')}</a></li>
+          <li><a href="/${locale}/jobs-in-basaksehir">${locale === 'ar' ? 'وظائف في باشاك شهير' : (locale === 'tr' ? 'Başakşehir İş İlanları' : 'Jobs in Basaksehir')}</a></li>
+          <li><a href="/${locale}/jobs-in-sisli">${locale === 'ar' ? 'وظائف في شيشلي' : (locale === 'tr' ? 'Şişli İş İlanları' : 'Jobs in Sisli')}</a></li>
+          <li><a href="/${locale}/medical-tourism-jobs">${locale === 'ar' ? 'وظائف السياحة العلاجية' : (locale === 'tr' ? 'Sağlık Turizmi İş İlanları' : 'Medical Tourism Jobs')}</a></li>
           <li><a href="/${locale}/apps" style="color: #818cf8; font-weight: 800; display:inline-flex; align-items:center; gap:6px;"><i class="fa-solid fa-shapes"></i><span>${locale === 'ar' ? 'تطبيقاتنا الذكية' : (locale === 'tr' ? 'Uygulamalarımız' : 'Our Mobile Apps')}</span></a></li>
           <li><a href="/${locale}/blog">${t.blog}</a></li>
           <li><a href="/${locale}/workplace-quiz" style="color: #38bdf8; font-weight: 700; display:inline-flex; align-items:center; gap:6px;"><img width="16" height="16" src="/public/images/3d-icons/quiz.png" alt="" class="icon-3d-img" style="width:16px; height:16px;"><span>${locale === 'ar' ? 'اختبار لغة العمل التركية' : (locale === 'tr' ? 'İş Türkçesi Testi' : 'Workplace Turkish Quiz')}</span></a></li>
@@ -2207,6 +2214,75 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
 </html>`;
 }
 
+export function renderNotFoundPage(
+  c: any,
+  locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur' = 'ar',
+  customMessage?: string
+) {
+  const copy: Record<string, { title: string; heading: string; desc: string; searchPlh: string; searchBtn: string; homeBtn: string; arabsBtn: string; companiesBtn: string; blogBtn: string }> = {
+    ar: {
+      title: 'الصفحة غير موجودة (404)',
+      heading: 'عذراً، الرابط الذي تبحث عنه غير متاح أو انتهت صلاحيته',
+      desc: customMessage || 'ربما تم شغل هذه الوظيفة أو نقل الصفحة إلى عنوان جديد. يمكنك البحث مباشرةً في آلاف الوظائف النشطة في إسطنبول أدناه.',
+      searchPlh: 'ابحث عن وظيفة، تخصص، أو حي في إسطنبول...',
+      searchBtn: 'بحث في الوظائف',
+      homeBtn: 'أحدث الوظائف اليوم',
+      arabsBtn: 'وظائف للعرب في إسطنبول',
+      companiesBtn: 'دليل الشركات الموظِّفة',
+      blogBtn: 'أدلة العمل والإقامة'
+    },
+    tr: {
+      title: 'Sayfa Bulunamadı (404)',
+      heading: 'Aradığınız ilan veya sayfa bulunamadı',
+      desc: customMessage || 'Bu iş ilanı yayından kaldırılmış veya taşınmış olabilir. İstanbul genelindeki güncel iş ilanlarını aşağıdan arayabilirsiniz.',
+      searchPlh: 'Pozisyon, sektör veya ilçe ara...',
+      searchBtn: 'İlanlarda Ara',
+      homeBtn: 'Güncel İş İlanları',
+      arabsBtn: 'Yabancı Dil İş İlanları',
+      companiesBtn: 'İşveren Şirketler',
+      blogBtn: 'Çalışma Rehberleri'
+    },
+    en: {
+      title: 'Page Not Found (404)',
+      heading: 'The page or job listing could not be found',
+      desc: customMessage || 'This vacancy may have been filled or moved. Search active job openings across Istanbul below.',
+      searchPlh: 'Search job title, sector, or district...',
+      searchBtn: 'Search Jobs',
+      homeBtn: 'Latest Open Jobs',
+      arabsBtn: 'Jobs for Expats & Arabs',
+      companiesBtn: 'Hiring Companies',
+      blogBtn: 'Work Permit Guides'
+    }
+  };
+  const t404 = copy[locale] || copy.en;
+  const seoHtml = `
+    <title>${t404.title} | Jobs in Istanbul</title>
+    <meta name="robots" content="noindex, nofollow">
+  `;
+  const bodyHtml = `
+    <div class="container" style="max-width: 780px; padding: 64px 20px 80px; text-align: center;">
+      <div class="glass-card" style="padding: 48px 32px; border-radius: 24px; border: 1px solid var(--border); background: var(--bg-card); box-shadow: var(--shadow-md);">
+        <div style="width: 76px; height: 76px; margin: 0 auto 20px; border-radius: 20px; background: rgba(37, 99, 235, 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 900;">404</div>
+        <h1 style="font-size: clamp(1.35rem, 3.5vw, 1.85rem); font-weight: 900; color: var(--text-heading); margin: 0 0 12px 0; line-height: 1.35;">${t404.heading}</h1>
+        <p style="font-size: 0.98rem; color: var(--text-muted); max-width: 560px; margin: 0 auto 28px; line-height: 1.7;">${t404.desc}</p>
+        <form method="GET" action="/${locale}" style="display: flex; gap: 10px; max-width: 540px; margin: 0 auto 28px; flex-wrap: wrap;">
+          <input type="text" name="search" placeholder="${t404.searchPlh}" style="flex: 1 1 260px; padding: 13px 16px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--bg-site); color: var(--text-heading); font-size: 0.95rem;">
+          <button type="submit" class="btn-primary" style="padding: 13px 22px; border-radius: 12px; border: none; cursor: pointer; font-weight: 800;">
+            <i class="fa-solid fa-magnifying-glass"></i> ${t404.searchBtn}
+          </button>
+        </form>
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
+          <a href="/${locale}" style="padding: 10px 18px; border-radius: 999px; background: var(--bg-subtle); border: 1px solid var(--border); color: var(--text-heading); font-weight: 700; font-size: 0.88rem; text-decoration: none;">${t404.homeBtn}</a>
+          <a href="/${locale}/jobs-for-arabs" style="padding: 10px 18px; border-radius: 999px; background: var(--bg-subtle); border: 1px solid var(--border); color: var(--primary); font-weight: 700; font-size: 0.88rem; text-decoration: none;">${t404.arabsBtn}</a>
+          <a href="/${locale}/companies" style="padding: 10px 18px; border-radius: 999px; background: var(--bg-subtle); border: 1px solid var(--border); color: var(--text-heading); font-weight: 700; font-size: 0.88rem; text-decoration: none;">${t404.companiesBtn}</a>
+          <a href="/${locale}/blog" style="padding: 10px 18px; border-radius: 999px; background: var(--bg-subtle); border: 1px solid var(--border); color: var(--text-heading); font-weight: 700; font-size: 0.88rem; text-decoration: none;">${t404.blogBtn}</a>
+        </div>
+      </div>
+    </div>
+  `;
+  return c.html(renderLayout(c, t404.title, bodyHtml, locale, seoHtml), 404);
+}
+
 // Direct Root Homepage - Serves 200 OK directly for Google AdSense automated site verification
 publicRouter.get(
   '/',
@@ -2405,7 +2481,8 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
   const totalJobsCount = jobs.length;
   const itemsPerPage = 15;
   const totalPages = Math.ceil(totalJobsCount / itemsPerPage) || 1;
-  const currentPage = Math.max(1, Math.min(totalPages, parseInt(c.req.query('page') || '1', 10)));
+  const requestedPage = Math.max(1, parseInt(c.req.query('page') || '1', 10) || 1);
+  const currentPage = Math.max(1, Math.min(totalPages, requestedPage));
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const paginatedJobs = jobs.slice(startIndex, endIndex);
@@ -2418,9 +2495,10 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
     if (queryJobType) paramsObj.type = queryJobType;
     if (queryDistrict) paramsObj.district = queryDistrict;
     if (queryTransit) paramsObj.transit = queryTransit;
-    paramsObj.page = pageNum.toString();
+    if (pageNum > 1) paramsObj.page = pageNum.toString();
     const searchParams = new URLSearchParams(paramsObj);
-    return `/${locale}?${searchParams.toString()}`;
+    const qs = searchParams.toString();
+    return qs ? `/${locale}?${qs}` : `/${locale}`;
   };
 
   let paginationHtml = '';
@@ -2612,7 +2690,8 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
   // Render Categories HTML with 3D Squircle Icons
   const categoriesHtml = categories.map((cat: any) => {
     const name = locale === 'ar' ? (cat.name_ar || cat.name_en) : (locale === 'tr' ? (cat.name_tr || cat.name_en) : (locale === 'fa' ? (cat.name_fa || cat.name_en) : (locale === 'ur' ? (cat.name_ur || cat.name_en) : (locale === 'ru' ? (cat.name_ru || cat.name_en) : cat.name_en))));
-    const activeClass = queryCategory === cat.id ? 'active' : '';
+    const activeClass = (queryCategory === cat.id || queryCategory === cat.slug) ? 'active' : '';
+    const catParam = cat.slug || cat.id;
 
     // 3D icon mapping
     let icon3d = '/public/images/3d-icons/it-software.png';
@@ -2633,7 +2712,7 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
       icon3d = '/public/images/3d-icons/calculator.png';
     }
 
-    return `<a href="/${locale}?category=${cat.id}" class="category-card ${activeClass}">
+    return `<a href="/${locale}?category=${catParam}" class="category-card ${activeClass}">
       <div class="cat-3d-icon-wrap">
         <img src="${icon3d}" alt="${name}" class="cat-3d-icon" loading="lazy" />
       </div>
@@ -2832,12 +2911,16 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
         
         <div id="districts-collapse-content" style="max-height: 0px; overflow: hidden; transition: max-height 0.3s ease-out; margin-bottom: 0px;">
           <div class="district-grid" style="padding: 20px 0 10px;">
-            <a href="/${locale}?search=${querySearch}&category=${queryCategory}&type=${queryJobType}" class="district-card ${!queryDistrict ? 'active' : ''}">
+            <a href="/${locale}" class="district-card ${!queryDistrict ? 'active' : ''}">
               ${locale === 'ar' ? 'الكل' : 'All'}
             </a>
             ${ISTANBUL_DISTRICTS.map(dist => {
       const name = locale === 'ar' ? dist.ar : dist.en;
-      return `<a href="/${locale}?search=${querySearch}&category=${queryCategory}&type=${queryJobType}&district=${dist.en}" class="district-card ${queryDistrict.toLowerCase() === dist.en.toLowerCase() ? 'active' : ''}">${name}</a>`;
+      const distSlug = dist.en.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const distHref = (!querySearch && !queryCategory && !queryJobType && !queryTransit)
+        ? `/${locale}/district/${distSlug}`
+        : `/${locale}?search=${encodeURIComponent(querySearch)}&category=${encodeURIComponent(queryCategory)}&type=${encodeURIComponent(queryJobType)}&district=${encodeURIComponent(dist.en)}`;
+      return `<a href="${distHref}" class="district-card ${queryDistrict.toLowerCase() === dist.en.toLowerCase() ? 'active' : ''}">${name}</a>`;
     }).join('')}
           </div>
         </div>
@@ -3160,6 +3243,32 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
         </section>
       </div>
 
+      <!-- POPULAR JOB HUBS BY DISTRICT & SECTOR (Internal PageRank Hub for 21 Specialized Pages + Companies) -->
+      <section class="seo-hub-section" style="margin-top: 44px; margin-bottom: 16px; padding: 28px 24px; border-radius: 20px; background: var(--bg-card); border: 1px solid var(--border); box-shadow: var(--shadow-sm);">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px;">
+          <div>
+            <h2 style="font-size: clamp(1.15rem, 3vw, 1.35rem); font-weight: 800; color: var(--text-heading); margin: 0 0 4px 0;">
+              ${locale === 'ar' ? 'عمليات البحث الأكثر طلباً حسب الحي والمهنة في إسطنبول' : (locale === 'tr' ? 'İstanbul\'da İlçe ve Sektöre Göre Popüler İş Aramaları' : 'Popular Job Searches by Istanbul District & Sector')}
+            </h2>
+            <p style="font-size: 0.86rem; color: var(--text-muted); margin: 0;">
+              ${locale === 'ar' ? 'تصفح الوظائف المتخصصة مباشرةً في أهم المناطق والقطاعات المهنية' : (locale === 'tr' ? 'En çok aranan semt ve meslek gruplarındaki güncel iş ilanlarına doğrudan ulaşın' : 'Direct access to specialized job listings across top Istanbul neighborhoods and industries')}
+            </p>
+          </div>
+          <a href="/${locale}/companies" style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 999px; background: var(--primary-light); color: var(--primary); font-weight: 800; font-size: 0.85rem; text-decoration: none;">
+            <i class="fa-solid fa-building"></i>
+            <span>${locale === 'ar' ? 'دليل الشركات الموظِّفة في إسطنبول' : (locale === 'tr' ? 'İstanbul İşveren Şirketler Rehberi' : 'Istanbul Hiring Companies Directory')}</span>
+          </a>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          ${SPECIALIZED_PAGES.map(sp => {
+            const labelLocale = (locale === 'tr' || locale === 'ar') ? locale : 'en';
+            const rawTitle = (sp.titles as any)[labelLocale] || sp.titles.en;
+            const shortLabel = rawTitle.split('|')[0].replace(/\s*2026\s*/g, '').trim();
+            return `<a href="/${locale}/${sp.type}" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px; background: var(--bg-subtle); border: 1px solid var(--border); color: var(--text-heading); font-size: 0.83rem; font-weight: 700; text-decoration: none; transition: border-color 0.2s, color 0.2s;" onmouseover="this.style.borderColor='var(--primary)'; this.style.color='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'; this.style.color='var(--text-heading)'"><i class="${sp.icon}" style="color: var(--primary); font-size: 0.8rem;"></i><span>${shortLabel}</span></a>`;
+          }).join('')}
+        </div>
+      </section>
+
       <!-- OFFICIAL GOOGLE PLAY APPS ECOSYSTEM SECTION -->
       <section class="home-apps-ecosystem" style="margin-top: 50px; margin-bottom: 50px;">
         <div style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #090d16 100%); border-radius: 24px; padding: 40px 32px; color: #ffffff; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.18); border: 1px solid rgba(255,255,255,0.12);">
@@ -3283,11 +3392,48 @@ const homeHandler = async (c: any, locale: 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'u
   `;
 
   const matchedCategory = categories.find((c: any) => c.id === queryCategory || c.slug === queryCategory);
+  const hasAdhocFilters = Boolean(
+    querySearch ||
+    queryDistrict ||
+    queryJobType ||
+    queryTransit ||
+    (queryCategory && !matchedCategory) ||
+    requestedPage > totalPages
+  );
   const seoMetaOpts: any = {};
   if (matchedCategory) {
     seoMetaOpts.category = matchedCategory.slug;
+    if (currentPage === 1 && !hasAdhocFilters) {
+      seoMetaOpts.title = locale === 'ar'
+        ? `وظائف ${activeCategoryName} في إسطنبول 2026 | فرص عمل شاغرة`
+        : (locale === 'tr'
+          ? `İstanbul ${activeCategoryName} İş İlanları 2026 | Güncel Fırsatlar`
+          : `${activeCategoryName} Jobs in Istanbul 2026 | Open Vacancies`);
+      seoMetaOpts.description = locale === 'ar'
+        ? `تصفح أحدث وظائف ${activeCategoryName} في إسطنبول لعام 2026 مع التقديم المباشر للشركات في تركيا.`
+        : (locale === 'tr'
+          ? `İstanbul'daki en güncel ${activeCategoryName} iş ilanlarını inceleyin ve doğrudan başvurun.`
+          : `Browse the latest ${activeCategoryName} job vacancies in Istanbul for 2026 and apply directly.`);
+    }
   }
-  const seoHtml = generateMetaTags(locale, 'home', seoMetaOpts) + generateJsonLd(locale, 'home', seoMetaOpts);
+  if (hasAdhocFilters || (currentPage > 1 && matchedCategory)) {
+    seoMetaOpts.robots = 'noindex, follow';
+  } else if (currentPage > 1) {
+    seoMetaOpts.canonical = `https://jobs-in-istanbul.com/${locale}?page=${currentPage}`;
+    const pageSuffix = locale === 'ar'
+      ? ` - الصفحة ${currentPage}`
+      : (locale === 'tr' ? ` - Sayfa ${currentPage}` : ` - Page ${currentPage}`);
+    const baseHomeTitle: Record<string, string> = {
+      ar: 'فرص عمل في إسطنبول اليوم 2026 | وظائف شاغرة في تركيا للعرب والأجانب',
+      en: 'Jobs in Istanbul 2026 | English & Arabic Speaking Vacancies in Turkey',
+      tr: 'İstanbul İş İlanları 2026 | Güncel Kariyer ve İş Fırsatları',
+      ru: 'Работа в Стамбуле 2026 | Свежие вакансии в Турции для иностранцев',
+      fa: 'کار در استانبول ۲۰۲۶ | جدیدترین فرصت‌های شغلی و استخدام در ترکیه',
+      ur: 'استنبول میں ملازمتیں 2026 | ترکی میں تازہ ترین نوکریاں اور روزگار کے مواقع'
+    };
+    seoMetaOpts.title = `${baseHomeTitle[locale] || baseHomeTitle.en}${pageSuffix}`;
+  }
+  const seoHtml = generateMetaTags(locale, 'home', seoMetaOpts) + (currentPage === 1 && !hasAdhocFilters ? generateJsonLd(locale, 'home', seoMetaOpts) : '');
   c.header('Cache-Control', 'public, max-age=0, must-revalidate, s-maxage=0');
   c.header('CDN-Cache-Control', 'no-cache, no-store, max-age=0');
   c.header('Cloudflare-CDN-Cache-Control', 'no-cache, no-store, max-age=0');
@@ -3359,7 +3505,11 @@ publicRouter.get(
       }
 
       if (!job) {
-        return c.text(locale === 'ar' ? 'الوظيفة غير موجودة أو انتهت صلاحيتها.' : 'Job not found or expired.', 404);
+        return renderNotFoundPage(
+          c,
+          locale,
+          locale === 'ar' ? 'الوظيفة غير موجودة أو انتهت صلاحيتها.' : (locale === 'tr' ? 'İş ilanı bulunamadı veya süresi doldu.' : 'Job not found or expired.')
+        );
       }
 
       // Fetch Company
@@ -5025,6 +5175,16 @@ publicRouter.get('/public/images/logo.png', async (c) => {
   );
 });
 
+// Serve lightweight 96x96 header logo (~24 KB instead of 480 KB) for fast mobile LCP
+publicRouter.get('/public/images/logo-96.png', async (c) => {
+  return serveR2OrBuffer(
+    c,
+    'public/images/favicon.ico',
+    'image/png',
+    () => memoFaviconBuf || (memoFaviconBuf = Buffer.from(FAVICON_BASE64, 'base64'))
+  );
+});
+
 // Serve turkey-guide-app.png with R2 primary + memoized delivery and immutable cache
 publicRouter.get('/public/images/turkey-guide-app.png', async (c) => {
   return serveR2OrBuffer(
@@ -6414,6 +6574,7 @@ publicRouter.get('/:locale/district/:slug', async (c) => {
     <meta name="title" content="${pageTitle}">
     <meta name="description" content="${pageDesc}">
     <meta name="keywords" content="وظائف في ${districtNameAr}, jobs in ${districtNameEn}, ${districtNameEn} iş ilanları, istanbul jobs">
+    <meta name="robots" content="${jobs.length > 0 ? 'index, follow' : 'noindex, follow'}">
     <link rel="canonical" href="https://jobs-in-istanbul.com/${locale}/district/${slug}">
     
     <!-- Hreflang Tags -->
@@ -6433,7 +6594,7 @@ publicRouter.get('/:locale/district/:slug', async (c) => {
     <meta property="og:image" content="https://jobs-in-istanbul.com/public/images/og-share.png">
 
     <!-- JSON-LD Structured Data -->
-    <script type="application/ld+json">
+    ${itemListElement.length > 0 ? `<script type="application/ld+json">
     ${JSON.stringify({
       "@context": "https://schema.org",
       "@type": "ItemList",
@@ -6441,7 +6602,7 @@ publicRouter.get('/:locale/district/:slug', async (c) => {
       "description": pageDesc,
       "itemListElement": itemListElement
     })}
-    </script>
+    </script>` : ''}
     <script type="application/ld+json">
     ${JSON.stringify(faqSchema)}
     </script>
@@ -6557,6 +6718,192 @@ publicRouter.post('/:locale/api/report-job', async (c) => {
 
 publicRouter.post('/api/report-job', async (c) => {
   return publicRouter.fetch(new Request(`${new URL(c.req.url).origin}/ar/api/report-job`, c.req.raw), c.env, c.executionCtx);
+});
+
+// Hiring Companies Directory Page Handler
+publicRouter.get('/:locale/companies', async (c) => {
+  const locale = (c.req.param('locale') || 'ar') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
+  if (locale !== 'ar' && locale !== 'en' && locale !== 'tr' && locale !== 'ru' && locale !== 'fa' && locale !== 'ur') {
+    return c.redirect('/ar/companies');
+  }
+
+  const db = (c.env as any).DB;
+  const searchQ = (c.req.query('q') || '').trim().toLowerCase();
+
+  let companiesList: any[] = [];
+  const jobCountsByCompany = new Map<string, number>();
+
+  try {
+    if (db) {
+      const compRows = await safeQuery(() => db.prepare(
+        `SELECT id, slug, data FROM documents WHERE type_id = 'companies' AND status = 'published' AND is_published = 1 ORDER BY updated_at DESC LIMIT 120`
+      ).all(), 1, 50);
+
+      companiesList = (compRows?.results || []).map((row: any) => {
+        const parsed = JSON.parse(row.data || '{}');
+        return {
+          id: row.id,
+          slug: row.slug || row.id,
+          name: parsed.name || row.slug,
+          logo: parsed.logo || '',
+          website: parsed.website || '',
+          verified: parsed.verified === true,
+          description: isPlaceholderCompanyDesc(parsed.description) ? '' : (parsed.description || '')
+        };
+      }).filter((comp: any) => comp.name && comp.slug);
+
+      const cutoff = Date.now() - JOB_VALIDITY_DAYS * 86400000;
+      const activeJobRows = await safeQuery(() => db.prepare(
+        `SELECT json_extract(data, '$.company') AS comp_id, COUNT(*) AS cnt
+         FROM documents
+         WHERE type_id = 'jobs' AND status = 'published' AND is_published = 1 AND deleted_at IS NULL AND published_at >= ?
+         GROUP BY comp_id`
+      ).bind(cutoff).all(), 1, 50);
+
+      for (const r of (activeJobRows?.results || [])) {
+        if (r.comp_id) {
+          jobCountsByCompany.set(String(r.comp_id), Number(r.cnt) || 0);
+        }
+      }
+    }
+  } catch (e) {}
+
+  if (companiesList.length === 0) {
+    companiesList = getFallbackCompanies().map((fc: any) => ({
+      id: fc.id,
+      slug: fc.slug || fc.id,
+      name: fc.name,
+      logo: fc.logo || '',
+      website: fc.website || '',
+      verified: fc.verified === true,
+      description: isPlaceholderCompanyDesc(fc.description) ? '' : (fc.description || '')
+    }));
+  }
+
+  // Sort companies: active jobs desc, verified first, custom description first
+  companiesList.sort((a, b) => {
+    const ca = jobCountsByCompany.get(a.id) || jobCountsByCompany.get(a.slug) || 0;
+    const cb = jobCountsByCompany.get(b.id) || jobCountsByCompany.get(b.slug) || 0;
+    if (cb !== ca) return cb - ca;
+    if (a.verified !== b.verified) return a.verified ? -1 : 1;
+    if (Boolean(a.description) !== Boolean(b.description)) return a.description ? -1 : 1;
+    return String(a.name).localeCompare(String(b.name));
+  });
+
+  if (searchQ) {
+    companiesList = companiesList.filter(comp =>
+      String(comp.name).toLowerCase().includes(searchQ) ||
+      String(comp.description).toLowerCase().includes(searchQ)
+    );
+  }
+
+  const displayedCompanies = companiesList.slice(0, 60);
+
+  const labels: Record<string, any> = {
+    ar: {
+      title: 'دليل الشركات الموظِّفة في إسطنبول 2026 | جهات العمل والوظائف الشاغرة',
+      desc: 'استعرض أبرز الشركات والمؤسسات التي توظف في إسطنبول لعام 2026 في مجالات السياحة، العقارات، البرمجة، التجارة، والمصانع مع الوظائف المتاحة حالياً.',
+      heading: 'دليل الشركات وجهات العمل في إسطنبول',
+      sub: 'تصفح ملفات الشركات المعلنة عن شواغر وظيفية في إسطنبول وتعرّف على الفرص المفتوحة لدى كل شركة.',
+      searchPlh: 'ابحث عن اسم شركة في إسطنبول...',
+      searchBtn: 'بحث',
+      openJobs: (n: number) => n > 0 ? `${n} وظيفة متاحة` : 'ملف الشركة',
+      viewProfile: 'عرض الوظائف والملف ←',
+      postCta: 'أضف شركتك وانشر وظيفة مجاناً'
+    },
+    tr: {
+      title: 'İstanbul İşveren Şirketler Rehberi 2026 | Açık İş İlanları',
+      desc: 'İstanbul genelinde personel alımı yapan şirketlerin profillerini ve güncel açık iş pozisyonlarını inceleyin.',
+      heading: 'İstanbul İşveren Şirketler Rehberi',
+      sub: 'İstanbul\'da aktif iş ilanı yayınlayan firmaları keşfedin ve açık pozisyonlara doğrudan başvurun.',
+      searchPlh: 'Şirket adına göre ara...',
+      searchBtn: 'Ara',
+      openJobs: (n: number) => n > 0 ? `${n} Açık İlan` : 'Şirket Profili',
+      viewProfile: 'Profili ve İlanları Gör ←',
+      postCta: 'Ücretsiz İş İlanı Yayınla'
+    },
+    en: {
+      title: 'Top Hiring Companies in Istanbul 2026 | Employer Directory & Open Jobs',
+      desc: 'Explore companies and employers actively hiring in Istanbul across tech, medical tourism, real estate, logistics, and hospitality.',
+      heading: 'Istanbul Hiring Companies Directory',
+      sub: 'Browse employer profiles in Istanbul and apply directly to their open vacancies.',
+      searchPlh: 'Search company name...',
+      searchBtn: 'Search',
+      openJobs: (n: number) => n > 0 ? `${n} Open Jobs` : 'Employer Profile',
+      viewProfile: 'View Profile & Jobs →',
+      postCta: 'Post a Job Free'
+    }
+  };
+  const tc = labels[locale] || labels.en;
+
+  const seoHtml = generateMetaTags(locale, 'home', {
+    title: tc.title,
+    description: tc.desc,
+    slug: 'companies',
+    robots: searchQ ? 'noindex, follow' : undefined
+  }) + `\n<script type="application/ld+json">${JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: locale === 'ar' ? 'الرئيسية' : (locale === 'tr' ? 'Anasayfa' : 'Home'), item: `https://jobs-in-istanbul.com/${locale}` },
+      { '@type': 'ListItem', position: 2, name: tc.heading, item: `https://jobs-in-istanbul.com/${locale}/companies` }
+    ]
+  })}</script>`;
+
+  const cardsHtml = displayedCompanies.map((comp: any) => {
+    const initial = String(comp.name || 'C').charAt(0).toUpperCase();
+    const openCount = jobCountsByCompany.get(comp.id) || jobCountsByCompany.get(comp.slug) || 0;
+    const summary = comp.description
+      ? comp.description.slice(0, 110) + (comp.description.length > 110 ? '…' : '')
+      : (locale === 'ar' ? 'جهة عمل تنشر شواغر وظيفية في إسطنبول.' : (locale === 'tr' ? 'İstanbul\'da iş fırsatları sunan işveren.' : 'Employer recruiting talent in Istanbul.'));
+    return `
+      <a href="/${locale}/companies/${comp.slug}" class="glass-card" style="display: flex; flex-direction: column; justify-content: space-between; padding: 22px; border-radius: 16px; border: 1px solid var(--border); background: var(--bg-card); text-decoration: none; transition: transform 0.2s, border-color 0.2s;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='var(--primary)'" onmouseout="this.style.transform='none'; this.style.borderColor='var(--border)'">
+        <div>
+          <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 12px;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.2rem; flex-shrink: 0; overflow: hidden;">
+              ${comp.logo ? `<img src="${comp.logo}" alt="${comp.name}" width="50" height="50" loading="lazy" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.parentElement.textContent='${initial}';">` : initial}
+            </div>
+            <div style="min-width: 0;">
+              <h2 style="font-size: 1.05rem; font-weight: 800; color: var(--text-heading); margin: 0 0 4px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                ${comp.name}
+                ${comp.verified ? `<i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 0.85rem; margin-inline-start: 4px;" title="Verified"></i>` : ''}
+              </h2>
+              <span style="display: inline-block; font-size: 0.76rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; background: ${openCount > 0 ? 'rgba(16, 185, 129, 0.12)' : 'var(--bg-subtle)'}; color: ${openCount > 0 ? '#059669' : 'var(--text-muted)'};">
+                ${tc.openJobs(openCount)}
+              </span>
+            </div>
+          </div>
+          <p style="font-size: 0.86rem; color: var(--text-muted); line-height: 1.55; margin: 0 0 16px 0;">${summary}</p>
+        </div>
+        <div style="font-size: 0.84rem; font-weight: 800; color: var(--primary);">${tc.viewProfile}</div>
+      </a>
+    `;
+  }).join('');
+
+  const html = `
+    <div class="container" style="max-width: 1240px; padding: 36px 20px 72px;">
+      <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 22px; padding: 32px 28px; margin-bottom: 28px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px;">
+        <div style="max-width: 680px;">
+          <h1 style="font-size: clamp(1.5rem, 3.5vw, 2.1rem); font-weight: 900; color: var(--text-heading); margin: 0 0 8px 0;">${tc.heading}</h1>
+          <p style="font-size: 0.96rem; color: var(--text-muted); margin: 0; line-height: 1.6;">${tc.sub}</p>
+        </div>
+        <a href="/${locale}/submit-job" class="btn-primary" style="padding: 12px 22px; border-radius: 12px; font-weight: 800; text-decoration: none;">
+          <i class="fa-solid fa-plus"></i> ${tc.postCta}
+        </a>
+      </div>
+
+      <form method="GET" action="/${locale}/companies" style="display: flex; gap: 10px; margin-bottom: 28px; max-width: 560px;">
+        <input type="text" name="q" value="${searchQ.replace(/"/g, '&quot;')}" placeholder="${tc.searchPlh}" style="flex: 1; padding: 12px 16px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--bg-card); color: var(--text-heading); font-size: 0.95rem;">
+        <button type="submit" class="btn-primary" style="padding: 12px 22px; border-radius: 12px; border: none; cursor: pointer; font-weight: 800;">${tc.searchBtn}</button>
+      </form>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 20px;">
+        ${cardsHtml}
+      </div>
+    </div>
+  `;
+
+  return c.html(renderLayout(c, tc.title, html, locale, seoHtml));
 });
 
 // Company Profile Page Handler

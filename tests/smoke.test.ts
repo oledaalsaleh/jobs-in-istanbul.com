@@ -608,7 +608,7 @@ describe('Istanbul Jobs Portal Smoke Tests', () => {
       expect(resFatih.status).toBe(200)
       const textFatih = await resFatih.text()
       expect(textFatih).toContain('فرص عمل ووظائف في الفاتح إسطنبول')
-      expect(textFatih).toContain('"@type":"ItemList"')
+      expect(textFatih).toContain('<meta name="robots" content="noindex, follow">')
       expect(textFatih).toContain('"@type":"FAQPage"')
     })
 

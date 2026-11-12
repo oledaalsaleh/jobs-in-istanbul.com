@@ -190,6 +190,7 @@ seoRouter.get('/sitemap-static.xml', async (c) => {
     { ar: '/ar/jobs-in-taksim', en: '/en/jobs-in-taksim', tr: '/tr/jobs-in-taksim', ru: '/ru/jobs-in-taksim', fa: '/fa/jobs-in-taksim', ur: '/ur/jobs-in-taksim' },
     { ar: '/ar/jobs-in-kadikoy', en: '/en/jobs-in-kadikoy', tr: '/tr/jobs-in-kadikoy', ru: '/ru/jobs-in-kadikoy', fa: '/fa/jobs-in-kadikoy', ur: '/ur/jobs-in-kadikoy' },
     { ar: '/ar/insights', en: '/en/insights', tr: '/tr/insights', ru: '/ru/insights', fa: '/fa/insights', ur: '/ur/insights' },
+    { ar: '/ar/companies', en: '/en/companies', tr: '/tr/companies', ru: '/ru/companies', fa: '/fa/companies', ur: '/ur/companies' },
     { ar: '/ar/apps', en: '/en/apps', tr: '/tr/apps', ru: '/ru/apps', fa: '/fa/apps', ur: '/ur/apps' },
     { ar: '/ar/about', en: '/en/about', tr: '/tr/about', ru: '/ru/about', fa: '/fa/about', ur: '/ur/about' },
     { ar: '/ar/contact', en: '/en/contact', tr: '/tr/contact', ru: '/ru/contact', fa: '/fa/contact', ur: '/ur/contact' },

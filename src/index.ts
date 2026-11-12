@@ -14,7 +14,7 @@ import categoriesCollection from './collections/categories.collection'
 import companiesCollection from './collections/companies.collection'
 import jobsCollection from './collections/jobs.collection'
 import applicationsCollection from './collections/applications.collection'
-import { publicRouter } from './routes/public'
+import { publicRouter, renderNotFoundPage } from './routes/public'
 
 // Register collections BEFORE creating the app
 // This ensures they are synced to the database on startup
@@ -178,6 +178,21 @@ app.route('/', fuelPricesRouter)
 app.route('/', severanceCalculatorRouter)
 app.route('/', mobileApiRouter)
 
+// Branded HTML 404 for unknown localized public browser pages (preserving JSON 404 for API/assets)
+app.notFound((c) => {
+  const path = c.req.path || '';
+  const localeMatch = path.match(/^\/(ar|en|tr|ru|fa|ur)(\/|$)/);
+  if (
+    (c.req.method === 'GET' || c.req.method === 'HEAD') &&
+    localeMatch &&
+    !path.includes('/api/') &&
+    !/\.[a-z0-9]{2,5}$/i.test(path)
+  ) {
+    return renderNotFoundPage(c, localeMatch[1] as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur');
+  }
+  return c.json({ error: 'Not Found' }, 404);
+})
+
 // Helper: Global HTTP Security Headers for comprehensive hardening
 function applySecurityHeaders(headers: Headers): Headers {
   if (!headers.has('X-Content-Type-Options')) headers.set('X-Content-Type-Options', 'nosniff');
@@ -289,7 +304,7 @@ export default {
 
     // Redirect essential pages without locale prefix to localized version
     const bareRoutes = [
-      '/about', '/contact', '/terms', '/privacy', '/blog', '/insights',
+      '/about', '/contact', '/terms', '/privacy', '/blog', '/insights', '/companies',
       '/currency-prices', '/gold-prices', '/nobetci-eczane', '/kira-artis-orani',
       '/akaryakit-fiyatlari', '/fuel-prices', '/kidem-tazminati-hesaplama', '/severance-calculator',
       '/workplace-quiz', '/ats-scanner',
