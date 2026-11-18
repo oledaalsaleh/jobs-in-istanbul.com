@@ -9,7 +9,11 @@
  * - GOOGLE_PRIVATE_KEY: The PEM-formatted private key of your Service Account
  */
 
-export async function notifyGoogleIndexing(env: any, jobSlug: string): Promise<boolean> {
+export async function notifyGoogleIndexing(
+  env: any,
+  jobSlug: string,
+  locales: readonly string[] = ['ar', 'en', 'tr']
+): Promise<boolean> {
   const clientEmail = env.GOOGLE_CLIENT_EMAIL;
   const privateKey = env.GOOGLE_PRIVATE_KEY;
 
@@ -23,15 +27,9 @@ export async function notifyGoogleIndexing(env: any, jobSlug: string): Promise<b
     const jwt = await generateGoogleJwt(privateKey, clientEmail);
     const accessToken = await fetchAccessToken(jwt);
     
-    // Send indexing alerts for all supported website language URL paths
-    const urls = [
-      `https://jobs-in-istanbul.com/ar/jobs/${jobSlug}`,
-      `https://jobs-in-istanbul.com/en/jobs/${jobSlug}`,
-      `https://jobs-in-istanbul.com/tr/jobs/${jobSlug}`,
-      `https://jobs-in-istanbul.com/ru/jobs/${jobSlug}`,
-      `https://jobs-in-istanbul.com/fa/jobs/${jobSlug}`,
-      `https://jobs-in-istanbul.com/ur/jobs/${jobSlug}`
-    ];
+    // Send indexing alerts only for genuinely localized canonical URL paths
+    const activeLocales = locales && locales.length > 0 ? locales : ['ar', 'en', 'tr'];
+    const urls = activeLocales.map(loc => `https://jobs-in-istanbul.com/${loc}/jobs/${jobSlug}`);
 
     for (const url of urls) {
       const response = await fetch('https://indexing.googleapis.com/v3/urlNotifications:publish', {

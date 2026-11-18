@@ -12,6 +12,7 @@
 import { notifyGoogleIndexing } from './google-indexing';
 import { notifyIndexNow } from './indexnow';
 import { sendFcmJobNotification } from './fcm';
+import { getJobNativeLocales } from '../utils/job-validity';
 
 export interface JobIndexingPayload {
   id?: string;
@@ -31,40 +32,68 @@ export interface AutoIndexResult {
   fcm: boolean;
 }
 
-const SUPPORTED_LOCALES = ['ar', 'en', 'tr', 'ru', 'fa', 'ur'];
+const PRIMARY_INDEX_LOCALES = ['ar', 'en', 'tr'] as const;
 const SITE_URL = 'https://jobs-in-istanbul.com';
 
 /**
- * Generate full localized URLs for a job slug across all site locales
+ * Generate full localized canonical URLs for a job slug (only genuinely translated locales)
  */
-export function getJobLocalizedUrls(slug: string): string[] {
-  return SUPPORTED_LOCALES.map(loc => `${SITE_URL}/${loc}/jobs/${slug}`);
+export function getJobLocalizedUrls(slug: string, jobData?: any): string[] {
+  const locales = jobData ? getJobNativeLocales(jobData) : PRIMARY_INDEX_LOCALES;
+  const active = locales.length > 0 ? locales : PRIMARY_INDEX_LOCALES;
+  return active.map(loc => `${SITE_URL}/${loc}/jobs/${slug}`);
 }
 
 /**
- * Ping search engines to re-crawl the XML sitemaps
+ * Ping Google PubSubHubbub / WebSub Hub for instant credential-free RSS feed crawling
+ */
+export async function pingWebSubHub(): Promise<boolean> {
+  const feeds = [
+    `${SITE_URL}/rss.xml`,
+    `${SITE_URL}/ar/rss.xml`,
+    `${SITE_URL}/en/rss.xml`,
+    `${SITE_URL}/tr/rss.xml`
+  ];
+  try {
+    const params = new URLSearchParams();
+    params.set('hub.mode', 'publish');
+    for (const feedUrl of feeds) {
+      params.append('hub.url', feedUrl);
+    }
+    const res = await fetch('https://pubsubhubbub.appspot.com/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString(),
+      signal: AbortSignal.timeout(5000)
+    }).catch(() => null);
+    const ok = Boolean(res && (res.status === 204 || res.status === 200));
+    console.log(`[WEBSUB PING] Google PubSubHubbub: ${ok ? 'OK' : 'Skipped'}`);
+    return ok;
+  } catch (err) {
+    console.warn('[WEBSUB PING] Error:', err);
+    return false;
+  }
+}
+
+/**
+ * Ping search engines & WebSub hubs to re-crawl the XML sitemaps & RSS feeds
  */
 export async function pingSearchEngineSitemaps(): Promise<{ google: boolean; bing: boolean }> {
-  const sitemapUrl = encodeURIComponent(`${SITE_URL}/sitemap-jobs.xml`);
+  const sitemapUrl = encodeURIComponent(`${SITE_URL}/sitemap.xml`);
   const results = { google: false, bing: false };
 
   try {
-    const googlePingUrl = `https://www.google.com/ping?sitemap=${sitemapUrl}`;
-    const resGoogle = await fetch(googlePingUrl, {
-      method: 'GET',
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; JobsInIstanbulBot/1.0)' },
-      signal: AbortSignal.timeout(5000)
-    }).catch(() => null);
-    results.google = resGoogle ? resGoogle.status < 400 : false;
+    const websubOk = await pingWebSubHub();
+    results.google = websubOk;
   } catch (e) {
-    console.warn('[SITEMAP PING] Google ping error:', e);
+    console.warn('[SITEMAP PING] Google WebSub ping error:', e);
   }
 
   try {
     const bingPingUrl = `https://www.bing.com/ping?sitemap=${sitemapUrl}`;
     const resBing = await fetch(bingPingUrl, {
       method: 'GET',
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; JobsInIstanbulBot/1.0)' },
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; JobsInIstanbulBot/2.0)' },
       signal: AbortSignal.timeout(5000)
     }).catch(() => null);
     results.bing = resBing ? resBing.status < 400 : false;
@@ -72,7 +101,7 @@ export async function pingSearchEngineSitemaps(): Promise<{ google: boolean; bin
     console.warn('[SITEMAP PING] Bing ping error:', e);
   }
 
-  console.log(`[SITEMAP PING] Google: ${results.google ? 'OK' : 'Failed/Skipped'} | Bing: ${results.bing ? 'OK' : 'Failed/Skipped'}`);
+  console.log(`[SITEMAP PING] Google/WebSub: ${results.google ? 'OK' : 'Failed/Skipped'} | Bing: ${results.bing ? 'OK' : 'Failed/Skipped'}`);
   return results;
 }
 
@@ -83,10 +112,15 @@ export async function invalidateSitemapCache(env: any): Promise<boolean> {
   if (!env?.CACHE_KV) return false;
   try {
     await Promise.allSettled([
+      env.CACHE_KV.delete('kv_sitemap_jobs_xml_v4'),
+      env.CACHE_KV.delete('kv_sitemap_jobs_xml_v4_p2'),
+      env.CACHE_KV.delete('kv_sitemap_valid_jobs_count'),
+      env.CACHE_KV.delete('kv_sitemap_companies_xml'),
+      env.CACHE_KV.delete('kv_sitemap_districts_xml_v2'),
       env.CACHE_KV.delete('kv_sitemap_jobs_xml'),
       env.CACHE_KV.delete('kv_sitemap_index_xml')
     ]);
-    console.log('[SITEMAP CACHE] Successfully invalidated sitemap KV cache.');
+    console.log('[SITEMAP CACHE] Successfully invalidated all v4 sitemap KV caches.');
     return true;
   } catch (err) {
     console.warn('[SITEMAP CACHE] Error invalidating cache:', err);
@@ -205,12 +239,18 @@ export async function autoIndexUnindexedJobs(env: any, limit: number = 10): Prom
       }
 
 
-      // Add all localized URLs to batch
-      const jobUrls = getJobLocalizedUrls(slug);
+      let parsedData: any = null;
+      try {
+        if (row.data && typeof row.data === 'string') parsedData = JSON.parse(row.data);
+      } catch (e) {}
+
+      // Add only genuinely localized canonical URLs to batch
+      const nativeLocales = parsedData ? getJobNativeLocales(parsedData) : PRIMARY_INDEX_LOCALES;
+      const jobUrls = getJobLocalizedUrls(slug, parsedData);
       allUrlsToIndex.push(...jobUrls);
 
-      // Trigger Google Indexing API for each slug
-      await notifyGoogleIndexing(env, slug).catch(() => {});
+      // Trigger Google Indexing API for each slug (canonical locales only)
+      await notifyGoogleIndexing(env, slug, nativeLocales).catch(() => {});
 
       // Mark as indexed in KV (7 days TTL)
       if (env?.CACHE_KV) {
@@ -220,12 +260,20 @@ export async function autoIndexUnindexedJobs(env: any, limit: number = 10): Prom
       indexedCount++;
     }
 
-    // Submit all accumulated URLs to IndexNow in one batch request
+    // Submit all accumulated URLs + updated sitemaps/homepages to IndexNow in one batch request
     if (allUrlsToIndex.length > 0) {
-      await notifyIndexNow(env, allUrlsToIndex).catch(() => {});
-      await pingSearchEngineSitemaps().catch(() => {});
       await invalidateSitemapCache(env).catch(() => {});
-      console.log(`[AUTO-INDEX CATCHUP] Successfully batch-submitted ${allUrlsToIndex.length} URLs for ${indexedCount} jobs.`);
+      const batchUrls = Array.from(new Set([
+        ...allUrlsToIndex,
+        `${SITE_URL}/ar`,
+        `${SITE_URL}/en`,
+        `${SITE_URL}/tr`,
+        `${SITE_URL}/sitemap.xml`,
+        `${SITE_URL}/sitemap-jobs.xml`
+      ]));
+      await notifyIndexNow(env, batchUrls).catch(() => {});
+      await pingSearchEngineSitemaps().catch(() => {});
+      console.log(`[AUTO-INDEX CATCHUP] Successfully batch-submitted ${batchUrls.length} URLs for ${indexedCount} jobs.`);
     } else {
       console.log('[AUTO-INDEX CATCHUP] All recent jobs are already indexed.');
     }

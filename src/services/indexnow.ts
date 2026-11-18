@@ -21,11 +21,13 @@ export async function notifyIndexNow(env: any, urls: string[]): Promise<boolean>
       urlList: urls
     };
 
-    // IndexNow API endpoints (Bing & Yandex)
+    // Multi-engine IndexNow endpoints (Bing/DuckDuckGo/Yahoo/Copilot, Yandex, Seznam, Naver)
     const endpoints = [
       'https://api.indexnow.org/indexnow',
       'https://www.bing.com/indexnow',
-      'https://yandex.com/indexnow'
+      'https://yandex.com/indexnow',
+      'https://search.seznam.cz/indexnow',
+      'https://searchadvisor.naver.com/indexnow'
     ];
 
     const results = await Promise.allSettled(
@@ -33,9 +35,11 @@ export async function notifyIndexNow(env: any, urls: string[]): Promise<boolean>
         fetch(endpoint, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json; charset=utf-8'
+            'Content-Type': 'application/json; charset=utf-8',
+            'User-Agent': 'JobsInIstanbul-IndexNow/2.0 (+https://jobs-in-istanbul.com)'
           },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(8000)
         })
       )
     );

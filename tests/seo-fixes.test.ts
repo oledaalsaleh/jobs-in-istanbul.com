@@ -380,4 +380,81 @@ describe('Technical SEO & Google Jobs Compliance Tests', () => {
     expect(resUnknownApi.status).toBe(404);
     expect(resUnknownApi.headers.get('Content-Type')).toContain('application/json');
   });
+
+  test('Phase 4: robots.txt, llms.txt, BingSiteAuth.xml, opensearch.xml, and yandex verification serve multi-engine specs', async () => {
+    const env = createMockEnv();
+
+    const resRobots = await app.request('https://jobs-in-istanbul.com/robots.txt', {}, env);
+    expect(resRobots.status).toBe(200);
+    const robotsTxt = await resRobots.text();
+    expect(robotsTxt).toContain('User-agent: OAI-SearchBot');
+    expect(robotsTxt).toContain('User-agent: DuckDuckBot');
+    expect(robotsTxt).toContain('User-agent: YandexBot');
+    expect(robotsTxt).toContain('User-agent: Bravebot');
+    expect(robotsTxt).toContain('Host: https://jobs-in-istanbul.com');
+    expect(robotsTxt).toContain('Sitemap: https://jobs-in-istanbul.com/sitemap-companies.xml');
+
+    const resLlms = await app.request('https://jobs-in-istanbul.com/llms.txt', {}, env);
+    expect(resLlms.status).toBe(200);
+    expect(resLlms.headers.get('Content-Type')).toContain('text/plain');
+    const llmsTxt = await resLlms.text();
+    expect(llmsTxt).toContain('https://jobs-in-istanbul.com/ar/jobs-for-arabs');
+    expect(llmsTxt).toContain('https://jobs-in-istanbul.com/ar/companies');
+
+    const resLlmsFull = await app.request('https://jobs-in-istanbul.com/llms-full.txt', {}, env);
+    expect(resLlmsFull.status).toBe(200);
+    expect(await resLlmsFull.text()).toContain('https://jobs-in-istanbul.com/ar/district/fatih');
+
+    const resBing = await app.request('https://jobs-in-istanbul.com/BingSiteAuth.xml', {}, env);
+    expect(resBing.status).toBe(200);
+    expect(resBing.headers.get('Content-Type')).toContain('application/xml');
+    expect(await resBing.text()).toContain('<user>');
+
+    const resOpenSearch = await app.request('https://jobs-in-istanbul.com/opensearch.xml', {}, env);
+    expect(resOpenSearch.status).toBe(200);
+    expect(resOpenSearch.headers.get('Content-Type')).toContain('opensearchdescription+xml');
+
+    const resYandex = await app.request('https://jobs-in-istanbul.com/yandex_8899aabb.html', {}, env);
+    expect(resYandex.status).toBe(200);
+    expect(await resYandex.text()).toContain('Verification: 8899aabb');
+  });
+
+  test('Phase 4: /sitemap-companies.xml, WebSub RSS feeds, HTML sitemap (/ar/sitemap), and rich crawler directives work cleanly', async () => {
+    const env = createMockEnv();
+
+    const resIndex = await app.request('https://jobs-in-istanbul.com/sitemap.xml', {}, env);
+    expect(await resIndex.text()).toContain('https://jobs-in-istanbul.com/sitemap-companies.xml');
+
+    const resCompXml = await app.request('https://jobs-in-istanbul.com/sitemap-companies.xml', {}, env);
+    expect(resCompXml.status).toBe(200);
+    const compXml = await resCompXml.text();
+    expect(compXml).toContain('https://jobs-in-istanbul.com/ar/companies/ist-tech');
+    expect(compXml).not.toContain('https://jobs-in-istanbul.com/ru/companies/ist-tech');
+
+    const resDistXml = await app.request('https://jobs-in-istanbul.com/sitemap-districts.xml', {}, env);
+    const distXml = await resDistXml.text();
+    expect(distXml).toContain('https://jobs-in-istanbul.com/ar/district/fatih');
+    expect(distXml).not.toContain('https://jobs-in-istanbul.com/ru/district/fatih');
+
+    const resRss = await app.request('https://jobs-in-istanbul.com/tr/rss.xml', {}, env);
+    expect(resRss.status).toBe(200);
+    const rssXml = await resRss.text();
+    expect(rssXml).toContain('https://pubsubhubbub.appspot.com/');
+    expect(rssXml).not.toContain('undefined');
+
+    const resHtmlSitemap = await app.request('https://jobs-in-istanbul.com/ar/sitemap', {}, env);
+    expect(resHtmlSitemap.status).toBe(200);
+    const sitemapHtml = await resHtmlSitemap.text();
+    expect(sitemapHtml).toContain('<link rel="canonical" href="https://jobs-in-istanbul.com/ar/sitemap">');
+    expect(sitemapHtml).toContain('/ar/jobs-for-arabs');
+    expect(sitemapHtml).toContain('/ar/district/fatih');
+
+    const resHome = await app.request('https://jobs-in-istanbul.com/ar', {}, env);
+    const homeHtml = await resHome.text();
+    expect(homeHtml).toContain('max-image-preview:large');
+    expect(homeHtml).toContain('name="geo.region" content="TR-34"');
+    expect(homeHtml).toContain('property="og:site_name" content="Jobs in Istanbul"');
+    expect(homeHtml).toContain('type="application/opensearchdescription+xml"');
+    expect(homeHtml).toContain('type="application/rss+xml"');
+  });
 });

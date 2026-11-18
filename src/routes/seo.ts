@@ -9,17 +9,32 @@ import { getNativeLocales } from '../utils/seo-links'
 
 export const seoRouter = new Hono()
 
-// robots.txt handler
+// robots.txt handler — Explicitly welcomes all Global, Regional, Mobile & AI Search Engines
 seoRouter.get('/robots.txt', (c) => {
   const robots = `User-agent: Googlebot
 User-agent: Googlebot-Image
+User-agent: Googlebot-News
 User-agent: Mediapartners-Google
 User-agent: Bingbot
+User-agent: MSNBot
+User-agent: Slurp
+User-agent: DuckDuckBot
 User-agent: Yandex
+User-agent: YandexBot
+User-agent: YandexImages
 User-agent: Applebot
+User-agent: Applebot-Extended
+User-agent: Bravebot
+User-agent: PetalBot
+User-agent: SeznamBot
+User-agent: Yeti
+User-agent: Baiduspider
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
 User-agent: GPTBot
 User-agent: PerplexityBot
 User-agent: ClaudeBot
+User-agent: Claude-Web
 User-agent: Google-Extended
 Allow: /
 Disallow: /admin/
@@ -38,10 +53,120 @@ Disallow: /login
 Disallow: /register
 Disallow: /install
 
+Host: https://jobs-in-istanbul.com
 Sitemap: https://jobs-in-istanbul.com/sitemap.xml
+Sitemap: https://jobs-in-istanbul.com/sitemap-static.xml
+Sitemap: https://jobs-in-istanbul.com/sitemap-jobs.xml
+Sitemap: https://jobs-in-istanbul.com/sitemap-companies.xml
+Sitemap: https://jobs-in-istanbul.com/sitemap-blog.xml
+Sitemap: https://jobs-in-istanbul.com/sitemap-districts.xml
 `;
   return c.text(robots, 200, {
     'Content-Type': 'text/plain; charset=utf-8',
+    'Cache-Control': 'public, max-age=86400'
+  });
+})
+
+// AI Search Engines Discovery Standard (ChatGPT Search, Perplexity, Claude, Gemini, Copilot)
+const buildLlmsTxt = (full: boolean) => {
+  const base = `# Jobs in Istanbul | فرص عمل في إسطنبول | İstanbul İş İlanları
+> Official multilingual employment portal, employer directory, Turkish labor law calculator suite, and daily Istanbul utility platform serving Arabic, Turkish, and English speakers in Istanbul, Türkiye.
+
+- Canonical Domain: https://jobs-in-istanbul.com
+- Primary Languages: Arabic (\`/ar\`), English (\`/en\`), Turkish (\`/tr\`)
+- Geographic Focus: Istanbul (TR-34) & Türkiye
+- XML Sitemap Index: https://jobs-in-istanbul.com/sitemap.xml
+- Live Jobs RSS Feed: https://jobs-in-istanbul.com/rss.xml
+
+## Core Portals & Directories
+- [Arabic Job Board](https://jobs-in-istanbul.com/ar): Daily updated job vacancies in Istanbul for Arabic speakers and expats.
+- [English Job Board](https://jobs-in-istanbul.com/en): Verified Istanbul job openings for international professionals and expats.
+- [Turkish Job Board](https://jobs-in-istanbul.com/tr): İstanbul Avrupa ve Anadolu yakası güncel iş ilanları.
+- [Hiring Companies Directory](https://jobs-in-istanbul.com/ar/companies): Active employers hiring in Istanbul with open job counts.
+- [Career & Work Permit Guides](https://jobs-in-istanbul.com/ar/blog): In-depth 2026 guides on Turkish work permits (Çalışma İzni), SGK, salaries, and cost of living.
+- [HTML Sitemap Directory](https://jobs-in-istanbul.com/ar/sitemap): Complete crawlable index of all hubs, districts, and tools.
+
+## High-Demand Specialized Job Hubs
+- [Jobs for Arabic Speakers in Istanbul](https://jobs-in-istanbul.com/ar/jobs-for-arabs)
+- [Jobs Without Turkish Language Requirement](https://jobs-in-istanbul.com/ar/jobs-without-turkish)
+- [Medical Tourism Jobs in Istanbul](https://jobs-in-istanbul.com/ar/medical-tourism-jobs)
+- [Real Estate & Sales Jobs in Istanbul](https://jobs-in-istanbul.com/ar/real-estate-jobs)
+- [Call Center & Customer Support Jobs](https://jobs-in-istanbul.com/ar/call-center-jobs)
+- [Tech & Software Developer Jobs](https://jobs-in-istanbul.com/ar/tech-developer-jobs)
+- [Translation & Interpreting Jobs](https://jobs-in-istanbul.com/ar/translation-jobs)
+- [Accounting & Finance Jobs](https://jobs-in-istanbul.com/ar/accounting-jobs)
+- [Restaurant & Hospitality Jobs](https://jobs-in-istanbul.com/ar/restaurant-jobs)
+- [Factory & Production Jobs](https://jobs-in-istanbul.com/ar/factory-jobs)
+- [Driver & Delivery Jobs](https://jobs-in-istanbul.com/ar/driver-jobs)
+- [Jobs for Women in Istanbul](https://jobs-in-istanbul.com/ar/jobs-for-women)
+- [Part-Time & Student Jobs](https://jobs-in-istanbul.com/ar/student-jobs)
+- [Entry-Level Jobs](https://jobs-in-istanbul.com/ar/entry-level-jobs)
+
+## Live Daily Turkey Trackers & Official 2026 Calculators
+- [Live TRY Currency Exchange Rates](https://jobs-in-istanbul.com/ar/currency-prices): Real-time USD, EUR, GBP, SAR to Turkish Lira rates.
+- [Live Turkey Gold Prices](https://jobs-in-istanbul.com/ar/gold-prices): Gram, Quarter, 24K, 22K, 21K gold prices in TL.
+- [Istanbul & Turkey Fuel Prices](https://jobs-in-istanbul.com/ar/akaryakit-fiyatlari): Daily gasoline, diesel, and LPG prices on European & Anatolian sides.
+- [Istanbul On-Duty Pharmacies (Nöbetçi Eczane)](https://jobs-in-istanbul.com/ar/nobetci-eczane): Live 24/7 duty pharmacies by Istanbul district.
+- [2026 Net-to-Gross Salary & SGK Tax Calculator](https://jobs-in-istanbul.com/ar/salary-calculator-2026)
+- [Turkish Severance Pay Calculator (Kıdem Tazminatı)](https://jobs-in-istanbul.com/ar/kidem-tazminati-hesaplama)
+- [Legal Rent Increase Calculator (Kira Artış Oranı TÜFE)](https://jobs-in-istanbul.com/ar/kira-artis-orani)
+- [Turkish Work Permit Eligibility Wizard 2026](https://jobs-in-istanbul.com/ar/work-permit-eligibility)
+- [Investor Company Setup & Foreign Hiring Estimator](https://jobs-in-istanbul.com/ar/investor-calculator)
+- [Workplace Turkish Vocabulary Quiz](https://jobs-in-istanbul.com/ar/workplace-quiz)
+`;
+  if (!full) return base;
+  return `${base}
+## Major Istanbul District Job Portals
+- [Fatih Jobs](https://jobs-in-istanbul.com/ar/district/fatih) | [Şişli Jobs](https://jobs-in-istanbul.com/ar/district/sisli) | [Başakşehir Jobs](https://jobs-in-istanbul.com/ar/district/basaksehir)
+- [Esenyurt Jobs](https://jobs-in-istanbul.com/ar/district/esenyurt) | [Beylikdüzü Jobs](https://jobs-in-istanbul.com/ar/district/beylikduzu) | [Kadıköy Jobs](https://jobs-in-istanbul.com/ar/district/kadikoy)
+- [Beşiktaş Jobs](https://jobs-in-istanbul.com/ar/district/besiktas) | [Beyoğlu / Taksim Jobs](https://jobs-in-istanbul.com/ar/district/beyoglu) | [Bağcılar Jobs](https://jobs-in-istanbul.com/ar/district/bagcilar)
+- [Üsküdar Jobs](https://jobs-in-istanbul.com/ar/district/uskudar) | [Ataşehir Jobs](https://jobs-in-istanbul.com/ar/district/atasehir) | [Kağıthane Jobs](https://jobs-in-istanbul.com/ar/district/kagithane)
+- [Sarıyer / Maslak Jobs](https://jobs-in-istanbul.com/ar/district/sariyer) | [Ümraniye Jobs](https://jobs-in-istanbul.com/ar/district/umraniye) | [Zeytinburnu Jobs](https://jobs-in-istanbul.com/ar/district/zeytinburnu)
+
+## Official Mobile Applications (Google Play)
+- Jobs in Istanbul Android App: https://play.google.com/store/apps/details?id=com.jobsistanbul.app
+- Official Google Play Developer Portfolio: https://jobs-in-istanbul.com/ar/apps
+- Official Telegram Jobs Channel: https://t.me/jobsistanbul
+`;
+};
+
+seoRouter.get('/llms.txt', (c) => {
+  return c.text(buildLlmsTxt(false), 200, {
+    'Content-Type': 'text/plain; charset=utf-8',
+    'Cache-Control': 'public, max-age=86400'
+  });
+})
+
+seoRouter.get('/llms-full.txt', (c) => {
+  return c.text(buildLlmsTxt(true), 200, {
+    'Content-Type': 'text/plain; charset=utf-8',
+    'Cache-Control': 'public, max-age=86400'
+  });
+})
+
+// Bing Webmaster Tools XML Verification (also powers DuckDuckGo, Yahoo, Ecosia, Copilot)
+seoRouter.get('/BingSiteAuth.xml', (c) => {
+  const bingCode = (c.env as any)?.BING_SITE_VERIFICATION || '4430C081399901EF9B5BEAA4E9AD98A5';
+  const xml = `<?xml version="1.0"?>\n<users>\n\t<user>${bingCode}</user>\n</users>`;
+  return c.body(xml, 200, {
+    'Content-Type': 'application/xml; charset=utf-8',
+    'Cache-Control': 'public, max-age=86400'
+  });
+})
+
+// OpenSearch 1.1 Autodiscovery Descriptor (Chrome, Edge, Firefox, Yandex Browser, Brave)
+seoRouter.get('/opensearch.xml', (c) => {
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
+  <ShortName>Jobs in Istanbul</ShortName>
+  <Description>Search daily verified job vacancies in Istanbul, Türkiye (Arabic, Turkish, English)</Description>
+  <InputEncoding>UTF-8</InputEncoding>
+  <Image width="96" height="96" type="image/png">https://jobs-in-istanbul.com/public/images/logo-96.png</Image>
+  <Image width="16" height="16" type="image/x-icon">https://jobs-in-istanbul.com/favicon.ico</Image>
+  <Url type="text/html" method="get" template="https://jobs-in-istanbul.com/ar?search={searchTerms}"/>
+</OpenSearchDescription>`;
+  return c.body(xml, 200, {
+    'Content-Type': 'application/opensearchdescription+xml; charset=utf-8',
     'Cache-Control': 'public, max-age=86400'
   });
 })
@@ -107,6 +232,10 @@ seoRouter.get('/sitemap.xml', async (c) => {
     <loc>${siteUrl}/sitemap-jobs.xml</loc>
     <lastmod>${now}</lastmod>
   </sitemap>${extraJobSitemaps}
+  <sitemap>
+    <loc>${siteUrl}/sitemap-companies.xml</loc>
+    <lastmod>${now}</lastmod>
+  </sitemap>
   <sitemap>
     <loc>${siteUrl}/sitemap-blog.xml</loc>
     <lastmod>${now}</lastmod>
@@ -191,6 +320,7 @@ seoRouter.get('/sitemap-static.xml', async (c) => {
     { ar: '/ar/jobs-in-kadikoy', en: '/en/jobs-in-kadikoy', tr: '/tr/jobs-in-kadikoy', ru: '/ru/jobs-in-kadikoy', fa: '/fa/jobs-in-kadikoy', ur: '/ur/jobs-in-kadikoy' },
     { ar: '/ar/insights', en: '/en/insights', tr: '/tr/insights', ru: '/ru/insights', fa: '/fa/insights', ur: '/ur/insights' },
     { ar: '/ar/companies', en: '/en/companies', tr: '/tr/companies', ru: '/ru/companies', fa: '/fa/companies', ur: '/ur/companies' },
+    { ar: '/ar/sitemap', en: '/en/sitemap', tr: '/tr/sitemap', ru: '/ru/sitemap', fa: '/fa/sitemap', ur: '/ur/sitemap' },
     { ar: '/ar/apps', en: '/en/apps', tr: '/tr/apps', ru: '/ru/apps', fa: '/fa/apps', ur: '/ur/apps' },
     { ar: '/ar/about', en: '/en/about', tr: '/tr/about', ru: '/ru/about', fa: '/fa/about', ur: '/ur/about' },
     { ar: '/ar/contact', en: '/en/contact', tr: '/tr/contact', ru: '/ru/contact', fa: '/fa/contact', ur: '/ur/contact' },
@@ -416,45 +546,114 @@ ${alternateLinksXml}
   });
 })
 
-// rss.xml handler
-seoRouter.get('/rss.xml', async (c) => {
-  const db = (c.env as any).DB;
+// Multilingual RSS 2.0 + Google WebSub Hub Feed Handler (/rss.xml, /feed.xml, /:locale/rss.xml)
+const buildRssFeed = async (c: any, feedLocale: 'ar' | 'en' | 'tr' = 'ar', selfPath: string = '/rss.xml') => {
+  const db = (c.env as any)?.DB;
   const siteUrl = 'https://jobs-in-istanbul.com';
+  const cutoff = getJobFreshnessCutoffMs();
+
+  const escapeXml = (str: string) =>
+    String(str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
 
   let jobsList: any[] = [];
   try {
-    const jobRows = await safeQuery(() => db.prepare(
-      `SELECT j.id, j.slug, j.data, j.published_at
-       FROM documents j
-       WHERE j.type_id = 'jobs' AND j.status = 'published' AND j.is_published = 1
-       ORDER BY j.published_at DESC LIMIT 30`
-    ).all());
-    jobsList = jobRows.results || [];
+    if (db) {
+      const jobRows = await safeQuery(() => db.prepare(
+        `SELECT j.id, j.slug, j.data, j.published_at
+         FROM documents j
+         WHERE j.type_id = 'jobs' AND j.status = 'published' AND j.is_published = 1 AND j.deleted_at IS NULL AND j.published_at >= ?
+         ORDER BY j.published_at DESC LIMIT 35`
+      ).bind(cutoff).all());
+      jobsList = jobRows?.results || [];
+    }
   } catch (err) {
     console.error('RSS: Failed to query jobs:', err);
   }
 
+  if (jobsList.length === 0) {
+    jobsList = getFallbackJobs().slice(0, 15).map((fj: any) => ({
+      slug: fj.slug,
+      published_at: fj.publishedAt || Date.now(),
+      data: JSON.stringify(fj)
+    }));
+  }
+
+  const channelMeta = {
+    ar: {
+      title: 'فرص عمل في إسطنبول | Jobs in Istanbul',
+      desc: 'أحدث الوظائف الشاغرة المحدثة يومياً وأدلة العمل والإقامة في إسطنبول وتركيا.',
+      lang: 'ar'
+    },
+    tr: {
+      title: 'İstanbul İş İlanları | Jobs in Istanbul',
+      desc: 'İstanbul genelinde en güncel iş ilanları, çalışma izni ve kariyer rehberleri.',
+      lang: 'tr'
+    },
+    en: {
+      title: 'Jobs in Istanbul | Daily Vacancies & Turkey Career Guides',
+      desc: 'Latest verified job opportunities and work permit guides in Istanbul metropolitan area.',
+      lang: 'en'
+    }
+  }[feedLocale];
+
   let rss = `<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
-  <title>Istanbul Jobs | فرص عمل في إسطنبول</title>
-  <link>${siteUrl}/ar</link>
-  <description>Latest job opportunities in Istanbul metropolitan area / أحدث الوظائف الشاغرة وفرص العمل في إسطنبول</description>
-  <language>ar</language>
+  <title>${escapeXml(channelMeta.title)}</title>
+  <link>${siteUrl}/${feedLocale}</link>
+  <description>${escapeXml(channelMeta.desc)}</description>
+  <language>${channelMeta.lang}</language>
   <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
-  <atom:link href="${siteUrl}/rss.xml" rel="self" type="application/rss+xml" />`;
+  <atom:link href="${siteUrl}${selfPath}" rel="self" type="application/rss+xml" />
+  <atom:link href="https://pubsubhubbub.appspot.com/" rel="hub" />`;
 
   for (const row of jobsList) {
-    const job = JSON.parse(row.data);
-    const pubDate = new Date(row.published_at).toUTCString();
+    if (!row?.slug) continue;
+    let job: any = {};
+    try {
+      job = typeof row.data === 'string' ? JSON.parse(row.data) : (row.data || {});
+    } catch (e) {
+      continue;
+    }
+    const nativeLocales = getJobNativeLocales(job);
+    const itemLocale = nativeLocales.includes(feedLocale) ? feedLocale : (nativeLocales.includes('en') ? 'en' : (nativeLocales[0] || 'ar'));
+    const rawTitle = job[`title_${itemLocale}`] || job.title_en || job.title_ar || job.title_tr || job.title || 'Job Opportunity in Istanbul';
+    const rawDesc = String(job[`description_${itemLocale}`] || job.description_en || job.description_ar || job.description || '')
+      .replace(/<[^>]*>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 500);
+    const pubDate = new Date(row.published_at || Date.now()).toUTCString();
+    const itemUrl = `${siteUrl}/${itemLocale}/jobs/${row.slug}`;
 
     rss += `
   <item>
-    <title><![CDATA[${job.title_ar} | ${job.title_en}]]></title>
-    <link>${siteUrl}/ar/jobs/${row.slug}</link>
-    <guid>${siteUrl}/ar/jobs/${row.slug}</guid>
+    <title><![CDATA[${rawTitle}]]></title>
+    <link>${itemUrl}</link>
+    <guid isPermaLink="true">${itemUrl}</guid>
     <pubDate>${pubDate}</pubDate>
-    <description><![CDATA[${job.description_ar}]]></description>
+    <description><![CDATA[${rawDesc || rawTitle}]]></description>
+  </item>`;
+  }
+
+  // Include top 5 Career Blog guides for feed crawlers
+  const blogPool = ((seededArticles as any)?.[feedLocale] || (seededArticles as any)?.en || []).slice(0, 5);
+  for (const art of blogPool) {
+    if (!art?.slug || EXCLUDED_SITEMAP_BLOG_SLUGS.has(art.slug)) continue;
+    const artUrl = `${siteUrl}/${feedLocale}/blog/${art.slug}`;
+    const artDate = art.publishedAt ? new Date(art.publishedAt).toUTCString() : new Date().toUTCString();
+    const artSummary = String(art.summary || art.content || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 350);
+    rss += `
+  <item>
+    <title><![CDATA[${art.title}]]></title>
+    <link>${artUrl}</link>
+    <guid isPermaLink="true">${artUrl}</guid>
+    <pubDate>${artDate}</pubDate>
+    <description><![CDATA[${artSummary}]]></description>
   </item>`;
   }
 
@@ -464,9 +663,16 @@ seoRouter.get('/rss.xml', async (c) => {
 
   return c.body(rss, 200, {
     'Content-Type': 'application/rss+xml; charset=utf-8',
-    'Cache-Control': 'public, max-age=3600'
-  })
-})
+    'Cache-Control': 'public, max-age=1800'
+  });
+};
+
+seoRouter.get('/rss.xml', (c) => buildRssFeed(c, 'ar', '/rss.xml'));
+seoRouter.get('/feed.xml', (c) => buildRssFeed(c, 'ar', '/feed.xml'));
+seoRouter.get('/:locale{(ar|en|tr)}/rss.xml', (c) => {
+  const loc = (c.req.param('locale') || 'ar') as 'ar' | 'en' | 'tr';
+  return buildRssFeed(c, loc, `/${loc}/rss.xml`);
+});
 
 // Google Search Console HTML Verification File handler (Regex matching google[code].html)
 seoRouter.get('/:filename{google[0-9a-zA-Z]+\\.html}', (c) => {
@@ -475,6 +681,13 @@ seoRouter.get('/:filename{google[0-9a-zA-Z]+\\.html}', (c) => {
   return c.text(`google-site-verification: google${code}.html`, 200, {
     'Content-Type': 'text/html; charset=utf-8'
   });
+})
+
+// Yandex Webmaster HTML Verification File handler (Regex matching yandex_[code].html)
+seoRouter.get('/:filename{yandex_[0-9a-zA-Z]+\\.html}', (c) => {
+  const filename = c.req.param('filename');
+  const code = filename.substring(7, filename.length - 5);
+  return c.html(`<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"></head><body>Verification: ${code}</body></html>`, 200);
 })
 
 // PWA manifest.json handler
@@ -620,17 +833,129 @@ const serveIcon = async (c: any) => {
 seoRouter.get('/icon-192.png', serveIcon);
 seoRouter.get('/icon-512.png', serveIcon);
 
-// sitemap-districts.xml handler (Programmatic District SEO)
-seoRouter.get('/sitemap-districts.xml', (c) => {
+// sitemap-companies.xml handler (Published Employer Profiles in ar/en/tr)
+seoRouter.get('/sitemap-companies.xml', async (c) => {
   const siteUrl = 'https://jobs-in-istanbul.com';
   const now = new Date().toISOString().split('T')[0];
-  const locales = ['ar', 'en', 'tr', 'ru', 'fa', 'ur'] as const;
+  const cacheKv = (c.env as any)?.CACHE_KV;
+  const cacheKey = 'kv_sitemap_companies_xml';
+
+  if (cacheKv) {
+    try {
+      const cachedXml = await cacheKv.get(cacheKey);
+      if (cachedXml) {
+        return c.body(cachedXml, 200, {
+          'Content-Type': 'application/xml; charset=utf-8',
+          'Cache-Control': 'public, max-age=86400'
+        });
+      }
+    } catch (e) {}
+  }
+
+  const db = (c.env as any)?.DB;
+  let companyRows: any[] = [];
+  try {
+    if (db) {
+      const res = await safeQuery(() => db.prepare(
+        `SELECT slug, updated_at FROM documents WHERE type_id = 'companies' AND status = 'published' AND is_published = 1 AND slug IS NOT NULL ORDER BY updated_at DESC LIMIT 500`
+      ).all());
+      companyRows = res?.results || [];
+    }
+  } catch (err) {
+    console.warn('Sitemap: Failed to load companies:', err);
+  }
+
+  const locales = ['ar', 'en', 'tr'] as const;
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">`;
+
+  // Always include the main companies directory index + each published company profile
+  const slugs = Array.from(new Set(companyRows.map((r: any) => String(r.slug || '').trim()).filter(Boolean)));
+  for (const slug of slugs) {
+    const row = companyRows.find((r: any) => r.slug === slug);
+    const lastmod = row?.updated_at ? new Date(row.updated_at).toISOString().split('T')[0] : now;
+    for (const loc of locales) {
+      xml += `
+  <url>
+    <loc>${siteUrl}/${loc}/companies/${slug}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="${siteUrl}/ar/companies/${slug}" />
+    <xhtml:link rel="alternate" hreflang="en" href="${siteUrl}/en/companies/${slug}" />
+    <xhtml:link rel="alternate" hreflang="tr" href="${siteUrl}/tr/companies/${slug}" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${siteUrl}/en/companies/${slug}" />
+  </url>`;
+    }
+  }
+
+  xml += `
+</urlset>`;
+
+  if (cacheKv && slugs.length > 0) {
+    cacheKv.put(cacheKey, xml, { expirationTtl: 21600 }).catch(() => {});
+  }
+
+  return c.body(xml, 200, {
+    'Content-Type': 'application/xml; charset=utf-8',
+    'Cache-Control': 'public, max-age=86400'
+  });
+});
+
+// sitemap-districts.xml handler (Programmatic District SEO — primary locales & active-job districts)
+seoRouter.get('/sitemap-districts.xml', async (c) => {
+  const siteUrl = 'https://jobs-in-istanbul.com';
+  const now = new Date().toISOString().split('T')[0];
+  const locales = ['ar', 'en', 'tr'] as const;
+  const cacheKv = (c.env as any)?.CACHE_KV;
+  const cacheKey = 'kv_sitemap_districts_xml_v2';
+
+  if (cacheKv) {
+    try {
+      const cachedXml = await cacheKv.get(cacheKey);
+      if (cachedXml) {
+        return c.body(cachedXml, 200, {
+          'Content-Type': 'application/xml; charset=utf-8',
+          'Cache-Control': 'public, max-age=86400'
+        });
+      }
+    } catch (e) {}
+  }
+
+  const db = (c.env as any)?.DB;
+  let activeHaystack = '';
+  let hasJobData = false;
+  try {
+    if (db) {
+      const jobRows = await safeQuery(() => db.prepare(
+        `SELECT json_extract(data,'$.location_en') AS loc_en, json_extract(data,'$.location_ar') AS loc_ar, json_extract(data,'$.title_en') AS t_en, json_extract(data,'$.title_ar') AS t_ar
+         FROM documents WHERE type_id = 'jobs' AND status = 'published' AND is_published = 1 AND deleted_at IS NULL AND published_at >= ?
+         ORDER BY published_at DESC LIMIT 400`
+      ).bind(getJobFreshnessCutoffMs()).all());
+      const rows = jobRows?.results || [];
+      if (rows.length > 0) {
+        hasJobData = true;
+        activeHaystack = rows.map((r: any) => `${r.loc_en || ''} ${r.loc_ar || ''} ${r.t_en || ''} ${r.t_ar || ''}`).join(' ').toLowerCase();
+      }
+    }
+  } catch (e) {}
+
+  // Only list districts that have active open jobs (avoiding "Submitted URL marked 'noindex'"),
+  // falling back to all districts when DB has no job rows (e.g. test/fresh environment).
+  const activeDistricts = hasJobData
+    ? ISTANBUL_DISTRICTS.filter(dist =>
+        activeHaystack.includes(dist.en.toLowerCase()) ||
+        activeHaystack.includes(dist.ar.toLowerCase())
+      )
+    : ISTANBUL_DISTRICTS;
+  const districtsToEmit = activeDistricts.length > 0 ? activeDistricts : ISTANBUL_DISTRICTS;
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">`;
 
-  for (const dist of ISTANBUL_DISTRICTS) {
+  for (const dist of districtsToEmit) {
     const slug = dist.en.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     for (const loc of locales) {
       xml += `
@@ -642,9 +967,6 @@ seoRouter.get('/sitemap-districts.xml', (c) => {
     <xhtml:link rel="alternate" hreflang="ar" href="${siteUrl}/ar/district/${slug}" />
     <xhtml:link rel="alternate" hreflang="en" href="${siteUrl}/en/district/${slug}" />
     <xhtml:link rel="alternate" hreflang="tr" href="${siteUrl}/tr/district/${slug}" />
-    <xhtml:link rel="alternate" hreflang="ru" href="${siteUrl}/ru/district/${slug}" />
-    <xhtml:link rel="alternate" hreflang="fa" href="${siteUrl}/fa/district/${slug}" />
-    <xhtml:link rel="alternate" hreflang="ur" href="${siteUrl}/ur/district/${slug}" />
     <xhtml:link rel="alternate" hreflang="x-default" href="${siteUrl}/en/district/${slug}" />
   </url>`;
     }
@@ -652,6 +974,10 @@ seoRouter.get('/sitemap-districts.xml', (c) => {
 
   xml += `
 </urlset>`;
+
+  if (cacheKv && hasJobData) {
+    cacheKv.put(cacheKey, xml, { expirationTtl: 21600 }).catch(() => {});
+  }
 
   return c.body(xml, 200, {
     'Content-Type': 'application/xml; charset=utf-8',

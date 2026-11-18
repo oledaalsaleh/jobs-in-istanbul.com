@@ -580,13 +580,22 @@ export function generateMetaTags(
     canonicalUrl = xDefaultUrl;
   }
 
+  const ogAlternateTags = supportedLocales
+    .filter(loc => loc !== locale && ogLocales[loc])
+    .map(loc => `<meta property="og:locale:alternate" content="${ogLocales[loc]}">`)
+    .join('\n  ');
+  const isIndexable = robotsStr.trim().toLowerCase().startsWith('index');
+  const richBotDirectives = isIndexable
+    ? `\n  <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">\n  <meta name="bingbot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">`
+    : '';
+
   return `
   <!-- Primary Meta Tags -->
   <title>${title}</title>
   <meta name="title" content="${title}">
   <meta name="description" content="${desc}">
   <meta name="keywords" content="${keywordsStr}">
-  <meta name="robots" content="${robotsStr}">
+  <meta name="robots" content="${robotsStr}">${richBotDirectives}
   <link rel="canonical" href="${canonicalUrl}">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   
@@ -594,13 +603,17 @@ export function generateMetaTags(
   ${hreflangTags}
   <link rel="alternate" hreflang="x-default" href="${xDefaultUrl}">
 
-  <!-- Open Graph / Facebook -->
+  <!-- Open Graph / Facebook / Telegram / WhatsApp -->
+  <meta property="og:site_name" content="Jobs in Istanbul">
   <meta property="og:type" content="${(pageType === 'job' || pageType === 'blog_post') ? 'article' : 'website'}">
   <meta property="og:url" content="${canonicalUrl}">
   <meta property="og:title" content="${title}">
   <meta property="og:description" content="${desc}">
   <meta property="og:image" content="${data.image || `${siteUrl}/public/images/og-share.png`}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <meta property="og:locale" content="${ogLocaleStr}">
+  ${ogAlternateTags}
   ${(pageType === 'job' || pageType === 'blog_post') && data.publishedAt ? `<meta property="article:published_time" content="${new Date(data.publishedAt).toISOString()}">` : ''}
 
   <!-- Twitter -->
@@ -754,7 +767,9 @@ export function generateJsonLd(
       },
       "sameAs": [
         "https://t.me/jobsistanbul",
-        "https://play.google.com/store/apps/details?id=com.jobsistanbul.app"
+        "https://play.google.com/store/apps/details?id=com.jobsistanbul.app",
+        "https://play.google.com/store/apps/dev?id=6308543008922541479",
+        "https://play.google.com/store/apps/details?id=com.trabzon.turkey.travel.guide"
       ]
     };
 

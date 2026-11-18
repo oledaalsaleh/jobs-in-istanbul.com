@@ -304,7 +304,7 @@ export default {
 
     // Redirect essential pages without locale prefix to localized version
     const bareRoutes = [
-      '/about', '/contact', '/terms', '/privacy', '/blog', '/insights', '/companies',
+      '/about', '/contact', '/terms', '/privacy', '/blog', '/insights', '/companies', '/sitemap',
       '/currency-prices', '/gold-prices', '/nobetci-eczane', '/kira-artis-orani',
       '/akaryakit-fiyatlari', '/fuel-prices', '/kidem-tazminati-hesaplama', '/severance-calculator',
       '/workplace-quiz', '/ats-scanner',

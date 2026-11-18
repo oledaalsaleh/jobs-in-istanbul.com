@@ -14,6 +14,7 @@ import { autoIndexAndNotifyJob } from '../services/auto-indexing'
 import { ICONS_3D_BASE64 } from '../data/icons-3d-data'
 import { TURKEY_GUIDE_APP_ICON_BASE64 } from '../data/turkey-guide-app-icon'
 import { PROMO_BANNER_150K_BASE64 } from '../data/promo-banner-data'
+import { seededArticles, EXCLUDED_SITEMAP_BLOG_SLUGS } from '../data/seeded-blog-articles'
 import { 
   getFallbackJobs, 
   getFallbackCategories, 
@@ -1130,6 +1131,13 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
   ${c.env?.GOOGLE_SITE_VERIFICATION && c.env.GOOGLE_SITE_VERIFICATION !== 'ADD_YOUR_GOOGLE_VERIFICATION_CODE_HERE' ? `<meta name="google-site-verification" content="${c.env.GOOGLE_SITE_VERIFICATION}" />` : ''}
   ${c.env?.BING_SITE_VERIFICATION ? `<meta name="msvalidate.01" content="${c.env.BING_SITE_VERIFICATION}" />` : ''}
   ${c.env?.YANDEX_SITE_VERIFICATION ? `<meta name="yandex-verification" content="${c.env.YANDEX_SITE_VERIFICATION}" />` : ''}
+  ${c.env?.NAVER_SITE_VERIFICATION ? `<meta name="naver-site-verification" content="${c.env.NAVER_SITE_VERIFICATION}" />` : ''}
+  <meta name="geo.region" content="TR-34">
+  <meta name="geo.placename" content="Istanbul, Türkiye">
+  <meta name="geo.position" content="41.0082;28.9784">
+  <meta name="ICBM" content="41.0082, 28.9784">
+  <link rel="alternate" type="application/rss+xml" title="${t.siteName} RSS" href="/${['ar', 'en', 'tr'].includes(locale) ? `${locale}/rss.xml` : 'rss.xml'}">
+  <link rel="search" type="application/opensearchdescription+xml" title="Jobs in Istanbul" href="/opensearch.xml">
   <!-- Google Analytics 4 (GA4) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=${c.env?.GA4_MEASUREMENT_ID || 'G-9DQNV5MNFF'}"></script>
   <script>
@@ -1677,6 +1685,8 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           <li class="footer-col-title">${t.legal}</li>
           <li><a href="/${locale}/privacy">${t.privacy}</a></li>
           <li><a href="/${locale}/terms">${t.terms}</a></li>
+          <li><a href="/${locale}/sitemap"><i class="fa-solid fa-sitemap" style="margin-inline-end:6px;opacity:.75"></i>${locale === 'ar' ? 'خريطة الموقع الشاملة' : (locale === 'tr' ? 'Site Haritası' : 'HTML Sitemap')}</a></li>
+          <li><a href="/${['ar', 'en', 'tr'].includes(locale) ? `${locale}/rss.xml` : 'rss.xml'}"><i class="fa-solid fa-rss" style="margin-inline-end:6px;color:#f59e0b"></i>${locale === 'ar' ? 'خلاصة الوظائف الفورية (RSS)' : (locale === 'tr' ? 'Canlı İş Akışı (RSS)' : 'Live Jobs RSS Feed')}</a></li>
           <li><a href="mailto:info@jobs-in-istanbul.com"><i class="fa-solid fa-envelope" style="margin-inline-end:6px;opacity:.6"></i>info@jobs-in-istanbul.com</a></li>
         </ul>
         <ul class="footer-links">
@@ -6568,6 +6578,7 @@ publicRouter.get('/:locale/district/:slug', async (c) => {
     ]
   };
 
+  const canonicalDistLocale = ['ar', 'en', 'tr'].includes(locale) ? locale : 'en';
   const seoHtml = `
     <!-- Primary Meta Tags -->
     <title>${pageTitle}</title>
@@ -6575,22 +6586,21 @@ publicRouter.get('/:locale/district/:slug', async (c) => {
     <meta name="description" content="${pageDesc}">
     <meta name="keywords" content="وظائف في ${districtNameAr}, jobs in ${districtNameEn}, ${districtNameEn} iş ilanları, istanbul jobs">
     <meta name="robots" content="${jobs.length > 0 ? 'index, follow' : 'noindex, follow'}">
-    <link rel="canonical" href="https://jobs-in-istanbul.com/${locale}/district/${slug}">
+    ${jobs.length > 0 ? `<meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">\n    <meta name="bingbot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">` : ''}
+    <link rel="canonical" href="https://jobs-in-istanbul.com/${canonicalDistLocale}/district/${slug}">
     
-    <!-- Hreflang Tags -->
+    <!-- Hreflang Tags (Primary Genuinely Localized Variants) -->
     <link rel="alternate" hreflang="ar" href="https://jobs-in-istanbul.com/ar/district/${slug}">
     <link rel="alternate" hreflang="en" href="https://jobs-in-istanbul.com/en/district/${slug}">
     <link rel="alternate" hreflang="tr" href="https://jobs-in-istanbul.com/tr/district/${slug}">
-    <link rel="alternate" hreflang="ru" href="https://jobs-in-istanbul.com/ru/district/${slug}">
-    <link rel="alternate" hreflang="fa" href="https://jobs-in-istanbul.com/fa/district/${slug}">
-    <link rel="alternate" hreflang="ur" href="https://jobs-in-istanbul.com/ur/district/${slug}">
     <link rel="alternate" hreflang="x-default" href="https://jobs-in-istanbul.com/en/district/${slug}">
 
     <!-- Open Graph -->
+    <meta property="og:site_name" content="Jobs in Istanbul">
     <meta property="og:type" content="website">
     <meta property="og:title" content="${pageTitle}">
     <meta property="og:description" content="${pageDesc}">
-    <meta property="og:url" content="https://jobs-in-istanbul.com/${locale}/district/${slug}">
+    <meta property="og:url" content="https://jobs-in-istanbul.com/${canonicalDistLocale}/district/${slug}">
     <meta property="og:image" content="https://jobs-in-istanbul.com/public/images/og-share.png">
 
     <!-- JSON-LD Structured Data -->
@@ -6718,6 +6728,182 @@ publicRouter.post('/:locale/api/report-job', async (c) => {
 
 publicRouter.post('/api/report-job', async (c) => {
   return publicRouter.fetch(new Request(`${new URL(c.req.url).origin}/ar/api/report-job`, c.req.raw), c.env, c.executionCtx);
+});
+
+// Multilingual HTML Sitemap Hub Page (Crawl-Depth Accelerator for All Search Engines)
+publicRouter.get('/:locale/sitemap', (c) => {
+  const locale = (c.req.param('locale') || 'ar') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
+  if (!['ar', 'en', 'tr', 'ru', 'fa', 'ur'].includes(locale)) {
+    return c.redirect('/ar/sitemap', 301);
+  }
+  const canonicalLoc = ['ar', 'en', 'tr'].includes(locale) ? locale : 'en';
+  const langKey = (['ar', 'en', 'tr'].includes(locale) ? locale : 'en') as 'ar' | 'en' | 'tr';
+
+  const copy = {
+    ar: {
+      title: 'خريطة الموقع الشاملة | جميع أقسام وأدوات فرص عمل في إسطنبول',
+      desc: 'الدليل الكامل لجميع صفحات وأقسام منصة فرص عمل في إسطنبول: بوابات الوظائف التخصصية، دليل الشركات، أحياء إسطنبول الـ 39، الأسعار الحية، وحاسبات العمل والإقامة 2026.',
+      h1: 'خريطة الموقع الشاملة',
+      sub: 'وصول سريع ومباشر لكافة بوابات التوظيف، الحاسبات القانونية، الأسعار اليومية، وأدلة العمل في إسطنبول وتركيا.',
+      secMain: 'الأقسام والمنصات الرئيسية',
+      secHubs: 'بوابات الوظائف التخصصية في إسطنبول',
+      secTools: 'الأسعار اليومية والحاسبات القانونية والذكية 2026',
+      secDistricts: 'وظائف أحياء ومناطق إسطنبول (39 منطقة)',
+      secGuides: 'أهم أدلة العمل والإقامة والمعيشة في تركيا',
+      secFeeds: 'خرائط XML وخلاصات محركات البحث'
+    },
+    tr: {
+      title: 'Site Haritası | İstanbul İş İlanları Tüm Bölümler ve Araçlar',
+      desc: 'İstanbul İş İlanları platformunun tüm sayfaları: sektörel iş portalları, işveren şirketler rehberi, 39 ilçe iş ilanları, canlı piyasa verileri ve 2026 maaş/tazminat hesaplama araçları.',
+      h1: 'Kapsamlı Site Haritası',
+      sub: 'İstanbul genelindeki tüm iş kategorilerine, resmi hesaplama araçlarına, ilçe ilanlarına ve kariyer rehberlerine tek sayfadan ulaşın.',
+      secMain: 'Ana Bölümler ve Rehberler',
+      secHubs: 'Özel Sektör ve Kategori İş Portalları',
+      secTools: 'Canlı Piyasalar ve 2026 Yasal Hesaplama Araçları',
+      secDistricts: 'İstanbul İlçelerine Göre İş İlanları (39 İlçe)',
+      secGuides: 'Çalışma İzni ve Kariyer Rehberleri',
+      secFeeds: 'XML Site Haritaları ve Arama Motoru Akışları'
+    },
+    en: {
+      title: 'HTML Sitemap | All Istanbul Job Hubs, Calculators & Directories',
+      desc: 'Complete directory of Jobs in Istanbul: specialized job boards, hiring companies directory, all 39 Istanbul districts, live TRY/gold/fuel trackers, and 2026 Turkish labor calculators.',
+      h1: 'Complete Site Directory & HTML Sitemap',
+      sub: 'Direct access to every specialized job portal, employer directory, Istanbul district, daily market tracker, and 2026 legal calculator.',
+      secMain: 'Core Portals & Directories',
+      secHubs: 'Specialized Istanbul Job Portals',
+      secTools: 'Live Turkey Trackers & 2026 Career Calculators',
+      secDistricts: 'Jobs by Istanbul District (All 39 Districts)',
+      secGuides: 'Featured Turkey Work Permit & Career Guides',
+      secFeeds: 'XML Sitemaps & Search Engine Feeds'
+    }
+  }[langKey];
+
+  const mainLinks = [
+    { href: `/${langKey}`, label: langKey === 'ar' ? 'الصفحة الرئيسية — أحدث الوظائف اليوم' : (langKey === 'tr' ? 'Ana Sayfa — Güncel İş İlanları' : 'Home — Latest Istanbul Job Vacancies') },
+    { href: `/${langKey}/companies`, label: langKey === 'ar' ? 'دليل الشركات الموظِّفة في إسطنبول' : (langKey === 'tr' ? 'İşveren Şirketler Rehberi' : 'Hiring Companies Directory') },
+    { href: `/${langKey}/blog`, label: langKey === 'ar' ? 'مدونة المهنة وأدلة الإقامة والعمل' : (langKey === 'tr' ? 'Kariyer ve Çalışma İzni Blogu' : 'Career & Work Permit Blog') },
+    { href: `/${langKey}/insights`, label: langKey === 'ar' ? 'إحصائيات ومؤشرات سوق العمل في إسطنبول' : (langKey === 'tr' ? 'İstanbul İş Piyasası Analizleri' : 'Istanbul Job Market Insights') },
+    { href: `/${langKey}/apps`, label: langKey === 'ar' ? 'باقة تطبيقاتنا الرسمية على Google Play' : (langKey === 'tr' ? 'Resmi Google Play Uygulamalarımız' : 'Our Official Google Play Apps') },
+    { href: `/${langKey}/submit-job`, label: langKey === 'ar' ? 'أعلن عن وظيفة شاغرة مجاناً' : (langKey === 'tr' ? 'Ücretsiz İş İlanı Yayınla' : 'Post a Job Vacancy') },
+    { href: `/${langKey}/about`, label: langKey === 'ar' ? 'من نحن' : (langKey === 'tr' ? 'Hakkımızda' : 'About Us') },
+    { href: `/${langKey}/contact`, label: langKey === 'ar' ? 'اتصل بنا' : (langKey === 'tr' ? 'İletişim' : 'Contact Us') }
+  ];
+
+  const toolLinks = [
+    { href: `/${langKey}/currency-prices`, label: langKey === 'ar' ? 'أسعار العملات والليرة التركية اليوم' : (langKey === 'tr' ? 'Canlı Döviz Kurları' : 'Live TRY Currency Exchange Rates') },
+    { href: `/${langKey}/gold-prices`, label: langKey === 'ar' ? 'أسعار الذهب في تركيا لحظة بلحظة' : (langKey === 'tr' ? 'Canlı Altın Fiyatları' : 'Live Turkey Gold Prices') },
+    { href: `/${langKey}/akaryakit-fiyatlari`, label: langKey === 'ar' ? 'أسعار الوقود والبنزين والمازوت في إسطنبول' : (langKey === 'tr' ? 'Güncel Akaryakıt Fiyatları' : 'Istanbul Fuel & Gasoline Prices') },
+    { href: `/${langKey}/nobetci-eczane`, label: langKey === 'ar' ? 'الصيدليات المناوبة اليوم في إسطنبول (24 ساعة)' : (langKey === 'tr' ? 'İstanbul Nöbetçi Eczaneler' : 'Istanbul 24/7 On-Duty Pharmacies') },
+    { href: `/${langKey}/salary-calculator-2026`, label: langKey === 'ar' ? 'حاسبة صافي الأجور وضرائب SGK لعام 2026' : (langKey === 'tr' ? '2026 Netten Brüte Maaş Hesaplama' : '2026 Net-to-Gross Salary & SGK Calculator') },
+    { href: `/${langKey}/kidem-tazminati-hesaplama`, label: langKey === 'ar' ? 'حاسبة تعويض نهاية الخدمة في تركيا (Kıdem)' : (langKey === 'tr' ? 'Kıdem Tazminatı Hesaplama 2026' : 'Turkish Severance Pay Calculator') },
+    { href: `/${langKey}/kira-artis-orani`, label: langKey === 'ar' ? 'حاسبة نسبة الزيادة القانونية للإيجار (TÜFE)' : (langKey === 'tr' ? 'TÜFE Yasal Kira Artış Oranı Hesaplama' : 'Legal Rent Increase Calculator (TÜFE)') },
+    { href: `/${langKey}/work-permit-eligibility`, label: langKey === 'ar' ? 'فاحص وحاسبة أهلية إذن العمل التركي 2026' : (langKey === 'tr' ? 'Çalışma İzni Uygunluk Sihirbazı' : 'Turkish Work Permit Eligibility Wizard') },
+    { href: `/${langKey}/investor-calculator`, label: langKey === 'ar' ? 'حاسبة تأسيس الشركات وتوظيف الأجانب للمستثمرين' : (langKey === 'tr' ? 'Yatırımcı Şirket Kuruluş Maliyet Hesaplama' : 'Investor Company Setup Calculator') },
+    { href: `/${langKey}/workplace-quiz`, label: langKey === 'ar' ? 'اختبار مصطلحات ولغة العمل التركية' : (langKey === 'tr' ? 'İş Yeri Türkçesi Testi' : 'Workplace Turkish Vocabulary Quiz') },
+    { href: `/${langKey}/cv-optimizer`, label: langKey === 'ar' ? 'تحسين السيرة الذاتية بالذكاء الاصطناعي' : (langKey === 'tr' ? 'Yapay Zeka CV Geliştirici' : 'AI CV & Resume Optimizer') },
+    { href: `/${langKey}/ats-scanner`, label: langKey === 'ar' ? 'فاحص توافق السيرة الذاتية مع أنظمة ATS' : (langKey === 'tr' ? 'ATS Özgeçmiş Uyumluluk Tarayıcı' : 'AI ATS Resume Scanner') },
+    { href: `/${langKey}/resume-builder`, label: langKey === 'ar' ? 'منشئ السيرة الذاتية الاحترافية PDF' : (langKey === 'tr' ? 'Profesyonel PDF CV Oluşturucu' : 'Interactive PDF Resume Builder') },
+    { href: `/${langKey}/ai-job-matcher`, label: langKey === 'ar' ? 'مطابق الوظائف الذكي بالذكاء الاصطناعي' : (langKey === 'tr' ? 'Yapay Zeka İş Eşleştirici' : 'AI Smart Job Matcher') }
+  ];
+
+  const articlesList = ((seededArticles as any)?.[langKey] || (seededArticles as any)?.en || [])
+    .filter((a: any) => a?.slug && !EXCLUDED_SITEMAP_BLOG_SLUGS.has(a.slug))
+    .slice(0, 24);
+
+  const seoHtml = `
+    <title>${copy.title}</title>
+    <meta name="title" content="${copy.title}">
+    <meta name="description" content="${copy.desc}">
+    <meta name="robots" content="index, follow">
+    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="bingbot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="https://jobs-in-istanbul.com/${canonicalLoc}/sitemap">
+    <link rel="alternate" hreflang="ar" href="https://jobs-in-istanbul.com/ar/sitemap">
+    <link rel="alternate" hreflang="en" href="https://jobs-in-istanbul.com/en/sitemap">
+    <link rel="alternate" hreflang="tr" href="https://jobs-in-istanbul.com/tr/sitemap">
+    <link rel="alternate" hreflang="x-default" href="https://jobs-in-istanbul.com/en/sitemap">
+    <meta property="og:site_name" content="Jobs in Istanbul">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="${copy.title}">
+    <meta property="og:description" content="${copy.desc}">
+    <meta property="og:url" content="https://jobs-in-istanbul.com/${canonicalLoc}/sitemap">
+    <meta property="og:image" content="https://jobs-in-istanbul.com/public/images/og-share.png">
+    <script type="application/ld+json">${JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Jobs in Istanbul", "item": `https://jobs-in-istanbul.com/${canonicalLoc}` },
+        { "@type": "ListItem", "position": 2, "name": copy.h1, "item": `https://jobs-in-istanbul.com/${canonicalLoc}/sitemap` }
+      ]
+    })}</script>
+  `;
+
+  const cardStyle = 'background:var(--bg-card);border:1px solid var(--border);border-radius:18px;padding:24px;margin-bottom:24px;box-shadow:var(--shadow-sm);';
+  const gridStyle = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;list-style:none;padding:0;margin:0;';
+  const linkStyle = 'display:block;padding:10px 14px;border-radius:10px;background:var(--bg-subtle);color:var(--text-heading);font-weight:600;font-size:0.9rem;text-decoration:none;border:1px solid transparent;transition:all 0.15s;';
+
+  const bodyHtml = `
+    <div class="container" style="max-width:1240px;padding:36px 20px 72px;">
+      <div style="background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 100%);color:#fff;padding:34px 28px;border-radius:22px;margin-bottom:28px;">
+        <h1 style="margin:0 0 10px 0;font-size:clamp(1.5rem,3vw,2.1rem);font-weight:900;color:#fff;">${copy.h1}</h1>
+        <p style="margin:0;color:#cbd5e1;font-size:0.98rem;max-width:820px;line-height:1.7;">${copy.sub}</p>
+      </div>
+
+      <section style="${cardStyle}">
+        <h2 style="font-size:1.2rem;font-weight:800;margin:0 0 16px 0;color:var(--text-heading);">${copy.secMain}</h2>
+        <ul style="${gridStyle}">
+          ${mainLinks.map(l => `<li><a href="${l.href}" style="${linkStyle}">${l.label}</a></li>`).join('')}
+        </ul>
+      </section>
+
+      <section style="${cardStyle}">
+        <h2 style="font-size:1.2rem;font-weight:800;margin:0 0 16px 0;color:var(--text-heading);">${copy.secHubs}</h2>
+        <ul style="${gridStyle}">
+          ${SPECIALIZED_PAGES.map(sp => `<li><a href="/${langKey}/${sp.type}" style="${linkStyle}">${(sp.titles as any)[langKey] || sp.titles.en}</a></li>`).join('')}
+        </ul>
+      </section>
+
+      <section style="${cardStyle}">
+        <h2 style="font-size:1.2rem;font-weight:800;margin:0 0 16px 0;color:var(--text-heading);">${copy.secTools}</h2>
+        <ul style="${gridStyle}">
+          ${toolLinks.map(l => `<li><a href="${l.href}" style="${linkStyle}">${l.label}</a></li>`).join('')}
+        </ul>
+      </section>
+
+      <section style="${cardStyle}">
+        <h2 style="font-size:1.2rem;font-weight:800;margin:0 0 16px 0;color:var(--text-heading);">${copy.secDistricts}</h2>
+        <ul style="display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:8px;list-style:none;padding:0;margin:0;">
+          ${ISTANBUL_DISTRICTS.map(d => {
+            const dSlug = d.en.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+            const dLabel = langKey === 'ar' ? `وظائف ${d.ar}` : (langKey === 'tr' ? `${d.en} İş İlanları` : `Jobs in ${d.en}`);
+            return `<li><a href="/${langKey}/district/${dSlug}" style="${linkStyle}">${dLabel}</a></li>`;
+          }).join('')}
+        </ul>
+      </section>
+
+      <section style="${cardStyle}">
+        <h2 style="font-size:1.2rem;font-weight:800;margin:0 0 16px 0;color:var(--text-heading);">${copy.secGuides}</h2>
+        <ul style="${gridStyle}">
+          ${articlesList.map((a: any) => `<li><a href="/${langKey}/blog/${a.slug}" style="${linkStyle}">${a.title}</a></li>`).join('')}
+        </ul>
+      </section>
+
+      <section style="${cardStyle}">
+        <h2 style="font-size:1.1rem;font-weight:800;margin:0 0 14px 0;color:var(--text-heading);">${copy.secFeeds}</h2>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;">
+          <a href="/sitemap.xml" style="${linkStyle}">XML Sitemap Index</a>
+          <a href="/sitemap-jobs.xml" style="${linkStyle}">Jobs XML Sitemap</a>
+          <a href="/sitemap-companies.xml" style="${linkStyle}">Companies XML Sitemap</a>
+          <a href="/sitemap-blog.xml" style="${linkStyle}">Blog XML Sitemap</a>
+          <a href="/sitemap-districts.xml" style="${linkStyle}">Districts XML Sitemap</a>
+          <a href="/${langKey}/rss.xml" style="${linkStyle}">RSS 2.0 Feed (${langKey.toUpperCase()})</a>
+          <a href="/llms.txt" style="${linkStyle}">AI Search Directory (llms.txt)</a>
+        </div>
+      </section>
+    </div>
+  `;
+
+  return c.html(renderLayout(c, copy.title, bodyHtml, locale, seoHtml));
 });
 
 // Hiring Companies Directory Page Handler
