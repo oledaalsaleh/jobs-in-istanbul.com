@@ -52,8 +52,104 @@ export function validateJobSubmission() {
   };
 }
 
+// Canonical Turnstile Server-Side Verification Helper (Cloudflare Turnstile Spin Contract)
+export async function verifyTurnstileToken(
+  c: Context,
+  token: unknown,
+  expectedAction: string
+): Promise<{ ok: boolean; status?: 400 | 403 | 500; error?: string; details?: string[] }> {
+  const env: any = c.env || {};
+  const ip = c.req.header('CF-Connecting-IP') || c.req.header('x-real-ip') || '127.0.0.1';
+  const secret: string | undefined = env.TURNSTILE_SECRET_KEY || env.TURNSTILE_SECRET;
+  const isProd = env.ENVIRONMENT === 'production';
+
+  // Allow local-authorized bypass ONLY if the user has a cryptographically valid employer session JWT cookie
+  if (token === 'local-authorized') {
+    const cookieVal = getCookie(c, 'employer_jwt');
+    if (cookieVal) {
+      const jwtSecret = env.JWT_SECRET || env.BETTER_AUTH_SECRET || 'change-me-in-production-secure-key';
+      try {
+        await verify(cookieVal, jwtSecret, 'HS256');
+        return { ok: true };
+      } catch (jwtErr) {
+        console.error('Bypass attempt with invalid employer JWT cookie:', jwtErr);
+      }
+    }
+    return { ok: false, status: 403, error: 'Bypass authorization failed. Valid employer session is required.' };
+  }
+
+  if (!secret) {
+    if (isProd) {
+      console.error('[Turnstile] TURNSTILE_SECRET_KEY missing in production — failing closed.');
+      return { ok: false, status: 403, error: 'Turnstile verification unavailable.' };
+    }
+    console.warn('TURNSTILE_SECRET_KEY is not set in dev/test. Skipping Turnstile remote validation.');
+    return { ok: true };
+  }
+
+  const rawHostnames = String(
+    env.TURNSTILE_HOSTNAMES ||
+      (isProd ? 'jobs-in-istanbul.com,www.jobs-in-istanbul.com' : 'localhost,127.0.0.1')
+  );
+  const expectedHostnames = new Set(
+    rawHostnames
+      .split(',')
+      .map(h => h.trim().toLowerCase())
+      .filter(Boolean)
+  );
+
+  if (typeof token !== 'string' || token.length === 0 || token.length > 2048 || expectedHostnames.size === 0) {
+    return { ok: false, status: 403, error: 'Turnstile verification token is missing or invalid.' };
+  }
+
+  let verifyData: any;
+  try {
+    const formData = new URLSearchParams({
+      secret,
+      response: token,
+      remoteip: ip
+    });
+
+    const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      signal: AbortSignal.timeout(10_000),
+      body: formData.toString()
+    });
+    if (!verifyRes.ok) {
+      throw new Error(`siteverify HTTP ${verifyRes.status}`);
+    }
+    verifyData = await verifyRes.json();
+  } catch (err) {
+    console.error('Error verifying Turnstile CAPTCHA:', err);
+    return { ok: false, status: 403, error: 'Captcha verification failed. Please try again.' };
+  }
+
+  const isDummyTestSecret = secret.startsWith('1x00000000');
+  const returnedHostname = String(verifyData?.hostname || '').toLowerCase();
+  const actionMatches = isDummyTestSecret || !expectedAction || verifyData?.action === expectedAction;
+  const hostnameMatches = isDummyTestSecret || expectedHostnames.has(returnedHostname);
+
+  if (!verifyData?.success || !actionMatches || !hostnameMatches) {
+    console.error('Turnstile validation failed:', {
+      errors: verifyData?.['error-codes'],
+      action: verifyData?.action,
+      expectedAction,
+      hostname: returnedHostname
+    });
+    return {
+      ok: false,
+      status: 403,
+      error: 'Captcha verification failed. Please try again.',
+      details: verifyData?.['error-codes']
+    };
+  }
+
+  return { ok: true };
+}
+
 // Middleware for Turnstile CAPTCHA + Honeypot Bot Validation
-export function validateTurnstile() {
+export function validateTurnstile(expectedAction: string = 'submit-job') {
   return async (c: Context, next: Next) => {
     const body = (c.get('parsedBody') as any) || {};
     const ip = c.req.header('CF-Connecting-IP') || c.req.header('x-real-ip') || '127.0.0.1';
@@ -70,63 +166,16 @@ export function validateTurnstile() {
       }, 403);
     }
 
-    const secret = c.env?.TURNSTILE_SECRET_KEY;
-    if (!secret) {
-      console.warn('TURNSTILE_SECRET_KEY is not set. Skipping Turnstile remote validation.');
-      return await next();
+    const result = await verifyTurnstileToken(c, body['cf-turnstile-response'], expectedAction);
+    if (!result.ok) {
+      return c.json({
+        success: false,
+        error: result.error || 'Captcha verification failed.',
+        details: result.details
+      }, result.status || 403);
     }
 
-    try {
-      const token = body['cf-turnstile-response'];
-
-      if (!token) {
-        return c.json({ success: false, error: 'Turnstile verification token is missing' }, 400);
-      }
-
-      // Allow local-authorized bypass if the user has a valid employer session JWT cookie
-      if (token === 'local-authorized') {
-        const cookieVal = getCookie(c, 'employer_jwt');
-        if (cookieVal) {
-          const jwtSecret = c.env.JWT_SECRET || c.env.BETTER_AUTH_SECRET || 'change-me-in-production-secure-key';
-          try {
-            await verify(cookieVal, jwtSecret, 'HS256');
-            return await next();
-          } catch (jwtErr) {
-            console.error('Bypass attempt with invalid employer JWT cookie:', jwtErr);
-          }
-        }
-        return c.json({ success: false, error: 'Bypass authorization failed. Valid employer session is required.' }, 403);
-      }
-
-      // Verify Turnstile token with Cloudflare
-      const formData = new URLSearchParams();
-      formData.append('secret', secret);
-      formData.append('response', token);
-      formData.append('remoteip', ip);
-
-      const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: formData.toString()
-      });
-
-      const verifyData: any = await verifyRes.json();
-      if (!verifyData.success) {
-        console.error('Turnstile validation failed:', verifyData['error-codes']);
-        return c.json({ 
-          success: false, 
-          error: 'Captcha verification failed. Please try again.',
-          details: verifyData['error-codes']
-        }, 403);
-      }
-
-      return await next();
-    } catch (err) {
-      console.error('Error verifying Turnstile CAPTCHA:', err);
-      return c.json({ success: false, error: 'Internal server error during captcha verification' }, 500);
-    }
+    return await next();
   };
 }
 

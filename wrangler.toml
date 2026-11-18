@@ -29,6 +29,7 @@ id = "523b280a22c341aaa83355381c4a2f30"
 ENVIRONMENT = "development"
 CORS_ORIGINS = "http://localhost:8787"
 TURNSTILE_SITE_KEY = "1x00000000000000000000AA"
+TURNSTILE_HOSTNAMES = "localhost,127.0.0.1"
 BING_SITE_VERIFICATION = "4430C081399901EF9B5BEAA4E9AD98A5"
 GOOGLE_SITE_VERIFICATION = ""
 
@@ -41,7 +42,7 @@ routes = [
   { pattern = "jobs-in-istanbul.com", custom_domain = true },
   { pattern = "www.jobs-in-istanbul.com", custom_domain = true }
 ]
-vars = { ENVIRONMENT = "production", CORS_ORIGINS = "https://jobs-in-istanbul.com", TURNSTILE_SITE_KEY = "1x00000000000000000000AA", BETTER_AUTH_URL = "https://jobs-in-istanbul.com", BING_SITE_VERIFICATION = "4430C081399901EF9B5BEAA4E9AD98A5", GOOGLE_SITE_VERIFICATION = "" }
+vars = { ENVIRONMENT = "production", CORS_ORIGINS = "https://jobs-in-istanbul.com", TURNSTILE_SITE_KEY = "0x4AAAAAAGHFya-xqC3xEkDZ", TURNSTILE_HOSTNAMES = "jobs-in-istanbul.com,www.jobs-in-istanbul.com", BETTER_AUTH_URL = "https://jobs-in-istanbul.com", BING_SITE_VERIFICATION = "4430C081399901EF9B5BEAA4E9AD98A5", GOOGLE_SITE_VERIFICATION = "" }
 
 [[env.production.d1_databases]]
 binding = "DB"

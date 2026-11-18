@@ -4633,7 +4633,7 @@ publicRouter.get('/:locale/submit-job', async (c) => {
 
         <!-- Cloudflare Turnstile CAPTCHA Widget -->
         <div style="margin-bottom: 30px; display: flex; justify-content: center;">
-          <div class="cf-turnstile" data-sitekey="${(c.env as any).TURNSTILE_SITE_KEY || '1x00000000000000000000AA'}" data-theme="light"></div>
+          <div id="submit-job-turnstile" class="cf-turnstile" data-sitekey="${(c.env as any)?.TURNSTILE_SITE_KEY || '1x00000000000000000000AA'}" data-action="submit-job" data-callback="onSubmitJobTurnstile" data-theme="light"></div>
         </div>
 
         <button type="submit" class="btn-sidebar-apply" style="border: none; cursor: pointer;">${t.submit}</button>
@@ -4645,11 +4645,18 @@ publicRouter.get('/:locale/submit-job', async (c) => {
       </div>
       
       <script>
+        var submitJobTurnstileToken = '';
+        function onSubmitJobTurnstile(token) {
+          submitJobTurnstileToken = token || '';
+        }
         document.getElementById('submit-job-form').addEventListener('submit', async function(e) {
           e.preventDefault();
           const form = e.target;
           const formData = new FormData(form);
           const data = Object.fromEntries(formData);
+          if (!data['cf-turnstile-response'] && submitJobTurnstileToken) {
+            data['cf-turnstile-response'] = submitJobTurnstileToken;
+          }
           
           try {
             const res = await fetch(form.action, {
@@ -4663,12 +4670,16 @@ publicRouter.get('/:locale/submit-job', async (c) => {
             } else {
               const errData = await res.json().catch(() => ({}));
               alert(errData.error || 'Error submitting form. Please try again.');
-              // Reset Turnstile on failure
+              submitJobTurnstileToken = '';
               if (window.turnstile) {
-                window.turnstile.reset();
+                window.turnstile.reset('#submit-job-turnstile');
               }
             }
           } catch(err) {
+            submitJobTurnstileToken = '';
+            if (window.turnstile) {
+              window.turnstile.reset('#submit-job-turnstile');
+            }
             alert('An error occurred. Please try again.');
           }
         });

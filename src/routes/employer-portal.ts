@@ -2,7 +2,7 @@ import { Hono } from 'hono'
 import { sign, verify } from 'hono/jwt'
 import { getCookie, setCookie, deleteCookie } from 'hono/cookie'
 import { renderLayout } from './public'
-import { rateLimiter } from '../middleware/security'
+import { rateLimiter, verifyTurnstileToken } from '../middleware/security'
 
 export const employerPortalRouter = new Hono()
 
@@ -76,7 +76,9 @@ employerPortalRouter.get('/:locale/employer/login', (c) => {
     }
   }[locale];
 
+  const siteKey = (c.env as any)?.TURNSTILE_SITE_KEY || '1x00000000000000000000AA';
   const html = `
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <div class="container" style="max-width: 500px; padding: 80px 20px;">
       <div class="glass-card" style="padding: 40px; border-radius: var(--radius-lg); text-align: center;">
         <i class="fa-solid fa-user-tie" style="font-size: 3rem; color: var(--primary); margin-bottom: 20px; filter: drop-shadow(0 4px 10px var(--primary-glow));"></i>
@@ -88,6 +90,10 @@ employerPortalRouter.get('/:locale/employer/login', (c) => {
           <div style="margin-bottom: 24px; text-align: left;">
             <label style="display: block; font-weight: 700; color: var(--text-dark); margin-bottom: 8px;">${t.emailLabel}</label>
             <input type="email" id="login-email" name="email" required placeholder="${t.emailPlh}" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-site); color: var(--text-dark); outline: none;">
+          </div>
+
+          <div style="margin-bottom: 20px; display: flex; justify-content: center;">
+            <div id="employer-login-turnstile" class="cf-turnstile" data-sitekey="${siteKey}" data-action="employer-login" data-theme="light"></div>
           </div>
 
           <button type="submit" id="loginBtn" class="btn-sidebar-apply" style="border: none;">${t.submitBtn}</button>
@@ -108,6 +114,7 @@ employerPortalRouter.get('/:locale/employer/login', (c) => {
       document.getElementById('magic-login-form').addEventListener('submit', async function(e) {
         e.preventDefault();
         const form = e.target;
+        const formData = new FormData(form);
         const btn = document.getElementById('loginBtn');
         const successDiv = document.getElementById('login-success');
         const devDiv = document.getElementById('dev-mode-notice');
@@ -124,7 +131,8 @@ employerPortalRouter.get('/:locale/employer/login', (c) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               email: form.email.value,
-              locale: form.locale.value
+              locale: form.locale.value,
+              'cf-turnstile-response': formData.get('cf-turnstile-response') || ''
             })
           });
 
@@ -142,6 +150,9 @@ employerPortalRouter.get('/:locale/employer/login', (c) => {
         } catch(err) {
           alert('Network error. Please try again.');
         } finally {
+          if (window.turnstile) {
+            window.turnstile.reset('#employer-login-turnstile');
+          }
           btn.innerText = "${t.submitBtn}";
           btn.disabled = false;
         }
@@ -155,7 +166,13 @@ employerPortalRouter.get('/:locale/employer/login', (c) => {
 // Magic Link Request Endpoint
 employerPortalRouter.post('/api/employer/request-magic', rateLimiter(3, 10), async (c) => {
   const env: any = c.env;
-  const { email, locale } = await c.req.json();
+  const body = await c.req.json();
+  const { email, locale } = body;
+
+  const tsCheck = await verifyTurnstileToken(c, body['cf-turnstile-response'], 'employer-login');
+  if (!tsCheck.ok) {
+    return c.json({ error: tsCheck.error || 'Captcha verification failed.', details: tsCheck.details }, tsCheck.status || 403);
+  }
 
   if (!email) {
     return c.json({ error: 'Email is required' }, 400);

@@ -457,4 +457,40 @@ describe('Technical SEO & Google Jobs Compliance Tests', () => {
     expect(homeHtml).toContain('type="application/opensearchdescription+xml"');
     expect(homeHtml).toContain('type="application/rss+xml"');
   });
+
+  test('Turnstile integration: embeds production sitekey + distinct actions on all 3 surfaces and fails closed in production without valid token', async () => {
+    const prodEnv = {
+      ...createMockEnv(),
+      ENVIRONMENT: 'production',
+      TURNSTILE_SITE_KEY: '0x4AAAAAAGHFya-xqC3xEkDZ',
+      TURNSTILE_HOSTNAMES: 'jobs-in-istanbul.com,www.jobs-in-istanbul.com'
+    };
+
+    const resSubmitHtml = await app.request('https://jobs-in-istanbul.com/ar/submit-job', {}, prodEnv);
+    const submitHtml = await resSubmitHtml.text();
+    expect(submitHtml).toContain('data-sitekey="0x4AAAAAAGHFya-xqC3xEkDZ"');
+    expect(submitHtml).toContain('data-action="submit-job"');
+
+    const resEmpHtml = await app.request('https://jobs-in-istanbul.com/ar/employer/login', {}, prodEnv);
+    const empHtml = await resEmpHtml.text();
+    expect(empHtml).toContain('data-sitekey="0x4AAAAAAGHFya-xqC3xEkDZ"');
+    expect(empHtml).toContain('data-action="employer-login"');
+
+    const resCandHtml = await app.request('https://jobs-in-istanbul.com/ar/candidate/login', {}, prodEnv);
+    const candHtml = await resCandHtml.text();
+    expect(candHtml).toContain('data-sitekey="0x4AAAAAAGHFya-xqC3xEkDZ"');
+    expect(candHtml).toContain('data-action="candidate-login"');
+
+    // Without TURNSTILE_SECRET_KEY in production, endpoints fail closed (403)
+    const resMagicBlocked = await app.request(
+      'https://jobs-in-istanbul.com/api/employer/request-magic',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: 'hr@company.com', locale: 'ar', 'cf-turnstile-response': 'missing-secret-test' })
+      },
+      prodEnv
+    );
+    expect(resMagicBlocked.status).toBe(403);
+  });
 });
