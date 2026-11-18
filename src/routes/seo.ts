@@ -44,6 +44,19 @@ Disallow: /login
 Disallow: /register
 Disallow: /install
 
+User-agent: Bytespider
+User-agent: AhrefsBot
+User-agent: SemrushBot
+User-agent: MJ12bot
+User-agent: DotBot
+User-agent: BLEXBot
+User-agent: DataForSeoBot
+User-agent: Barkrowler
+User-agent: SeekportBot
+User-agent: MegaIndex
+User-agent: Scrapy
+Disallow: /
+
 User-agent: *
 Allow: /
 Disallow: /admin/

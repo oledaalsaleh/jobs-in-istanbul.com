@@ -15,6 +15,7 @@ import companiesCollection from './collections/companies.collection'
 import jobsCollection from './collections/jobs.collection'
 import applicationsCollection from './collections/applications.collection'
 import { publicRouter, renderNotFoundPage } from './routes/public'
+import { evaluateBotShield, buildBotBlockedResponse } from './middleware/bot-shield'
 
 // Register collections BEFORE creating the app
 // This ensures they are synced to the database on startup
@@ -45,6 +46,13 @@ const config: SonicJSConfig = {
     middleware: {
     beforeAuth: [
       (async (c: any, next: any): Promise<any> => {
+        let execCtx: any;
+        try { execCtx = c.executionCtx; } catch (e) {}
+        const botDecision = await evaluateBotShield(c.req.raw, c.env, execCtx);
+        if (botDecision.blocked) {
+          return buildBotBlockedResponse(botDecision);
+        }
+
         const reqUrl = new URL(c.req.url);
         if (reqUrl.hostname === 'www.jobs-in-istanbul.com') {
           reqUrl.hostname = 'jobs-in-istanbul.com';
@@ -207,6 +215,14 @@ function applySecurityHeaders(headers: Headers): Headers {
 // Export the application for both HTTP requests (fetch) and Cron triggers (scheduled)
 export default {
   async fetch(request: Request, env: any, ctx: any) {
+    // --- Layer 0: Edge Anti-Bot, Anti-Scraper & Exploit Shield ---
+    const shieldDecision = await evaluateBotShield(request, env, ctx);
+    if (shieldDecision.blocked) {
+      const blockedRes = buildBotBlockedResponse(shieldDecision);
+      applySecurityHeaders(blockedRes.headers);
+      return blockedRes;
+    }
+
     const url = new URL(request.url);
 
     // --- Canonical host & URL normalization (SEO) ---

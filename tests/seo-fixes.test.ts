@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { app } from '../src/index';
+import worker, { app } from '../src/index';
 import { getJobNativeLocales } from '../src/utils/job-validity';
 import { extractIstanbulDistrict, extractSalaryFromText } from '../src/utils/seo-helper';
 
@@ -492,5 +492,85 @@ describe('Technical SEO & Google Jobs Compliance Tests', () => {
       prodEnv
     );
     expect(resMagicBlocked.status).toBe(403);
+  });
+
+  test('Anti-Bot Shield: blocks bad scrapers, exploit probes, empty-UA bots, and IP bursts while allowing Googlebot, Bingbot, Yandex, and AdSense', async () => {
+    const prodEnv = {
+      ...createMockEnv(),
+      ENVIRONMENT: 'production',
+      BOT_MAX_HTML_PER_MIN: '4'
+    };
+
+    // 1. Bad scrapers & headless tools -> 403
+    for (const badUa of [
+      'Mozilla/5.0 (compatible; Bytespider; spider-feedback@bytedance.com)',
+      'Mozilla/5.0 (compatible; AhrefsBot/7.0; +http://ahrefs.com/robot/)',
+      'python-requests/2.31.0',
+      'Mozilla/5.0 HeadlessChrome/120.0.0.0',
+      'sqlmap/1.8'
+    ]) {
+      const res = await app.request('https://jobs-in-istanbul.com/ar', { headers: { 'User-Agent': badUa } }, prodEnv);
+      expect(res.status).toBe(403);
+    }
+
+    // 2. Vulnerability scanner paths & SQLi query probes -> 403 at Worker edge
+    for (const badUrl of [
+      'https://jobs-in-istanbul.com/wp-login.php',
+      'https://jobs-in-istanbul.com/.env',
+      'https://jobs-in-istanbul.com/.git/config',
+      'https://jobs-in-istanbul.com/ar?search=1%20UNION%20SELECT%20password%20FROM%20users'
+    ]) {
+      const res = await worker.fetch(
+        new Request(badUrl, { headers: { 'User-Agent': 'Mozilla/5.0 Chrome/130.0' } }),
+        prodEnv,
+        { waitUntil: () => {} }
+      );
+      expect(res.status).toBe(403);
+    }
+
+    // 3. Empty User-Agent from external IP in production -> 403
+    const resEmptyUa = await app.request(
+      'https://jobs-in-istanbul.com/ar',
+      { headers: { 'CF-Connecting-IP': '198.51.100.77', 'User-Agent': '' } },
+      prodEnv
+    );
+    expect(resEmptyUa.status).toBe(403);
+
+    // 4. Legitimate Search Engines, AdSense & Social Preview Bots -> 200 OK (never throttled)
+    for (const trustedUa of [
+      'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+      'Mediapartners-Google',
+      'Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)',
+      'Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)',
+      'DuckDuckBot/1.1; (+http://duckduckgo.com/duckduckbot.html)',
+      'Mozilla/5.0 (compatible; OAI-SearchBot/1.0; +https://openai.com/searchbot)',
+      'TelegramBot (like TwitterBot)'
+    ]) {
+      const res = await app.request(
+        'https://jobs-in-istanbul.com/ar',
+        { headers: { 'CF-Connecting-IP': '66.249.66.1', 'User-Agent': trustedUa } },
+        prodEnv
+      );
+      expect(res.status).toBe(200);
+    }
+
+    // 5. Per-IP burst scraping limiter -> 429 after exceeding BOT_MAX_HTML_PER_MIN (4)
+    const scraperIp = '203.0.113.99';
+    const normalBrowserUa = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/130.0.0.0 Safari/537.36';
+    for (let i = 0; i < 4; i++) {
+      const okRes = await app.request(
+        'https://jobs-in-istanbul.com/ar',
+        { headers: { 'CF-Connecting-IP': scraperIp, 'User-Agent': normalBrowserUa } },
+        prodEnv
+      );
+      expect(okRes.status).toBe(200);
+    }
+    const burstBlocked = await app.request(
+      'https://jobs-in-istanbul.com/ar',
+      { headers: { 'CF-Connecting-IP': scraperIp, 'User-Agent': normalBrowserUa } },
+      prodEnv
+    );
+    expect(burstBlocked.status).toBe(429);
+    expect(burstBlocked.headers.get('Retry-After')).toBeTruthy();
   });
 });

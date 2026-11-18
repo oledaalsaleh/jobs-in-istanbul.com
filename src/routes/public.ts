@@ -6710,7 +6710,7 @@ publicRouter.get('/:locale/district/:slug', async (c) => {
 });
 
 // Report Job API Endpoint
-publicRouter.post('/:locale/api/report-job', async (c) => {
+publicRouter.post('/:locale/api/report-job', rateLimiter(5, 10), async (c) => {
   try {
     const body = await c.req.json();
     const db = (c.env as any).DB;
