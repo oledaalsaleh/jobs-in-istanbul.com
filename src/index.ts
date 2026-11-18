@@ -110,8 +110,7 @@ app.onError((err, c) => {
       <head>
         <title>Service Temporarily Unavailable</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="google-adsense-account" content="ca-pub-2220383290034920">
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2220383290034920" crossorigin="anonymous"></script>
+        <meta name="robots" content="noindex, nofollow">
         <style>
           body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; padding: 50px 20px; background: #f8fafc; color: #334155; }
           .container { max-width: 500px; margin: 0 auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }

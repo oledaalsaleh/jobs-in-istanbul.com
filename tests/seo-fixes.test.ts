@@ -573,4 +573,32 @@ describe('Technical SEO & Google Jobs Compliance Tests', () => {
     expect(burstBlocked.status).toBe(429);
     expect(burstBlocked.headers.get('Retry-After')).toBeTruthy();
   });
+
+  test('AdSense Policy Compliance: loads adsbygoogle.js on content pages but omits it on 404, login, submit-job, and noindex screens', async () => {
+    const env = createMockEnv();
+
+    // Content pages include adsbygoogle.js
+    for (const contentUrl of [
+      'https://jobs-in-istanbul.com/',
+      'https://jobs-in-istanbul.com/ar',
+      'https://jobs-in-istanbul.com/ar/jobs/web-developer'
+    ]) {
+      const res = await app.request(contentUrl, {}, env);
+      expect(res.status).toBe(200);
+      expect(await res.text()).toContain('pagead2.googlesyndication.com/pagead/js/adsbygoogle.js');
+    }
+
+    // 404, login portals, submit-job form, and noindex search pages omit adsbygoogle.js
+    for (const nonContentUrl of [
+      'https://jobs-in-istanbul.com/ar/jobs/non-existent-slug-999',
+      'https://jobs-in-istanbul.com/ar/unknown-404-page',
+      'https://jobs-in-istanbul.com/ar/employer/login',
+      'https://jobs-in-istanbul.com/ar/candidate/login',
+      'https://jobs-in-istanbul.com/ar/submit-job',
+      'https://jobs-in-istanbul.com/ar?search=developer'
+    ]) {
+      const res = await app.request(nonContentUrl, {}, env);
+      expect(await res.text()).not.toContain('pagead2.googlesyndication.com/pagead/js/adsbygoogle.js');
+    }
+  });
 });

@@ -1146,9 +1146,11 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
     gtag('js', new Date());
     gtag('config', '${c.env?.GA4_MEASUREMENT_ID || 'G-9DQNV5MNFF'}', { send_page_view: true });
   </script>
-  <!-- Google AdSense Account Verification & Auto-Ads -->
+  <!-- Google AdSense Account Verification & Auto-Ads (suppressed on 404/noindex/auth/form-only screens per AdSense Policy) -->
   <meta name="google-adsense-account" content="ca-pub-2220383290034920">
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2220383290034920" crossorigin="anonymous"></script>
+  ${(/\bnoindex\b/i.test(seoHtml || '') || /(?:^|\/)(?:employer|candidate|admin|auth|login|register|verify|submit-job|install)(?:\/|$)/i.test(requestPath || ''))
+    ? ''
+    : '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2220383290034920" crossorigin="anonymous"></script>'}
   ${seoHtml ? seoHtml : `<title>${title} | ${t.tagline}</title>`}
 
   <!-- كود ربط ملف معلومات التطبيق Manifest -->
