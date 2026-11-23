@@ -253,6 +253,21 @@ export function isPlaceholderCompanyDesc(desc: unknown): boolean {
   return /^\s*automatically created company/i.test(String(desc ?? ''));
 }
 
+export function formatPublicEmployerName(rawName: unknown, locale: string = 'ar'): string {
+  const name = String(rawName || '').replace(/\s+/g, ' ').trim();
+  const isGeneric =
+    !name ||
+    name.length < 2 ||
+    /^(?:acme(?:\s+\w+)*|adwhit|jobsintr(?:\.net)?|company|unknown|unspecified(?:\s+company)?|confidential|n\/a|none|shop\s*owner|private\s+dental\s+clinic|istanbul\s+employer|شركة\s+غير\s+محددة)$/i.test(name) ||
+    /acme\s*corp|adwhit/i.test(name);
+  if (isGeneric) {
+    if (locale === 'ar') return 'جهة عمل في إسطنبول';
+    if (locale === 'tr') return 'İstanbul İşvereni';
+    return 'Istanbul Employer';
+  }
+  return name;
+}
+
 export const ISTANBUL_DISTRICTS = [
   { en: 'Adalar', ar: 'الأمراء' },
   { en: 'Arnavutkoy', ar: 'أرناؤوط كوي' },
@@ -3573,7 +3588,7 @@ publicRouter.get(
       }
     }
 
-    const companyName = company.name || job.company_name || job.company || 'Company';
+    const companyName = formatPublicEmployerName(company.name || job.company_name || job.company, locale);
     const companyLogo = company.logo || '';
     const companyDesc = isPlaceholderCompanyDesc(company.description) ? '' : (company.description || '');
     const companyInitial = (companyName.charAt(0) || 'C').toUpperCase();

@@ -235,6 +235,33 @@ seoRouter.get('/sitemap.xml', async (c) => {
     <lastmod>${now}</lastmod>
   </sitemap>`).join('');
 
+  // Only advertise /sitemap-companies.xml in the master sitemap index when rich company profiles exist
+  let hasRichCompanies = false;
+  try {
+    const db = (c.env as any)?.DB;
+    if (db) {
+      const compRes = await safeQuery(() => db.prepare(
+        `SELECT data FROM documents WHERE type_id = 'companies' AND status = 'published' AND is_published = 1 AND slug IS NOT NULL LIMIT 50`
+      ).all(), 1, 50);
+      hasRichCompanies = (compRes?.results || []).some((r: any) => {
+        try {
+          const p = typeof r.data === 'string' ? JSON.parse(r.data || '{}') : (r.data || {});
+          const d = String(p.description || '').trim();
+          return d.length >= 30 && !/^\s*automatically created company/i.test(d);
+        } catch (e) {
+          return false;
+        }
+      });
+    }
+  } catch (e) {
+    hasRichCompanies = false;
+  }
+  const companiesSitemapEntry = hasRichCompanies ? `
+  <sitemap>
+    <loc>${siteUrl}/sitemap-companies.xml</loc>
+    <lastmod>${now}</lastmod>
+  </sitemap>` : '';
+
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap>
@@ -244,11 +271,7 @@ seoRouter.get('/sitemap.xml', async (c) => {
   <sitemap>
     <loc>${siteUrl}/sitemap-jobs.xml</loc>
     <lastmod>${now}</lastmod>
-  </sitemap>${extraJobSitemaps}
-  <sitemap>
-    <loc>${siteUrl}/sitemap-companies.xml</loc>
-    <lastmod>${now}</lastmod>
-  </sitemap>
+  </sitemap>${extraJobSitemaps}${companiesSitemapEntry}
   <sitemap>
     <loc>${siteUrl}/sitemap-blog.xml</loc>
     <lastmod>${now}</lastmod>
