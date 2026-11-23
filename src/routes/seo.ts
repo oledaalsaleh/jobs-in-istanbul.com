@@ -116,6 +116,7 @@ const buildLlmsTxt = (full: boolean) => {
 - [Entry-Level Jobs](https://jobs-in-istanbul.com/ar/entry-level-jobs)
 
 ## Live Daily Turkey Trackers & Official 2026 Calculators
+- [All 22 Free Istanbul & Turkey Smart Tools Hub](https://jobs-in-istanbul.com/ar/tools): Categorized directory of every work, residence, finance, transit, and live daily tool in Türkiye.
 - [Live TRY Currency Exchange Rates](https://jobs-in-istanbul.com/ar/currency-prices): Real-time USD, EUR, GBP, SAR to Turkish Lira rates.
 - [Live Turkey Gold Prices](https://jobs-in-istanbul.com/ar/gold-prices): Gram, Quarter, 24K, 22K, 21K gold prices in TL.
 - [Istanbul & Turkey Fuel Prices](https://jobs-in-istanbul.com/ar/akaryakit-fiyatlari): Daily gasoline, diesel, and LPG prices on European & Anatolian sides.
@@ -334,6 +335,7 @@ seoRouter.get('/sitemap-static.xml', async (c) => {
     { ar: '/ar/prayer-times', en: '/en/prayer-times', tr: '/tr/prayer-times', ru: '/ru/prayer-times', fa: '/fa/prayer-times', ur: '/ur/prayer-times' },
     { ar: '/ar/turkey-holidays', en: '/en/turkey-holidays', tr: '/tr/turkey-holidays', ru: '/ru/turkey-holidays', fa: '/fa/turkey-holidays', ur: '/ur/turkey-holidays' },
     { ar: '/ar/istanbul-guide-directory', en: '/en/istanbul-guide-directory', tr: '/tr/istanbul-guide-directory', ru: '/ru/istanbul-guide-directory', fa: '/fa/istanbul-guide-directory', ur: '/ur/istanbul-guide-directory' },
+    { ar: '/ar/tools', en: '/en/tools', tr: '/tr/tools', ru: '/ru/tools', fa: '/fa/tools', ur: '/ur/tools' },
     { ar: '/ar/cv-optimizer', en: '/en/cv-optimizer', tr: '/tr/cv-optimizer', ru: '/ru/cv-optimizer', fa: '/fa/cv-optimizer', ur: '/ur/cv-optimizer' },
     { ar: '/ar/salary-calculator', en: '/en/salary-calculator', tr: '/tr/salary-calculator', ru: '/ru/salary-calculator', fa: '/fa/salary-calculator', ur: '/ur/salary-calculator' },
     { ar: '/ar/resume-builder', en: '/en/resume-builder', tr: '/tr/resume-builder', ru: '/ru/resume-builder', fa: '/fa/resume-builder', ur: '/ur/resume-builder' },

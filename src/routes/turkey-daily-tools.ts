@@ -444,6 +444,8 @@ turkeyDailyToolsRouter.get('/:locale/prayer-times', async (c) => {
       })();
     </script>
   `
+  c.header('Cache-Control', 'public, max-age=300, s-maxage=1800, stale-while-revalidate=3600')
+  c.header('CDN-Cache-Control', 'public, max-age=1800, stale-while-revalidate=3600')
   return c.html(renderLayout(c, copy.title, bodyHtml, locale, seoHtml))
 })
 
@@ -748,6 +750,8 @@ turkeyDailyToolsRouter.get('/:locale/turkey-holidays', (c) => {
       });
     </script>
   `
+  c.header('Cache-Control', 'public, max-age=600, s-maxage=3600, stale-while-revalidate=86400')
+  c.header('CDN-Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400')
   return c.html(renderLayout(c, copy.title, bodyHtml, locale, seoHtml))
 })
 
@@ -1031,5 +1035,7 @@ turkeyDailyToolsRouter.get('/:locale/istanbul-guide-directory', (c) => {
       }
     </script>
   `
+  c.header('Cache-Control', 'public, max-age=600, s-maxage=3600, stale-while-revalidate=86400')
+  c.header('CDN-Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400')
   return c.html(renderLayout(c, copy.title, bodyHtml, locale, seoHtml))
 })

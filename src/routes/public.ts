@@ -1276,6 +1276,39 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
             width: 18px;
             text-align: center;
           }
+          .nav-mega-tools {
+            min-width: 740px;
+            padding: 14px;
+            max-height: 82vh;
+            overflow-y: auto;
+          }
+          .mega-tools-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+          }
+          .mega-col-title {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-muted);
+            padding: 6px 10px 6px;
+            margin-bottom: 4px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+          }
+          .nav-mega-tools .dropdown-item {
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 0.81rem;
+            gap: 8px;
+          }
+          .nav-mega-tools .dropdown-item:hover {
+            padding-inline-start: 13px;
+          }
           @keyframes dropdownFade {
             from { opacity: 0; transform: translate(-50%, 8px); }
             to { opacity: 1; transform: translate(-50%, 0); }
@@ -1316,98 +1349,113 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
             </div>
           </li>
 
-          <!-- Dropdown: Career & Rules -->
+          <!-- Dropdown: Career & Rules (Categorized Mega-Menu) -->
           <li class="nav-dropdown">
-            <a href="#" class="nav-link" onclick="event.preventDefault()">
+            <a href="/${locale}/tools" class="nav-link">
               <i class="fa-solid fa-toolbox nav-icon" style="color: #0ea5e9;"></i>
               <span>${t.toolsAndTests}</span>
               <i class="fa-solid fa-chevron-down nav-chevron"></i>
             </a>
-            <div class="nav-dropdown-menu" style="max-height: 76vh; overflow-y: auto;">
-              <a href="/${locale}/work-permit-eligibility" class="dropdown-item">
-                <img width="24" height="24" src="/public/images/3d-icons/justice.png" alt="Eligibility" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
-                <span style="font-weight: 700; color: var(--primary);">${t.workPermitEligibility}</span>
+            <div class="nav-dropdown-menu nav-mega-tools">
+              <a href="/${locale}/tools" style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; margin-bottom:12px; border-radius:10px; background:linear-gradient(135deg, rgba(14,165,233,0.12), rgba(99,102,241,0.12)); border:1px solid var(--border); color:var(--primary); font-weight:800; font-size:0.86rem; text-decoration:none;">
+                <span><i class="fa-solid fa-grid-2" style="margin-inline-end:8px;"></i>${locale === 'ar' ? 'مركز جميع الأدوات والحاسبات المجانية (22 أداة)' : (locale === 'tr' ? 'Tüm Ücretsiz Araçlar Merkezi (22 Araç)' : 'All 22 Free Istanbul & Turkey Tools Hub')}</span>
+                <i class="fa-solid ${isRtl ? 'fa-arrow-left' : 'fa-arrow-right'}"></i>
               </a>
-              <a href="/${locale}/investor-calculator" class="dropdown-item">
-                <img width="24" height="24" src="/public/images/3d-icons/realestate.png" alt="Investor" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
-                <span style="font-weight: 700; color: #6366f1;">${t.investorCalculator}</span>
-              </a>
-              <a href="/${locale}/salary-calculator-2026" class="dropdown-item">
-                <img width="24" height="24" src="/public/images/3d-icons/calculator.png" alt="Calculator" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
-                <span style="font-weight: 700; color: #ec4899;">${t.salaryCalculator2026}</span>
-              </a>
-              <a href="/${locale}/resume-builder" class="dropdown-item">
-                <img width="24" height="24" src="/public/images/3d-icons/document.png" alt="CV" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
-                <span>${t.cvBuilder}</span>
-              </a>
-              <a href="/${locale}/work-permit-calculator" class="dropdown-item">
-                <img width="24" height="24" src="/public/images/3d-icons/justice.png" alt="Work Permit" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
-                <span>${t.workPermit}</span>
-              </a>
-              <a href="/${locale}/turkish-test" class="dropdown-item">
-                <img width="24" height="24" src="/public/images/3d-icons/quiz.png" alt="Turkish Test" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
-                <span>${t.turkishTest}</span>
-              </a>
-              <a href="/${locale}/salary-calculator" class="dropdown-item">
-                <img width="24" height="24" src="/public/images/3d-icons/calculator.png" alt="Salary" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
-                <span>${t.salaryCalc}</span>
-              </a>
-              <a href="/${locale}/currency-prices" class="dropdown-item">
-                <img width="24" height="24" src="/public/images/3d-icons/coins.png" alt="Currency" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
-                <span style="font-weight: 700; color: #0284c7;">${t.currencyPrices}</span>
-              </a>
-              <a href="/${locale}/gold-prices" class="dropdown-item">
-                <img width="24" height="24" src="/public/images/3d-icons/gold.png" alt="Gold" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
-                <span style="font-weight: 700; color: #d97706;">${t.goldPrices}</span>
-              </a>
-              <a href="/${locale}/nobetci-eczane" class="dropdown-item">
-                <img width="24" height="24" src="/public/images/3d-icons/pharmacy.png" alt="Pharmacy" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
-                <span style="font-weight: 700; color: #059669;">${t.dutyPharmacies}</span>
-              </a>
-              <a href="/${locale}/kira-artis-orani" class="dropdown-item">
-                <img width="24" height="24" src="/public/images/3d-icons/calculator.png" alt="Rent" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
-                <span>${t.kiraArtis}</span>
-              </a>
-              <a href="/${locale}/akaryakit-fiyatlari" class="dropdown-item">
-                <img width="24" height="24" src="/public/images/3d-icons/fuel.png" alt="Fuel" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
-                <span style="font-weight: 700; color: #ea580c;">${t.fuelPrices}</span>
-              </a>
-              <a href="/${locale}/kidem-tazminati-hesaplama" class="dropdown-item">
-                <img width="24" height="24" src="/public/images/3d-icons/justice.png" alt="Severance" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
-                <span style="font-weight: 700; color: #059669;">${t.severanceCalc || 'حاسبة تعويض نهاية الخدمة'}</span>
-              </a>
-              <a href="/${locale}/dilekce-generator" class="dropdown-item">
-                <i class="fa-solid fa-file-signature" style="color: #2563eb; width:24px; text-align:center; margin-inline-end:10px;"></i>
-                <span style="font-weight: 700;">${locale === 'ar' ? 'مولّد خطابات تركية رسمية (Dilekçe PDF)' : (locale === 'tr' ? 'Resmi Dilekçe Oluşturucu (PDF)' : 'Turkish Official Letter Studio (Dilekçe)')}</span>
-              </a>
-              <a href="/${locale}/istanbulkart-calculator" class="dropdown-item">
-                <i class="fa-solid fa-train-subway" style="color: #0284c7; width:24px; text-align:center; margin-inline-end:10px;"></i>
-                <span style="font-weight: 700;">${locale === 'ar' ? 'حاسبة كرت إسطنبول و Mavi Kart' : (locale === 'tr' ? 'İstanbulkart & Mavi Kart Hesaplama' : 'Istanbulkart & Mavi Kart Calculator')}</span>
-              </a>
-              <a href="/${locale}/ikamet-calculator" class="dropdown-item">
-                <i class="fa-solid fa-passport" style="color: #7c3aed; width:24px; text-align:center; margin-inline-end:10px;"></i>
-                <span style="font-weight: 700;">${locale === 'ar' ? 'حاسبة تكاليف الإقامة والتأمين الصحي' : (locale === 'tr' ? 'İkamet İzni & Sigorta Hesaplama' : 'Residence Permit (İkamet) Calculator')}</span>
-              </a>
-              <a href="/${locale}/imei-calculator" class="dropdown-item">
-                <i class="fa-solid fa-mobile-retro" style="color: #d97706; width:24px; text-align:center; margin-inline-end:10px;"></i>
-                <span style="font-weight: 700;">${locale === 'ar' ? 'حاسبة مهلة 120+120 يوم وتتريك IMEI' : (locale === 'tr' ? 'IMEI Kayıt & 120+120 Gün Hesaplama' : 'Foreign Phone 120-Day & IMEI Tracker')}</span>
-              </a>
-              <a href="/${locale}/prayer-times" class="dropdown-item">
-                <i class="fa-solid fa-mosque" style="color: #059669; width:24px; text-align:center; margin-inline-end:10px;"></i>
-                <span style="font-weight: 700; color: #059669;">${locale === 'ar' ? 'مواقيت الصلاة في تركيا (الديانة)' : (locale === 'tr' ? 'Diyanet Namaz Vakitleri' : 'Turkey Diyanet Prayer Times')}</span>
-              </a>
-              <a href="/${locale}/turkey-holidays" class="dropdown-item">
-                <i class="fa-solid fa-calendar-days" style="color: #dc2626; width:24px; text-align:center; margin-inline-end:10px;"></i>
-                <span style="font-weight: 700;">${locale === 'ar' ? 'العطل الرسمية وحاسبة أجر العطلة' : (locale === 'tr' ? '2026 Resmi Tatiller & Mesai' : 'Turkey Holidays & Overtime Pay')}</span>
-              </a>
-              <a href="/${locale}/istanbul-guide-directory" class="dropdown-item">
-                <i class="fa-solid fa-envelopes-bulk" style="color: #4f46e5; width:24px; text-align:center; margin-inline-end:10px;"></i>
-                <span style="font-weight: 700;">${locale === 'ar' ? 'الرموز البريدية لإسطنبول وأرقام الطوارئ' : (locale === 'tr' ? 'İstanbul 39 İlçe Posta Kodları' : 'Istanbul Postal Codes & Hotlines')}</span>
-              </a>
-              <a href="/${locale}/install" class="dropdown-item">
-                <img width="24" height="24" src="/public/images/3d-icons/globe.png" alt="App" class="icon-3d-img" style="width:24px; height:24px; margin-inline-end:10px;">
-                <span>${t.installApp}</span>
-              </a>
+              <div class="mega-tools-grid">
+                <div>
+                  <div class="mega-col-title"><i class="fa-solid fa-briefcase" style="color:#2563eb;"></i><span>${locale === 'ar' ? 'العمل والرواتب والقانون' : (locale === 'tr' ? 'İş, Maaş & Hukuk' : 'Work, Salary & Legal')}</span></div>
+                  <a href="/${locale}/dilekce-generator" class="dropdown-item">
+                    <i class="fa-solid fa-file-signature" style="color: #2563eb;"></i>
+                    <span style="font-weight: 700;">${locale === 'ar' ? 'مولّد خطابات تركية (Dilekçe PDF)' : (locale === 'tr' ? 'Resmi Dilekçe Oluşturucu (PDF)' : 'Turkish Dilekçe Studio (PDF)')}</span>
+                  </a>
+                  <a href="/${locale}/salary-calculator-2026" class="dropdown-item">
+                    <img width="20" height="20" src="/public/images/3d-icons/calculator.png" alt="Calculator" class="icon-3d-img" style="width:20px; height:20px;">
+                    <span style="font-weight: 700; color: #ec4899;">${t.salaryCalculator2026}</span>
+                  </a>
+                  <a href="/${locale}/kidem-tazminati-hesaplama" class="dropdown-item">
+                    <img width="20" height="20" src="/public/images/3d-icons/justice.png" alt="Severance" class="icon-3d-img" style="width:20px; height:20px;">
+                    <span style="font-weight: 700; color: #059669;">${t.severanceCalc || 'حاسبة تعويض نهاية الخدمة'}</span>
+                  </a>
+                  <a href="/${locale}/turkey-holidays" class="dropdown-item">
+                    <i class="fa-solid fa-calendar-days" style="color: #dc2626;"></i>
+                    <span style="font-weight: 700;">${locale === 'ar' ? 'العطل الرسمية وحاسبة أجر العطلة' : (locale === 'tr' ? '2026 Resmi Tatiller & Mesai' : 'Turkey Holidays & Pay Calc')}</span>
+                  </a>
+                  <a href="/${locale}/work-permit-eligibility" class="dropdown-item">
+                    <img width="20" height="20" src="/public/images/3d-icons/justice.png" alt="Eligibility" class="icon-3d-img" style="width:20px; height:20px;">
+                    <span style="font-weight: 700; color: var(--primary);">${t.workPermitEligibility}</span>
+                  </a>
+                  <a href="/${locale}/investor-calculator" class="dropdown-item">
+                    <img width="20" height="20" src="/public/images/3d-icons/realestate.png" alt="Investor" class="icon-3d-img" style="width:20px; height:20px;">
+                    <span style="font-weight: 700; color: #6366f1;">${t.investorCalculator}</span>
+                  </a>
+                  <a href="/${locale}/resume-builder" class="dropdown-item">
+                    <img width="20" height="20" src="/public/images/3d-icons/document.png" alt="CV" class="icon-3d-img" style="width:20px; height:20px;">
+                    <span>${t.cvBuilder}</span>
+                  </a>
+                  <a href="/${locale}/turkish-test" class="dropdown-item">
+                    <img width="20" height="20" src="/public/images/3d-icons/quiz.png" alt="Turkish Test" class="icon-3d-img" style="width:20px; height:20px;">
+                    <span>${t.turkishTest}</span>
+                  </a>
+                </div>
+                <div>
+                  <div class="mega-col-title"><i class="fa-solid fa-city" style="color:#7c3aed;"></i><span>${locale === 'ar' ? 'المعيشة والإقامة في إسطنبول' : (locale === 'tr' ? 'Yaşam & İkamet' : 'Living & Residence')}</span></div>
+                  <a href="/${locale}/ikamet-calculator" class="dropdown-item">
+                    <i class="fa-solid fa-passport" style="color: #7c3aed;"></i>
+                    <span style="font-weight: 700;">${locale === 'ar' ? 'حاسبة تكاليف الإقامة والتأمين' : (locale === 'tr' ? 'İkamet İzni & Sigorta' : 'İkamet Cost Calculator')}</span>
+                  </a>
+                  <a href="/${locale}/istanbulkart-calculator" class="dropdown-item">
+                    <i class="fa-solid fa-train-subway" style="color: #0284c7;"></i>
+                    <span style="font-weight: 700;">${locale === 'ar' ? 'حاسبة كرت إسطنبول و Mavi Kart' : (locale === 'tr' ? 'İstanbulkart & Mavi Kart' : 'Istanbulkart & Mavi Kart')}</span>
+                  </a>
+                  <a href="/${locale}/imei-calculator" class="dropdown-item">
+                    <i class="fa-solid fa-mobile-retro" style="color: #d97706;"></i>
+                    <span style="font-weight: 700;">${locale === 'ar' ? 'حاسبة 120+120 يوم وتتريك IMEI' : (locale === 'tr' ? 'IMEI Kayıt & 120+120 Gün' : '120-Day & IMEI Tracker')}</span>
+                  </a>
+                  <a href="/${locale}/kira-artis-orani" class="dropdown-item">
+                    <img width="20" height="20" src="/public/images/3d-icons/calculator.png" alt="Rent" class="icon-3d-img" style="width:20px; height:20px;">
+                    <span>${t.kiraArtis}</span>
+                  </a>
+                  <a href="/${locale}/istanbul-guide-directory" class="dropdown-item">
+                    <i class="fa-solid fa-envelopes-bulk" style="color: #4f46e5;"></i>
+                    <span style="font-weight: 700;">${locale === 'ar' ? 'الرموز البريدية الـ 39 والطوارئ' : (locale === 'tr' ? 'İstanbul 39 İlçe Posta Kodu' : 'Istanbul 39 Zip Codes & 112')}</span>
+                  </a>
+                  <a href="/${locale}/work-permit-calculator" class="dropdown-item">
+                    <img width="20" height="20" src="/public/images/3d-icons/justice.png" alt="Work Permit" class="icon-3d-img" style="width:20px; height:20px;">
+                    <span>${t.workPermit}</span>
+                  </a>
+                  <a href="/${locale}/salary-calculator" class="dropdown-item">
+                    <img width="20" height="20" src="/public/images/3d-icons/calculator.png" alt="Salary" class="icon-3d-img" style="width:20px; height:20px;">
+                    <span>${t.salaryCalc}</span>
+                  </a>
+                </div>
+                <div>
+                  <div class="mega-col-title"><i class="fa-solid fa-bolt" style="color:#059669;"></i><span>${locale === 'ar' ? 'الأسعار والخدمات اليومية' : (locale === 'tr' ? 'Canlı Fiyatlar & Günlük' : 'Live Daily Trackers')}</span></div>
+                  <a href="/${locale}/prayer-times" class="dropdown-item">
+                    <i class="fa-solid fa-mosque" style="color: #059669;"></i>
+                    <span style="font-weight: 700; color: #059669;">${locale === 'ar' ? 'مواقيت الصلاة في تركيا (الديانة)' : (locale === 'tr' ? 'Diyanet Namaz Vakitleri' : 'Turkey Diyanet Prayer Times')}</span>
+                  </a>
+                  <a href="/${locale}/currency-prices" class="dropdown-item">
+                    <img width="20" height="20" src="/public/images/3d-icons/coins.png" alt="Currency" class="icon-3d-img" style="width:20px; height:20px;">
+                    <span style="font-weight: 700; color: #0284c7;">${t.currencyPrices}</span>
+                  </a>
+                  <a href="/${locale}/gold-prices" class="dropdown-item">
+                    <img width="20" height="20" src="/public/images/3d-icons/gold.png" alt="Gold" class="icon-3d-img" style="width:20px; height:20px;">
+                    <span style="font-weight: 700; color: #d97706;">${t.goldPrices}</span>
+                  </a>
+                  <a href="/${locale}/akaryakit-fiyatlari" class="dropdown-item">
+                    <img width="20" height="20" src="/public/images/3d-icons/fuel.png" alt="Fuel" class="icon-3d-img" style="width:20px; height:20px;">
+                    <span style="font-weight: 700; color: #ea580c;">${t.fuelPrices}</span>
+                  </a>
+                  <a href="/${locale}/nobetci-eczane" class="dropdown-item">
+                    <img width="20" height="20" src="/public/images/3d-icons/pharmacy.png" alt="Pharmacy" class="icon-3d-img" style="width:20px; height:20px;">
+                    <span style="font-weight: 700; color: #059669;">${t.dutyPharmacies}</span>
+                  </a>
+                  <a href="/${locale}/install" class="dropdown-item">
+                    <img width="20" height="20" src="/public/images/3d-icons/globe.png" alt="App" class="icon-3d-img" style="width:20px; height:20px;">
+                    <span>${t.installApp}</span>
+                  </a>
+                </div>
+              </div>
             </div>
           </li>
           
@@ -1552,27 +1600,36 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         <a href="/${locale}/cover-letter-generator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-envelope-open-text" style="color: var(--accent); width: 20px; text-align: center;"></i> <span>${t.coverLetter}</span></a>
         <a href="/${locale}/interview-prep" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-comments" style="color: #10b981; width: 20px; text-align: center;"></i> <span>${t.interviewPrep}</span></a>
 
-        <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-top:14px; margin-bottom:6px; padding-inline-start:16px; letter-spacing:0.05em; display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-toolbox" style="color: #0ea5e9;"></i><span>${t.toolsAndTests}</span></div>
+        <a href="/${locale}/tools" style="margin-top:12px; padding:11px 14px; border-radius:var(--r-md); background:linear-gradient(135deg, rgba(14,165,233,0.14), rgba(99,102,241,0.14)); border:1px solid var(--border); color:var(--primary); font-weight:800; display:flex; align-items:center; justify-content:space-between; gap:8px; text-decoration:none;">
+          <span style="display:flex;align-items:center;gap:8px;"><i class="fa-solid fa-toolbox"></i>${locale === 'ar' ? 'مركز جميع الأدوات (22)' : (locale === 'tr' ? 'Tüm Araçlar Merkezi (22)' : 'All 22 Tools Hub')}</span>
+          <i class="fa-solid ${isRtl ? 'fa-arrow-left' : 'fa-arrow-right'}"></i>
+        </a>
+
+        <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-top:14px; margin-bottom:6px; padding-inline-start:16px; letter-spacing:0.05em; display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-briefcase" style="color: #2563eb;"></i><span>${locale === 'ar' ? 'العمل والرواتب والقانون' : (locale === 'tr' ? 'İş, Maaş & Hukuk' : 'Work, Salary & Legal')}</span></div>
+        <a href="/${locale}/dilekce-generator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-file-signature" style="color:#2563eb; width:24px; text-align:center;"></i> <span>${locale === 'ar' ? 'مولّد خطابات تركية (Dilekçe PDF)' : (locale === 'tr' ? 'Resmi Dilekçe Oluşturucu' : 'Turkish Dilekçe Studio')}</span></a>
+        <a href="/${locale}/salary-calculator-2026" style="padding:10px 16px; border-radius:var(--r-md); color:#ec4899; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/calculator.png" alt="Calculator" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.salaryCalculator2026}</span></a>
+        <a href="/${locale}/kidem-tazminati-hesaplama" style="padding:10px 16px; border-radius:var(--r-md); color:#059669; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/justice.png" alt="Severance" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.severanceCalc || 'حاسبة تعويض نهاية الخدمة'}</span></a>
+        <a href="/${locale}/turkey-holidays" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-calendar-days" style="color:#dc2626; width:24px; text-align:center;"></i> <span>${locale === 'ar' ? 'العطل الرسمية وحاسبة أجر العطلة' : (locale === 'tr' ? 'Resmi Tatiller & Mesai' : 'Turkey Public Holidays')}</span></a>
         <a href="/${locale}/work-permit-eligibility" style="padding:10px 16px; border-radius:var(--r-md); color:var(--primary); font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/justice.png" alt="Eligibility" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.workPermitEligibility}</span></a>
         <a href="/${locale}/investor-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:#6366f1; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/realestate.png" alt="Investor" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.investorCalculator}</span></a>
-        <a href="/${locale}/salary-calculator-2026" style="padding:10px 16px; border-radius:var(--r-md); color:#ec4899; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/calculator.png" alt="Calculator" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.salaryCalculator2026}</span></a>
         <a href="/${locale}/resume-builder" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/document.png" alt="CV" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.cvBuilder}</span></a>
-        <a href="/${locale}/work-permit-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/justice.png" alt="Work Permit" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.workPermit}</span></a>
         <a href="/${locale}/turkish-test" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/quiz.png" alt="Quiz" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.turkishTest}</span></a>
+
+        <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-top:14px; margin-bottom:6px; padding-inline-start:16px; letter-spacing:0.05em; display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-city" style="color: #7c3aed;"></i><span>${locale === 'ar' ? 'المعيشة والإقامة في إسطنبول' : (locale === 'tr' ? 'Yaşam & İkamet' : 'Living & Residence')}</span></div>
+        <a href="/${locale}/ikamet-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-passport" style="color:#7c3aed; width:24px; text-align:center;"></i> <span>${locale === 'ar' ? 'حاسبة تكاليف الإقامة في تركيا' : (locale === 'tr' ? 'İkamet İzni Hesaplama' : 'Ikamet Cost Calculator')}</span></a>
+        <a href="/${locale}/istanbulkart-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-train-subway" style="color:#0284c7; width:24px; text-align:center;"></i> <span>${locale === 'ar' ? 'حاسبة كرت إسطنبول والمواصلات' : (locale === 'tr' ? 'İstanbulkart Hesaplama' : 'Istanbulkart Calculator')}</span></a>
+        <a href="/${locale}/imei-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-mobile-retro" style="color:#d97706; width:24px; text-align:center;"></i> <span>${locale === 'ar' ? 'حاسبة تتريك الهاتف IMEI' : (locale === 'tr' ? 'IMEI 120+120 Gün Takibi' : 'IMEI & 120-Day Tracker')}</span></a>
+        <a href="/${locale}/kira-artis-orani" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/calculator.png" alt="Rent" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.kiraArtis}</span></a>
+        <a href="/${locale}/istanbul-guide-directory" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-envelopes-bulk" style="color:#4f46e5; width:24px; text-align:center;"></i> <span>${locale === 'ar' ? 'الرموز البريدية وأرقام الطوارئ' : (locale === 'tr' ? 'İstanbul Posta Kodları' : 'Istanbul Postal Codes')}</span></a>
+        <a href="/${locale}/work-permit-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/justice.png" alt="Work Permit" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.workPermit}</span></a>
         <a href="/${locale}/salary-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/calculator.png" alt="Salary" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.salaryCalc}</span></a>
+
+        <div style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-top:14px; margin-bottom:6px; padding-inline-start:16px; letter-spacing:0.05em; display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-bolt" style="color: #059669;"></i><span>${locale === 'ar' ? 'الأسعار والخدمات اليومية' : (locale === 'tr' ? 'Canlı Fiyatlar & Günlük' : 'Live Daily Trackers')}</span></div>
+        <a href="/${locale}/prayer-times" style="padding:10px 16px; border-radius:var(--r-md); color:#059669; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-mosque" style="color:#059669; width:24px; text-align:center;"></i> <span>${locale === 'ar' ? 'مواقيت الصلاة في تركيا' : (locale === 'tr' ? 'Diyanet Namaz Vakitleri' : 'Turkey Prayer Times')}</span></a>
         <a href="/${locale}/currency-prices" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/coins.png" alt="Currency" class="icon-3d-img" style="width:24px; height:24px;"> <span style="font-weight:700; color:#0284c7;">${t.currencyPrices}</span></a>
         <a href="/${locale}/gold-prices" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/gold.png" alt="Gold" class="icon-3d-img" style="width:24px; height:24px;"> <span style="font-weight:700; color:#d97706;">${t.goldPrices}</span></a>
-        <a href="/${locale}/nobetci-eczane" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/pharmacy.png" alt="Pharmacy" class="icon-3d-img" style="width:24px; height:24px;"> <span style="font-weight:700; color:#059669;">${t.dutyPharmacies}</span></a>
-        <a href="/${locale}/kira-artis-orani" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/calculator.png" alt="Rent" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.kiraArtis}</span></a>
         <a href="/${locale}/akaryakit-fiyatlari" style="padding:10px 16px; border-radius:var(--r-md); color:#ea580c; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/fuel.png" alt="Fuel" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.fuelPrices}</span></a>
-        <a href="/${locale}/kidem-tazminati-hesaplama" style="padding:10px 16px; border-radius:var(--r-md); color:#059669; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/justice.png" alt="Severance" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.severanceCalc || 'حاسبة تعويض نهاية الخدمة'}</span></a>
-        <a href="/${locale}/dilekce-generator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-file-signature" style="color:#2563eb; width:24px; text-align:center;"></i> <span>${locale === 'ar' ? 'مولّد خطابات تركية (Dilekçe PDF)' : (locale === 'tr' ? 'Resmi Dilekçe Oluşturucu' : 'Turkish Dilekçe Studio')}</span></a>
-        <a href="/${locale}/istanbulkart-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-train-subway" style="color:#0284c7; width:24px; text-align:center;"></i> <span>${locale === 'ar' ? 'حاسبة كرت إسطنبول والمواصلات' : (locale === 'tr' ? 'İstanbulkart Hesaplama' : 'Istanbulkart Calculator')}</span></a>
-        <a href="/${locale}/ikamet-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-passport" style="color:#7c3aed; width:24px; text-align:center;"></i> <span>${locale === 'ar' ? 'حاسبة تكاليف الإقامة في تركيا' : (locale === 'tr' ? 'İkamet İzni Hesaplama' : 'Ikamet Cost Calculator')}</span></a>
-        <a href="/${locale}/imei-calculator" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-mobile-retro" style="color:#d97706; width:24px; text-align:center;"></i> <span>${locale === 'ar' ? 'حاسبة تتريك الهاتف IMEI' : (locale === 'tr' ? 'IMEI 120+120 Gün Takibi' : 'IMEI & 120-Day Tracker')}</span></a>
-        <a href="/${locale}/prayer-times" style="padding:10px 16px; border-radius:var(--r-md); color:#059669; font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-mosque" style="color:#059669; width:24px; text-align:center;"></i> <span>${locale === 'ar' ? 'مواقيت الصلاة في تركيا' : (locale === 'tr' ? 'Diyanet Namaz Vakitleri' : 'Turkey Prayer Times')}</span></a>
-        <a href="/${locale}/turkey-holidays" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-calendar-days" style="color:#dc2626; width:24px; text-align:center;"></i> <span>${locale === 'ar' ? 'العطل الرسمية وحاسبة أجر العطلة' : (locale === 'tr' ? 'Resmi Tatiller & Mesai' : 'Turkey Public Holidays')}</span></a>
-        <a href="/${locale}/istanbul-guide-directory" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:700; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-envelopes-bulk" style="color:#4f46e5; width:24px; text-align:center;"></i> <span>${locale === 'ar' ? 'الرموز البريدية وأرقام الطوارئ' : (locale === 'tr' ? 'İstanbul Posta Kodları' : 'Istanbul Postal Codes')}</span></a>
+        <a href="/${locale}/nobetci-eczane" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/pharmacy.png" alt="Pharmacy" class="icon-3d-img" style="width:24px; height:24px;"> <span style="font-weight:700; color:#059669;">${t.dutyPharmacies}</span></a>
         <a href="/${locale}/install" style="padding:10px 16px; border-radius:var(--r-md); color:var(--text-heading); font-weight:600; display:flex; align-items:center; gap:10px; transition:var(--t-base);" onmouseover="this.style.background='var(--bg-subtle)'" onmouseout="this.style.background='transparent'"><img width="24" height="24" src="/public/images/3d-icons/globe.png" alt="App" class="icon-3d-img" style="width:24px; height:24px;"> <span>${t.installApp}</span></a>
 
         <div style="margin-top:14px; border-top:1px solid var(--border); padding-top:10px; display:flex; flex-direction:column; gap:6px;">
@@ -1674,6 +1731,7 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
         </ul>
         <ul class="footer-links">
           <li class="footer-col-title">${t.smartTools}</li>
+          <li><a href="/${locale}/tools" style="font-weight: 800; color: #38bdf8; display:inline-flex; align-items:center; gap:6px;"><i class="fa-solid fa-toolbox"></i><span>${locale === 'ar' ? 'مركز جميع الأدوات المجانية (22 أداة)' : (locale === 'tr' ? 'Tüm Ücretsiz Araçlar Merkezi (22)' : 'All 22 Free Tools Hub')}</span></a></li>
           <li><a href="/${locale}/apps" style="font-weight: 800; color: #818cf8; display:inline-flex; align-items:center; gap:6px;"><i class="fa-solid fa-mobile-screen-button"></i><span>${locale === 'ar' ? 'باقة تطبيقاتنا على Google Play' : (locale === 'tr' ? 'Google Play Uygulamalarımız' : 'Our Google Play Apps')}</span></a></li>
           <li><a href="https://play.google.com/store/apps/dev?id=6308543008922541479" target="_blank" rel="noopener" style="font-weight: 800; color: #38bdf8; display:inline-flex; align-items:center; gap:6px;"><i class="fa-brands fa-google-play"></i><span>${locale === 'ar' ? 'متجر تطبيقاتنا الرسمي' : (locale === 'tr' ? 'Resmi Geliştirici Mağazamız' : 'Official Developer Store')}</span></a></li>
           <li><a href="${PLAY_STORE_URL}" target="_blank" rel="noopener" style="font-weight: 800; color: #4ade80;"><i class="fa-brands fa-google-play" style="margin-inline-end:6px;"></i>${locale === 'ar' ? 'تطبيق إسطنبول للوظائف (Google Play)' : (locale === 'tr' ? 'İstanbul İş İlanları Uygulaması' : 'Jobs in Istanbul App')}</a></li>
@@ -6996,6 +7054,7 @@ publicRouter.get('/:locale/sitemap', (c) => {
   ];
 
   const toolLinks = [
+    { href: `/${langKey}/tools`, label: langKey === 'ar' ? 'مركز جميع الأدوات والحاسبات المجانية في إسطنبول وتركيا (22 أداة)' : (langKey === 'tr' ? 'İstanbul ve Türkiye Tüm Ücretsiz Araçlar Merkezi (22 Araç)' : 'Istanbul & Turkey Complete 22 Free Tools Hub') },
     { href: `/${langKey}/currency-prices`, label: langKey === 'ar' ? 'أسعار العملات والليرة التركية اليوم' : (langKey === 'tr' ? 'Canlı Döviz Kurları' : 'Live TRY Currency Exchange Rates') },
     { href: `/${langKey}/gold-prices`, label: langKey === 'ar' ? 'أسعار الذهب في تركيا لحظة بلحظة' : (langKey === 'tr' ? 'Canlı Altın Fiyatları' : 'Live Turkey Gold Prices') },
     { href: `/${langKey}/akaryakit-fiyatlari`, label: langKey === 'ar' ? 'أسعار الوقود والبنزين والمازوت في إسطنبول' : (langKey === 'tr' ? 'Güncel Akaryakıt Fiyatları' : 'Istanbul Fuel & Gasoline Prices') },

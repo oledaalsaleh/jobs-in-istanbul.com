@@ -4,6 +4,28 @@ import { rateLimiter } from '../middleware/security'
 
 export const aiFeaturesRouter = new Hono()
 
+const STATIC_AI_TOOL_SLUGS = new Set([
+  'cv-optimizer', 'salary-calculator', 'resume-builder', 'cover-letter-generator',
+  'work-permit-calculator', 'turkish-test', 'interview-prep', 'ats-scanner',
+  'workplace-quiz', 'work-permit-eligibility', 'investor-calculator', 'salary-calculator-2026'
+]);
+
+const STATIC_AI_TOOL_LOCALES = new Set(['ar', 'en', 'tr', 'ru', 'fa', 'ur']);
+
+aiFeaturesRouter.use('/:locale/:toolSlug', async (c, next) => {
+  const segs = c.req.path.split('/').filter(Boolean);
+  if (
+    c.req.method === 'GET' &&
+    segs.length === 2 &&
+    STATIC_AI_TOOL_LOCALES.has(segs[0]) &&
+    STATIC_AI_TOOL_SLUGS.has(segs[1])
+  ) {
+    c.header('Cache-Control', 'public, max-age=600, s-maxage=3600, stale-while-revalidate=86400');
+    c.header('CDN-Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
+  }
+  await next();
+});
+
 // CV & Cover Letter Optimizer Page
 aiFeaturesRouter.get('/:locale/cv-optimizer', (c) => {
   const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';

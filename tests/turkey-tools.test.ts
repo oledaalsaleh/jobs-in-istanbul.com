@@ -144,5 +144,56 @@ describe('7 New High-Traffic Turkey & Istanbul Daily Tools Suite', () => {
       expect(llmsTxt).toContain(`https://jobs-in-istanbul.com/ar/${tool.slug}`)
       expect(htmlSm).toContain(`href="/ar/${tool.slug}"`)
     }
+    expect(smXml).toContain('<loc>https://jobs-in-istanbul.com/ar/tools</loc>')
+    expect(smXml).toContain('<loc>https://jobs-in-istanbul.com/tr/tools</loc>')
+    expect(smXml).toContain('<loc>https://jobs-in-istanbul.com/en/tools</loc>')
+    expect(smXml).not.toContain('<loc>https://jobs-in-istanbul.com/ru/tools</loc>')
+    expect(llmsTxt).toContain('https://jobs-in-istanbul.com/ar/tools')
+    expect(htmlSm).toContain('href="/ar/tools"')
+  })
+
+  test('Centralized Tools Hub (/:locale/tools) renders all 22 tools with CollectionPage+ItemList schema, mega-menu & 1h edge cache', async () => {
+    for (const loc of ['ar', 'tr', 'en'] as const) {
+      const res = await app.request(`/${loc}/tools`, { method: 'GET' }, mockEnv)
+      expect(res.status).toBe(200)
+      expect(res.headers.get('cache-control')).toContain('s-maxage=3600')
+      expect(res.headers.get('cdn-cache-control')).toContain('max-age=3600')
+      const html = await res.text()
+      expect(html).toContain(`<link rel="canonical" href="https://jobs-in-istanbul.com/${loc}/tools">`)
+      expect(html).toContain('"@type":"CollectionPage"')
+      expect(html).toContain('"@type":"ItemList"')
+      expect(html).toContain('id="tools-hub-search"')
+      expect(html).toContain('class="nav-dropdown-menu nav-mega-tools"')
+      for (const tool of SEVEN_TOOLS) {
+        expect(html).toContain(`href="/${loc}/${tool.slug}"`)
+      }
+    }
+
+    const ruRes = await app.request('/ru/tools', { method: 'GET' }, mockEnv)
+    expect(ruRes.status).toBe(200)
+    expect(await ruRes.text()).toContain('<link rel="canonical" href="https://jobs-in-istanbul.com/en/tools">')
+
+    const trAlias = await app.request('/tr/araclar', { method: 'GET' }, mockEnv)
+    expect(trAlias.status).toBe(301)
+    expect(trAlias.headers.get('location')).toBe('/tr/tools')
+
+    const bareReq = new Request('https://jobs-in-istanbul.com/tools', {
+      headers: { 'User-Agent': 'Mozilla/5.0', 'Accept-Language': 'ar-SA,ar;q=0.9' }
+    })
+    const bareRes = await worker.fetch(bareReq, mockEnv, {} as any)
+    expect(bareRes.status).toBe(302)
+    expect(bareRes.headers.get('location')).toBe('https://jobs-in-istanbul.com/ar/tools')
+  })
+
+  test('Tool pages emit long Cloudflare Edge Cache-Control headers (s-maxage=3600 / 1800) preserved by Worker', async () => {
+    const dlkRes = await app.request('/ar/dilekce-generator', { method: 'GET' }, mockEnv)
+    expect(dlkRes.headers.get('cache-control')).toContain('s-maxage=3600')
+    expect(dlkRes.headers.get('cdn-cache-control')).toContain('max-age=3600')
+
+    const prayerRes = await app.request('/ar/prayer-times', { method: 'GET' }, mockEnv)
+    expect(prayerRes.headers.get('cache-control')).toContain('s-maxage=1800')
+
+    const salaryRes = await app.request('/ar/salary-calculator-2026', { method: 'GET' }, mockEnv)
+    expect(salaryRes.headers.get('cache-control')).toContain('s-maxage=3600')
   })
 })

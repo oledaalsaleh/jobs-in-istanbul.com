@@ -316,6 +316,8 @@ turkeyLifeToolsRouter.get('/:locale/dilekce-generator', (c) => {
       document.addEventListener('DOMContentLoaded', updateDilekce);
     </script>
   `
+  c.header('Cache-Control', 'public, max-age=600, s-maxage=3600, stale-while-revalidate=86400')
+  c.header('CDN-Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400')
   return c.html(renderLayout(c, copy.title, bodyHtml, locale, seoHtml))
 })
 
@@ -549,6 +551,8 @@ turkeyLifeToolsRouter.get('/:locale/istanbulkart-calculator', (c) => {
       document.addEventListener('DOMContentLoaded', calcIstanbulkart);
     </script>
   `
+  c.header('Cache-Control', 'public, max-age=600, s-maxage=3600, stale-while-revalidate=86400')
+  c.header('CDN-Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400')
   return c.html(renderLayout(c, copy.title, bodyHtml, locale, seoHtml))
 })
 
@@ -743,6 +747,8 @@ turkeyLifeToolsRouter.get('/:locale/ikamet-calculator', (c) => {
       document.addEventListener('DOMContentLoaded', calcIkamet);
     </script>
   `
+  c.header('Cache-Control', 'public, max-age=600, s-maxage=3600, stale-while-revalidate=86400')
+  c.header('CDN-Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400')
   return c.html(renderLayout(c, copy.title, bodyHtml, locale, seoHtml))
 })
 
@@ -931,5 +937,7 @@ turkeyLifeToolsRouter.get('/:locale/imei-calculator', (c) => {
       document.addEventListener('DOMContentLoaded', calcImei);
     </script>
   `
+  c.header('Cache-Control', 'public, max-age=600, s-maxage=3600, stale-while-revalidate=86400')
+  c.header('CDN-Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400')
   return c.html(renderLayout(c, copy.title, bodyHtml, locale, seoHtml))
 })

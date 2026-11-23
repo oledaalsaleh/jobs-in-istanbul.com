@@ -156,6 +156,7 @@ import { fuelPricesRouter } from './routes/fuel-prices'
 import { severanceCalculatorRouter } from './routes/severance-calculator'
 import { turkeyLifeToolsRouter } from './routes/turkey-life-tools'
 import { turkeyDailyToolsRouter } from './routes/turkey-daily-tools'
+import { toolsHubRouter } from './routes/tools-hub'
 import { mobileApiRouter } from './routes/mobile-api'
 import { appsShowcaseRouter } from './routes/apps-showcase'
 import { runScraper } from './services/scraper'
@@ -187,6 +188,7 @@ app.route('/', fuelPricesRouter)
 app.route('/', severanceCalculatorRouter)
 app.route('/', turkeyLifeToolsRouter)
 app.route('/', turkeyDailyToolsRouter)
+app.route('/', toolsHubRouter)
 app.route('/', mobileApiRouter)
 
 // Branded HTML 404 for unknown localized public browser pages (preserving JSON 404 for API/assets)
@@ -328,7 +330,7 @@ export default {
       '/akaryakit-fiyatlari', '/fuel-prices', '/kidem-tazminati-hesaplama', '/severance-calculator',
       '/dilekce-generator', '/istanbulkart-calculator', '/ikamet-calculator', '/imei-calculator',
       '/prayer-times', '/namaz-vakitleri', '/turkey-holidays', '/resmi-tatiller',
-      '/istanbul-guide-directory', '/istanbul-posta-kodu',
+      '/istanbul-guide-directory', '/istanbul-posta-kodu', '/tools', '/araclar',
       '/workplace-quiz', '/ats-scanner',
       '/submit-job', '/install', '/salary-calculator',
       '/salary-calculator-2026', '/investor-calculator', '/work-permit-eligibility', 
@@ -444,8 +446,16 @@ export default {
             const cacheHeaders = new Headers(response.headers);
             // Strip set-cookie so Cloudflare Edge doesn't treat public pages as private sessions
             cacheHeaders.delete('set-cookie');
-            // Browser always revalidates (max-age=0, must-revalidate), edge cache for 2 minutes (s-maxage=120)
-            cacheHeaders.set('Cache-Control', 'public, max-age=0, must-revalidate, s-maxage=120, stale-while-revalidate=300');
+            // Preserve explicit long-TTL Cache-Control from tool/static/blog routes (e.g. s-maxage=3600 / 1800 / 86400);
+            // fall back to 2-minute edge cache for dynamic job listings & homepages.
+            const existingCc = cacheHeaders.get('Cache-Control') || '';
+            const sMaxMatch = existingCc.match(/s-maxage=(\d+)/i);
+            const hasLongEdgeTtl = Boolean(sMaxMatch && parseInt(sMaxMatch[1], 10) > 120 && !/no-store|private/i.test(existingCc));
+            if (!hasLongEdgeTtl) {
+              cacheHeaders.set('Cache-Control', 'public, max-age=0, must-revalidate, s-maxage=120, stale-while-revalidate=300');
+            } else if (!cacheHeaders.has('CDN-Cache-Control')) {
+              cacheHeaders.set('CDN-Cache-Control', `public, max-age=${sMaxMatch![1]}, stale-while-revalidate=86400`);
+            }
             cacheHeaders.set('X-Edge-Cache', 'MISS');
             applySecurityHeaders(cacheHeaders);
 
