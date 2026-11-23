@@ -641,6 +641,8 @@ rentCalculatorRouter.get('/:locale/kira-artis-orani', async (c) => {
   const seoMetaTags = `
     <title>${t.metaTitle}</title>
     <meta name="description" content="${t.metaDesc}">
+    <meta name="robots" content="index, follow">
+    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <link rel="canonical" href="https://jobs-in-istanbul.com/${locale}/kira-artis-orani">
     ${hreflangLinks('/kira-artis-orani')}
     <meta property="og:title" content="${t.metaTitle}">

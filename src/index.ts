@@ -291,12 +291,14 @@ export default {
 
     // Serve app-ads.txt and ads.txt on root, /blog, /:locale/blog, or any subpath (Google AdMob / IAB Tech Lab verification)
     if (url.pathname === '/app-ads.txt' || url.pathname === '/ads.txt' || url.pathname.endsWith('/app-ads.txt') || url.pathname.endsWith('/ads.txt')) {
+      const adsHeaders = new Headers({
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Cache-Control': 'public, max-age=86400'
+      });
+      applySecurityHeaders(adsHeaders);
       return new Response('google.com, pub-2220383290034920, DIRECT, f08c47fec0942fa0\n', {
         status: 200,
-        headers: {
-          'Content-Type': 'text/plain; charset=utf-8',
-          'Cache-Control': 'public, max-age=86400'
-        }
+        headers: adsHeaders
       });
     }
 

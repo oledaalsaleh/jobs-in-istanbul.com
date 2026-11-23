@@ -609,6 +609,8 @@ severanceCalculatorRouter.get('/:locale/kidem-tazminati-hesaplama', async (c) =>
   const seoHead = `
     <title>${t.metaTitle || t.title}</title>
     <meta name="description" content="${t.metaDesc || t.subtitle}">
+    <meta name="robots" content="index, follow">
+    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <link rel="canonical" href="${canonicalUrl}">
     ${hreflangLinks('/kidem-tazminati-hesaplama', nativeLocales)}
     <meta property="og:title" content="${t.metaTitle || t.title}">

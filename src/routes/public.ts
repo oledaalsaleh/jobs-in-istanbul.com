@@ -1,5 +1,4 @@
 import { Hono } from 'hono'
-import { cache } from 'hono/cache'
 import { generateMetaTags, generateJsonLd, extractSalaryFromText } from '../utils/seo-helper'
 import { isJobExpired, getExplicitJobDeadline, getJobNativeLocales, JOB_VALIDITY_DAYS } from '../utils/job-validity'
 import { safeQuery } from '../utils/db-helper'
@@ -3541,10 +3540,9 @@ publicRouter.get('/ru', (c) => homeHandler(c, 'ru'))
 publicRouter.get('/fa', (c) => homeHandler(c, 'fa'))
 publicRouter.get('/ur', (c) => homeHandler(c, 'ur'))
 
-// Detail view for a job
+// Detail view for a job (uses versioned Cloudflare Edge cache in src/index.ts so deploys invalidate instantly)
 publicRouter.get(
   '/:locale/jobs/:slug',
-  cache({ cacheName: 'istanbul-job-details', cacheControl: 'max-age=300' }),
   async (c) => {
     const locale = c.req.param('locale') as 'ar' | 'en' | 'tr' | 'ru' | 'fa' | 'ur';
     const slug = c.req.param('slug');
