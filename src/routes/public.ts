@@ -3589,6 +3589,7 @@ publicRouter.get(
     }
 
     const companyName = formatPublicEmployerName(company.name || job.company_name || job.company, locale);
+    company = { ...company, name: companyName };
     const companyLogo = company.logo || '';
     const companyDesc = isPlaceholderCompanyDesc(company.description) ? '' : (company.description || '');
     const companyInitial = (companyName.charAt(0) || 'C').toUpperCase();
