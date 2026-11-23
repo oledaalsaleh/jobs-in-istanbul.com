@@ -126,6 +126,13 @@ const buildLlmsTxt = (full: boolean) => {
 - [Turkish Work Permit Eligibility Wizard 2026](https://jobs-in-istanbul.com/ar/work-permit-eligibility)
 - [Investor Company Setup & Foreign Hiring Estimator](https://jobs-in-istanbul.com/ar/investor-calculator)
 - [Workplace Turkish Vocabulary Quiz](https://jobs-in-istanbul.com/ar/workplace-quiz)
+- [Official Turkish Work & Lease Dilekçe PDF Studio](https://jobs-in-istanbul.com/ar/dilekce-generator): Generate Turkish resignation (İstifa), annual leave, salary certificate, and lease termination letters with Arabic/English translation & A4 PDF print.
+- [2026 Istanbulkart & Monthly Mavi Kart Calculator](https://jobs-in-istanbul.com/ar/istanbulkart-calculator): Compare Metro, Bus, Metrobus, Marmaray, and Aktarma pay-per-ride costs against Mavi Kart subscriptions.
+- [2026 Turkey Residence Permit (İkamet) & Insurance Estimator](https://jobs-in-istanbul.com/ar/ikamet-calculator): Calculate Ikamet card fee, residence fee, single-entry visa fee, and age-bracket private health insurance.
+- [2026 Foreign Phone 120+120 Dual-SIM & IMEI Kayıt Calculator](https://jobs-in-istanbul.com/ar/imei-calculator): Track foreign phone cutoff dates in Turkey and compare IMEI passport tax vs local retail prices.
+- [Official Diyanet Prayer Times for 12 Turkish Cities](https://jobs-in-istanbul.com/ar/prayer-times): Live Diyanet Method 13 Adhan timings and countdown for Istanbul, Ankara, Izmir, Bursa, Antalya, Trabzon, and more.
+- [2026–2027 Turkey Public Holidays & Holiday Overtime Pay Calculator](https://jobs-in-istanbul.com/ar/turkey-holidays): Full official holiday calendar, MEB school breaks, and Labor Law Art. 47 (+100%) holiday wage calculator.
+- [Istanbul All 39 Districts Postal Codes (Posta Kodu) & Turkey Emergency Numbers](https://jobs-in-istanbul.com/ar/istanbul-guide-directory): Searchable 5-digit PTT postal codes for all 39 Istanbul districts plus 112, YİMER 157, ALO 170, and IBB 153 hotlines.
 `;
   if (!full) return base;
   return `${base}
@@ -320,6 +327,13 @@ seoRouter.get('/sitemap-static.xml', async (c) => {
     { ar: '/ar/kira-artis-orani', en: '/en/kira-artis-orani', tr: '/tr/kira-artis-orani', ru: '/ru/kira-artis-orani', fa: '/fa/kira-artis-orani', ur: '/ur/kira-artis-orani' },
     { ar: '/ar/akaryakit-fiyatlari', en: '/en/akaryakit-fiyatlari', tr: '/tr/akaryakit-fiyatlari', ru: '/ru/akaryakit-fiyatlari', fa: '/fa/akaryakit-fiyatlari', ur: '/ur/akaryakit-fiyatlari' },
     { ar: '/ar/kidem-tazminati-hesaplama', en: '/en/kidem-tazminati-hesaplama', tr: '/tr/kidem-tazminati-hesaplama', ru: '/ru/kidem-tazminati-hesaplama', fa: '/fa/kidem-tazminati-hesaplama', ur: '/ur/kidem-tazminati-hesaplama' },
+    { ar: '/ar/dilekce-generator', en: '/en/dilekce-generator', tr: '/tr/dilekce-generator', ru: '/ru/dilekce-generator', fa: '/fa/dilekce-generator', ur: '/ur/dilekce-generator' },
+    { ar: '/ar/istanbulkart-calculator', en: '/en/istanbulkart-calculator', tr: '/tr/istanbulkart-calculator', ru: '/ru/istanbulkart-calculator', fa: '/fa/istanbulkart-calculator', ur: '/ur/istanbulkart-calculator' },
+    { ar: '/ar/ikamet-calculator', en: '/en/ikamet-calculator', tr: '/tr/ikamet-calculator', ru: '/ru/ikamet-calculator', fa: '/fa/ikamet-calculator', ur: '/ur/ikamet-calculator' },
+    { ar: '/ar/imei-calculator', en: '/en/imei-calculator', tr: '/tr/imei-calculator', ru: '/ru/imei-calculator', fa: '/fa/imei-calculator', ur: '/ur/imei-calculator' },
+    { ar: '/ar/prayer-times', en: '/en/prayer-times', tr: '/tr/prayer-times', ru: '/ru/prayer-times', fa: '/fa/prayer-times', ur: '/ur/prayer-times' },
+    { ar: '/ar/turkey-holidays', en: '/en/turkey-holidays', tr: '/tr/turkey-holidays', ru: '/ru/turkey-holidays', fa: '/fa/turkey-holidays', ur: '/ur/turkey-holidays' },
+    { ar: '/ar/istanbul-guide-directory', en: '/en/istanbul-guide-directory', tr: '/tr/istanbul-guide-directory', ru: '/ru/istanbul-guide-directory', fa: '/fa/istanbul-guide-directory', ur: '/ur/istanbul-guide-directory' },
     { ar: '/ar/cv-optimizer', en: '/en/cv-optimizer', tr: '/tr/cv-optimizer', ru: '/ru/cv-optimizer', fa: '/fa/cv-optimizer', ur: '/ur/cv-optimizer' },
     { ar: '/ar/salary-calculator', en: '/en/salary-calculator', tr: '/tr/salary-calculator', ru: '/ru/salary-calculator', fa: '/fa/salary-calculator', ur: '/ur/salary-calculator' },
     { ar: '/ar/resume-builder', en: '/en/resume-builder', tr: '/tr/resume-builder', ru: '/ru/resume-builder', fa: '/fa/resume-builder', ur: '/ur/resume-builder' },

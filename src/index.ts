@@ -154,6 +154,8 @@ import { dutyPharmacyRouter } from './routes/duty-pharmacy'
 import { rentCalculatorRouter } from './routes/rent-calculator'
 import { fuelPricesRouter } from './routes/fuel-prices'
 import { severanceCalculatorRouter } from './routes/severance-calculator'
+import { turkeyLifeToolsRouter } from './routes/turkey-life-tools'
+import { turkeyDailyToolsRouter } from './routes/turkey-daily-tools'
 import { mobileApiRouter } from './routes/mobile-api'
 import { appsShowcaseRouter } from './routes/apps-showcase'
 import { runScraper } from './services/scraper'
@@ -183,6 +185,8 @@ app.route('/', dutyPharmacyRouter)
 app.route('/', rentCalculatorRouter)
 app.route('/', fuelPricesRouter)
 app.route('/', severanceCalculatorRouter)
+app.route('/', turkeyLifeToolsRouter)
+app.route('/', turkeyDailyToolsRouter)
 app.route('/', mobileApiRouter)
 
 // Branded HTML 404 for unknown localized public browser pages (preserving JSON 404 for API/assets)
@@ -322,6 +326,9 @@ export default {
       '/about', '/contact', '/terms', '/privacy', '/blog', '/insights', '/companies', '/sitemap',
       '/currency-prices', '/gold-prices', '/nobetci-eczane', '/kira-artis-orani',
       '/akaryakit-fiyatlari', '/fuel-prices', '/kidem-tazminati-hesaplama', '/severance-calculator',
+      '/dilekce-generator', '/istanbulkart-calculator', '/ikamet-calculator', '/imei-calculator',
+      '/prayer-times', '/namaz-vakitleri', '/turkey-holidays', '/resmi-tatiller',
+      '/istanbul-guide-directory', '/istanbul-posta-kodu',
       '/workplace-quiz', '/ats-scanner',
       '/submit-job', '/install', '/salary-calculator',
       '/salary-calculator-2026', '/investor-calculator', '/work-permit-eligibility', 

@@ -20,7 +20,9 @@ export const PRIMARY_LOCALE_ONLY_PATHS = new Set<string>([
   'real-estate-jobs', 'tech-developer-jobs', 'translation-jobs', 'accounting-jobs',
   'jobs-in-fatih', 'jobs-in-basaksehir', 'jobs-in-esenyurt', 'jobs-in-sisli', 'jobs-in-beylikduzu',
   'jobs-in-taksim', 'jobs-in-kadikoy',
-  'kidem-tazminati-hesaplama', 'privacy', 'ai-job-matcher', 'apps', 'companies', 'sitemap'
+  'kidem-tazminati-hesaplama', 'privacy', 'ai-job-matcher', 'apps', 'companies', 'sitemap',
+  'dilekce-generator', 'istanbulkart-calculator', 'ikamet-calculator', 'imei-calculator',
+  'prayer-times', 'turkey-holidays', 'istanbul-guide-directory'
 ]);
 
 /** Locales with genuine content for a page path (without locale prefix, e.g. "jobs-for-arabs"). */
