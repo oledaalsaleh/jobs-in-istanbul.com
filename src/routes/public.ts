@@ -221,67 +221,31 @@ export function renderPermanentJobPromoAd(locale: string, variant: 'drawer' | 's
   const imgUrl = '/public/images/istanbul-app/featured_job_promo_150k.jpg';
   const targetUrl = PLAY_STORE_URL;
 
-  const maxW = variant === 'drawer' ? '100%' : (variant === 'sidebar' ? '100%' : '480px');
-  const maxImgH = variant === 'drawer' ? '300px' : (variant === 'top' ? '460px' : '520px');
+  const maxW = variant === 'drawer' ? '100%' : (variant === 'sidebar' ? '100%' : '420px');
+  const maxImgH = variant === 'drawer' ? '180px' : (variant === 'top' ? '240px' : '220px');
 
   return `
-  <!-- PERMANENT GOOGLE DISPLAY AD STYLE FEATURED JOB BANNER -->
-  <div class="permanent-job-ad-box ad-variant-${variant}" style="width: 100%; max-width: ${maxW}; margin: ${variant === 'drawer' ? '12px auto' : (variant === 'sidebar' ? '18px auto' : '22px auto')};">
-    <div style="background: var(--bg-card); border: 1.5px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.12); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);" class="ad-card-hover-fx">
-      
-      <!-- Top Google Ad Meta Header -->
-      <div style="display: flex; align-items: center; justify-content: space-between; padding: 7px 12px; background: rgba(0,0,0,0.04); border-bottom: 1px solid var(--border); font-size: 0.72rem; color: var(--text-muted);">
+  <!-- Official Mobile App Companion Card -->
+  <div class="permanent-job-ad-box ad-variant-${variant}" style="width: 100%; max-width: ${maxW}; margin: ${variant === 'drawer' ? '12px auto' : (variant === 'sidebar' ? '16px auto' : '18px auto')};">
+    <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow-sm); transition: border-color 0.2s ease;">
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: var(--bg-subtle); border-bottom: 1px solid var(--border); font-size: 0.74rem; color: var(--text-muted);">
         <div style="display: flex; align-items: center; gap: 6px;">
-          <span style="background: #2563eb; color: #ffffff; font-weight: 800; font-size: 0.65rem; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.3px;">${t.adTag}</span>
+          <span style="background: var(--primary); color: #ffffff; font-weight: 700; font-size: 0.66rem; padding: 2px 7px; border-radius: 4px;">${t.adTag}</span>
           <span style="font-weight: 700; color: var(--text-heading);">${t.tagline}</span>
         </div>
-        <div style="display: flex; align-items: center; gap: 4px; opacity: 0.75;" title="Google Play Ad">
-          <i class="fa-brands fa-google-play" style="font-size: 0.75rem; color: #0284c7;"></i>
-          <i class="fa-solid fa-circle-info" style="font-size: 0.7rem;"></i>
-        </div>
+        <i class="fa-brands fa-google-play" style="font-size: 0.8rem; color: #059669;" aria-hidden="true"></i>
       </div>
 
-      <!-- Main Clickable Image Banner -->
-      <a href="${targetUrl}" target="_blank" rel="noopener noreferrer sponsored" title="${t.title}" style="display: block; position: relative; text-decoration: none; overflow: hidden; background: #000000; line-height: 0; text-align: center;">
-        <img src="${imgUrl}" alt="${t.title}" loading="lazy" decoding="async" width="600" height="900" style="width: 100%; max-height: ${maxImgH}; height: auto; display: block; object-fit: contain; margin: 0 auto; transition: transform 0.35s ease;" onmouseover="this.style.transform='scale(1.025)'" onmouseout="this.style.transform='none'">
-        
-        <!-- Live Action Badge Pulsing in Corner -->
-        <div style="position: absolute; bottom: 12px; ${isRtl ? 'left: 12px' : 'right: 12px'}; background: #ef4444; color: #ffffff; font-size: 0.78rem; font-weight: 800; padding: 6px 14px; border-radius: 9999px; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.5); display: flex; align-items: center; gap: 6px; animation: pulseAdBtn 2s infinite;">
-          <i class="fa-solid fa-hand-pointer"></i>
-          <span>${t.action}</span>
-        </div>
+      <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" title="${t.title}" style="display: block; text-decoration: none; overflow: hidden; background: #0f172a; line-height: 0; text-align: center;">
+        <img src="${imgUrl}" alt="${t.title}" loading="lazy" decoding="async" width="600" height="900" style="width: 100%; max-height: ${maxImgH}; height: auto; display: block; object-fit: cover; margin: 0 auto;">
       </a>
 
-      <!-- Bottom Google Play Action Bar -->
-      <a href="${targetUrl}" target="_blank" rel="noopener noreferrer sponsored" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 11px 14px; background: #090d16; color: #ffffff !important; text-decoration: none; border-top: 1px solid rgba(255,255,255,0.12); transition: background 0.2s;" onmouseover="this.style.background='#1e293b'" onmouseout="this.style.background='#090d16'">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <svg viewBox="0 0 512 512" width="18" height="18" aria-hidden="true" style="flex-shrink: 0;">
-            <path fill="#410599" d="M32.5 17.5C30.2 19.9 29 23.3 29 27.6v456.8c0 4.3 1.2 7.7 3.5 10.1l1.3 1.2L290.4 239v-6L33.8 16.3l-1.3 1.2z"/>
-            <path fill="#F44336" d="M376.6 325.2l-86.2-86.2V233l86.2-86.2 1.3.7 102.2 58.1c2.9 1.7 4.9 4.8 4.9 8.4s-2 6.7-4.9 8.4l-102.2 58.1-1.3.7z"/>
-            <path fill="#FFC107" d="M377.9 324.5L290.4 237 33.8 493.6c3.1 3.3 8.3 4.2 13 1.5l331.1-170.6"/>
-            <path fill="#00E676" d="M377.9 187.5L46.8 16.9c-4.7-2.7-9.9-1.8-13 1.5L290.4 255l87.5-67.5z"/>
-          </svg>
-          <span style="font-weight: 800; font-size: 0.82rem; letter-spacing: 0.2px;">${t.cta}</span>
-        </div>
-        <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.74rem; font-weight: 700; color: #38bdf8;">
-          <i class="fa-solid fa-arrow-${isRtl ? 'left' : 'right'}"></i>
-        </span>
+      <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px; background: #0f172a; color: #ffffff !important; text-decoration: none; border-top: 1px solid rgba(255,255,255,0.1);">
+        <span style="font-weight: 700; font-size: 0.82rem;">${t.cta}</span>
+        <span style="font-size: 0.74rem; color: #38bdf8; font-weight: 600;">${t.action} <i class="fa-solid fa-arrow-${isRtl ? 'left' : 'right'}" style="margin-inline-start: 4px;"></i></span>
       </a>
-
     </div>
-  </div>
-  <style>
-    @keyframes pulseAdBtn {
-      0% { transform: scale(1); box-shadow: 0 4px 14px rgba(239, 68, 68, 0.5); }
-      50% { transform: scale(1.05); box-shadow: 0 6px 20px rgba(239, 68, 68, 0.8); }
-      100% { transform: scale(1); box-shadow: 0 4px 14px rgba(239, 68, 68, 0.5); }
-    }
-    .ad-card-hover-fx:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 14px 32px rgba(0,0,0,0.18) !important;
-      border-color: #2563eb !important;
-    }
-  </style>`;
+  </div>`;
 }
 
 /** Internal placeholder text the scraper stores on auto-created companies (not for public display). */
@@ -1469,10 +1433,6 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
           <i class="fa-brands fa-google-play"></i>
           <span>Google Play</span>
         </a>
-        <a href="${TURKEY_TRAVEL_GUIDE_PLAY_STORE_URL}" target="_blank" rel="noopener" class="header-turkey-guide-btn" title="${t.turkeyGuideModalTitle || 'دليل تركيا السياحي بدون نت'}">
-          <i class="fa-solid fa-map-location-dot"></i>
-          <span>${locale === 'ar' ? 'دليل تركيا' : (locale === 'tr' ? 'Gezi Rehberi' : 'Turkey Guide')}</span>
-        </a>
         <a href="/${locale}/install" class="header-install-btn" title="${t.installApp}">
           <i class="fa-solid fa-mobile-screen-button"></i>
           <span>${t.installApp}</span>
@@ -1923,7 +1883,14 @@ export function renderLayout(c: any, title: string, contentHtml: string, locale:
 
     function setupDistrictClickListeners() {
       document.querySelectorAll('.district-card').forEach(card => {
-        card.addEventListener('click', (e) => { e.preventDefault(); const href = card.getAttribute('href'); fetchFilteredJobs(href); });
+        card.addEventListener('click', (e) => {
+          const href = card.getAttribute('href') || '';
+          // Clean SEO district pages (/:locale/district/:slug) must navigate natively; only intercept query-filtered links
+          if (href.includes('district=')) {
+            e.preventDefault();
+            fetchFilteredJobs(href);
+          }
+        });
       });
     }
 
@@ -5519,6 +5486,54 @@ publicRouter.get('/:locale/about', (c) => {
           </div>
         </div>
       </div>
+
+      <!-- Editorial & Job Verification Policy (AdSense & E-E-A-T Transparency) -->
+      <div class="glass-card" style="padding: 36px; border-radius: var(--radius-lg); margin-top: 32px; text-align: ${locale === 'ar' || locale === 'fa' || locale === 'ur' ? 'right' : 'left'};">
+        <h2 style="font-size: 1.45rem; font-weight: 800; color: var(--text-dark); margin: 0 0 16px 0;">
+          ${locale === 'ar'
+            ? 'السياسة التحريرية ومعايير مراجعة الوظائف والمحتوى'
+            : locale === 'tr'
+            ? 'Editoryal İlkeler ve İlan İnceleme Politikamız'
+            : 'Editorial Standards & Job Review Policy'}
+        </h2>
+        <p style="color: var(--text-body); line-height: 1.8; font-size: 0.98rem; margin: 0 0 16px 0;">
+          ${locale === 'ar'
+            ? 'تلتزم منصة فرص عمل في إسطنبول (jobs-in-istanbul.com) بتقديم محتوى مهني وقانوني أصلي يخدم الباحثين عن عمل والمقيمين في إسطنبول وتركيا. يتم إعداد أدلة إذن العمل، حاسبات صافي الأجور وضرائب الضمان الاجتماعي (SGK)، تعويض نهاية الخدمة (Kıdem Tazminatı)، ونسب زيادة الإيجار استناداً إلى القوانين واللوائح التركية الرسمية المعلنة لعام 2026.'
+            : locale === 'tr'
+            ? 'İstanbul İş İlanları (jobs-in-istanbul.com), İstanbul ve Türkiye genelindeki iş arayanlar ile çalışanlar için özgün kariyer rehberleri, güncel iş ilanları ve 2026 Türk iş hukukuna dayalı maaş, SGK, kıdem tazminatı ve kira artış oranı hesaplama araçları sunar.'
+            : 'Jobs in Istanbul (jobs-in-istanbul.com) publishes original career guides, Turkish labor-law calculators (2026 net-to-gross SGK payroll, severance pay, legal rent increase, and work permit eligibility), and curated Istanbul job listings for local and international talent.'}
+        </p>
+        <ul style="color: var(--text-body); line-height: 1.8; font-size: 0.96rem; padding-inline-start: 22px; margin: 0 0 18px 0;">
+          <li style="margin-bottom: 8px;">
+            ${locale === 'ar'
+              ? 'مكافحة الاحتيال الوظيفي: نرفض أي إعلان يطلب رسوماً مالية من المتقدمين أو يحتوي على بيانات مضللة، ونوفر زر إبلاغ فوري على كل صفحة وظيفة.'
+              : locale === 'tr'
+              ? 'Dolandırıcılıkla Mücadele: Başvuru ücreti talep eden veya yanıltıcı içerik barındıran ilanlara kesinlikle izin verilmez; her ilanda anlık bildirim/şikayet mekanizması bulunur.'
+              : 'Anti-Fraud Screening: Listings requesting upfront candidate fees or containing misleading claims are strictly prohibited and can be reported on every job page.'}
+          </li>
+          <li style="margin-bottom: 8px;">
+            ${locale === 'ar'
+              ? 'صلاحية الإعلانات: تُغلق الوظائف تلقائياً بعد مرور 30 يوماً من تاريخ النشر لضمان عدم إضاعة وقت الباحثين عن عمل.'
+              : locale === 'tr'
+              ? 'Güncellik Kuralı: İş ilanları yayından 30 gün sonra otomatik olarak kapanır ve arşivlenir.'
+              : 'Listing Freshness: Job postings automatically expire after 30 days so candidates only browse active opportunities.'}
+          </li>
+          <li>
+            ${locale === 'ar'
+              ? 'حق التعديل والإزالة: يحق لأي شركة أو صاحب عمل طلب تحديث أو حذف أي إعلان فوراً عبر صفحة اتصل بنا أو البريد support@jobs-in-istanbul.com.'
+              : locale === 'tr'
+              ? 'Düzenleme ve Kaldırma Hakkı: İşverenler diledikleri zaman support@jobs-in-istanbul.com üzerinden ilan güncelleme veya kaldırma talebinde bulunabilirler.'
+              : 'Employer Corrections & Takedowns: Employers or rights holders may request immediate updates or removal at any time via support@jobs-in-istanbul.com.'}
+          </li>
+        </ul>
+        <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+          <a href="/${locale}/contact" style="color: var(--primary); font-weight: 700; text-decoration: underline;">${locale === 'ar' ? 'تواصل مع فريق التحرير والدعم' : (locale === 'tr' ? 'İletişim ve Destek' : 'Contact Editorial & Support')}</a>
+          <span>&bull;</span>
+          <a href="/${locale}/privacy" style="color: var(--primary); font-weight: 700; text-decoration: underline;">${locale === 'ar' ? 'سياسة الخصوصية وملفات الارتباط' : (locale === 'tr' ? 'Gizlilik Politikası' : 'Privacy Policy')}</a>
+          <span>&bull;</span>
+          <a href="/${locale}/terms" style="color: var(--primary); font-weight: 700; text-decoration: underline;">${locale === 'ar' ? 'الشروط والأحكام' : (locale === 'tr' ? 'Kullanım Şartları' : 'Terms & Conditions')}</a>
+        </div>
+      </div>
     </div>
   `;
 
@@ -5542,8 +5557,8 @@ publicRouter.get('/:locale/contact', (c) => {
       message: 'نص الرسالة',
       sendBtn: 'إرسال الرسالة ✉️',
       successMsg: 'تم إرسال رسالتك بنجاح! سنتواصل معك في أقرب وقت ممكن.',
-      cardEmail: 'البريد الإلكتروني',
-      cardPhone: 'واتساب والدعم المباشر',
+      cardEmail: 'البريد الإلكتروني العام',
+      cardPhone: 'الدعم الفني وإزالة الإعلانات',
       cardLoc: 'العنوان والمقر'
     },
     en: {
@@ -5557,8 +5572,8 @@ publicRouter.get('/:locale/contact', (c) => {
       message: 'Message Content',
       sendBtn: 'Send Message ✉️',
       successMsg: 'Your message has been sent successfully! We will get back to you shortly.',
-      cardEmail: 'Email Us',
-      cardPhone: 'WhatsApp & Support',
+      cardEmail: 'General Inquiries',
+      cardPhone: 'Support & Listing Corrections',
       cardLoc: 'Office Address'
     },
     tr: {
@@ -5572,8 +5587,8 @@ publicRouter.get('/:locale/contact', (c) => {
       message: 'Mesaj İçeriği',
       sendBtn: 'Mesajı Gönder ✉️',
       successMsg: 'Mesajınız başarıyla gönderildi! En kısa sürede sizinle iletişime geçeceğiz.',
-      cardEmail: 'E-posta Gönderin',
-      cardPhone: 'WhatsApp & Destek',
+      cardEmail: 'Genel İletişim',
+      cardPhone: 'Destek ve İlan Düzeltme',
       cardLoc: 'Ofis Adresi'
     },
     ru: {
@@ -5694,41 +5709,129 @@ publicRouter.get('/:locale/contact', (c) => {
           <form id="contact-form" onsubmit="handleContactSubmit(event)">
             <div style="margin-bottom: 16px; text-align: ${locale === 'ar' ? 'right' : 'left'};">
               <label style="display: block; font-weight: 700; color: var(--text-dark); margin-bottom: 6px;">${t.name}</label>
-              <input type="text" required style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-site); outline: none;">
+              <input type="text" name="name" required style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-site); outline: none;">
             </div>
             <div style="margin-bottom: 16px; text-align: ${locale === 'ar' ? 'right' : 'left'};">
               <label style="display: block; font-weight: 700; color: var(--text-dark); margin-bottom: 6px;">${t.email}</label>
-              <input type="email" required style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-site); outline: none;">
+              <input type="email" name="email" required style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-site); outline: none;">
             </div>
             <div style="margin-bottom: 16px; text-align: ${locale === 'ar' ? 'right' : 'left'};">
               <label style="display: block; font-weight: 700; color: var(--text-dark); margin-bottom: 6px;">${t.subject}</label>
-              <input type="text" required style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-site); outline: none;">
+              <input type="text" name="subject" required style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-site); outline: none;">
             </div>
             <div style="margin-bottom: 24px; text-align: ${locale === 'ar' ? 'right' : 'left'};">
               <label style="display: block; font-weight: 700; color: var(--text-dark); margin-bottom: 6px;">${t.message}</label>
-              <textarea required rows="5" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-site); outline: none; resize: vertical;"></textarea>
+              <textarea name="message" required rows="5" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-site); outline: none; resize: vertical;"></textarea>
             </div>
-            <button type="submit" class="btn-sidebar-apply" style="border: none; cursor: pointer; width: 100%;">${t.sendBtn}</button>
+            <div style="position:absolute;left:-9999px;opacity:0;pointer-events:none;height:0;overflow:hidden;" aria-hidden="true">
+              <input type="text" name="website_url" tabindex="-1" autocomplete="off">
+            </div>
+            <button type="submit" id="contact-submit-btn" class="btn-sidebar-apply" style="border: none; cursor: pointer; width: 100%;">${t.sendBtn}</button>
           </form>
 
           <div id="contact-success" style="display: none; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 20px; border-radius: var(--radius-md); color: #166534; font-weight: 600; text-align: center; margin-top: 20px;">
             <i class="fa-solid fa-circle-check" style="font-size: 1.5rem; margin-bottom: 8px; display: block;"></i>
             ${t.successMsg}
           </div>
+          <div id="contact-error" style="display: none; background: #fef2f2; border: 1px solid #fecaca; padding: 14px; border-radius: var(--radius-md); color: #991b1b; font-weight: 600; text-align: center; margin-top: 14px;"></div>
         </div>
+      </div>
+
+      <div class="glass-card" style="padding: 24px 28px; border-radius: var(--radius-md); margin-top: 28px; text-align: ${locale === 'ar' ? 'right' : 'left'};">
+        <p style="margin: 0; font-size: 0.94rem; line-height: 1.7; color: var(--text-body);">
+          ${locale === 'ar'
+            ? '⏱️ يرد فريق الدعم والتحرير عادةً خلال 24 إلى 48 ساعة عمل. لطلبات إزالة أو تعديل إعلان وظيفة أو استفسارات حقوق الملكية الفكرية وخصوصية البيانات (KVKK / GDPR)، يُرجى إرسال رابط الصفحة مباشرةً إلى support@jobs-in-istanbul.com.'
+            : locale === 'tr'
+            ? '⏱️ Destek ve editoryal ekibimiz mesajlarınıza genellikle 24–48 iş saati içinde yanıt verir. İlan kaldırma, telif hakkı veya KVKK/GDPR başvuruları için ilgili sayfa bağlantısını doğrudan support@jobs-in-istanbul.com adresine iletebilirsiniz.'
+            : '⏱️ Our editorial and support team typically responds within 24–48 business hours. For job listing corrections, takedown requests, copyright notices, or GDPR/KVKK inquiries, please include the exact page URL when emailing support@jobs-in-istanbul.com.'}
+        </p>
       </div>
     </div>
 
     <script>
-      function handleContactSubmit(e) {
+      async function handleContactSubmit(e) {
         e.preventDefault();
-        document.getElementById('contact-form').style.display = 'none';
-        document.getElementById('contact-success').style.display = 'block';
+        const form = e.target;
+        const btn = document.getElementById('contact-submit-btn');
+        const errBox = document.getElementById('contact-error');
+        if (errBox) errBox.style.display = 'none';
+        if (btn) btn.disabled = true;
+        try {
+          const fd = new FormData(form);
+          const res = await fetch('/contact-api', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: fd.get('name'),
+              email: fd.get('email'),
+              subject: fd.get('subject'),
+              message: fd.get('message'),
+              website_url: fd.get('website_url'),
+              locale: '${locale}'
+            })
+          });
+          if (res.ok) {
+            form.style.display = 'none';
+            document.getElementById('contact-success').style.display = 'block';
+          } else {
+            const data = await res.json().catch(() => ({}));
+            if (errBox) {
+              errBox.textContent = data.error || 'Could not send message. Please email info@jobs-in-istanbul.com directly.';
+              errBox.style.display = 'block';
+            }
+          }
+        } catch (err) {
+          if (errBox) {
+            errBox.textContent = 'Network error. Please email info@jobs-in-istanbul.com directly.';
+            errBox.style.display = 'block';
+          }
+        } finally {
+          if (btn) btn.disabled = false;
+        }
       }
     </script>
   `;
 
   return c.html(renderLayout(c, t.title, html, locale));
+});
+
+// Real Contact Form Submission Endpoint (persists inquiries to D1 with rate-limit & honeypot)
+publicRouter.post('/contact-api', rateLimiter(5, 10), async (c) => {
+  try {
+    const body = await c.req.json();
+    if (body?.website_url && String(body.website_url).trim().length > 0) {
+      return c.json({ success: false, error: 'Automated submission rejected.' }, 403);
+    }
+    const name = String(body?.name || '').trim().slice(0, 120);
+    const email = String(body?.email || '').trim().slice(0, 160);
+    const subject = String(body?.subject || '').trim().slice(0, 200);
+    const message = String(body?.message || '').trim().slice(0, 3000);
+
+    if (name.length < 2 || !email.includes('@') || subject.length < 2 || message.length < 5) {
+      return c.json({ success: false, error: 'Please complete all required fields.' }, 400);
+    }
+
+    const db = (c.env as any)?.DB;
+    const nowMs = Date.now();
+    const msgId = `contact-${nowMs}-${Math.random().toString(36).substring(2, 7)}`;
+    if (db) {
+      await db.prepare(
+        `INSERT INTO documents (id, root_id, type_id, status, is_published, is_current_draft, slug, title, data, created_at, updated_at)
+         VALUES (?, ?, 'contact_messages', 'draft', 0, 1, ?, ?, ?, ?, ?)`
+      ).bind(
+        msgId,
+        msgId,
+        msgId,
+        `Contact: ${subject}`,
+        JSON.stringify({ name, email, subject, message, locale: body?.locale || 'ar', createdAt: nowMs }),
+        nowMs,
+        nowMs
+      ).run().catch(() => {});
+    }
+    return c.json({ success: true, id: msgId });
+  } catch (err: any) {
+    return c.json({ success: false, error: 'Invalid request payload.' }, 400);
+  }
 });
 
 // Privacy Policy direct redirects for mobile apps & Google Play Console
@@ -6153,7 +6256,7 @@ publicRouter.get('/:locale/terms', (c) => {
       intro: 'Lütfen platformumuzu kullanmadan önce bu kullanım şartlarını dikkatlice okuyunuz. Siteye erişerek veya siteyi kullanarak bu şartlara bağlı kalmayı kabul etmiş olursunuz.',
       sec1Title: '1. Şartların Kabulü',
       sec1Text: 'Platformumuz iş ilanları yayınlama ve kariyer araçları sunar. Kullanımınız genel ahlak kurallarına, uluslararası standartlara ve yürürlükteki Türk kanunlarına uygun olmalıdır.',
-      sec2Title: '2. Job Posting Politikası',
+      sec2Title: '2. İş İlanı Yayınlama Politikası',
       sec2Text: 'İş ilanı yayınlayan işverenler ve bireyler, ilan detaylarının doğruluğu ve yasallığı konusunda tüm sorumluluğu üstlenirler. Spam, dolandırıcılık, yasa dışı açık pozisyonlar veya adaylardan ödeme talep eden ilanlar kesinlikle yasaktır.',
       sec3Title: '3. Sorumluluk Reddi Beyanı',
       sec3Text: 'Yalnızca bir ilan mecrası olarak faaliyet gösteriyoruz. İş sözleşmelerine dahil olmuyoruz, işe alım sonuçlarını garanti etmiyoruz ve işverenler ile adaylar arasında ortaya çıkabilecek anlaşmazlıklardan sorumlu tutulamayız.',
@@ -6228,6 +6331,38 @@ publicRouter.get('/:locale/terms', (c) => {
           <div>
             <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 10px;">${t.sec4Title}</h2>
             <p style="color: var(--text-body); line-height: 1.7; font-size: 0.98rem; margin: 0;">${t.sec4Text}</p>
+          </div>
+          <div>
+            <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 10px;">
+              ${locale === 'ar'
+                ? '٥. حقوق الملكية الفكرية وإزالة المحتوى (DMCA)'
+                : locale === 'tr'
+                ? '5. Fikri Mülkiyet Hakları ve İlan Kaldırma Politikası'
+                : '5. Intellectual Property & Listing Takedown Policy'}
+            </h2>
+            <p style="color: var(--text-body); line-height: 1.7; font-size: 0.98rem; margin: 0;">
+              ${locale === 'ar'
+                ? 'جميع المقالات والأدلة المهنية والأدوات التفاعلية وتصميمات المنصة محمية بحقوق النشر لمنصة فرص عمل في إسطنبول. في حال رغب أي صاحب عمل أو جهة مالكة لحقوق في تعديل أو إزالة أي إعلان وظيفي أو اسم علامة تجارية من الموقع، تتم الاستجابة الفورية خلال 24–48 ساعة عبر إرسال رابط الصفحة إلى support@jobs-in-istanbul.com.'
+                : locale === 'tr'
+                ? 'Platformda yer alan özgün rehberler, hesaplama araçları ve tasarım unsurları İstanbul İş İlanları telif hakkı kapsamındadır. Herhangi bir işveren veya hak sahibi, ilan veya marka bilgisinin güncellenmesi ya da kaldırılması için support@jobs-in-istanbul.com adresine sayfa bağlantısını ileterek 24–48 saat içinde işlem talep edebilir.'
+                : 'All original guides, interactive calculators, and interface designs are the intellectual property of Jobs in Istanbul. Employers or rights holders requesting immediate edits or removal of any job posting or trademark may email the page URL to support@jobs-in-istanbul.com for action within 24–48 hours.'}
+            </p>
+          </div>
+          <div>
+            <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 10px;">
+              ${locale === 'ar'
+                ? '٦. شفافية الإعلانات والروابط الخارجية'
+                : locale === 'tr'
+                ? '6. Reklam Şeffaflığı ve Üçüncü Taraf Bağlantıları'
+                : '6. Advertising Transparency & Third-Party Links'}
+            </h2>
+            <p style="color: var(--text-body); line-height: 1.7; font-size: 0.98rem; margin: 0;">
+              ${locale === 'ar'
+                ? 'للحفاظ على مجانية المنصة بالكامل للباحثين عن عمل، قد نعرض إعلانات عبر شبكات إعلانية معتمدة مثل Google AdSense. يتم فصل المحتوى التحريري ونتائج الوظائف بشكل كامل ومستقل عن الإعلانات، ويلتزم المستخدم بمراجعة سياسة الخصوصية وملفات تعريف الارتباط الخاصة بنا.'
+                : locale === 'tr'
+                ? 'Platformun iş arayanlar için tamamen ücretsiz kalmasını sağlamak amacıyla Google AdSense gibi yetkili reklam ağları üzerinden reklam gösterilebilir. Editoryal rehberler ve iş ilanları reklam içeriklerinden tamamen bağımsızdır.'
+                : 'To keep our portal 100% free for job seekers, we may display ads served by authorized networks including Google AdSense. Editorial career guides and job listings remain independent from third-party advertisements.'}
+            </p>
           </div>
         </div>
       </div>
@@ -6949,7 +7084,11 @@ publicRouter.get('/:locale/companies', async (c) => {
           verified: parsed.verified === true,
           description: isPlaceholderCompanyDesc(parsed.description) ? '' : (parsed.description || '')
         };
-      }).filter((comp: any) => comp.name && comp.slug);
+      }).filter((comp: any) =>
+        comp.name &&
+        comp.slug &&
+        !/^(?:acme(?:\s+\w+)*|adwhit|company|unknown|unspecified.*|shop\s*owner|istanbul\s+employer)$/i.test(String(comp.name).trim())
+      );
 
       const cutoff = Date.now() - JOB_VALIDITY_DAYS * 86400000;
       const activeJobRows = await safeQuery(() => db.prepare(
@@ -7191,23 +7330,31 @@ publicRouter.get('/:locale/companies/:slug', async (c) => {
 
       <!-- Active Job Postings Section -->
       <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--text-dark); margin-bottom: 20px;">
-        ${locale === 'ar' ? `الوظائف المتاحة حالياً لدى ${companyName} (${activeJobs.length})` : `Active Job Openings at ${companyName} (${activeJobs.length})`}
+        ${locale === 'ar'
+          ? `الوظائف المتاحة حالياً لدى ${companyName} (${activeJobs.length})`
+          : locale === 'tr'
+          ? `${companyName} Güncel Açık İş İlanları (${activeJobs.length})`
+          : `Active Job Openings at ${companyName} (${activeJobs.length})`}
       </h2>
 
       ${activeJobs.length === 0 ? `
         <div class="glass-card" style="padding: 40px; text-align: center; border-radius: var(--radius-md);">
           <i class="fa-solid fa-briefcase" style="font-size: 2.5rem; color: var(--text-muted); margin-bottom: 12px;"></i>
           <p style="color: var(--text-muted); font-size: 1rem; margin: 0 0 16px 0;">
-            ${locale === 'ar' ? 'لا توجد شواغر نشطة معلنة في هذا الوقت. تصفح باقي الوظائف المتاحة على المنصة.' : 'No active job openings right now. Explore other available vacancies.'}
+            ${locale === 'ar'
+              ? 'لا توجد شواغر نشطة معلنة في هذا الوقت. تصفح باقي الوظائف المتاحة على المنصة.'
+              : locale === 'tr'
+              ? 'Şu anda aktif açık pozisyon bulunmuyor. Platformdaki diğer güncel ilanları inceleyebilirsiniz.'
+              : 'No active job openings right now. Explore other available vacancies.'}
           </p>
-          <a href="/${locale}" class="btn-sidebar-apply" style="display: inline-block; padding: 10px 24px; text-decoration: none;">${locale === 'ar' ? 'تصفح جميع الوظائف' : 'Explore All Jobs'}</a>
+          <a href="/${locale}" class="btn-sidebar-apply" style="display: inline-block; padding: 10px 24px; text-decoration: none;">${locale === 'ar' ? 'تصفح جميع الوظائف' : (locale === 'tr' ? 'Tüm İlanları İncele' : 'Explore All Jobs')}</a>
         </div>
       ` : `
         <div style="display: flex; flex-direction: column; gap: 14px;">
           ${activeJobs.map(job => {
             const title = job[`title_${locale}`] || job.title_en || job.title_ar || 'Job Title';
             const loc = job[`location_${locale}`] || job.location_en || job.location_ar || 'Istanbul';
-            const dateStr = new Date(job.publishedAt).toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric' });
+            const dateStr = new Date(job.publishedAt).toLocaleDateString(locale === 'ar' ? 'ar-EG' : (locale === 'tr' ? 'tr-TR' : 'en-US'), { month: 'short', day: 'numeric' });
             return `
               <div class="glass-card" style="padding: 20px; border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
                 <div>
@@ -7221,7 +7368,7 @@ publicRouter.get('/:locale/companies/:slug', async (c) => {
                   </div>
                 </div>
                 <a href="/${locale}/jobs/${job.slug}" class="btn-sidebar-apply" style="padding: 8px 20px; font-size: 0.88rem; text-decoration: none; margin-top: 0; white-space: nowrap;">
-                  ${locale === 'ar' ? 'تقديم الآن 🚀' : 'Apply Now 🚀'}
+                  ${locale === 'ar' ? 'عرض التفاصيل' : (locale === 'tr' ? 'İlanı İncele' : 'View Job')}
                 </a>
               </div>
             `;
@@ -7231,13 +7378,18 @@ publicRouter.get('/:locale/companies/:slug', async (c) => {
     </div>
   `;
 
+  // Thin auto-generated scraper company shells (<30 chars real bio and <2 jobs) must stay out of index & AdSense review sampling
+  const isRichCompanyProfile = Boolean(
+    companyData &&
+    (rawCompanyDesc.trim().length >= 30 || activeJobs.length >= 2)
+  );
+
   const seoHtml = generateMetaTags(locale, 'home', {
     title: pageTitle,
     description: pageDesc,
-    // Self-referencing canonical for the company profile (previously fell back to the homepage)
     slug: `companies/${encodeURIComponent(slug)}`,
-    // Unknown company slugs render a generic shell: keep them out of the index (soft-404 guard)
-    robots: companyData ? 'index, follow' : 'noindex, follow'
+    availableLocales: ['ar', 'en', 'tr'],
+    robots: isRichCompanyProfile ? 'index, follow' : 'noindex, follow'
   });
   return c.html(renderLayout(c, pageTitle, html, locale, seoHtml));
 });

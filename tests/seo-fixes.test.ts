@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import worker, { app } from '../src/index';
 import { getJobNativeLocales } from '../src/utils/job-validity';
 import { extractIstanbulDistrict, extractSalaryFromText } from '../src/utils/seo-helper';
+import { isLowQualityScrapedJob, sanitizeScrapedCompanyName } from '../src/services/scraper';
 
 const createMockEnv = (publishedAt: number = Date.now() - 2 * 86400000, companyWebsite = '') => ({
   DB: {
@@ -506,12 +507,20 @@ describe('Technical SEO & Google Jobs Compliance Tests', () => {
       'Mozilla/5.0 (compatible; Bytespider; spider-feedback@bytedance.com)',
       'Mozilla/5.0 (compatible; AhrefsBot/7.0; +http://ahrefs.com/robot/)',
       'python-requests/2.31.0',
-      'Mozilla/5.0 HeadlessChrome/120.0.0.0',
+      'Scrapy/2.11.0',
       'sqlmap/1.8'
     ]) {
       const res = await app.request('https://jobs-in-istanbul.com/ar', { headers: { 'User-Agent': badUa } }, prodEnv);
       expect(res.status).toBe(403);
     }
+
+    // HeadlessChrome (used by Google AdSense review/preview renderers) must NOT be blocked
+    const resHeadless = await app.request(
+      'https://jobs-in-istanbul.com/ar',
+      { headers: { 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/128.0.0.0 Safari/537.36' } },
+      prodEnv
+    );
+    expect(resHeadless.status).toBe(200);
 
     // 2. Vulnerability scanner paths & SQLi query probes -> 403 at Worker edge
     for (const badUrl of [
@@ -600,5 +609,46 @@ describe('Technical SEO & Google Jobs Compliance Tests', () => {
       const res = await app.request(nonContentUrl, {}, env);
       expect(await res.text()).not.toContain('pagead2.googlesyndication.com/pagead/js/adsbygoogle.js');
     }
+  });
+
+  test('AdSense Quality Guards: rejects garbage/Adwhit/Acme scraper outputs and serves functional /api/contact & editorial trust pages', async () => {
+    expect(sanitizeScrapedCompanyName('Acme Corp')).toBe('Istanbul Employer');
+    expect(sanitizeScrapedCompanyName('Adwhit')).toBe('Istanbul Employer');
+    expect(sanitizeScrapedCompanyName('Shop Owner')).toBe('Istanbul Employer');
+    expect(sanitizeScrapedCompanyName('Anadolu Tech A.S.')).toBe('Anadolu Tech A.S.');
+
+    expect(isLowQualityScrapedJob({ title_ar: 'إعلانات توظيف', title_en: 'Job Announcements', description_ar: 'وصف طويل كاف للوظيفة في إسطنبول مع تفاصيل كاملة وشروط التقديم.' }).reject).toBe(true);
+    expect(isLowQualityScrapedJob({ title_en: 'Job title in English (short and attractive)', description_en: 'Long enough English description about a position in Istanbul.' }).reject).toBe(true);
+    expect(isLowQualityScrapedJob({ title_ar: 'مهندس برمجيات', title_en: 'Software Engineer', description_ar: 'قصير', description_en: 'short' }).reject).toBe(true);
+    expect(isLowQualityScrapedJob({ title_ar: 'مهندس برمجيات', title_en: 'Software Engineer', company_name: 'Anadolu Tech', description_ar: 'مطلوب مهندس برمجيات للعمل بدوام كامل في شركة تقنية في إسطنبول شيشلي مع تأمين صحي وراتب مجزي.' }).reject).toBe(false);
+
+    const env = createMockEnv();
+    const resContactOk = await app.request(
+      'https://jobs-in-istanbul.com/contact-api',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'Ahmad', email: 'ahmad@example.com', subject: 'Employer Question', message: 'How can we update our listing?' })
+      },
+      env
+    );
+    expect(resContactOk.status).toBe(200);
+
+    const resContactBot = await app.request(
+      'https://jobs-in-istanbul.com/contact-api',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'Bot', email: 'bot@spam.com', subject: 'Spam', message: 'Buy links', website_url: 'http://spam.com' })
+      },
+      env
+    );
+    expect(resContactBot.status).toBe(403);
+
+    const aboutHtml = await (await app.request('https://jobs-in-istanbul.com/ar/about', {}, env)).text();
+    expect(aboutHtml).toContain('السياسة التحريرية ومعايير مراجعة الوظائف والمحتوى');
+
+    const termsHtml = await (await app.request('https://jobs-in-istanbul.com/ar/terms', {}, env)).text();
+    expect(termsHtml).toContain('شفافية الإعلانات');
   });
 });

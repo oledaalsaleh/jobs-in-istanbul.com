@@ -1,5 +1,5 @@
 import type { D1Database } from '@cloudflare/workers-types';
-import { analyzeJobUnified, saveJobToDb, cleanHtml } from './scraper';
+import { analyzeJobUnified, saveJobToDb, cleanHtml, isLowQualityScrapedJob, sanitizeScrapedCompanyName } from './scraper';
 import { sendTelegramAlert } from './telegram';
 import { sendFcmJobNotification } from './fcm';
 import { autoIndexAndNotifyJob } from './auto-indexing';
@@ -169,6 +169,14 @@ export async function runTelegramScraper(
 
           details.push(`[AI] Parsing website job with AI: ${websiteJobUrl}`);
           const jobJson = await analyzeJobUnified(env, cleanedWebText);
+          jobJson.company_name = sanitizeScrapedCompanyName(jobJson.company_name);
+          const qualityCheck = isLowQualityScrapedJob(jobJson);
+          if (qualityCheck.reject) {
+            details.push(`[SKIP QUALITY] Skipped low-quality listing ${websiteJobUrl}: ${qualityCheck.reason}`);
+            scrapedUrls.add(websiteJobUrl);
+            processedTgIds.add(`tg-${item.postId}`);
+            continue;
+          }
 
           // Save the job using website job URL as sourceUrl
           const { jobId, slug } = await saveJobToDb(
@@ -255,6 +263,13 @@ export async function runTelegramScraper(
 
           details.push(`[AI] Parsing standalone Telegram post with AI: ${telegramPostUrl}`);
           const jobJson = await analyzeJobUnified(env, cleanMessageText);
+          jobJson.company_name = sanitizeScrapedCompanyName(jobJson.company_name);
+          const qualityCheck = isLowQualityScrapedJob(jobJson);
+          if (qualityCheck.reject) {
+            details.push(`[SKIP QUALITY] Skipped low-quality Telegram post ${telegramPostUrl}: ${qualityCheck.reason}`);
+            processedTgIds.add(`tg-${item.postId}`);
+            continue;
+          }
 
           // Save using Telegram post URL as sourceUrl
           const { jobId, slug } = await saveJobToDb(

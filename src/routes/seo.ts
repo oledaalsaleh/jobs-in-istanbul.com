@@ -846,12 +846,12 @@ const serveIcon = async (c: any) => {
 seoRouter.get('/icon-192.png', serveIcon);
 seoRouter.get('/icon-512.png', serveIcon);
 
-// sitemap-companies.xml handler (Published Employer Profiles in ar/en/tr)
+// sitemap-companies.xml handler (Rich Verified/Described Employer Profiles ONLY — prevents thin doorway pages)
 seoRouter.get('/sitemap-companies.xml', async (c) => {
   const siteUrl = 'https://jobs-in-istanbul.com';
   const now = new Date().toISOString().split('T')[0];
   const cacheKv = (c.env as any)?.CACHE_KV;
-  const cacheKey = 'kv_sitemap_companies_xml';
+  const cacheKey = 'kv_sitemap_companies_xml_v2';
 
   if (cacheKv) {
     try {
@@ -870,9 +870,21 @@ seoRouter.get('/sitemap-companies.xml', async (c) => {
   try {
     if (db) {
       const res = await safeQuery(() => db.prepare(
-        `SELECT slug, updated_at FROM documents WHERE type_id = 'companies' AND status = 'published' AND is_published = 1 AND slug IS NOT NULL ORDER BY updated_at DESC LIMIT 500`
+        `SELECT slug, data, updated_at FROM documents WHERE type_id = 'companies' AND status = 'published' AND is_published = 1 AND slug IS NOT NULL ORDER BY updated_at DESC LIMIT 500`
       ).all());
-      companyRows = res?.results || [];
+      companyRows = (res?.results || []).filter((r: any) => {
+        try {
+          const parsed = typeof r.data === 'string' ? JSON.parse(r.data || '{}') : (r.data || {});
+          const desc = String(parsed.description || '').trim();
+          const name = String(parsed.name || '').trim();
+          const isPlaceholderDesc = !desc || /^\s*automatically created company/i.test(desc);
+          const isPlaceholderName = /^(?:acme(?:\s+\w+)*|adwhit|company|unknown|unspecified.*|shop\s*owner|istanbul\s+employer)$/i.test(name);
+          // Only include genuinely rich company profiles (>=30 chars non-placeholder description) in sitemap
+          return !isPlaceholderName && !isPlaceholderDesc && desc.length >= 30;
+        } catch (e) {
+          return false;
+        }
+      });
     }
   } catch (err) {
     console.warn('Sitemap: Failed to load companies:', err);
@@ -883,7 +895,6 @@ seoRouter.get('/sitemap-companies.xml', async (c) => {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">`;
 
-  // Always include the main companies directory index + each published company profile
   const slugs = Array.from(new Set(companyRows.map((r: any) => String(r.slug || '').trim()).filter(Boolean)));
   for (const slug of slugs) {
     const row = companyRows.find((r: any) => r.slug === slug);

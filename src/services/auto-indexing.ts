@@ -116,6 +116,7 @@ export async function invalidateSitemapCache(env: any): Promise<boolean> {
       env.CACHE_KV.delete('kv_sitemap_jobs_xml_v4_p2'),
       env.CACHE_KV.delete('kv_sitemap_valid_jobs_count'),
       env.CACHE_KV.delete('kv_sitemap_companies_xml'),
+      env.CACHE_KV.delete('kv_sitemap_companies_xml_v2'),
       env.CACHE_KV.delete('kv_sitemap_districts_xml_v2'),
       env.CACHE_KV.delete('kv_sitemap_jobs_xml'),
       env.CACHE_KV.delete('kv_sitemap_index_xml')

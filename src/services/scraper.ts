@@ -270,7 +270,7 @@ JSON structure:
   "description_ar": "تفاصيل ومسؤوليات وشروط الوظيفة بالتفصيل واللغة العربية (استخدم علامات اقتباس مفردة '' بدلا من علامات اقتباس مزدوجة \"\")",
   "description_en": "Detailed description, responsibilities, and requirements in English (use single quotes '' instead of double quotes \"\")",
   "description_tr": "Detailed description, responsibilities, and requirements in Turkish (use single quotes '' instead of double quotes \"\")",
-  "company_name": "Name of the hiring company (e.g. Acme Corp)",
+  "company_name": "Exact name of the hiring company ONLY if explicitly stated in the ad; otherwise return empty string '' (NEVER invent placeholder names like Acme Corp, Adwhit, Shop Owner, or Unknown)",
   "category_slug": "Map to one of these EXACT categories based on content: 'it-software', 'tourism-hospitality', 'real-estate-sales', 'education-teaching', 'customer-service-translation', 'marketing-advertising', 'accounting-finance', 'healthcare-medical', 'engineering-construction', 'design-creative-arts', 'admin-human-resources', 'logistics-transportation', 'beauty-salon', 'general-others'",
   "location_ar": "المنطقة أو الحي في إسطنبول باللغة العربية (مثل: الفاتح, شيشلي, اسنيورت, باشاك شهير)",
   "location_en": "District/neighborhood in Istanbul in English (e.g. Fatih, Sisli, Esenyurt, Basaksehir)",
@@ -358,7 +358,7 @@ JSON structure:
   "description_ar": "تفاصيل ومسؤوليات وشروط الوظيفة بالتفصيل واللغة العربية منسقة بفقرات <p>",
   "description_en": "Detailed description, responsibilities, and requirements in English formatted with <p> tags",
   "description_tr": "Detailed description, responsibilities, and requirements in Turkish formatted with <p> tags",
-  "company_name": "Name of the hiring company (e.g. Acme Corp)",
+  "company_name": "Exact name of the hiring company ONLY if explicitly stated in the ad; otherwise return empty string '' (NEVER invent placeholder names like Acme Corp, Adwhit, Shop Owner, or Unknown)",
   "category_slug": "Map to one of these EXACT categories based on content: 'it-software', 'tourism-hospitality', 'real-estate-sales', 'education-teaching', 'customer-service-translation', 'marketing-advertising', 'accounting-finance', 'healthcare-medical', 'engineering-construction', 'design-creative-arts', 'admin-human-resources', 'logistics-transportation', 'beauty-salon', 'general-others'",
   "location_ar": "المنطقة أو الحي في إسطنبول باللغة العربية (مثل: الفاتح, شيشلي, اسنيورت, باشاك شهير)",
   "location_en": "District/neighborhood in Istanbul in English (e.g. Fatih, Sisli, Esenyurt, Basaksehir)",
@@ -519,12 +519,44 @@ export function decodeCloudflareEmails(html: string): string {
   return decodedHtml;
 }
 
+const PLACEHOLDER_COMPANY_REGEX =
+  /^(?:acme(?:\s+\w+)*|adwhit|jobsintr(?:\.net)?|company|unknown|unspecified(?:\s+company)?|confidential|n\/a|none|shop\s*owner|private\s+dental\s+clinic|istanbul\s+employer|شركة\s+غير\s+محددة|غير\s+محدد|مجهول)$/i;
+
+const GARBAGE_JOB_TITLE_REGEX =
+  /^(?:job\s+(?:listing|announcements?|advertisements?|opportunities|openings|offers)(?:\s+in\s+istanbul)?|job\s+openings\s*-\s*find\s+the\s+right\s+employee|job\s+title\s+in\s+english.*|إعلانات\s+توظيف|فرص\s+العمل|فرص\s+عمل(?:\s+في\s+إسطنبول)?|وظائف\s+شاغرة|اسم\s+الوظيفة\s+بالعربية.*)$/i;
+
+export function sanitizeScrapedCompanyName(companyName: string): string {
+  const clean = String(companyName || '').replace(/\s+/g, ' ').trim();
+  if (!clean || clean.length < 2 || PLACEHOLDER_COMPANY_REGEX.test(clean) || /adwhit|jobsintr|acme\s*corp/i.test(clean)) {
+    return 'Istanbul Employer';
+  }
+  return clean;
+}
+
+export function isLowQualityScrapedJob(jobData: Partial<ScrapedJobData>): { reject: boolean; reason?: string } {
+  const tAr = String(jobData?.title_ar || '').trim();
+  const tEn = String(jobData?.title_en || '').trim();
+  if (!tAr && !tEn) return { reject: true, reason: 'Empty job title' };
+  if (GARBAGE_JOB_TITLE_REGEX.test(tEn) || GARBAGE_JOB_TITLE_REGEX.test(tAr)) {
+    return { reject: true, reason: `Generic/prompt-artifact title rejected: "${tEn || tAr}"` };
+  }
+  if (/adwhit/i.test(String(jobData?.company_name || ''))) {
+    return { reject: true, reason: 'Scraped aggregator site name as employer' };
+  }
+  const dAr = String(jobData?.description_ar || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  const dEn = String(jobData?.description_en || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  if (dAr.length < 60 && dEn.length < 60) {
+    return { reject: true, reason: `Description too thin (ar=${dAr.length}, en=${dEn.length})` };
+  }
+  return { reject: false };
+}
+
 /**
  * Resolves or creates a company document, returning its ID
  */
 export async function getOrCreateCompany(db: D1Database, companyName: string): Promise<string> {
-  const cleanName = (companyName || '').trim() || 'Unspecified Company';
-  const slug = cleanName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  const cleanName = sanitizeScrapedCompanyName(companyName);
+  const slug = cleanName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'istanbul-employer';
 
   let existing: { id: string } | null = null;
   try {
@@ -937,6 +969,14 @@ export async function runScraper(
 
         details.push(`[AI] Analyzing text with AI (${cleanedText.length} chars)...`);
         const jobJson = await analyzeJobUnified(env, cleanedText);
+        jobJson.company_name = sanitizeScrapedCompanyName(jobJson.company_name);
+
+        const qualityCheck = isLowQualityScrapedJob(jobJson);
+        if (qualityCheck.reject) {
+          details.push(`[SKIP QUALITY] Skipped low-quality listing at ${url}: ${qualityCheck.reason}`);
+          scrapedUrls.add(url);
+          continue;
+        }
 
         // Inject phone from HTML buttons if not detected by AI
         if (!jobJson.phone && phoneFromHtml) {

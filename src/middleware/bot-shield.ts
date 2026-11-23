@@ -11,13 +11,14 @@
  * bots (Telegram, WhatsApp, Facebook, X, LinkedIn), and the official mobile app.
  */
 
-// Trusted Search Engines, AdSense Crawlers & Social Preview Bots (Never block or throttle)
+// Trusted Search Engines, AdSense Crawlers, Policy Renderers & Social Preview Bots (Never block or throttle)
 const TRUSTED_BOT_UA_REGEX =
-  /googlebot|google-inspectiontool|googleother|storebot-google|mediapartners-google|adsbot-google|feedfetcher-google|apis-google|google-read-aloud|google-extended|bingbot|bingpreview|adidxbot|msnbot|duckduckbot|slurp|yandexbot|yandeximages|yandex\.com\/bots|applebot|bravebot|seznambot|yeti\/|naverbot|petalbot|baiduspider|oai-searchbot|chatgpt-user|gptbot|perplexitybot|claudebot|claude-web|telegrambot|whatsapp|facebookexternalhit|facebot|twitterbot|linkedinbot|discordbot|slackbot/i;
+  /googlebot|google-inspectiontool|googleother|storebot-google|mediapartners-google|adsbot-google|feedfetcher-google|apis-google|google-read-aloud|google-extended|google\s*favicon|chrome-lighthouse|bingbot|bingpreview|adidxbot|msnbot|duckduckbot|slurp|yandexbot|yandeximages|yandex\.com\/bots|applebot|bravebot|seznambot|yeti\/|naverbot|petalbot|baiduspider|oai-searchbot|chatgpt-user|gptbot|perplexitybot|claudebot|claude-web|telegrambot|whatsapp|facebookexternalhit|facebot|twitterbot|linkedinbot|discordbot|slackbot/i;
 
-// Known Malicious Bots, Content Scrapers, SEO Link Harvesters & Headless Automation Tools
+// Known Malicious Bots, Content Scrapers, SEO Link Harvesters & Attack Tools
+// Note: HeadlessChrome is intentionally NOT blocked because Google AdSense review/preview renderers use Chromium headless engines.
 const BAD_BOT_UA_REGEX =
-  /ahrefsbot|semrushbot|mj12bot|dotbot|blexbot|dataforseobot|bytespider|barkrowler|seekportbot|megaindex|serpstatbot|rogerbot|sogou|exabot|turnitinbot|zoominfobot|scrapy|crawldaddy|HTTrack|webcopier|offline explorer|teleport|siteimprove|sqlmap|nikto|nmap|masscan|zgrab|nuclei|acunetix|nessus|openvas|wpscan|dirbuster|gobuster|ffuf|feroxbuster|wfuzz|havij|morfeus|python-requests|python-urllib|aiohttp|httpx|go-http-client|libwww-perl|mechanize|phantomjs|headlesschrome|playwright|puppeteer|selenium|cypress|^curl\/|^wget\/|^java\//i;
+  /ahrefsbot|semrushbot|mj12bot|dotbot|blexbot|dataforseobot|bytespider|barkrowler|seekportbot|megaindex|serpstatbot|rogerbot|sogou|exabot|turnitinbot|zoominfobot|scrapy|crawldaddy|HTTrack|webcopier|offline explorer|teleport|siteimprove|sqlmap|nikto|nmap|masscan|zgrab|nuclei|acunetix|nessus|openvas|wpscan|dirbuster|gobuster|ffuf|feroxbuster|wfuzz|havij|morfeus|python-requests|python-urllib|aiohttp|httpx|go-http-client|libwww-perl|mechanize|phantomjs|playwright|puppeteer|selenium|cypress|^curl\/|^wget\/|^java\//i;
 
 // Vulnerability Scanner & Exploit Probe Paths (Zero legitimate routes match these)
 const EXPLOIT_PATH_REGEX =
